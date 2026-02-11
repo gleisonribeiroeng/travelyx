@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 1 of 11 (Foundation)
-Plan: 4 of 4 in current phase (01-02 and 01-03 still pending)
+Plan: 4 of 4 in current phase (01-03 still pending)
 Status: In progress
-Last activity: 2026-02-11 — Completed Plan 01-04: Environment configuration files
+Last activity: 2026-02-11 — Completed Plan 01-02: Angular Material 3 setup and M3 theme
 
 Progress: [█░░░░░░░░░] 2%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 3 min
-- Total execution time: 0.05 hours
+- Total plans completed: 2
+- Average duration: 2.5 min
+- Total execution time: 0.08 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 1/4 | 3 min | 3 min |
+| 01-foundation | 2/4 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (3 min)
+- Last 5 plans: 01-01 (3 min), 01-02 (2 min)
 - Trend: —
 
 *Updated after each plan completion*
@@ -49,6 +49,9 @@ Recent decisions affecting current work:
 - Phase 4-9: All search features follow identical pattern: ApiService + Mapper + search form + result cards + add to itinerary
 - 01-01: Angular CLI v21 was used (not v19) — components use .component.ts suffix manually; exports named SearchComponent/ItineraryComponent
 - 01-01: Feature component naming pattern established: features/{name}/{name}.component.ts with standalone: true
+- 01-02: mat.theme() SCSS mixin used (not prebuilt CSS) — generates --mat-sys-* tokens at build time, fully customizable
+- 01-02: provideAnimationsAsync() over provideAnimations() — async loads animation bundle lazily for better initial load
+- 01-02: Feature components import MATERIAL_IMPORTS from core/material.exports instead of individual modules
 - 01-04: All API keys use empty string placeholders in environment files — never real values in version control
 - 01-04: 8 API key slots established: amadeusApiKey, amadeusApiSecret, hotelApiKey, carRentalApiKey, transportApiKey, toursApiKey, attractionsApiKey, googlePlacesApiKey
 - 01-04: Development apiBaseUrl set to localhost:4200 as proxy base for Phase 2 CORS handling
@@ -65,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 01-04-PLAN.md — Environment configuration files with API key placeholders
+Stopped at: Completed 01-02-PLAN.md — Angular Material 3 M3 theme with mat.theme(), MATERIAL_IMPORTS re-export
 Resume file: None
