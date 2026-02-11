@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 1 of 11 (Foundation)
-Plan: 1 of 4 in current phase
+Plan: 4 of 4 in current phase (01-02 and 01-03 still pending)
 Status: In progress
-Last activity: 2026-02-11 — Completed Plan 01-01: Angular project scaffold
+Last activity: 2026-02-11 — Completed Plan 01-04: Environment configuration files
 
 Progress: [█░░░░░░░░░] 2%
 
@@ -49,6 +49,9 @@ Recent decisions affecting current work:
 - Phase 4-9: All search features follow identical pattern: ApiService + Mapper + search form + result cards + add to itinerary
 - 01-01: Angular CLI v21 was used (not v19) — components use .component.ts suffix manually; exports named SearchComponent/ItineraryComponent
 - 01-01: Feature component naming pattern established: features/{name}/{name}.component.ts with standalone: true
+- 01-04: All API keys use empty string placeholders in environment files — never real values in version control
+- 01-04: 8 API key slots established: amadeusApiKey, amadeusApiSecret, hotelApiKey, carRentalApiKey, transportApiKey, toursApiKey, attractionsApiKey, googlePlacesApiKey
+- 01-04: Development apiBaseUrl set to localhost:4200 as proxy base for Phase 2 CORS handling
 
 ### Pending Todos
 
@@ -62,5 +65,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 01-01-PLAN.md — Angular project scaffold with lazy routing done
+Stopped at: Completed 01-04-PLAN.md — Environment configuration files with API key placeholders
 Resume file: None
