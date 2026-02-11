@@ -56,16 +56,13 @@ Plans:
   3. A search request with a bad API key or network failure returns a normalized error shape — no unhandled exceptions visible to the user
   4. A rapid sequence of search triggers is debounced; a 429 response triggers exponential backoff and retries automatically
   5. Each API service module follows the ApiService + Mapper pattern and can be imported independently by any feature module
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: HTTP service abstraction base (ApiService pattern, Mapper interface, per-feature module scaffold)
-- [ ] 02-02: Functional interceptors (API key injection, error normalization, loading state)
-- [ ] 02-03: Standardized response mapping and internal canonical model base types
-- [ ] 02-04: Centralized API configuration service (key management, endpoint registry)
-- [ ] 02-05: CORS proxy validation — test all target APIs from production URL; configure Cloudflare Worker or Netlify Edge Function for blocked APIs
-- [ ] 02-06: Per-source error handling (catchError per observable, no forkJoin failures)
-- [ ] 02-07: debounceTime on search triggers, exponential backoff on 429 responses
+- [ ] 02-01-PLAN.md -- Core API infrastructure (ApiConfigService, AppError, LoadingService, 3 functional interceptors, provideHttpClient registration)
+- [ ] 02-02-PLAN.md -- Dev proxy configuration (proxy.conf.json for all API targets, angular.json proxyConfig)
+- [ ] 02-03-PLAN.md -- Shared abstractions (canonical model base types, Mapper interface, BaseApiService, per-source error handling utility)
+- [ ] 02-04-PLAN.md -- Rate-limit and search utilities (exponential backoff retry operator, debounced search operator)
 
 ---
 
@@ -248,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-02-11 |
-| 2. API Integration Layer | 0/7 | Not started | - |
+| 2. API Integration Layer | 0/4 | Not started | - |
 | 3. State & Persistence | 0/3 | Not started | - |
 | 4. Flights | 0/3 | Not started | - |
 | 5. Hotels | 0/3 | Not started | - |
