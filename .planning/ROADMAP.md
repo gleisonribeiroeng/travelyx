@@ -36,13 +36,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can navigate between the search view and the itinerary view using the header navigation
   4. Environment files exist for dev and production with placeholder slots for API keys and endpoints
   5. Spacing, typography, and color tokens are defined and applied consistently across the layout shell
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: Angular project scaffold (standalone, signals, routing, lazy routes skeleton)
-- [ ] 01-02: Angular Material integration and design system tokens (theme, shared component re-exports)
-- [ ] 01-03: Layout shell — header, footer, navigation between search and itinerary views
-- [ ] 01-04: Environment configuration for API keys and endpoints
+- [ ] 01-01-PLAN.md — Angular project scaffold (standalone, signals, routing, lazy routes skeleton)
+- [ ] 01-02-PLAN.md — Angular Material integration and design system tokens (theme, shared component re-exports)
+- [ ] 01-03-PLAN.md — Layout shell (header, footer, navigation between search and itinerary views)
+- [ ] 01-04-PLAN.md — Environment configuration for API keys and endpoints
 
 ---
 
