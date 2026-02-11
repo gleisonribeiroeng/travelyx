@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+// Apply M3 theme — generates all --mat-sys-* design tokens on html element
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+// Custom spacing tokens (supplement --mat-sys-* with project-specific values)
+:root {
+  --triply-spacing-xs: 4px;
+  --triply-spacing-sm: 8px;
+  --triply-spacing-md: 16px;
+  --triply-spacing-lg: 24px;
+  --triply-spacing-xl: 48px;
+
+  --triply-border-radius-sm: 4px;
+  --triply-border-radius-md: 8px;
+  --triply-border-radius-lg: 16px;
+
+  --triply-max-content-width: 1200px;
+}
+
+// Apply Material typography to body
+body {
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+}
