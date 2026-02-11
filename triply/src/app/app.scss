@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: var(--triply-spacing-lg);
+  max-width: var(--triply-max-content-width);
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}

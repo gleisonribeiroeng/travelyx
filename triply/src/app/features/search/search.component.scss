@@ -1,0 +1,26 @@
+.view-header {
+  margin-bottom: var(--triply-spacing-lg);
+
+  h1 {
+    margin: 0 0 var(--triply-spacing-sm) 0;
+    color: var(--mat-sys-on-surface);
+  }
+
+  p {
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}
+
+.placeholder-card {
+  text-align: center;
+  padding: var(--triply-spacing-xl);
+
+  .placeholder-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: var(--mat-sys-primary);
+    margin-bottom: var(--triply-spacing-md);
+  }
+}
