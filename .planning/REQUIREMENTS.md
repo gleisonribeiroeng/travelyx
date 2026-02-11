@@ -9,11 +9,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Foundation
 
-- [ ] **FOUND-01**: Angular 17+ project with standalone components, signals, and modular architecture by feature
-- [ ] **FOUND-02**: Angular Material integrated as design system with shared component re-exports
-- [ ] **FOUND-03**: Layout base with header, footer, and navigation between search and itinerary
-- [ ] **FOUND-04**: Environment configuration for API keys and endpoints
-- [ ] **FOUND-05**: Design system foundation with consistent spacing, typography, and color tokens
+- [x] **FOUND-01**: Angular 17+ project with standalone components, signals, and modular architecture by feature
+- [x] **FOUND-02**: Angular Material integrated as design system with shared component re-exports
+- [x] **FOUND-03**: Layout base with header, footer, and navigation between search and itinerary
+- [x] **FOUND-04**: Environment configuration for API keys and endpoints
+- [x] **FOUND-05**: Design system foundation with consistent spacing, typography, and color tokens
 
 ### API Infrastructure
 
@@ -139,11 +139,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
-| FOUND-05 | Phase 1 | Pending |
+| FOUND-01 | Phase 1 | Done |
+| FOUND-02 | Phase 1 | Done |
+| FOUND-03 | Phase 1 | Done |
+| FOUND-04 | Phase 1 | Done |
+| FOUND-05 | Phase 1 | Done |
 | API-01 | Phase 2 | Pending |
 | API-02 | Phase 2 | Pending |
 | API-03 | Phase 2 | Pending |

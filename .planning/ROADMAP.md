@@ -12,7 +12,7 @@ Triply is a frontend-only Angular travel planning aggregator that lets users sea
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Angular 17+ project scaffold with Angular Material, modular architecture, layout base, environments, and design system
+- [x] **Phase 1: Foundation** - Angular 17+ project scaffold with Angular Material, modular architecture, layout base, environments, and design system *(completed 2026-02-11)*
 - [ ] **Phase 2: API Integration Layer** - HTTP service abstraction, functional interceptors, response mappers, API key config, CORS proxy validation, error handling, and rate-limit patterns
 - [ ] **Phase 3: State & Persistence** - Signal-based TripStateService, all canonical models, localStorage persistence with safe wrapper, and trip recovery on startup
 - [ ] **Phase 4: Flights** - End-to-end flight search with filters, result cards, add to itinerary, and provider redirect
@@ -39,10 +39,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Angular project scaffold (standalone, signals, routing, lazy routes skeleton)
-- [ ] 01-02-PLAN.md — Angular Material integration and design system tokens (theme, shared component re-exports)
-- [ ] 01-03-PLAN.md — Layout shell (header, footer, navigation between search and itinerary views)
-- [ ] 01-04-PLAN.md — Environment configuration for API keys and endpoints
+- [x] 01-01-PLAN.md — Angular project scaffold (standalone, signals, routing, lazy routes skeleton)
+- [x] 01-02-PLAN.md — Angular Material integration and design system tokens (theme, shared component re-exports)
+- [x] 01-03-PLAN.md — Layout shell (header, footer, navigation between search and itinerary views)
+- [x] 01-04-PLAN.md — Environment configuration for API keys and endpoints
 
 ---
 
@@ -247,7 +247,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/4 | Not started | - |
+| 1. Foundation | 4/4 | Complete | 2026-02-11 |
 | 2. API Integration Layer | 0/7 | Not started | - |
 | 3. State & Persistence | 0/3 | Not started | - |
 | 4. Flights | 0/3 | Not started | - |
