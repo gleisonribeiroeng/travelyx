@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 1 of 11 (Foundation)
-Plan: 0 of 4 in current phase
-Status: Ready to plan
-Last activity: 2026-02-11 — Roadmap and state initialized
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-11 — Completed Plan 01-01: Angular project scaffold
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 2%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 3 min
+- Total execution time: 0.05 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-foundation | 1/4 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: —
+- Last 5 plans: 01-01 (3 min)
 - Trend: —
 
 *Updated after each plan completion*
@@ -47,6 +47,8 @@ Recent decisions affecting current work:
 - Phase 2: API keys must never appear in Angular bundle — proxy or domain-restriction from day one
 - Phase 2+: Per-source catchError on every observable — no forkJoin that fails the entire page
 - Phase 4-9: All search features follow identical pattern: ApiService + Mapper + search form + result cards + add to itinerary
+- 01-01: Angular CLI v21 was used (not v19) — components use .component.ts suffix manually; exports named SearchComponent/ItineraryComponent
+- 01-01: Feature component naming pattern established: features/{name}/{name}.component.ts with standalone: true
 
 ### Pending Todos
 
@@ -60,5 +62,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Roadmap created, STATE.md initialized — ready to begin planning Phase 1
+Stopped at: Completed 01-01-PLAN.md — Angular project scaffold with lazy routing done
 Resume file: None
