@@ -5,11 +5,12 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { ItineraryItem } from '../../core/models/trip.models';
 import { ItineraryItemComponent } from './itinerary-item.component';
+import { ManualItemFormComponent } from './manual-item-form.component';
 
 @Component({
   selector: 'app-itinerary',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, KeyValuePipe, DatePipe, ItineraryItemComponent],
+  imports: [MATERIAL_IMPORTS, KeyValuePipe, DatePipe, ItineraryItemComponent, ManualItemFormComponent],
   templateUrl: './itinerary.component.html',
   styleUrl: './itinerary.component.scss',
 })

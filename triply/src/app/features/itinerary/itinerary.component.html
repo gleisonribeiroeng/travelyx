@@ -3,6 +3,8 @@
   <p>Your trip itinerary will appear here, organized by day and time.</p>
 </div>
 
+<app-manual-item-form />
+
 @if (tripState.hasItems()) {
   <div class="timeline">
     @for (dayEntry of itemsByDay() | keyvalue; track dayEntry.key) {
