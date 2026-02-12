@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 9 of 11 (Attractions)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-02-12 — Phase 8 complete (Tours & Experiences)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Completed 09-01 (Attractions API Integration)
 
-Progress: [███████░░░] 71%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: 2 min
-- Total execution time: 1.0 hours
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
@@ -35,9 +35,10 @@ Progress: [███████░░░] 71%
 | 06-car-rental | 2/2 | 5 min | 2 min |
 | 07-intercity-transport | 2/2 | 5 min | 2 min |
 | 08-tours-experiences | 2/2 | 3 min | 1 min |
+| 09-attractions | 1/2 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-02, 07-01, 07-02, 08-01, 08-02
+- Last 5 plans: 07-01, 07-02, 08-01, 08-02, 09-01
 - Trend: stable
 
 *Updated after each plan completion*
@@ -114,6 +115,9 @@ Recent decisions affecting current work:
 - [Phase 08-02]: Tours search uses destination-only form (simpler than transport/hotel multi-field forms)
 - [Phase 08-02]: Description clamped to 3 lines with -webkit-line-clamp for compact cards
 - [Phase 08-02]: Duration null handling with explicit 'Flexible duration' text instead of hiding field
+- [Phase 09-01]: Use museum icon for Attractions nav link (most recognizable for tourist attractions)
+- [Phase 09-01]: Three-step OpenTripMap flow with switchMap chaining (geoname -> radius -> details enrichment)
+- [Phase 09-01]: Nullable link pattern for attractions without official URLs (link: ExternalLink | null)
 
 ### Pending Todos
 
@@ -126,6 +130,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-12T16:38:29Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-02-12T17:40:17Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None
