@@ -1,0 +1,234 @@
+<div class="view-header">
+  <h1>Search Car Rentals</h1>
+  <p>Find the perfect rental car for your trip</p>
+</div>
+
+<mat-card class="search-form-card">
+  <mat-card-content>
+    <form [formGroup]="carSearchForm" (ngSubmit)="searchCars()">
+      <!-- Pickup Location + Dropoff Location Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Pick-up Location</mat-label>
+          <input
+            matInput
+            formControlName="pickupLocation"
+            placeholder="City or airport code"
+          />
+          <mat-icon matPrefix>location_on</mat-icon>
+          @if (carSearchForm.get('pickupLocation')?.hasError('required')) {
+            <mat-error>Pick-up location is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Drop-off Location</mat-label>
+          <input
+            matInput
+            formControlName="dropoffLocation"
+            placeholder="City or airport code"
+          />
+          <mat-icon matPrefix>location_on</mat-icon>
+          @if (carSearchForm.get('dropoffLocation')?.hasError('required')) {
+            <mat-error>Drop-off location is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Pickup Date + Pickup Time Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Pick-up Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickupDatePicker"
+            formControlName="pickupDate"
+            [min]="minPickupDate"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickupDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #pickupDatePicker></mat-datepicker>
+          @if (carSearchForm.get('pickupDate')?.hasError('required')) {
+            <mat-error>Pick-up date is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Pick-up Time</mat-label>
+          <input
+            matInput
+            type="time"
+            formControlName="pickupTime"
+          />
+          <mat-icon matPrefix>schedule</mat-icon>
+          @if (carSearchForm.get('pickupTime')?.hasError('required')) {
+            <mat-error>Pick-up time is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Dropoff Date + Dropoff Time Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Drop-off Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="dropoffDatePicker"
+            formControlName="dropoffDate"
+            [min]="minDropoffDate"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="dropoffDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #dropoffDatePicker></mat-datepicker>
+          @if (carSearchForm.get('dropoffDate')?.hasError('required')) {
+            <mat-error>Drop-off date is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Drop-off Time</mat-label>
+          <input
+            matInput
+            type="time"
+            formControlName="dropoffTime"
+          />
+          <mat-icon matPrefix>schedule</mat-icon>
+          @if (carSearchForm.get('dropoffTime')?.hasError('required')) {
+            <mat-error>Drop-off time is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Driver Age Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Driver Age</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="driverAge"
+            min="18"
+            max="99"
+          />
+          <mat-icon matPrefix>person</mat-icon>
+          @if (carSearchForm.get('driverAge')?.hasError('required')) {
+            <mat-error>Driver age is required</mat-error>
+          }
+          @if (carSearchForm.get('driverAge')?.hasError('min') || carSearchForm.get('driverAge')?.hasError('max')) {
+            <mat-error>Age must be between 18 and 99</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Submit Button -->
+      @if (isSearching()) {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="true"
+        >
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Searching...</span>
+        </button>
+      } @else {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="carSearchForm.invalid"
+        >
+          <mat-icon>search</mat-icon>
+          <span>Search Cars</span>
+        </button>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- Results Section -->
+@if (searchResults().length > 0) {
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ filteredCars().length }} car{{ filteredCars().length !== 1 ? 's' : '' }} found</h2>
+
+      <!-- Filter Controls -->
+      <div class="filter-controls">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Vehicle Type</mat-label>
+          <mat-select (selectionChange)="setVehicleTypeFilter($any($event).value)" [value]="vehicleTypeFilter()">
+            <mat-option value="">All Types</mat-option>
+            @for (type of vehicleTypes; track type) {
+              <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Max Price</mat-label>
+          <input
+            matInput
+            type="number"
+            placeholder="No limit"
+            (input)="setMaxPriceFilter($any($event.target).value)"
+          />
+          <mat-icon matPrefix>attach_money</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Car Result Cards -->
+    @for (car of filteredCars(); track car.id) {
+      <mat-card class="car-card">
+        <mat-card-content>
+          <div class="car-header">
+            <div class="car-info">
+              <span class="car-category">{{ car.vehicleType }}</span>
+            </div>
+            <div class="car-price">
+              <div class="amount">{{ car.price.total | currency: car.price.currency }}</div>
+              <div class="total-label">total</div>
+            </div>
+          </div>
+
+          <div class="car-details">
+            <div class="detail-row">
+              <mat-icon>flight_takeoff</mat-icon>
+              <span>Pick-up: {{ car.pickUpLocation }} - {{ car.pickUpAt }}</span>
+            </div>
+            <div class="detail-row">
+              <mat-icon>flight_land</mat-icon>
+              <span>Drop-off: {{ car.dropOffLocation }} - {{ car.dropOffAt }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="addToItinerary(car)">
+            <mat-icon>add</mat-icon>
+            Add to Itinerary
+          </button>
+          <a
+            mat-button
+            [href]="car.link.url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <mat-icon>open_in_new</mat-icon>
+            View on {{ car.link.provider }}
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+}
+
+<!-- Empty State -->
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>directions_car</mat-icon>
+      <p>No car rentals found. Try different locations or dates.</p>
+    </mat-card-content>
+  </mat-card>
+}
