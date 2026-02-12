@@ -179,11 +179,11 @@ Plans:
   1. User can enter a city name and receive a list of tourist attractions for that city
   2. Each attraction displays an official link when one is available
   3. Clicking "Add to itinerary" adds the attraction to TripStateService and it appears in the itinerary view
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01: AttractionApiService + AttractionMapper (OpenTripMap or Foursquare integration)
-- [ ] 09-02: Attractions list component (city input, result list with official link and add to itinerary action)
+- [ ] 09-01-PLAN.md — AttractionApiService + AttractionMapper (OpenTripMap 3-step flow: geoname -> radius -> details), /attractions route and nav link
+- [ ] 09-02-PLAN.md — AttractionSearchComponent with city input, result cards with category chip, conditional official link, and add to itinerary
 
 ---
 
