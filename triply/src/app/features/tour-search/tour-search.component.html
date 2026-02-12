@@ -1,0 +1,105 @@
+<div class="view-header">
+  <h1>Search Tours &amp; Experiences</h1>
+  <p>Find tours, activities, and experiences at your destination</p>
+</div>
+
+<mat-card class="search-form-card">
+  <mat-card-content>
+    <form [formGroup]="tourSearchForm" (ngSubmit)="searchTours()">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Destination</mat-label>
+          <input matInput formControlName="destination" placeholder="e.g. Paris" />
+          <mat-icon matPrefix>place</mat-icon>
+          @if (tourSearchForm.get('destination')?.hasError('required')) {
+            <mat-error>Destination is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Submit Button -->
+      @if (isSearching()) {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="true"
+        >
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Searching...</span>
+        </button>
+      } @else {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="tourSearchForm.invalid"
+        >
+          <mat-icon>search</mat-icon>
+          <span>Search Tours</span>
+        </button>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- Results Section -->
+@if (searchResults().length > 0) {
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ sortedResults().length }} tour{{ sortedResults().length !== 1 ? 's' : '' }} found</h2>
+    </div>
+
+    @for (tour of sortedResults(); track tour.id) {
+      <mat-card class="tour-card">
+        <mat-card-content>
+          <div class="tour-header">
+            <div class="tour-info">
+              <h3 class="tour-name">{{ tour.name }}</h3>
+              <div class="tour-meta">
+                <mat-icon>place</mat-icon>
+                <span>{{ tour.city }}</span>
+                <span class="separator">-</span>
+                <mat-icon>schedule</mat-icon>
+                @if (tour.durationMinutes !== null) {
+                  <span>{{ formatDuration(tour.durationMinutes) }}</span>
+                } @else {
+                  <span>Flexible duration</span>
+                }
+              </div>
+            </div>
+            <div class="tour-price">
+              <div class="price-label">from</div>
+              <div class="amount">{{ tour.price.total | currency: tour.price.currency }}</div>
+              <div class="price-label">per person</div>
+            </div>
+          </div>
+          <p class="tour-description">{{ tour.description }}</p>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="addToItinerary(tour)">
+            <mat-icon>add</mat-icon>
+            Add to Itinerary
+          </button>
+          <a mat-button [href]="tour.link.url" target="_blank" rel="noopener noreferrer">
+            <mat-icon>open_in_new</mat-icon>
+            Book on {{ tour.link.provider }}
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+}
+
+<!-- Empty State -->
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>local_activity</mat-icon>
+      <p>No tours found. Try a different destination.</p>
+    </mat-card-content>
+  </mat-card>
+}
