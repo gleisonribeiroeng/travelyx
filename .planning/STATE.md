@@ -11,17 +11,17 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 
 Phase: 10 of 11 (Itinerary Builder)
 Plan: 3 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-12 — Plan 10-03 complete (Wire Search-to-Itinerary)
+Status: Complete
+Last activity: 2026-02-12 — Plan 10-02 complete (Manual Itinerary Item Form)
 
-Progress: [█████████░] 85%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: 2 min
-- Total execution time: 1.1 hours
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
@@ -36,14 +36,15 @@ Progress: [█████████░] 85%
 | 07-intercity-transport | 2/2 | 5 min | 2 min |
 | 08-tours-experiences | 2/2 | 3 min | 1 min |
 | 09-attractions | 2/2 | 4 min | 2 min |
-| 10-itinerary-builder | 3/3 | 6 min | 2 min |
+| 10-itinerary-builder | 3/3 | 8 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-02, 09-01, 09-02, 10-01, 10-02, 10-03
+- Last 5 plans: 09-01, 09-02, 10-01, 10-02, 10-03
 - Trend: stable
 
 *Updated after each plan completion*
 | Phase 10 P03 | 2 min | 1 task | 7 files |
+| Phase 10-itinerary-builder P10-02 | 2 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,9 @@ Recent decisions affecting current work:
 - [Phase 10-03]: Null timeSlot for all-day items (hotels, tours, attractions) — computed signal sorts null timeSlots first
 - [Phase 10-03]: Tours/attractions use trip start date with today's date fallback when no inherent date available
 - [Phase 10-03]: All ItineraryItem.order defaults to 0 at creation — user can reorder via UI drag-drop
+- [Phase 10-02]: Use same timeSlotValidator from ItineraryItemComponent for consistency in custom item form
+- [Phase 10-02]: ManualItemForm collapsed by default to avoid cluttering timeline view
+- [Phase 10-02]: crypto.randomUUID() for custom item IDs, order: 0 as default (user can reorder later)
 
 ### Pending Todos
 
@@ -143,6 +147,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-12T18:34:00Z
-Stopped at: Completed 10-03-PLAN.md
+Last session: 2026-02-12T18:39:00Z
+Stopped at: Completed 10-02-PLAN.md
 Resume file: None
