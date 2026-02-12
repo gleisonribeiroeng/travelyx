@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 2 of 11 (API Integration Layer)
-Plan: 2 of 7 in current phase
+Plan: 4 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-12 — Plans 02-01 and 02-02 complete
+Last activity: 2026-02-12 — Plans 02-01, 02-02, 02-03, and 02-04 complete
 
 Progress: [█░░░░░░░░░] 11%
 
@@ -28,7 +28,7 @@ Progress: [█░░░░░░░░░] 11%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 4/4 | 12 min | 3 min |
-| 02-api-integration-layer | 2/7 | 2 min | 1 min |
+| 02-api-integration-layer | 4/7 | 6 min | 2 min |
 
 **Recent Trend:**
 - Last 5 plans: 01-01, 01-02, 01-03, 01-04, 02-01, 02-02
@@ -61,6 +61,8 @@ Recent decisions affecting current work:
 - 02-01: API_SOURCE HttpContextToken exported from api-key.interceptor — feature services set source identity per-request for key injection and error attribution
 - 02-02: Transport API proxy entry uses placeholder https://api.example.com — Rome2rio unavailable, provider TBD before Phase 7
 - 02-02: Hotels and cars share same RapidAPI proxy host — path differentiation handled in service layer
+- 02-04: retryIndex in modern retry() callback starts at 1, so delay = initialDelay * 2^(retryIndex-1) produces 1s/2s/4s sequence
+- 02-04: debouncedSearch uses JSON.stringify deep comparison in distinctUntilChanged — object form values require deep not referential equality
 
 ### Pending Todos
 
@@ -74,5 +76,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 02-02-PLAN.md — Angular dev proxy configured, ready for 02-03
+Stopped at: Completed 02-04-PLAN.md — retry/backoff and search debounce utilities created, ready for 02-05
 Resume file: None
