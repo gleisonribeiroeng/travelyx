@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 10 of 11 (Itinerary Builder)
-Plan: 0 of 4 in current phase
-Status: Ready to plan
-Last activity: 2026-02-12 — Phase 9 complete (Attractions)
+Plan: 3 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Plan 10-03 complete (Wire Search-to-Itinerary)
 
-Progress: [████████░░] 82%
+Progress: [█████████░] 85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: 2 min
 - Total execution time: 1.1 hours
 
@@ -36,13 +36,14 @@ Progress: [████████░░] 82%
 | 07-intercity-transport | 2/2 | 5 min | 2 min |
 | 08-tours-experiences | 2/2 | 3 min | 1 min |
 | 09-attractions | 2/2 | 4 min | 2 min |
+| 10-itinerary-builder | 3/3 | 6 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-02, 08-01, 08-02, 09-01, 09-02
+- Last 5 plans: 08-02, 09-01, 09-02, 10-01, 10-02, 10-03
 - Trend: stable
 
 *Updated after each plan completion*
-| Phase 09 P02 | 2 min | 2 tasks | 3 files |
+| Phase 10 P03 | 2 min | 1 task | 7 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,13 @@ Recent decisions affecting current work:
 - [Phase 09-02]: NO sorting computed signal for attractions (no price field to sort by, unlike tours)
 - [Phase 09-02]: Conditional link rendering with @if (attraction.link !== null) for nullable link field
 - [Phase 09-02]: Category displayed as mat-chip for visual distinction and scannability
+- [Phase 10-01]: Use reduce() instead of Object.groupBy() for broader TypeScript compatibility
+- [Phase 10-01]: Shallow copy arrays before sorting to avoid mutating computed signal internals
+- [Phase 10-01]: Persist order changes for ALL items in day (not just moved item) to maintain consistency
+- [Phase 10-03]: Split ISO 8601 datetime strings on 'T' to extract date (YYYY-MM-DD) and time (HH:MM) separately
+- [Phase 10-03]: Null timeSlot for all-day items (hotels, tours, attractions) — computed signal sorts null timeSlots first
+- [Phase 10-03]: Tours/attractions use trip start date with today's date fallback when no inherent date available
+- [Phase 10-03]: All ItineraryItem.order defaults to 0 at creation — user can reorder via UI drag-drop
 
 ### Pending Todos
 
@@ -135,6 +143,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-12T18:00:00Z
-Stopped at: Phase 9 complete, ready for Phase 10
+Last session: 2026-02-12T18:34:00Z
+Stopped at: Completed 10-03-PLAN.md
 Resume file: None
