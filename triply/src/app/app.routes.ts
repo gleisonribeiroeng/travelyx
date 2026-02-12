@@ -17,5 +17,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/hotel-search/hotel-search.component').then(m => m.HotelSearchComponent),
   },
+  {
+    path: 'cars',
+    loadComponent: () =>
+      import('./features/car-search/car-search.component').then(m => m.CarSearchComponent),
+  },
   { path: '**', redirectTo: 'search' },
 ];
