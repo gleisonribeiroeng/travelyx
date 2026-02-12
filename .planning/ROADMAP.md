@@ -198,13 +198,12 @@ Plans:
   4. User can create a manual itinerary item by providing a name, date, time, and optional notes — and it appears alongside search-sourced items
   5. User can edit any itinerary item's details (date, time, notes) inline or via a form
   6. User can remove any itinerary item; the item is permanently deleted from the trip
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 10-01: ItineraryViewComponent — day-by-day timeline reading from TripStateService computed signals
-- [ ] 10-02: ItineraryItemComponent — display card with edit, remove, and reorder actions
-- [ ] 10-03: Manual item add/edit form (name, date, time, notes)
-- [ ] 10-04: Reorder logic within a day (simple position swap, no CDK DragDrop)
+- [ ] 10-01-PLAN.md — ItineraryComponent + ItineraryItemComponent (day-by-day timeline, grouping, sorting, inline edit, remove, reorder)
+- [ ] 10-02-PLAN.md — ManualItemFormComponent (custom item creation form integrated into itinerary page)
+- [ ] 10-03-PLAN.md — ITIN-07 wiring (all 6 search components auto-create ItineraryItem on add-to-itinerary)
 
 ---
 
@@ -247,7 +246,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Intercity Transport | 2/2 | Complete | 2026-02-12 |
 | 8. Tours & Experiences | 2/2 | Complete | 2026-02-12 |
 | 9. Attractions | 2/2 | Complete | 2026-02-12 |
-| 10. Itinerary Builder | 0/4 | Not started | - |
+| 10. Itinerary Builder | 0/3 | Not started | - |
 | 11. UX Polish | 0/6 | Not started | - |
 
 ---
