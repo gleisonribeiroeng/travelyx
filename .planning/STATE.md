@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 4 of 11 (Flights)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-02-12 — Phase 3 State & Persistence complete (verified)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Completed 04-01 Amadeus Flight API Integration
 
-Progress: [███░░░░░░░] 27%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 2 min
 - Total execution time: 0.5 hours
 
@@ -30,9 +30,10 @@ Progress: [███░░░░░░░] 27%
 | 01-foundation | 4/4 | 12 min | 3 min |
 | 02-api-integration-layer | 4/4 | 6 min | 2 min |
 | 03-state-persistence | 2/2 | 4 min | 2 min |
+| 04-flights | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02, 02-03, 02-04, 03-01, 03-02
+- Last 5 plans: 02-03, 02-04, 03-01, 03-02, 04-01
 - Trend: stable
 
 *Updated after each plan completion*
@@ -73,6 +74,10 @@ Recent decisions affecting current work:
 - 03-02: Signal initializer provides synchronous localStorage hydration — no APP_INITIALIZER needed
 - 03-02: effect() in constructor registers _trip() as dependency automatically — every mutation triggers re-persistence without explicit save calls
 - 03-02: resetTrip() generates a fresh UUID inline rather than spreading DEFAULT_TRIP — avoids sharing module-level identity with live state
+- 04-01: OAuth2 tokens cached for 30 minutes with 2-minute proactive refresh buffer before expiry
+- 04-01: searchAirports() silently returns empty array on error — autocomplete must never surface errors to user
+- 04-01: Stops count calculated from segments.length - 1, NOT using segment.numberOfStops which is per-segment
+- 04-01: OAuth2 token endpoint uses application/x-www-form-urlencoded Content-Type with URLSearchParams body
 
 ### Pending Todos
 
@@ -86,5 +91,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 3 State & Persistence complete and verified — ready to plan Phase 4
+Stopped at: Completed 04-01-PLAN.md — FlightApiService and FlightMapper created with OAuth2 token management
 Resume file: None
