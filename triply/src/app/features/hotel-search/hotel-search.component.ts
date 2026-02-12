@@ -25,11 +25,12 @@ import {
 } from '../../core/api/hotel-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Stay, ItineraryItem } from '../../core/models/trip.models';
+import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 
 @Component({
   selector: 'app-hotel-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
   templateUrl: './hotel-search.component.html',
   styleUrl: './hotel-search.component.scss',
 })
@@ -74,6 +75,8 @@ export class HotelSearchComponent {
   isSearching = signal(false);
   hasSearched = signal(false);
   sortBy = signal<'price' | 'rating'>('price');
+  errorMessage = signal<string | null>(null);
+  errorSource = signal<string | null>(null);
 
   // Computed signal for sorted hotels
   sortedHotels = computed(() => {
@@ -147,6 +150,12 @@ export class HotelSearchComponent {
     return stars;
   }
 
+  // Dismiss error banner
+  dismissError(): void {
+    this.errorMessage.set(null);
+    this.errorSource.set(null);
+  }
+
   // Search hotels
   searchHotels(): void {
     if (this.hotelSearchForm.invalid) {
@@ -168,6 +177,7 @@ export class HotelSearchComponent {
     const checkInStr = checkIn.toISOString().split('T')[0];
     const checkOutStr = checkOut.toISOString().split('T')[0];
 
+    this.errorMessage.set(null);
     this.isSearching.set(true);
     this.hasSearched.set(true);
 
@@ -184,21 +194,12 @@ export class HotelSearchComponent {
       .subscribe({
         next: (result) => {
           if (result.error) {
-            this.snackBar.open(
-              'Failed to search hotels. Please try again.',
-              'Close',
-              { duration: 3000 }
-            );
+            this.errorMessage.set(result.error.message);
+            this.errorSource.set(result.error.source);
             this.searchResults.set([]);
           } else {
             this.searchResults.set(result.data);
           }
-        },
-        error: () => {
-          this.snackBar.open('An error occurred. Please try again.', 'Close', {
-            duration: 3000,
-          });
-          this.searchResults.set([]);
         },
       });
   }

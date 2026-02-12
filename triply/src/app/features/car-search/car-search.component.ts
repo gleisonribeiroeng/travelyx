@@ -12,11 +12,12 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { CarApiService, CarSearchParams } from '../../core/api/car-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { CarRental, ItineraryItem } from '../../core/models/trip.models';
+import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 
 @Component({
   selector: 'app-car-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
   templateUrl: './car-search.component.html',
   styleUrl: './car-search.component.scss',
 })
@@ -59,6 +60,8 @@ export class CarSearchComponent {
   searchResults = signal<CarRental[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
+  errorMessage = signal<string | null>(null);
+  errorSource = signal<string | null>(null);
 
   // Computed signal for filtered and sorted results
   filteredCars = computed(() => {
@@ -89,6 +92,12 @@ export class CarSearchComponent {
     return this.carSearchForm.value.pickupDate || new Date();
   }
 
+  // Dismiss error banner
+  dismissError(): void {
+    this.errorMessage.set(null);
+    this.errorSource.set(null);
+  }
+
   // Search cars
   searchCars(): void {
     if (this.carSearchForm.invalid) {
@@ -114,6 +123,7 @@ export class CarSearchComponent {
     const dropoffDateStr = dropoffDate.toISOString().split('T')[0];
     const dropoffAt = `${dropoffDateStr}T${dropoffTime}:00`;
 
+    this.errorMessage.set(null);
     this.isSearching.set(true);
     this.hasSearched.set(true);
 
@@ -129,21 +139,12 @@ export class CarSearchComponent {
       .subscribe({
         next: (result) => {
           if (result.error) {
-            this.snackBar.open(
-              'Failed to search car rentals. Please try again.',
-              'Close',
-              { duration: 3000 }
-            );
+            this.errorMessage.set(result.error.message);
+            this.errorSource.set(result.error.source);
             this.searchResults.set([]);
           } else {
             this.searchResults.set(result.data);
           }
-        },
-        error: () => {
-          this.snackBar.open('An error occurred. Please try again.', 'Close', {
-            duration: 3000,
-          });
-          this.searchResults.set([]);
         },
       });
   }
