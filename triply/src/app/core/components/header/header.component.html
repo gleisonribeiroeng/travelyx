@@ -1,34 +1,61 @@
 <mat-toolbar>
   <span class="app-name">Triply</span>
   <span class="spacer"></span>
-  <nav class="nav-links">
+
+  <!-- Desktop nav (hidden on mobile via CSS) -->
+  <nav class="nav-links desktop-nav">
     <a mat-button routerLink="/search" routerLinkActive="active-link">
-      <mat-icon>search</mat-icon>
-      Search
+      <mat-icon>search</mat-icon> Search
     </a>
     <a mat-button routerLink="/hotels" routerLinkActive="active-link">
-      <mat-icon>hotel</mat-icon>
-      Hotels
+      <mat-icon>hotel</mat-icon> Hotels
     </a>
     <a mat-button routerLink="/cars" routerLinkActive="active-link">
-      <mat-icon>directions_car</mat-icon>
-      Cars
+      <mat-icon>directions_car</mat-icon> Cars
     </a>
     <a mat-button routerLink="/transport" routerLinkActive="active-link">
-      <mat-icon>directions_bus</mat-icon>
-      Transport
+      <mat-icon>directions_bus</mat-icon> Transport
     </a>
     <a mat-button routerLink="/tours" routerLinkActive="active-link">
-      <mat-icon>local_activity</mat-icon>
-      Tours
+      <mat-icon>local_activity</mat-icon> Tours
     </a>
     <a mat-button routerLink="/attractions" routerLinkActive="active-link">
-      <mat-icon>museum</mat-icon>
-      Attractions
+      <mat-icon>museum</mat-icon> Attractions
     </a>
     <a mat-button routerLink="/itinerary" routerLinkActive="active-link">
-      <mat-icon>map</mat-icon>
-      Itinerary
+      <mat-icon>map</mat-icon> Itinerary
     </a>
   </nav>
+
+  <!-- Mobile hamburger button (visible only on mobile via CSS) -->
+  <button mat-icon-button class="menu-toggle" (click)="toggleMenu()" aria-label="Toggle navigation menu">
+    <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+  </button>
 </mat-toolbar>
+
+<!-- Mobile nav drawer (shown when menuOpen) -->
+@if (menuOpen()) {
+  <nav class="mobile-nav">
+    <a mat-button routerLink="/search" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>search</mat-icon> Flights
+    </a>
+    <a mat-button routerLink="/hotels" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>hotel</mat-icon> Hotels
+    </a>
+    <a mat-button routerLink="/cars" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>directions_car</mat-icon> Cars
+    </a>
+    <a mat-button routerLink="/transport" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>directions_bus</mat-icon> Transport
+    </a>
+    <a mat-button routerLink="/tours" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>local_activity</mat-icon> Tours
+    </a>
+    <a mat-button routerLink="/attractions" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>museum</mat-icon> Attractions
+    </a>
+    <a mat-button routerLink="/itinerary" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>map</mat-icon> Itinerary
+    </a>
+  </nav>
+}

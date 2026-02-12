@@ -31,3 +31,45 @@ mat-toolbar {
   background-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--triply-border-radius-sm);
 }
+
+// Hamburger toggle - hidden on desktop
+.menu-toggle {
+  display: none;
+  color: var(--mat-sys-on-primary);
+}
+
+// Mobile nav drawer
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--mat-sys-primary);
+  padding: var(--triply-spacing-sm) 0;
+
+  a {
+    color: var(--mat-sys-on-primary);
+    text-align: left;
+    padding: var(--triply-spacing-sm) var(--triply-spacing-md);
+    font-size: 0.875rem;
+
+    mat-icon {
+      margin-right: 8px;
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  .active-link {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+}
