@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 7 of 11 (Intercity Transport)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-02-12 — Phase 6 Car Rental complete (verified)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Plan 07-01 complete (Transport API service and mapper)
 
-Progress: [██████░░░░] 55%
+Progress: [██████░░░░] 59%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 2 min
-- Total execution time: 0.6 hours
+- Total execution time: 0.7 hours
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: [██████░░░░] 55%
 | 04-flights | 2/2 | 6 min | 3 min |
 | 05-hotels | 2/2 | 5 min | 2 min |
 | 06-car-rental | 2/2 | 5 min | 2 min |
+| 07-intercity-transport | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02, 05-01, 05-02, 06-01, 06-02
+- Last 5 plans: 05-01, 05-02, 06-01, 06-02, 07-01
 - Trend: stable
 
 *Updated after each plan completion*
@@ -96,6 +97,11 @@ Recent decisions affecting current work:
 - 06-02: Native time input (<input type='time'>) combined with mat-datepicker for datetime selection (better UX than custom Material time picker)
 - 06-02: Client-side filtering only for car rental (vehicle type, max price) - no API filter params since endpoint is hypothetical
 - 06-02: ISO 8601 datetime built from separate date + time inputs (YYYY-MM-DDTHH:MM:00 format) in submit handler
+- 07-01: TransportMapper does NOT implement Mapper interface due to two-parameter mapResponse signature (raw + params) matching CarMapper pattern
+- 07-01: Transport uses standard X-API-Key authentication (not RapidAPI X-RapidAPI-Key/Host headers)
+- 07-01: Transport API endpoint /api/v1/transport/search is hypothetical placeholder — must be updated when provider selected
+- 07-01: Mode normalization uses case-insensitive substring matching to map to 'bus' | 'train' | 'ferry' | 'other' union type
+- 07-01: Duration parser supports three formats: number (minutes), ISO 8601 (PT2H30M), human-readable (2h 30m)
 
 ### Pending Todos
 
@@ -108,6 +114,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-12
-Stopped at: Phase 6 Car Rental complete and verified — ready to plan Phase 7
+Last session: 2026-02-12T15:36:39Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
