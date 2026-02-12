@@ -94,12 +94,11 @@ Plans:
   3. Each result card shows price, flight duration, airline, and number of stops
   4. Clicking "Add to itinerary" on a flight card adds it to TripStateService and it appears in the itinerary view
   5. Clicking the provider link on a result opens the external booking site in a new tab
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: FlightApiService + FlightMapper (Amadeus or chosen provider integration)
-- [ ] 04-02: Flight search form component (origin, destination, dates, passengers)
-- [ ] 04-03: Flight result cards with filter (direct/stopovers), add to itinerary action, and provider redirect
+- [ ] 04-01-PLAN.md — FlightApiService (OAuth2 token management, searchFlights, searchAirports) + FlightMapper (Amadeus response to Flight model)
+- [ ] 04-02-PLAN.md — Flight search form with airport autocomplete, date range picker, result cards with filter/sort, add to itinerary, and provider redirect
 
 ---
 
@@ -246,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Foundation | 4/4 | Complete | 2026-02-11 |
 | 2. API Integration Layer | 4/4 | Complete | 2026-02-12 |
 | 3. State & Persistence | 2/2 | Complete | 2026-02-12 |
-| 4. Flights | 0/3 | Not started | - |
+| 4. Flights | 0/2 | Not started | - |
 | 5. Hotels | 0/3 | Not started | - |
 | 6. Car Rental | 0/3 | Not started | - |
 | 7. Intercity Transport | 0/3 | Not started | - |
