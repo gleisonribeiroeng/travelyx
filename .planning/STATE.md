@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 7 of 11 (Intercity Transport)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-12 — Plan 07-01 complete (Transport API service and mapper)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-12 — Plan 07-02 complete (Transport search UI)
 
-Progress: [██████░░░░] 59%
+Progress: [██████░░░░] 62%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 2 min
-- Total execution time: 0.7 hours
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [██████░░░░] 59%
 | 04-flights | 2/2 | 6 min | 3 min |
 | 05-hotels | 2/2 | 5 min | 2 min |
 | 06-car-rental | 2/2 | 5 min | 2 min |
-| 07-intercity-transport | 1/2 | 3 min | 3 min |
+| 07-intercity-transport | 2/2 | 5 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01, 05-02, 06-01, 06-02, 07-01
+- Last 5 plans: 05-02, 06-01, 06-02, 07-01, 07-02
 - Trend: stable
 
 *Updated after each plan completion*
@@ -102,6 +102,11 @@ Recent decisions affecting current work:
 - 07-01: Transport API endpoint /api/v1/transport/search is hypothetical placeholder — must be updated when provider selected
 - 07-01: Mode normalization uses case-insensitive substring matching to map to 'bus' | 'train' | 'ferry' | 'other' union type
 - 07-01: Duration parser supports three formats: number (minutes), ISO 8601 (PT2H30M), human-readable (2h 30m)
+- 07-02: Plain text city inputs for transport search (no autocomplete) following car-search pattern for simplicity
+- 07-02: Single departure date for transport (no return date) as intercity transport is typically one-way
+- 07-02: Client-side mode filtering via computed signal (bus/train/ferry) for instant results and better UX
+- 07-02: Mat-chip [highlighted] binding uses boolean input for visual selection state in mode filter
+- 07-02: Duration formatted as "Xh Ym" via helper method converting durationMinutes to human-readable format
 
 ### Pending Todos
 
@@ -114,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-12T15:36:39Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-02-12T15:41:48Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
