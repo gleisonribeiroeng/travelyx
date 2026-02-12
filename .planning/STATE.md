@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 8 of 11 (Tours & Experiences)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-12 — Plan 08-01 complete (Tour API Integration)
+Plan: 2 of 2 in current phase
+Status: Complete
+Last activity: 2026-02-12 — Plan 08-02 complete (Tour Search Component)
 
-Progress: [██████░░░░] 68%
+Progress: [███████░░░] 71%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 2 min
-- Total execution time: 0.9 hours
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -34,10 +34,10 @@ Progress: [██████░░░░] 68%
 | 05-hotels | 2/2 | 5 min | 2 min |
 | 06-car-rental | 2/2 | 5 min | 2 min |
 | 07-intercity-transport | 2/2 | 5 min | 2 min |
-| 08-tours-experiences | 1/2 | 1 min | 1 min |
+| 08-tours-experiences | 2/2 | 3 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-01, 06-02, 07-01, 07-02, 08-01
+- Last 5 plans: 06-02, 07-01, 07-02, 08-01, 08-02
 - Trend: stable
 
 *Updated after each plan completion*
@@ -111,6 +111,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Use POST for Viator /partner/products/search (API requires request body)
 - [Phase 08]: Use ?? null for durationMinutes (preserves null for missing values, not 0)
 - [Phase 08]: Tours use standard X-API-Key authentication (not RapidAPI X-RapidAPI-Key/Host headers)
+- [Phase 08-02]: Tours search uses destination-only form (simpler than transport/hotel multi-field forms)
+- [Phase 08-02]: Description clamped to 3 lines with -webkit-line-clamp for compact cards
+- [Phase 08-02]: Duration null handling with explicit 'Flexible duration' text instead of hiding field
 
 ### Pending Todos
 
@@ -123,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-12T16:34:19Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-02-12T16:38:29Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
