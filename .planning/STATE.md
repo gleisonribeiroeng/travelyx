@@ -61,6 +61,9 @@ Recent decisions affecting current work:
 - 02-01: API_SOURCE HttpContextToken exported from api-key.interceptor — feature services set source identity per-request for key injection and error attribution
 - 02-02: Transport API proxy entry uses placeholder https://api.example.com — Rome2rio unavailable, provider TBD before Phase 7
 - 02-02: Hotels and cars share same RapidAPI proxy host — path differentiation handled in service layer
+- 02-03: BaseApiService is abstract with no @Injectable — subclasses declare their own @Injectable({ providedIn: 'root' }) to avoid double-registration
+- 02-03: ApiResult<T> uses discriminated union on error (null vs AppError) enabling TypeScript type narrowing via result.error !== null
+- 02-03: withFallback is a function returning an operator (not a class) to match RxJS pipe() ergonomics
 - 02-04: retryIndex in modern retry() callback starts at 1, so delay = initialDelay * 2^(retryIndex-1) produces 1s/2s/4s sequence
 - 02-04: debouncedSearch uses JSON.stringify deep comparison in distinctUntilChanged — object form values require deep not referential equality
 
@@ -76,5 +79,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 02-04-PLAN.md — retry/backoff and search debounce utilities created, ready for 02-05
+Stopped at: Completed 02-03-PLAN.md — shared API abstractions (BaseApiService, Mapper, ApiResult/withFallback, base model types) created
 Resume file: None
