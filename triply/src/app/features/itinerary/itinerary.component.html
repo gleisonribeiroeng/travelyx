@@ -2,9 +2,35 @@
   <h1>Itinerary</h1>
   <p>Your trip itinerary will appear here, organized by day and time.</p>
 </div>
-<mat-card class="placeholder-card">
-  <mat-card-content>
-    <mat-icon class="placeholder-icon">map</mat-icon>
-    <p>Add items from Search to start building your itinerary.</p>
-  </mat-card-content>
-</mat-card>
+
+@if (tripState.hasItems()) {
+  <div class="timeline">
+    @for (dayEntry of itemsByDay() | keyvalue; track dayEntry.key) {
+      <section class="day-section">
+        <h2 class="day-header">{{ dayEntry.key | date: 'EEEE, MMMM d, yyyy' }}</h2>
+
+        @for (item of dayEntry.value; track item.id) {
+          <app-itinerary-item
+            [item]="item"
+            [isFirst]="$first"
+            [isLast]="$last"
+            (moveUp)="moveItemUp(item, dayEntry.value)"
+            (moveDown)="moveItemDown(item, dayEntry.value)"
+            (remove)="removeItem(item.id)"
+          ></app-itinerary-item>
+        }
+
+        @if (!$last) {
+          <mat-divider></mat-divider>
+        }
+      </section>
+    }
+  </div>
+} @else {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon class="empty-icon">map</mat-icon>
+      <p>Your itinerary is empty. Add items from the search pages to start building your trip.</p>
+    </mat-card-content>
+  </mat-card>
+}
