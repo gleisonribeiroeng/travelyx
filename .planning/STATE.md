@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 11 of 11 (UX Polish)
-Plan: 2 of 6 in current phase
+Plan: 1 of 6 in current phase
 Status: Executing
-Last activity: 2026-02-12 — Completed plan 11-02 (Shared Card Styles)
+Last activity: 2026-02-12 — Completed plan 11-01 (ErrorBannerComponent)
 
-Progress: [█████████░] 92%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 25
 - Average duration: 2 min
-- Total execution time: 1.25 hours
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
@@ -37,16 +37,16 @@ Progress: [█████████░] 92%
 | 08-tours-experiences | 2/2 | 3 min | 1 min |
 | 09-attractions | 2/2 | 4 min | 2 min |
 | 10-itinerary-builder | 3/3 | 8 min | 2 min |
-| 11-ux-polish | 2/6 | 1 min | 1 min |
+| 11-ux-polish | 1/6 | 1 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-02, 10-01, 10-02, 10-03, 11-02
+- Last 5 plans: 09-02, 10-01, 10-02, 10-03, 11-01
 - Trend: stable
 
 *Updated after each plan completion*
 | Phase 10 P03 | 2 min | 1 task | 7 files |
 | Phase 10-itinerary-builder P10-02 | 2 | 2 tasks | 5 files |
-| Phase 11 P02 | 1 | 1 tasks | 1 files |
+| Phase 11-ux-polish P01 | 1 min | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -137,6 +137,9 @@ Recent decisions affecting current work:
 - [Phase 10-02]: Use same timeSlotValidator from ItineraryItemComponent for consistency in custom item form
 - [Phase 10-02]: ManualItemForm collapsed by default to avoid cluttering timeline view
 - [Phase 10-02]: crypto.randomUUID() for custom item IDs, order: 0 as default (user can reorder later)
+- [Phase 11-01]: ErrorBannerComponent uses single-file pattern with inline template/styles for simplicity — appropriate for small reusable UI components
+- [Phase 11-01]: Error banner uses signal-based input.required() and output() APIs (not @Input/@Output decorators) following Angular 21 best practices
+- [Phase 11-01]: Error banners are dismissible only (no auto-timeout) to match Material Design persistent error pattern requiring user acknowledgment
 
 ### Pending Todos
 
@@ -150,5 +153,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12T20:31:00Z
-Stopped at: Completed 11-02-PLAN.md
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None
