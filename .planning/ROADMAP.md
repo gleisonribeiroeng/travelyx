@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Tours & Experiences** - End-to-end tours and experiences search, result cards with description and price, external link, and add to itinerary *(completed 2026-02-12)*
 - [x] **Phase 9: Attractions** - Attraction listing by city with official link and add to itinerary *(completed 2026-02-12)*
 - [x] **Phase 10: Itinerary Builder** - Day-by-day timeline view reading from TripStateService, manual items, edit/remove, and reorder *(completed 2026-02-12)*
-- [ ] **Phase 11: UX Polish** - Loading states, empty states, per-source error banners, mobile responsiveness, performance, and visual consistency across all 6 search categories
+- [x] **Phase 11: UX Polish** - Loading states, empty states, per-source error banners, mobile responsiveness, performance, and visual consistency across all 6 search categories *(completed 2026-02-12)*
 
 ## Phase Details
 
@@ -221,12 +221,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — Create reusable ErrorBannerComponent (shared per-source error banner)
-- [ ] 11-02-PLAN.md — Shared SCSS global classes for card consistency and empty states
-- [ ] 11-03-PLAN.md — Error banners + button prominence for Flights, Hotels, Cars
-- [ ] 11-04-PLAN.md — Error banners + button prominence for Transport, Tours, Attractions
-- [ ] 11-05-PLAN.md — Mobile-responsive header navigation and itinerary view
-- [ ] 11-06-PLAN.md — Final build verification and UX requirements audit
+- [x] 11-01-PLAN.md — Create reusable ErrorBannerComponent (shared per-source error banner)
+- [x] 11-02-PLAN.md — Shared SCSS global classes for card consistency and empty states
+- [x] 11-03-PLAN.md — Error banners + button prominence for Flights, Hotels, Cars
+- [x] 11-04-PLAN.md — Error banners + button prominence for Transport, Tours, Attractions
+- [x] 11-05-PLAN.md — Mobile-responsive header navigation and itinerary view
+- [x] 11-06-PLAN.md — Final build verification and UX requirements audit
 
 ---
 
@@ -247,7 +247,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Tours & Experiences | 2/2 | Complete | 2026-02-12 |
 | 9. Attractions | 2/2 | Complete | 2026-02-12 |
 | 10. Itinerary Builder | 3/3 | Complete | 2026-02-12 |
-| 11. UX Polish | 0/6 | Not started | - |
+| 11. UX Polish | 6/6 | Complete | 2026-02-12 |
 
 ---
 *Roadmap created: 2026-02-11*

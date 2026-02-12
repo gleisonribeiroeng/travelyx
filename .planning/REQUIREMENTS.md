@@ -88,13 +88,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### UX & Polish
 
-- [ ] **UX-01**: Loading states on all search operations (per-source, not global spinner)
-- [ ] **UX-02**: Empty states for no results and no itinerary items
-- [ ] **UX-03**: Visual error treatment with per-source error banners
-- [ ] **UX-04**: Mobile-responsive layout across all views
-- [ ] **UX-05**: Consistent Angular Material card design across all 6 search categories
-- [ ] **UX-06**: Clear navigation between search categories and itinerary view
-- [ ] **UX-07**: Primary action (add to itinerary) always visually highlighted
+- [x] **UX-01**: Loading states on all search operations (per-source, not global spinner)
+- [x] **UX-02**: Empty states for no results and no itinerary items
+- [x] **UX-03**: Visual error treatment with per-source error banners
+- [x] **UX-04**: Mobile-responsive layout across all views
+- [x] **UX-05**: Consistent Angular Material card design across all 6 search categories
+- [x] **UX-06**: Clear navigation between search categories and itinerary view
+- [x] **UX-07**: Primary action (add to itinerary) always visually highlighted
 
 ## v2 Requirements
 
@@ -188,13 +188,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ITIN-05 | Phase 10 | Done |
 | ITIN-06 | Phase 10 | Done |
 | ITIN-07 | Phase 10 | Done |
-| UX-01 | Phase 11 | Pending |
-| UX-02 | Phase 11 | Pending |
-| UX-03 | Phase 11 | Pending |
-| UX-04 | Phase 11 | Pending |
-| UX-05 | Phase 11 | Pending |
-| UX-06 | Phase 11 | Pending |
-| UX-07 | Phase 11 | Pending |
+| UX-01 | Phase 11 | Done |
+| UX-02 | Phase 11 | Done |
+| UX-03 | Phase 11 | Done |
+| UX-04 | Phase 11 | Done |
+| UX-05 | Phase 11 | Done |
+| UX-06 | Phase 11 | Done |
+| UX-07 | Phase 11 | Done |
 
 **Coverage:**
 - v1 requirements: 53 total
