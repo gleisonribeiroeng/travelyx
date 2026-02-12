@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** O usuario sai do zero ao roteiro completo em uma unica sessao — buscando voos, hotel, passeios e atracoes, adicionando tudo a um timeline organizado por dia e horario, sem criar conta.
-**Current focus:** Phase 7 — Intercity Transport
+**Current focus:** Phase 8 — Tours & Experiences
 
 ## Current Position
 
-Phase: 7 of 11 (Intercity Transport)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-12 — Plan 07-02 complete (Transport search UI)
+Phase: 8 of 11 (Tours & Experiences)
+Plan: 0 of 3 in current phase
+Status: Ready to plan
+Last activity: 2026-02-12 — Phase 7 complete (Intercity Transport)
 
-Progress: [██████░░░░] 62%
+Progress: [██████░░░░] 65%
 
 ## Performance Metrics
 

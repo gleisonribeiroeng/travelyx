@@ -58,10 +58,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Intercity Transport
 
-- [ ] **TRANS-01**: Search by origin city and destination city
-- [ ] **TRANS-02**: Results listing transport options (bus/train) with duration and price
-- [ ] **TRANS-03**: External provider redirect link on each result
-- [ ] **TRANS-04**: "Add to itinerary" button on each result card
+- [x] **TRANS-01**: Search by origin city and destination city
+- [x] **TRANS-02**: Results listing transport options (bus/train) with duration and price
+- [x] **TRANS-03**: External provider redirect link on each result
+- [x] **TRANS-04**: "Add to itinerary" button on each result card
 
 ### Tours & Experiences
 
@@ -170,10 +170,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CAR-03 | Phase 6 | Done |
 | CAR-04 | Phase 6 | Done |
 | CAR-05 | Phase 6 | Done |
-| TRANS-01 | Phase 7 | Pending |
-| TRANS-02 | Phase 7 | Pending |
-| TRANS-03 | Phase 7 | Pending |
-| TRANS-04 | Phase 7 | Pending |
+| TRANS-01 | Phase 7 | Done |
+| TRANS-02 | Phase 7 | Done |
+| TRANS-03 | Phase 7 | Done |
+| TRANS-04 | Phase 7 | Done |
 | TOUR-01 | Phase 8 | Pending |
 | TOUR-02 | Phase 8 | Pending |
 | TOUR-03 | Phase 8 | Pending |

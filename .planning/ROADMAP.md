@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Flights** - End-to-end flight search with filters, result cards, add to itinerary, and provider redirect *(completed 2026-02-12)*
 - [x] **Phase 5: Hotels** - End-to-end hotel search with result cards showing price/rating, add to itinerary, and provider redirect *(completed 2026-02-12)*
 - [x] **Phase 6: Car Rental** - End-to-end car rental search with filters, result cards, add to itinerary, and provider redirect *(completed 2026-02-12)*
-- [ ] **Phase 7: Intercity Transport** - End-to-end intercity transport search (bus/train), result listing, external link, and add to itinerary
+- [x] **Phase 7: Intercity Transport** - End-to-end intercity transport search (bus/train), result listing, external link, and add to itinerary *(completed 2026-02-12)*
 - [ ] **Phase 8: Tours & Experiences** - End-to-end tours and experiences search, result cards with description and price, external link, and add to itinerary
 - [ ] **Phase 9: Attractions** - Attraction listing by city with official link and add to itinerary
 - [ ] **Phase 10: Itinerary Builder** - Day-by-day timeline view reading from TripStateService, manual items, edit/remove, and reorder
@@ -149,8 +149,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — TransportApiService + TransportMapper (hypothetical endpoint, provider TBD), /transport route and nav link
-- [ ] 07-02-PLAN.md — Transport search UI with origin/destination city inputs, departure date, mode filter (bus/train/ferry), result cards with duration/price, add to itinerary, and provider redirect
+- [x] 07-01-PLAN.md — TransportApiService + TransportMapper (hypothetical endpoint, provider TBD), /transport route and nav link
+- [x] 07-02-PLAN.md — Transport search UI with origin/destination city inputs, departure date, mode filter (bus/train/ferry), result cards with duration/price, add to itinerary, and provider redirect
 
 ---
 
@@ -245,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Flights | 2/2 | Complete | 2026-02-12 |
 | 5. Hotels | 2/2 | Complete | 2026-02-12 |
 | 6. Car Rental | 2/2 | Complete | 2026-02-12 |
-| 7. Intercity Transport | 0/2 | Planning complete | - |
+| 7. Intercity Transport | 2/2 | Complete | 2026-02-12 |
 | 8. Tours & Experiences | 0/3 | Not started | - |
 | 9. Attractions | 0/2 | Not started | - |
 | 10. Itinerary Builder | 0/4 | Not started | - |
