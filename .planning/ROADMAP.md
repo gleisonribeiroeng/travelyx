@@ -111,12 +111,11 @@ Plans:
   2. Each result card shows price per night, star rating, and hotel name
   3. Clicking "Add to itinerary" on a hotel card adds it to TripStateService and it appears in the itinerary view
   4. Clicking the provider link opens the hotel's external booking page in a new tab
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: HotelApiService + HotelMapper (Amadeus Hotels or chosen provider integration)
-- [ ] 05-02: Hotel search form component (destination, check-in/out dates)
-- [ ] 05-03: Hotel result cards with add to itinerary action and provider redirect
+- [ ] 05-01-PLAN.md — HotelApiService + HotelMapper (Booking.com via RapidAPI), interceptor fix for RapidAPI headers, ApiConfigService endpoint key fix, /hotels route and nav link
+- [ ] 05-02-PLAN.md — Hotel search UI with destination autocomplete, check-in/out date pickers, result cards with price/rating/name, sort, add to itinerary, and provider redirect
 
 ---
 
@@ -246,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. API Integration Layer | 4/4 | Complete | 2026-02-12 |
 | 3. State & Persistence | 2/2 | Complete | 2026-02-12 |
 | 4. Flights | 2/2 | Complete | 2026-02-12 |
-| 5. Hotels | 0/3 | Not started | - |
+| 5. Hotels | 0/2 | Not started | - |
 | 6. Car Rental | 0/3 | Not started | - |
 | 7. Intercity Transport | 0/3 | Not started | - |
 | 8. Tours & Experiences | 0/3 | Not started | - |
