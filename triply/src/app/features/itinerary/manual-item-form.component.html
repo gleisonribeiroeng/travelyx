@@ -1,0 +1,53 @@
+@if (!showForm()) {
+  <button mat-raised-button color="primary" (click)="toggleForm()">
+    <mat-icon>add</mat-icon>
+    Add Custom Item
+  </button>
+}
+
+@if (showForm()) {
+  <mat-card class="manual-item-form">
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Item Name</mat-label>
+          <input matInput formControlName="label" required />
+          @if (form.get('label')?.hasError('required')) {
+            <mat-error>Item name is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Date</mat-label>
+          <input matInput type="date" formControlName="date" required />
+          @if (form.get('date')?.hasError('required')) {
+            <mat-error>Date is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Time (optional)</mat-label>
+          <input matInput type="time" formControlName="timeSlot" />
+          <mat-hint>Leave empty for all-day item</mat-hint>
+          @if (form.get('timeSlot')?.hasError('invalidTimeSlot')) {
+            <mat-error>Must be HH:MM format</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Notes (optional)</mat-label>
+          <textarea matInput formControlName="notes" rows="2"></textarea>
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+            Add
+          </button>
+          <button mat-button type="button" (click)="toggleForm()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+}
