@@ -13,7 +13,7 @@ Triply is a frontend-only Angular travel planning aggregator that lets users sea
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Angular 17+ project scaffold with Angular Material, modular architecture, layout base, environments, and design system *(completed 2026-02-11)*
-- [ ] **Phase 2: API Integration Layer** - HTTP service abstraction, functional interceptors, response mappers, API key config, CORS proxy validation, error handling, and rate-limit patterns
+- [x] **Phase 2: API Integration Layer** - HTTP service abstraction, functional interceptors, response mappers, API key config, CORS proxy validation, error handling, and rate-limit patterns *(completed 2026-02-12)*
 - [ ] **Phase 3: State & Persistence** - Signal-based TripStateService, all canonical models, localStorage persistence with safe wrapper, and trip recovery on startup
 - [ ] **Phase 4: Flights** - End-to-end flight search with filters, result cards, add to itinerary, and provider redirect
 - [ ] **Phase 5: Hotels** - End-to-end hotel search with result cards showing price/rating, add to itinerary, and provider redirect
@@ -59,10 +59,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Core API infrastructure (ApiConfigService, AppError, LoadingService, 3 functional interceptors, provideHttpClient registration)
-- [ ] 02-02-PLAN.md -- Dev proxy configuration (proxy.conf.json for all API targets, angular.json proxyConfig)
-- [ ] 02-03-PLAN.md -- Shared abstractions (canonical model base types, Mapper interface, BaseApiService, per-source error handling utility)
-- [ ] 02-04-PLAN.md -- Rate-limit and search utilities (exponential backoff retry operator, debounced search operator)
+- [x] 02-01-PLAN.md -- Core API infrastructure (ApiConfigService, AppError, LoadingService, 3 functional interceptors, provideHttpClient registration)
+- [x] 02-02-PLAN.md -- Dev proxy configuration (proxy.conf.json for all API targets, angular.json proxyConfig)
+- [x] 02-03-PLAN.md -- Shared abstractions (canonical model base types, Mapper interface, BaseApiService, per-source error handling utility)
+- [x] 02-04-PLAN.md -- Rate-limit and search utilities (exponential backoff retry operator, debounced search operator)
 
 ---
 
@@ -245,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-02-11 |
-| 2. API Integration Layer | 0/4 | Not started | - |
+| 2. API Integration Layer | 4/4 | Complete | 2026-02-12 |
 | 3. State & Persistence | 0/3 | Not started | - |
 | 4. Flights | 0/3 | Not started | - |
 | 5. Hotels | 0/3 | Not started | - |

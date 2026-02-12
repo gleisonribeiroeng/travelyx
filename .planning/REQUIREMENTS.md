@@ -17,13 +17,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### API Infrastructure
 
-- [ ] **API-01**: HTTP service abstraction layer with per-feature ApiService + Mapper pattern
-- [ ] **API-02**: Functional interceptors for auth (API key injection), error normalization, and loading state
-- [ ] **API-03**: Standardized API response mapping from external schemas to internal canonical models
-- [ ] **API-04**: Centralized API configuration service for key management
-- [ ] **API-05**: CORS proxy strategy validated and operational for all blocked APIs
-- [ ] **API-06**: Per-source error handling with catchError on each observable (no forkJoin failures)
-- [ ] **API-07**: debounceTime on search triggers and exponential backoff on 429 responses
+- [x] **API-01**: HTTP service abstraction layer with per-feature ApiService + Mapper pattern
+- [x] **API-02**: Functional interceptors for auth (API key injection), error normalization, and loading state
+- [x] **API-03**: Standardized API response mapping from external schemas to internal canonical models
+- [x] **API-04**: Centralized API configuration service for key management
+- [x] **API-05**: CORS proxy strategy validated and operational for all blocked APIs
+- [x] **API-06**: Per-source error handling with catchError on each observable (no forkJoin failures)
+- [x] **API-07**: debounceTime on search triggers and exponential backoff on 429 responses
 
 ### State & Persistence
 
@@ -144,13 +144,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUND-03 | Phase 1 | Done |
 | FOUND-04 | Phase 1 | Done |
 | FOUND-05 | Phase 1 | Done |
-| API-01 | Phase 2 | Pending |
-| API-02 | Phase 2 | Pending |
-| API-03 | Phase 2 | Pending |
-| API-04 | Phase 2 | Pending |
-| API-05 | Phase 2 | Pending |
-| API-06 | Phase 2 | Pending |
-| API-07 | Phase 2 | Pending |
+| API-01 | Phase 2 | Done |
+| API-02 | Phase 2 | Done |
+| API-03 | Phase 2 | Done |
+| API-04 | Phase 2 | Done |
+| API-05 | Phase 2 | Done |
+| API-06 | Phase 2 | Done |
+| API-07 | Phase 2 | Done |
 | STATE-01 | Phase 3 | Pending |
 | STATE-02 | Phase 3 | Pending |
 | STATE-03 | Phase 3 | Pending |
