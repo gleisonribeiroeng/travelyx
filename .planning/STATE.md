@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 5 of 11 (Hotels)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-02-12 — Phase 4 Flights complete (verified)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Completed 05-01 Hotel API integration
 
-Progress: [████░░░░░░] 36%
+Progress: [████░░░░░░] 39%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: 2 min
 - Total execution time: 0.5 hours
 
@@ -31,9 +31,10 @@ Progress: [████░░░░░░] 36%
 | 02-api-integration-layer | 4/4 | 6 min | 2 min |
 | 03-state-persistence | 2/2 | 4 min | 2 min |
 | 04-flights | 2/2 | 6 min | 3 min |
+| 05-hotels | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-04, 03-01, 03-02, 04-01, 04-02
+- Last 5 plans: 03-01, 03-02, 04-01, 04-02, 05-01
 - Trend: stable
 
 *Updated after each plan completion*
@@ -82,6 +83,9 @@ Recent decisions affecting current work:
 - 04-02: Filter chip counts use helper methods (countDirectFlights/countStopoverFlights) because Angular template parser rejects arrow functions in interpolation bindings
 - 04-02: Search button split into two separate buttons wrapped in @if/@else to avoid Angular content projection warnings with Material button slots
 - 04-02: Airport validator returns null for empty values (lets required validator handle), invalidAirport error for string or missing iataCode
+- [Phase 05-01]: RapidAPI sources (hotel, carRental) use X-RapidAPI-Key and X-RapidAPI-Host headers instead of X-API-Key
+- [Phase 05-01]: Hardcoded X-RapidAPI-Host to booking-com15.p.rapidapi.com for both hotel and carRental sources
+- [Phase 05-01]: searchDestinations() returns empty array on error - autocomplete must never surface errors
 
 ### Pending Todos
 
@@ -95,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 4 Flights complete and verified — ready to plan Phase 5
+Stopped at: Completed 05-01-PLAN.md - Hotel API integration complete
 Resume file: None
