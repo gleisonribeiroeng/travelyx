@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 6 of 11 (Car Rental)
-Plan: 1 of 2 in current phase
+Plan: 2 of 2 in current phase
 Status: Executing
-Last activity: 2026-02-12 — Completed 06-01-PLAN.md (Car Rental API Service and Navigation)
+Last activity: 2026-02-12 — Completed 06-02-PLAN.md (Car Search UI)
 
-Progress: [█████░░░░░] 48%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 2 min
 - Total execution time: 0.6 hours
 
@@ -32,10 +32,10 @@ Progress: [█████░░░░░] 48%
 | 03-state-persistence | 2/2 | 4 min | 2 min |
 | 04-flights | 2/2 | 6 min | 3 min |
 | 05-hotels | 2/2 | 5 min | 2 min |
-| 06-car-rental | 1/2 | 3 min | 3 min |
+| 06-car-rental | 2/2 | 5 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01, 04-02, 05-01, 05-02, 06-01
+- Last 5 plans: 04-02, 05-01, 05-02, 06-01, 06-02
 - Trend: stable
 
 *Updated after each plan completion*
@@ -92,6 +92,10 @@ Recent decisions affecting current work:
 - 06-01: CarMapper does NOT implement Mapper interface due to two-parameter mapResponse signature (raw + params) incompatible with single-parameter interface
 - 06-01: carRentalApiKey can share same RapidAPI key as hotelApiKey (both use booking-com15 provider)
 - 06-01: Booking.com car API endpoint and parameters are hypothetical, must be verified at runtime via RapidAPI dashboard
+- 06-02: Plain text location inputs instead of autocomplete for car rental (simpler, avoids overengineering for unverified API)
+- 06-02: Native time input (<input type='time'>) combined with mat-datepicker for datetime selection (better UX than custom Material time picker)
+- 06-02: Client-side filtering only for car rental (vehicle type, max price) - no API filter params since endpoint is hypothetical
+- 06-02: ISO 8601 datetime built from separate date + time inputs (YYYY-MM-DDTHH:MM:00 format) in submit handler
 
 ### Pending Todos
 
@@ -105,5 +109,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 06-01-PLAN.md — Car Rental API Service and Navigation complete
+Stopped at: Completed 06-02-PLAN.md — Car Search UI complete
 Resume file: None
