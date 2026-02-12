@@ -11,7 +11,7 @@ import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TransportApiService, TransportSearchParams } from '../../core/api/transport-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Transport } from '../../core/models/trip.models';
+import { Transport, ItineraryItem } from '../../core/models/trip.models';
 
 @Component({
   selector: 'app-transport-search',
@@ -107,6 +107,16 @@ export class TransportSearchComponent {
   // Add to itinerary
   addToItinerary(transport: Transport): void {
     this.tripState.addTransport({ ...transport, addedToItinerary: true });
+    this.tripState.addItineraryItem({
+      id: crypto.randomUUID(),
+      type: 'transport',
+      refId: transport.id,
+      date: transport.departureAt.split('T')[0],
+      timeSlot: transport.departureAt.split('T')[1]?.substring(0, 5) || null,
+      label: `${transport.mode.charAt(0).toUpperCase() + transport.mode.slice(1)}: ${transport.origin} → ${transport.destination}`,
+      notes: '',
+      order: 0,
+    });
     this.snackBar.open('Transport added to itinerary', 'Close', {
       duration: 3000,
     });

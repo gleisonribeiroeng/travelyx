@@ -11,7 +11,7 @@ import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { AttractionApiService } from '../../core/api/attraction-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Attraction } from '../../core/models/trip.models';
+import { Attraction, ItineraryItem } from '../../core/models/trip.models';
 
 @Component({
   selector: 'app-attraction-search',
@@ -68,6 +68,17 @@ export class AttractionSearchComponent {
   // Add to itinerary
   addToItinerary(attraction: Attraction): void {
     this.tripState.addAttraction({ ...attraction, addedToItinerary: true });
+    const defaultDate = this.tripState.trip().dates.start || new Date().toISOString().split('T')[0];
+    this.tripState.addItineraryItem({
+      id: crypto.randomUUID(),
+      type: 'attraction',
+      refId: attraction.id,
+      date: defaultDate,
+      timeSlot: null,
+      label: `Attraction: ${attraction.name}`,
+      notes: attraction.category || '',
+      order: 0,
+    });
     this.snackBar.open('Attraction added to itinerary', 'Close', {
       duration: 3000,
     });

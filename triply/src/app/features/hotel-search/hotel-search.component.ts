@@ -24,7 +24,7 @@ import {
   DestinationOption,
 } from '../../core/api/hotel-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Stay } from '../../core/models/trip.models';
+import { Stay, ItineraryItem } from '../../core/models/trip.models';
 
 @Component({
   selector: 'app-hotel-search',
@@ -206,6 +206,16 @@ export class HotelSearchComponent {
   // Add hotel to itinerary
   addToItinerary(hotel: Stay): void {
     this.tripState.addStay({ ...hotel, addedToItinerary: true });
+    this.tripState.addItineraryItem({
+      id: crypto.randomUUID(),
+      type: 'stay',
+      refId: hotel.id,
+      date: hotel.checkIn,
+      timeSlot: null,
+      label: `Stay: ${hotel.name}`,
+      notes: hotel.address || '',
+      order: 0,
+    });
     this.snackBar.open('Hotel added to itinerary', 'Close', { duration: 3000 });
   }
 

@@ -24,7 +24,7 @@ import {
   AirportOption,
 } from '../../core/api/flight-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Flight } from '../../core/models/trip.models';
+import { Flight, ItineraryItem } from '../../core/models/trip.models';
 
 @Component({
   selector: 'app-search',
@@ -208,6 +208,16 @@ export class SearchComponent {
   // Add flight to itinerary
   addToItinerary(flight: Flight): void {
     this.tripState.addFlight(flight);
+    this.tripState.addItineraryItem({
+      id: crypto.randomUUID(),
+      type: 'flight',
+      refId: flight.id,
+      date: flight.departureAt.split('T')[0],
+      timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
+      label: `Flight: ${flight.origin} → ${flight.destination}`,
+      notes: `${flight.airline} ${flight.flightNumber}`,
+      order: 0,
+    });
     this.snackBar.open('Flight added to itinerary', 'Close', { duration: 3000 });
   }
 

@@ -11,7 +11,7 @@ import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { CarApiService, CarSearchParams } from '../../core/api/car-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { CarRental } from '../../core/models/trip.models';
+import { CarRental, ItineraryItem } from '../../core/models/trip.models';
 
 @Component({
   selector: 'app-car-search',
@@ -151,6 +151,16 @@ export class CarSearchComponent {
   // Add to itinerary
   addToItinerary(car: CarRental): void {
     this.tripState.addCarRental({ ...car, addedToItinerary: true });
+    this.tripState.addItineraryItem({
+      id: crypto.randomUUID(),
+      type: 'car-rental',
+      refId: car.id,
+      date: car.pickUpAt.split('T')[0],
+      timeSlot: car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
+      label: `Car Rental: ${car.vehicleType}`,
+      notes: `Pick-up: ${car.pickUpLocation}`,
+      order: 0,
+    });
     this.snackBar.open('Car rental added to itinerary', 'Close', {
       duration: 3000,
     });
