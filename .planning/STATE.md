@@ -56,6 +56,9 @@ Recent decisions affecting current work:
 - 01-04: All API keys use empty string placeholders in environment files — never real values in version control
 - 01-04: 8 API key slots established: amadeusApiKey, amadeusApiSecret, hotelApiKey, carRentalApiKey, transportApiKey, toursApiKey, attractionsApiKey, googlePlacesApiKey
 - 01-04: Development apiBaseUrl set to localhost:4200 as proxy base for Phase 2 CORS handling
+- 02-01: Interceptor order: apiKey -> error -> loading — keys injected first, errors normalized second, loading wraps full lifecycle via finalize()
+- 02-01: loadingInterceptor uses only finalize() — guarantees decrement on both success and error without catchError interference
+- 02-01: API_SOURCE HttpContextToken exported from api-key.interceptor — feature services set source identity per-request for key injection and error attribution
 - 02-02: Transport API proxy entry uses placeholder https://api.example.com — Rome2rio unavailable, provider TBD before Phase 7
 - 02-02: Hotels and cars share same RapidAPI proxy host — path differentiation handled in service layer
 
