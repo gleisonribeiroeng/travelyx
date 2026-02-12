@@ -43,10 +43,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Hotels
 
-- [ ] **HOTEL-01**: Search by destination and check-in/check-out dates
-- [ ] **HOTEL-02**: Results displayed as cards with price, rating, and external link
-- [ ] **HOTEL-03**: "Add to itinerary" button on each result card
-- [ ] **HOTEL-04**: External provider redirect link on each result
+- [x] **HOTEL-01**: Search by destination and check-in/check-out dates
+- [x] **HOTEL-02**: Results displayed as cards with price, rating, and external link
+- [x] **HOTEL-03**: "Add to itinerary" button on each result card
+- [x] **HOTEL-04**: External provider redirect link on each result
 
 ### Car Rental
 
@@ -161,10 +161,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FLIGHT-03 | Phase 4 | Done |
 | FLIGHT-04 | Phase 4 | Done |
 | FLIGHT-05 | Phase 4 | Done |
-| HOTEL-01 | Phase 5 | Pending |
-| HOTEL-02 | Phase 5 | Pending |
-| HOTEL-03 | Phase 5 | Pending |
-| HOTEL-04 | Phase 5 | Pending |
+| HOTEL-01 | Phase 5 | Done |
+| HOTEL-02 | Phase 5 | Done |
+| HOTEL-03 | Phase 5 | Done |
+| HOTEL-04 | Phase 5 | Done |
 | CAR-01 | Phase 6 | Pending |
 | CAR-02 | Phase 6 | Pending |
 | CAR-03 | Phase 6 | Pending |

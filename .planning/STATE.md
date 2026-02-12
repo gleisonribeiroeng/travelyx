@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** O usuario sai do zero ao roteiro completo em uma unica sessao — buscando voos, hotel, passeios e atracoes, adicionando tudo a um timeline organizado por dia e horario, sem criar conta.
-**Current focus:** Phase 5 — Hotels
+**Current focus:** Phase 6 — Car Rental
 
 ## Current Position
 
-Phase: 5 of 11 (Hotels)
-Plan: 2 of 2 in current phase
-Status: Complete
-Last activity: 2026-02-12 — Completed 05-02 Hotel Search UI
+Phase: 6 of 11 (Car Rental)
+Plan: 0 of 3 in current phase
+Status: Ready to plan
+Last activity: 2026-02-12 — Phase 5 Hotels complete (verified)
 
-Progress: [█████░░░░░] 42%
+Progress: [█████░░░░░] 45%
 
 ## Performance Metrics
 
@@ -38,7 +38,6 @@ Progress: [█████░░░░░] 42%
 - Trend: stable
 
 *Updated after each plan completion*
-| Phase 05-hotels P02 | 2 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -84,13 +83,11 @@ Recent decisions affecting current work:
 - 04-02: Filter chip counts use helper methods (countDirectFlights/countStopoverFlights) because Angular template parser rejects arrow functions in interpolation bindings
 - 04-02: Search button split into two separate buttons wrapped in @if/@else to avoid Angular content projection warnings with Material button slots
 - 04-02: Airport validator returns null for empty values (lets required validator handle), invalidAirport error for string or missing iataCode
-- [Phase 05-01]: RapidAPI sources (hotel, carRental) use X-RapidAPI-Key and X-RapidAPI-Host headers instead of X-API-Key
-- [Phase 05-01]: Hardcoded X-RapidAPI-Host to booking-com15.p.rapidapi.com for both hotel and carRental sources
-- [Phase 05-01]: searchDestinations() returns empty array on error - autocomplete must never surface errors
-- [Phase 05-hotels]: Hotels use two separate mat-datepicker inputs for check-in/check-out instead of mat-date-range-picker (which flights use) - avoids awkward range picker UX and simplifies validation
-- [Phase 05-hotels]: Star rating rendered via renderStars() method returning array of icon names (star, star_half, star_border) for template iteration
-- [Phase 05-hotels]: Hotels use two separate mat-datepicker inputs for check-in/check-out instead of mat-date-range-picker (which flights use) - avoids awkward range picker UX and simplifies validation
-- [Phase 05-hotels]: Star rating rendered via renderStars() method returning array of icon names (star, star_half, star_border) for template iteration
+- 05-01: RapidAPI sources (hotel, carRental) use X-RapidAPI-Key and X-RapidAPI-Host headers instead of X-API-Key
+- 05-01: Hardcoded X-RapidAPI-Host to booking-com15.p.rapidapi.com for both hotel and carRental sources
+- 05-01: searchDestinations() returns empty array on error — autocomplete must never surface errors
+- 05-02: Hotels use two separate mat-datepicker inputs for check-in/check-out instead of mat-date-range-picker (cleaner UX, simpler validation)
+- 05-02: Star rating rendered via renderStars() method returning array of icon names (star, star_half, star_border) for template iteration
 
 ### Pending Todos
 
@@ -104,5 +101,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 05-02-PLAN.md - Hotel Search UI complete
+Stopped at: Phase 5 Hotels complete and verified — ready to plan Phase 6
 Resume file: None
