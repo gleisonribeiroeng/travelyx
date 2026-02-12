@@ -72,9 +72,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Attractions
 
-- [ ] **ATTR-01**: List tourist attractions by city
-- [ ] **ATTR-02**: Display official link if available
-- [ ] **ATTR-03**: "Add to itinerary" button on each attraction
+- [x] **ATTR-01**: List tourist attractions by city
+- [x] **ATTR-02**: Display official link if available
+- [x] **ATTR-03**: "Add to itinerary" button on each attraction
 
 ### Itinerary
 
@@ -178,9 +178,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOUR-02 | Phase 8 | Done |
 | TOUR-03 | Phase 8 | Done |
 | TOUR-04 | Phase 8 | Done |
-| ATTR-01 | Phase 9 | Pending |
-| ATTR-02 | Phase 9 | Pending |
-| ATTR-03 | Phase 9 | Pending |
+| ATTR-01 | Phase 9 | Done |
+| ATTR-02 | Phase 9 | Done |
+| ATTR-03 | Phase 9 | Done |
 | ITIN-01 | Phase 10 | Pending |
 | ITIN-02 | Phase 10 | Pending |
 | ITIN-03 | Phase 10 | Pending |

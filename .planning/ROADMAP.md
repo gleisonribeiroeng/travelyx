@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Car Rental** - End-to-end car rental search with filters, result cards, add to itinerary, and provider redirect *(completed 2026-02-12)*
 - [x] **Phase 7: Intercity Transport** - End-to-end intercity transport search (bus/train), result listing, external link, and add to itinerary *(completed 2026-02-12)*
 - [x] **Phase 8: Tours & Experiences** - End-to-end tours and experiences search, result cards with description and price, external link, and add to itinerary *(completed 2026-02-12)*
-- [ ] **Phase 9: Attractions** - Attraction listing by city with official link and add to itinerary
+- [x] **Phase 9: Attractions** - Attraction listing by city with official link and add to itinerary *(completed 2026-02-12)*
 - [ ] **Phase 10: Itinerary Builder** - Day-by-day timeline view reading from TripStateService, manual items, edit/remove, and reorder
 - [ ] **Phase 11: UX Polish** - Loading states, empty states, per-source error banners, mobile responsiveness, performance, and visual consistency across all 6 search categories
 
@@ -182,8 +182,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — AttractionApiService + AttractionMapper (OpenTripMap 3-step flow: geoname -> radius -> details), /attractions route and nav link
-- [ ] 09-02-PLAN.md — AttractionSearchComponent with city input, result cards with category chip, conditional official link, and add to itinerary
+- [x] 09-01-PLAN.md — AttractionApiService + AttractionMapper (OpenTripMap 3-step flow: geoname -> radius -> details), /attractions route and nav link
+- [x] 09-02-PLAN.md — AttractionSearchComponent with city input, result cards with category chip, conditional official link, and add to itinerary
 
 ---
 
@@ -246,7 +246,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Car Rental | 2/2 | Complete | 2026-02-12 |
 | 7. Intercity Transport | 2/2 | Complete | 2026-02-12 |
 | 8. Tours & Experiences | 2/2 | Complete | 2026-02-12 |
-| 9. Attractions | 0/2 | Not started | - |
+| 9. Attractions | 2/2 | Complete | 2026-02-12 |
 | 10. Itinerary Builder | 0/4 | Not started | - |
 | 11. UX Polish | 0/6 | Not started | - |
 
