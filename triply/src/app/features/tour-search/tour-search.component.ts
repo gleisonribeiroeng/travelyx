@@ -12,11 +12,12 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TourApiService } from '../../core/api/tour-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Activity, ItineraryItem } from '../../core/models/trip.models';
+import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 
 @Component({
   selector: 'app-tour-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
   templateUrl: './tour-search.component.html',
   styleUrl: './tour-search.component.scss',
 })
@@ -34,6 +35,8 @@ export class TourSearchComponent {
   searchResults = signal<Activity[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
+  errorMessage = signal<string | null>(null);
+  errorSource = signal<string | null>(null);
 
   // Computed signal for sorted results (price ascending)
   sortedResults = computed(() =>
@@ -50,6 +53,7 @@ export class TourSearchComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.errorMessage.set(null);
 
     this.tourApi
       .searchTours({ destination })
@@ -57,17 +61,20 @@ export class TourSearchComponent {
       .subscribe({
         next: (result) => {
           if (result.error) {
-            this.snackBar.open(
-              'Failed to search tours. Please try again.',
-              'Close',
-              { duration: 3000 }
-            );
+            this.errorMessage.set(result.error.message);
+            this.errorSource.set(result.error.source);
             this.searchResults.set([]);
           } else {
             this.searchResults.set(result.data);
           }
         },
       });
+  }
+
+  // Dismiss error banner
+  dismissError(): void {
+    this.errorMessage.set(null);
+    this.errorSource.set(null);
   }
 
   // Add to itinerary

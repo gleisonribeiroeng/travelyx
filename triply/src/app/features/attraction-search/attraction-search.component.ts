@@ -12,11 +12,12 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { AttractionApiService } from '../../core/api/attraction-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Attraction, ItineraryItem } from '../../core/models/trip.models';
+import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 
 @Component({
   selector: 'app-attraction-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
   templateUrl: './attraction-search.component.html',
   styleUrl: './attraction-search.component.scss',
 })
@@ -34,6 +35,8 @@ export class AttractionSearchComponent {
   searchResults = signal<Attraction[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
+  errorMessage = signal<string | null>(null);
+  errorSource = signal<string | null>(null);
 
   // Search attractions
   searchAttractions(): void {
@@ -45,6 +48,7 @@ export class AttractionSearchComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.errorMessage.set(null);
 
     this.attractionApi
       .searchAttractions({ city })
@@ -52,17 +56,20 @@ export class AttractionSearchComponent {
       .subscribe({
         next: (result) => {
           if (result.error) {
-            this.snackBar.open(
-              'Failed to search attractions. Please try again.',
-              'Close',
-              { duration: 3000 }
-            );
+            this.errorMessage.set(result.error.message);
+            this.errorSource.set(result.error.source);
             this.searchResults.set([]);
           } else {
             this.searchResults.set(result.data);
           }
         },
       });
+  }
+
+  // Dismiss error banner
+  dismissError(): void {
+    this.errorMessage.set(null);
+    this.errorSource.set(null);
   }
 
   // Add to itinerary
