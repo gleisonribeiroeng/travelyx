@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 3 of 11 (State & Persistence)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-12 — Plan 03-01 complete (domain models + LocalStorageService)
+Last activity: 2026-02-12 — Plan 03-02 complete (TripStateService with signal-based state + auto-persistence)
 
-Progress: [███░░░░░░░] 21%
+Progress: [████░░░░░░] 24%
 
 ## Performance Metrics
 
@@ -29,10 +29,10 @@ Progress: [███░░░░░░░] 21%
 |-------|-------|-------|----------|
 | 01-foundation | 4/4 | 12 min | 3 min |
 | 02-api-integration-layer | 4/4 | 6 min | 2 min |
-| 03-state-persistence | 1/3 | 1 min | 1 min |
+| 03-state-persistence | 2/3 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01, 02-02, 02-03, 02-04, 03-01
+- Last 5 plans: 02-02, 02-03, 02-04, 03-01, 03-02
 - Trend: stable
 
 *Updated after each plan completion*
@@ -70,6 +70,9 @@ Recent decisions affecting current work:
 - 03-01: All datetime fields use string type (ISO 8601) not Date objects — ensures JSON round-trips without type mismatch after deserialization
 - 03-01: LocalStorageService swallows non-quota errors silently (SecurityError in private browsing) — app continues with in-memory state only
 - 03-01: isQuotaExceededError checks both code (22, 1014) and name variants — cross-browser coverage for Chrome, Firefox, and modern browsers
+- 03-02: Signal initializer provides synchronous localStorage hydration — no APP_INITIALIZER needed
+- 03-02: effect() in constructor registers _trip() as dependency automatically — every mutation triggers re-persistence without explicit save calls
+- 03-02: resetTrip() generates a fresh UUID inline rather than spreading DEFAULT_TRIP — avoids sharing module-level identity with live state
 
 ### Pending Todos
 
@@ -83,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 03-01-PLAN.md — domain models + LocalStorageService done, ready for 03-02
+Stopped at: Completed 03-02-PLAN.md — TripStateService with signals, effect auto-persistence, and startup recovery done, ready for 03-03
 Resume file: None
