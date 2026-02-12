@@ -76,12 +76,11 @@ Plans:
   3. Any change to trip state is automatically written to localStorage within one render cycle — no manual save action required
   4. Refreshing the browser restores the complete trip exactly as it was left, including all itinerary items
   5. A full 5MB localStorage quota does not crash the app — the safe wrapper handles QuotaExceededError gracefully with a visible warning
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Canonical internal models (all 8 model types)
-- [ ] 03-02: LocalStorageService safe wrapper (try/catch, QuotaExceededError handling)
-- [ ] 03-03: TripStateService (signal-based, effect() auto-persistence, trip recovery on startup)
+- [ ] 03-01-PLAN.md -- Canonical domain models barrel (all 8 types) + LocalStorageService safe wrapper (QuotaExceededError handling)
+- [ ] 03-02-PLAN.md -- TripStateService (signal-based state, effect() auto-persistence, trip recovery on startup)
 
 ---
 
@@ -246,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-02-11 |
 | 2. API Integration Layer | 4/4 | Complete | 2026-02-12 |
-| 3. State & Persistence | 0/3 | Not started | - |
+| 3. State & Persistence | 0/2 | Not started | - |
 | 4. Flights | 0/3 | Not started | - |
 | 5. Hotels | 0/3 | Not started | - |
 | 6. Car Rental | 0/3 | Not started | - |
