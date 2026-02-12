@@ -163,12 +163,11 @@ Plans:
   2. Each result card shows the tour name, description, and price
   3. Clicking the provider link opens the external booking page in a new tab
   4. Clicking "Add to itinerary" adds the tour to TripStateService and it appears in the itinerary view
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TourApiService + TourMapper (Viator or GetYourGuide integration)
-- [ ] 08-02: Tours search form component (destination)
-- [ ] 08-03: Tour result cards with add to itinerary action and provider redirect
+- [ ] 08-01-PLAN.md — TourApiService + TourMapper (Viator Partner API), /tours route and nav link
+- [ ] 08-02-PLAN.md — Tour search UI with destination input, result cards with name/description/price/duration, add to itinerary, and provider redirect
 
 ---
 
@@ -246,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Hotels | 2/2 | Complete | 2026-02-12 |
 | 6. Car Rental | 2/2 | Complete | 2026-02-12 |
 | 7. Intercity Transport | 2/2 | Complete | 2026-02-12 |
-| 8. Tours & Experiences | 0/3 | Not started | - |
+| 8. Tours & Experiences | 0/2 | Not started | - |
 | 9. Attractions | 0/2 | Not started | - |
 | 10. Itinerary Builder | 0/4 | Not started | - |
 | 11. UX Polish | 0/6 | Not started | - |
