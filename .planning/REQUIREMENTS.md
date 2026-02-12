@@ -50,11 +50,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Car Rental
 
-- [ ] **CAR-01**: Search by pick-up location, dates, and times
-- [ ] **CAR-02**: Basic filters on results (vehicle type, price range)
-- [ ] **CAR-03**: Results displayed as cards
-- [ ] **CAR-04**: "Add to itinerary" button on each result card
-- [ ] **CAR-05**: External provider redirect link on each result
+- [x] **CAR-01**: Search by pick-up location, dates, and times
+- [x] **CAR-02**: Basic filters on results (vehicle type, price range)
+- [x] **CAR-03**: Results displayed as cards
+- [x] **CAR-04**: "Add to itinerary" button on each result card
+- [x] **CAR-05**: External provider redirect link on each result
 
 ### Intercity Transport
 
@@ -165,11 +165,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HOTEL-02 | Phase 5 | Done |
 | HOTEL-03 | Phase 5 | Done |
 | HOTEL-04 | Phase 5 | Done |
-| CAR-01 | Phase 6 | Pending |
-| CAR-02 | Phase 6 | Pending |
-| CAR-03 | Phase 6 | Pending |
-| CAR-04 | Phase 6 | Pending |
-| CAR-05 | Phase 6 | Pending |
+| CAR-01 | Phase 6 | Done |
+| CAR-02 | Phase 6 | Done |
+| CAR-03 | Phase 6 | Done |
+| CAR-04 | Phase 6 | Done |
+| CAR-05 | Phase 6 | Done |
 | TRANS-01 | Phase 7 | Pending |
 | TRANS-02 | Phase 7 | Pending |
 | TRANS-03 | Phase 7 | Pending |
