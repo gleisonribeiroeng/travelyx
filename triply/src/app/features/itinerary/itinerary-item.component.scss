@@ -1,0 +1,48 @@
+.itinerary-item {
+  margin-bottom: var(--triply-spacing-md);
+  transition: box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.mat-mdc-card-header {
+  align-items: center;
+}
+
+.time-display {
+  font-weight: 500;
+  margin-right: var(--triply-spacing-sm);
+}
+
+.type-chip {
+  font-size: 0.75rem;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.notes {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: pre-wrap;
+}
+
+.mat-mdc-card-actions {
+  display: flex;
+  gap: var(--triply-spacing-sm);
+  padding: var(--triply-spacing-md);
+}
+
+.edit-form {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--triply-spacing-md);
+    padding: var(--triply-spacing-md);
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}

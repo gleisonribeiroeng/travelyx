@@ -1,0 +1,76 @@
+<mat-card class="itinerary-item">
+  @if (!isEditing()) {
+    <!-- View Mode -->
+    <mat-card-header>
+      <mat-icon mat-card-avatar>{{ getTypeIcon(item.type) }}</mat-icon>
+      <mat-card-title>{{ item.label }}</mat-card-title>
+      <mat-card-subtitle>
+        <span class="time-display">{{ item.timeSlot || 'All-day' }}</span>
+        <mat-chip class="type-chip">{{ item.type }}</mat-chip>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    @if (item.notes) {
+      <mat-card-content>
+        <p class="notes">{{ item.notes }}</p>
+      </mat-card-content>
+    }
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="startEdit()">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+      <button mat-button color="warn" (click)="remove.emit()">
+        <mat-icon>delete</mat-icon> Remove
+      </button>
+
+      @if (!isFirst) {
+        <button mat-icon-button (click)="moveUp.emit()" aria-label="Move up">
+          <mat-icon>arrow_upward</mat-icon>
+        </button>
+      }
+
+      @if (!isLast) {
+        <button mat-icon-button (click)="moveDown.emit()" aria-label="Move down">
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+      }
+    </mat-card-actions>
+  } @else {
+    <!-- Edit Mode -->
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="edit-form">
+      <mat-card-content>
+        <mat-form-field appearance="outline">
+          <mat-label>Date</mat-label>
+          <input matInput type="date" formControlName="date" required>
+          <mat-error>Date is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Time (optional)</mat-label>
+          <input matInput type="time" formControlName="timeSlot">
+          <mat-hint>Leave empty for all-day items</mat-hint>
+          <mat-error>Invalid time format (HH:MM)</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Label</mat-label>
+          <input matInput formControlName="label" required>
+          <mat-error>Label is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Notes (optional)</mat-label>
+          <textarea matInput formControlName="notes" rows="2"></textarea>
+        </mat-form-field>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="editForm.invalid">
+          Save
+        </button>
+      </mat-card-actions>
+    </form>
+  }
+</mat-card>

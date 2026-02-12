@@ -4,11 +4,12 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { ItineraryItem } from '../../core/models/trip.models';
+import { ItineraryItemComponent } from './itinerary-item.component';
 
 @Component({
   selector: 'app-itinerary',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, KeyValuePipe, DatePipe],
+  imports: [MATERIAL_IMPORTS, KeyValuePipe, DatePipe, ItineraryItemComponent],
   templateUrl: './itinerary.component.html',
   styleUrl: './itinerary.component.scss',
 })
