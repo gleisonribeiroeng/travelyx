@@ -1,0 +1,189 @@
+<div class="view-header">
+  <h1>Search Hotels</h1>
+  <p>Find the perfect accommodation for your trip</p>
+</div>
+
+<mat-card class="search-form-card">
+  <mat-card-content>
+    <form [formGroup]="hotelSearchForm" (ngSubmit)="searchHotels()">
+      <!-- Destination Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Destination</mat-label>
+          <input
+            matInput
+            [formControl]="destinationControl"
+            [matAutocomplete]="autoDestination"
+            placeholder="City or destination"
+          />
+          <mat-icon matPrefix>location_on</mat-icon>
+          <mat-autocomplete #autoDestination [displayWith]="displayDestination">
+            @for (dest of filteredDestinations$ | async; track dest.destId) {
+              <mat-option [value]="dest">
+                {{ dest.label }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+          @if (destinationControl.hasError('required')) {
+            <mat-error>Destination is required</mat-error>
+          }
+          @if (destinationControl.hasError('invalidDestination')) {
+            <mat-error>Please select a destination from the list</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Check-in and Check-out Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Check-in</mat-label>
+          <input
+            matInput
+            [matDatepicker]="checkInPicker"
+            formControlName="checkIn"
+            [min]="minCheckInDate"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="checkInPicker"></mat-datepicker-toggle>
+          <mat-datepicker #checkInPicker></mat-datepicker>
+          @if (hotelSearchForm.get('checkIn')?.hasError('required')) {
+            <mat-error>Check-in date is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Check-out</mat-label>
+          <input
+            matInput
+            [matDatepicker]="checkOutPicker"
+            formControlName="checkOut"
+            [min]="minCheckOutDate"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="checkOutPicker"></mat-datepicker-toggle>
+          <mat-datepicker #checkOutPicker></mat-datepicker>
+          @if (hotelSearchForm.get('checkOut')?.hasError('required')) {
+            <mat-error>Check-out date is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Guests and Rooms Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Guests</mat-label>
+          <mat-select formControlName="guests">
+            @for (num of [1, 2, 3, 4, 5, 6, 7, 8]; track num) {
+              <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Guest' : 'Guests' }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Rooms</mat-label>
+          <mat-select formControlName="rooms">
+            @for (num of [1, 2, 3, 4, 5]; track num) {
+              <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Room' : 'Rooms' }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>hotel</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Submit Button -->
+      @if (isSearching()) {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="true"
+        >
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Searching...</span>
+        </button>
+      } @else {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="hotelSearchForm.invalid"
+        >
+          <mat-icon>search</mat-icon>
+          <span>Search Hotels</span>
+        </button>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- Results Section -->
+@if (searchResults().length > 0) {
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ sortedHotels().length }} hotels found</h2>
+
+      <!-- Sort Dropdown -->
+      <mat-form-field appearance="outline" class="sort-field">
+        <mat-label>Sort by</mat-label>
+        <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
+          <mat-option value="price">Price (lowest)</mat-option>
+          <mat-option value="rating">Rating (highest)</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Hotel Result Cards -->
+    @for (hotel of sortedHotels(); track hotel.id) {
+      <mat-card class="hotel-card">
+        <mat-card-content>
+          <div class="hotel-header">
+            <div class="hotel-name">{{ hotel.name }}</div>
+            <div class="hotel-price">
+              <div class="amount">{{ hotel.pricePerNight.total | currency: hotel.pricePerNight.currency }}</div>
+              <div class="per-night">/night</div>
+            </div>
+          </div>
+
+          <div class="hotel-rating">
+            @for (star of renderStars(hotel.rating); track $index) {
+              <mat-icon class="star-icon">{{ star }}</mat-icon>
+            }
+            <span class="rating-text">{{ formatRating(hotel.rating) }}</span>
+          </div>
+
+          <div class="hotel-details">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ hotel.address }}</span>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="addToItinerary(hotel)">
+            <mat-icon>add</mat-icon>
+            Add to Itinerary
+          </button>
+          <a
+            mat-button
+            [href]="hotel.link.url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <mat-icon>open_in_new</mat-icon>
+            View on {{ hotel.link.provider }}
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+}
+
+<!-- Empty State -->
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>hotel</mat-icon>
+      <p>No hotels found. Try a different destination or dates.</p>
+    </mat-card-content>
+  </mat-card>
+}
