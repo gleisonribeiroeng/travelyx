@@ -218,15 +218,15 @@ Plans:
   4. All views are usable and visually correct on a 375px mobile screen (no horizontal overflow, no overlapping text)
   5. All 6 search category result cards share the same Angular Material card design — visual consistency is immediately apparent
   6. The navigation between search categories and the itinerary view is visible and reachable from every page, and the primary "Add to itinerary" action is always the most prominent button on result cards
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 11-01: Per-source loading states across all 6 search categories
-- [ ] 11-02: Empty states for all search and itinerary views
-- [ ] 11-03: Per-source error banners with dismissal
-- [ ] 11-04: Mobile-responsive layout audit and fixes across all views
-- [ ] 11-05: Visual consistency pass — unified Angular Material card design across all 6 categories
-- [ ] 11-06: Navigation and primary action prominence audit
+- [ ] 11-01-PLAN.md — Create reusable ErrorBannerComponent (shared per-source error banner)
+- [ ] 11-02-PLAN.md — Shared SCSS global classes for card consistency and empty states
+- [ ] 11-03-PLAN.md — Error banners + button prominence for Flights, Hotels, Cars
+- [ ] 11-04-PLAN.md — Error banners + button prominence for Transport, Tours, Attractions
+- [ ] 11-05-PLAN.md — Mobile-responsive header navigation and itinerary view
+- [ ] 11-06-PLAN.md — Final build verification and UX requirements audit
 
 ---
 
