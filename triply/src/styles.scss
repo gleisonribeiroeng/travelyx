@@ -34,3 +34,117 @@ body {
   margin: 0;
   padding: 0;
 }
+
+// Shared search result card styles
+// Components apply .result-card class to get consistent card design
+.result-card {
+  margin-bottom: var(--triply-spacing-md);
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--triply-spacing-md);
+  }
+
+  .result-info {
+    flex: 1;
+  }
+
+  .result-name {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0 0 var(--triply-spacing-sm) 0;
+    color: var(--mat-sys-on-surface);
+  }
+
+  .result-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--mat-sys-on-surface-variant);
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+    }
+
+    .separator {
+      color: var(--mat-sys-outline);
+    }
+  }
+
+  .result-price {
+    text-align: right;
+
+    .amount {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--mat-sys-primary);
+    }
+
+    .price-label {
+      font-size: 0.8rem;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .result-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--triply-spacing-sm);
+    margin-top: var(--triply-spacing-sm);
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--mat-sys-on-surface-variant);
+
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+      }
+
+      span {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .result-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--triply-spacing-sm);
+    }
+  }
+}
+
+// Shared empty state card styles
+.empty-state-card {
+  text-align: center;
+  padding: var(--triply-spacing-xl);
+  margin-top: var(--triply-spacing-xl);
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--triply-spacing-md);
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  p {
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}
