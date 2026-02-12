@@ -146,12 +146,11 @@ Plans:
   2. Each result shows the transport mode, duration, and price
   3. Clicking the provider link opens the external booking page in a new tab
   4. Clicking "Add to itinerary" adds the transport leg to TripStateService and it appears in the itinerary view
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: TransportApiService + TransportMapper (Rome2rio or fallback integration)
-- [ ] 07-02: Intercity transport search form component (origin city, destination city)
-- [ ] 07-03: Transport result listing with add to itinerary action and external link
+- [ ] 07-01-PLAN.md — TransportApiService + TransportMapper (hypothetical endpoint, provider TBD), /transport route and nav link
+- [ ] 07-02-PLAN.md — Transport search UI with origin/destination city inputs, departure date, mode filter (bus/train/ferry), result cards with duration/price, add to itinerary, and provider redirect
 
 ---
 
@@ -246,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Flights | 2/2 | Complete | 2026-02-12 |
 | 5. Hotels | 2/2 | Complete | 2026-02-12 |
 | 6. Car Rental | 2/2 | Complete | 2026-02-12 |
-| 7. Intercity Transport | 0/3 | Not started | - |
+| 7. Intercity Transport | 0/2 | Planning complete | - |
 | 8. Tours & Experiences | 0/3 | Not started | - |
 | 9. Attractions | 0/2 | Not started | - |
 | 10. Itinerary Builder | 0/4 | Not started | - |
