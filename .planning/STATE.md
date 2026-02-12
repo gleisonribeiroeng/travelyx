@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 9 of 11 (Attractions)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-12 — Completed 09-01 (Attractions API Integration)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-12 — Completed 09-02 (Attraction Search UI)
 
-Progress: [████████░░] 75%
+Progress: [████████░░] 79%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: 2 min
 - Total execution time: 1.1 hours
 
@@ -35,13 +35,14 @@ Progress: [████████░░] 75%
 | 06-car-rental | 2/2 | 5 min | 2 min |
 | 07-intercity-transport | 2/2 | 5 min | 2 min |
 | 08-tours-experiences | 2/2 | 3 min | 1 min |
-| 09-attractions | 1/2 | 2 min | 2 min |
+| 09-attractions | 2/2 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-01, 07-02, 08-01, 08-02, 09-01
+- Last 5 plans: 07-02, 08-01, 08-02, 09-01, 09-02
 - Trend: stable
 
 *Updated after each plan completion*
+| Phase 09 P02 | 2 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,10 @@ Recent decisions affecting current work:
 - [Phase 09-01]: Use museum icon for Attractions nav link (most recognizable for tourist attractions)
 - [Phase 09-01]: Three-step OpenTripMap flow with switchMap chaining (geoname -> radius -> details enrichment)
 - [Phase 09-01]: Nullable link pattern for attractions without official URLs (link: ExternalLink | null)
+- [Phase 09-02]: AttractionSearchComponent uses city-only form (simpler pattern from tours, not multi-field like hotels/transport)
+- [Phase 09-02]: NO sorting computed signal for attractions (no price field to sort by, unlike tours)
+- [Phase 09-02]: Conditional link rendering with @if (attraction.link !== null) for nullable link field
+- [Phase 09-02]: Category displayed as mat-chip for visual distinction and scannability
 
 ### Pending Todos
 
@@ -130,6 +135,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-12T17:40:17Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-02-12T17:45:04Z
+Stopped at: Completed 09-02-PLAN.md (Phase 9 complete)
 Resume file: None
