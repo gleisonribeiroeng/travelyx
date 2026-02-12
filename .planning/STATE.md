@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 2 of 11 (API Integration Layer)
-Plan: 0 of 7 in current phase
-Status: Ready to plan
-Last activity: 2026-02-11 — Phase 1 Foundation complete (verified)
+Plan: 2 of 7 in current phase
+Status: In progress
+Last activity: 2026-02-12 — Plans 02-01 and 02-02 complete
 
-Progress: [█░░░░░░░░░] 9%
+Progress: [█░░░░░░░░░] 11%
 
 ## Performance Metrics
 
@@ -28,9 +28,10 @@ Progress: [█░░░░░░░░░] 9%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 4/4 | 12 min | 3 min |
+| 02-api-integration-layer | 2/7 | 2 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01, 01-02, 01-03, 01-04
+- Last 5 plans: 01-01, 01-02, 01-03, 01-04, 02-01, 02-02
 - Trend: stable
 
 *Updated after each plan completion*
@@ -55,6 +56,8 @@ Recent decisions affecting current work:
 - 01-04: All API keys use empty string placeholders in environment files — never real values in version control
 - 01-04: 8 API key slots established: amadeusApiKey, amadeusApiSecret, hotelApiKey, carRentalApiKey, transportApiKey, toursApiKey, attractionsApiKey, googlePlacesApiKey
 - 01-04: Development apiBaseUrl set to localhost:4200 as proxy base for Phase 2 CORS handling
+- 02-02: Transport API proxy entry uses placeholder https://api.example.com — Rome2rio unavailable, provider TBD before Phase 7
+- 02-02: Hotels and cars share same RapidAPI proxy host — path differentiation handled in service layer
 
 ### Pending Todos
 
@@ -67,6 +70,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-11
-Stopped at: Phase 1 Foundation complete and verified — ready to plan Phase 2
+Last session: 2026-02-12
+Stopped at: Completed 02-02-PLAN.md — Angular dev proxy configured, ready for 02-03
 Resume file: None
