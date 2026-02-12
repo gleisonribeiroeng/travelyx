@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Angular 17+ project scaffold with Angular Material, modular architecture, layout base, environments, and design system *(completed 2026-02-11)*
 - [x] **Phase 2: API Integration Layer** - HTTP service abstraction, functional interceptors, response mappers, API key config, CORS proxy validation, error handling, and rate-limit patterns *(completed 2026-02-12)*
-- [ ] **Phase 3: State & Persistence** - Signal-based TripStateService, all canonical models, localStorage persistence with safe wrapper, and trip recovery on startup
+- [x] **Phase 3: State & Persistence** - Signal-based TripStateService, all canonical models, localStorage persistence with safe wrapper, and trip recovery on startup *(completed 2026-02-12)*
 - [ ] **Phase 4: Flights** - End-to-end flight search with filters, result cards, add to itinerary, and provider redirect
 - [ ] **Phase 5: Hotels** - End-to-end hotel search with result cards showing price/rating, add to itinerary, and provider redirect
 - [ ] **Phase 6: Car Rental** - End-to-end car rental search with filters, result cards, add to itinerary, and provider redirect
@@ -79,8 +79,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Canonical domain models barrel (all 8 types) + LocalStorageService safe wrapper (QuotaExceededError handling)
-- [ ] 03-02-PLAN.md -- TripStateService (signal-based state, effect() auto-persistence, trip recovery on startup)
+- [x] 03-01-PLAN.md -- Canonical domain models barrel (all 8 types) + LocalStorageService safe wrapper (QuotaExceededError handling)
+- [x] 03-02-PLAN.md -- TripStateService (signal-based state, effect() auto-persistence, trip recovery on startup)
 
 ---
 
@@ -245,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-02-11 |
 | 2. API Integration Layer | 4/4 | Complete | 2026-02-12 |
-| 3. State & Persistence | 0/2 | Not started | - |
+| 3. State & Persistence | 2/2 | Complete | 2026-02-12 |
 | 4. Flights | 0/3 | Not started | - |
 | 5. Hotels | 0/3 | Not started | - |
 | 6. Car Rental | 0/3 | Not started | - |

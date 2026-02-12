@@ -27,11 +27,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### State & Persistence
 
-- [ ] **STATE-01**: TripStateService as signal-based global state (single source of truth)
-- [ ] **STATE-02**: Canonical internal models defined: Trip, Flight, Stay, CarRental, Transport, Activity, Attraction, ItineraryItem
-- [ ] **STATE-03**: Auto-persistence to localStorage via effect() on every state change
-- [ ] **STATE-04**: Trip recovery on app startup from localStorage
-- [ ] **STATE-05**: Safe localStorage wrapper with try/catch and QuotaExceededError handling
+- [x] **STATE-01**: TripStateService as signal-based global state (single source of truth)
+- [x] **STATE-02**: Canonical internal models defined: Trip, Flight, Stay, CarRental, Transport, Activity, Attraction, ItineraryItem
+- [x] **STATE-03**: Auto-persistence to localStorage via effect() on every state change
+- [x] **STATE-04**: Trip recovery on app startup from localStorage
+- [x] **STATE-05**: Safe localStorage wrapper with try/catch and QuotaExceededError handling
 
 ### Flights
 
@@ -151,11 +151,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-05 | Phase 2 | Done |
 | API-06 | Phase 2 | Done |
 | API-07 | Phase 2 | Done |
-| STATE-01 | Phase 3 | Pending |
-| STATE-02 | Phase 3 | Pending |
-| STATE-03 | Phase 3 | Pending |
-| STATE-04 | Phase 3 | Pending |
-| STATE-05 | Phase 3 | Pending |
+| STATE-01 | Phase 3 | Done |
+| STATE-02 | Phase 3 | Done |
+| STATE-03 | Phase 3 | Done |
+| STATE-04 | Phase 3 | Done |
+| STATE-05 | Phase 3 | Done |
 | FLIGHT-01 | Phase 4 | Pending |
 | FLIGHT-02 | Phase 4 | Pending |
 | FLIGHT-03 | Phase 4 | Pending |
