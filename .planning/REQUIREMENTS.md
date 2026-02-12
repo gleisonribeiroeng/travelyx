@@ -35,11 +35,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Flights
 
-- [ ] **FLIGHT-01**: Search by origin, destination, dates, and passengers
-- [ ] **FLIGHT-02**: Filter results by direct/with stopovers
-- [ ] **FLIGHT-03**: Results displayed as cards with price, duration, airline, and stops
-- [ ] **FLIGHT-04**: "Add to itinerary" button on each result card
-- [ ] **FLIGHT-05**: External provider redirect link on each result
+- [x] **FLIGHT-01**: Search by origin, destination, dates, and passengers
+- [x] **FLIGHT-02**: Filter results by direct/with stopovers
+- [x] **FLIGHT-03**: Results displayed as cards with price, duration, airline, and stops
+- [x] **FLIGHT-04**: "Add to itinerary" button on each result card
+- [x] **FLIGHT-05**: External provider redirect link on each result
 
 ### Hotels
 
@@ -156,11 +156,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STATE-03 | Phase 3 | Done |
 | STATE-04 | Phase 3 | Done |
 | STATE-05 | Phase 3 | Done |
-| FLIGHT-01 | Phase 4 | Pending |
-| FLIGHT-02 | Phase 4 | Pending |
-| FLIGHT-03 | Phase 4 | Pending |
-| FLIGHT-04 | Phase 4 | Pending |
-| FLIGHT-05 | Phase 4 | Pending |
+| FLIGHT-01 | Phase 4 | Done |
+| FLIGHT-02 | Phase 4 | Done |
+| FLIGHT-03 | Phase 4 | Done |
+| FLIGHT-04 | Phase 4 | Done |
+| FLIGHT-05 | Phase 4 | Done |
 | HOTEL-01 | Phase 5 | Pending |
 | HOTEL-02 | Phase 5 | Pending |
 | HOTEL-03 | Phase 5 | Pending |

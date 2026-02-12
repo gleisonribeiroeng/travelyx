@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Angular 17+ project scaffold with Angular Material, modular architecture, layout base, environments, and design system *(completed 2026-02-11)*
 - [x] **Phase 2: API Integration Layer** - HTTP service abstraction, functional interceptors, response mappers, API key config, CORS proxy validation, error handling, and rate-limit patterns *(completed 2026-02-12)*
 - [x] **Phase 3: State & Persistence** - Signal-based TripStateService, all canonical models, localStorage persistence with safe wrapper, and trip recovery on startup *(completed 2026-02-12)*
-- [ ] **Phase 4: Flights** - End-to-end flight search with filters, result cards, add to itinerary, and provider redirect
+- [x] **Phase 4: Flights** - End-to-end flight search with filters, result cards, add to itinerary, and provider redirect *(completed 2026-02-12)*
 - [ ] **Phase 5: Hotels** - End-to-end hotel search with result cards showing price/rating, add to itinerary, and provider redirect
 - [ ] **Phase 6: Car Rental** - End-to-end car rental search with filters, result cards, add to itinerary, and provider redirect
 - [ ] **Phase 7: Intercity Transport** - End-to-end intercity transport search (bus/train), result listing, external link, and add to itinerary
@@ -97,8 +97,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — FlightApiService (OAuth2 token management, searchFlights, searchAirports) + FlightMapper (Amadeus response to Flight model)
-- [ ] 04-02-PLAN.md — Flight search form with airport autocomplete, date range picker, result cards with filter/sort, add to itinerary, and provider redirect
+- [x] 04-01-PLAN.md — FlightApiService (OAuth2 token management, searchFlights, searchAirports) + FlightMapper (Amadeus response to Flight model)
+- [x] 04-02-PLAN.md — Flight search form with airport autocomplete, date range picker, result cards with filter/sort, add to itinerary, and provider redirect
 
 ---
 
@@ -245,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Foundation | 4/4 | Complete | 2026-02-11 |
 | 2. API Integration Layer | 4/4 | Complete | 2026-02-12 |
 | 3. State & Persistence | 2/2 | Complete | 2026-02-12 |
-| 4. Flights | 0/2 | Not started | - |
+| 4. Flights | 2/2 | Complete | 2026-02-12 |
 | 5. Hotels | 0/3 | Not started | - |
 | 6. Car Rental | 0/3 | Not started | - |
 | 7. Intercity Transport | 0/3 | Not started | - |
