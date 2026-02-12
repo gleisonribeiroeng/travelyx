@@ -162,31 +162,6 @@
   }
 }
 
-.empty-state {
-  text-align: center;
-  padding: var(--triply-spacing-xl);
-  margin-top: var(--triply-spacing-xl);
-
-  mat-card-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--triply-spacing-md);
-  }
-
-  mat-icon {
-    font-size: 48px;
-    height: 48px;
-    width: 48px;
-    color: var(--mat-sys-on-surface-variant);
-  }
-
-  p {
-    color: var(--mat-sys-on-surface-variant);
-    margin: 0;
-  }
-}
-
 // Responsive adjustments
 @media (max-width: 600px) {
   .form-row {
