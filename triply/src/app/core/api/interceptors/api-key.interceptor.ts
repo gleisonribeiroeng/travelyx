@@ -10,8 +10,16 @@ import { ApiConfigService } from '../api-config.service';
 export const API_SOURCE = new HttpContextToken<string | null>(() => null);
 
 /**
- * Functional interceptor that injects an X-API-Key header when API_SOURCE
+ * RapidAPI sources that require X-RapidAPI-Key and X-RapidAPI-Host headers
+ * instead of X-API-Key.
+ */
+const RAPID_API_SOURCES = ['hotel', 'carRental'];
+
+/**
+ * Functional interceptor that injects API key headers when API_SOURCE
  * is set on the request context and a key is configured for that source.
+ * - RapidAPI sources (hotel, carRental) get X-RapidAPI-Key and X-RapidAPI-Host
+ * - Other sources get X-API-Key
  * Passes through silently if source is null or key is not configured.
  */
 export const apiKeyInterceptor: HttpInterceptorFn = (req, next) => {
@@ -25,6 +33,17 @@ export const apiKeyInterceptor: HttpInterceptorFn = (req, next) => {
   const key = apiConfig.getKey(source);
   if (!key) {
     return next(req);
+  }
+
+  if (RAPID_API_SOURCES.includes(source)) {
+    // RapidAPI requires both X-RapidAPI-Key and X-RapidAPI-Host headers.
+    // Both hotel and carRental use the same RapidAPI provider.
+    const authReq = req.clone({
+      headers: req.headers
+        .set('X-RapidAPI-Key', key)
+        .set('X-RapidAPI-Host', 'booking-com15.p.rapidapi.com'),
+    });
+    return next(authReq);
   }
 
   const authReq = req.clone({

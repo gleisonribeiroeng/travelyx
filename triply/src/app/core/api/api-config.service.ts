@@ -15,7 +15,7 @@ export class ApiConfigService {
 
   readonly endpoints: Record<string, string> = {
     amadeus: `${environment.apiBaseUrl}/api/amadeus`,
-    hotels: `${environment.apiBaseUrl}/api/hotels`,
+    hotel: `${environment.apiBaseUrl}/api/hotels`,
     carRental: `${environment.apiBaseUrl}/api/cars`,
     transport: `${environment.apiBaseUrl}/api/transport`,
     tours: `${environment.apiBaseUrl}/api/tours`,
