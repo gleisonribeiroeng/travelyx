@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** O usuario sai do zero ao roteiro completo em uma unica sessao — buscando voos, hotel, passeios e atracoes, adicionando tudo a um timeline organizado por dia e horario, sem criar conta.
-**Current focus:** Phase 8 — Tours & Experiences
+**Current focus:** Phase 9 — Attractions
 
 ## Current Position
 
-Phase: 8 of 11 (Tours & Experiences)
-Plan: 2 of 2 in current phase
-Status: Complete
-Last activity: 2026-02-12 — Plan 08-02 complete (Tour Search Component)
+Phase: 9 of 11 (Attractions)
+Plan: 0 of 2 in current phase
+Status: Ready to plan
+Last activity: 2026-02-12 — Phase 8 complete (Tours & Experiences)
 
 Progress: [███████░░░] 71%
 

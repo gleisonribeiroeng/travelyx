@@ -65,10 +65,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Tours & Experiences
 
-- [ ] **TOUR-01**: Search by destination
-- [ ] **TOUR-02**: Results displayed as cards with description and price
-- [ ] **TOUR-03**: External provider redirect link on each result
-- [ ] **TOUR-04**: "Add to itinerary" button on each result card
+- [x] **TOUR-01**: Search by destination
+- [x] **TOUR-02**: Results displayed as cards with description and price
+- [x] **TOUR-03**: External provider redirect link on each result
+- [x] **TOUR-04**: "Add to itinerary" button on each result card
 
 ### Attractions
 
@@ -174,10 +174,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TRANS-02 | Phase 7 | Done |
 | TRANS-03 | Phase 7 | Done |
 | TRANS-04 | Phase 7 | Done |
-| TOUR-01 | Phase 8 | Pending |
-| TOUR-02 | Phase 8 | Pending |
-| TOUR-03 | Phase 8 | Pending |
-| TOUR-04 | Phase 8 | Pending |
+| TOUR-01 | Phase 8 | Done |
+| TOUR-02 | Phase 8 | Done |
+| TOUR-03 | Phase 8 | Done |
+| TOUR-04 | Phase 8 | Done |
 | ATTR-01 | Phase 9 | Pending |
 | ATTR-02 | Phase 9 | Pending |
 | ATTR-03 | Phase 9 | Pending |

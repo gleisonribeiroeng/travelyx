@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Hotels** - End-to-end hotel search with result cards showing price/rating, add to itinerary, and provider redirect *(completed 2026-02-12)*
 - [x] **Phase 6: Car Rental** - End-to-end car rental search with filters, result cards, add to itinerary, and provider redirect *(completed 2026-02-12)*
 - [x] **Phase 7: Intercity Transport** - End-to-end intercity transport search (bus/train), result listing, external link, and add to itinerary *(completed 2026-02-12)*
-- [ ] **Phase 8: Tours & Experiences** - End-to-end tours and experiences search, result cards with description and price, external link, and add to itinerary
+- [x] **Phase 8: Tours & Experiences** - End-to-end tours and experiences search, result cards with description and price, external link, and add to itinerary *(completed 2026-02-12)*
 - [ ] **Phase 9: Attractions** - Attraction listing by city with official link and add to itinerary
 - [ ] **Phase 10: Itinerary Builder** - Day-by-day timeline view reading from TripStateService, manual items, edit/remove, and reorder
 - [ ] **Phase 11: UX Polish** - Loading states, empty states, per-source error banners, mobile responsiveness, performance, and visual consistency across all 6 search categories
@@ -166,8 +166,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — TourApiService + TourMapper (Viator Partner API), /tours route and nav link
-- [ ] 08-02-PLAN.md — Tour search UI with destination input, result cards with name/description/price/duration, add to itinerary, and provider redirect
+- [x] 08-01-PLAN.md — TourApiService + TourMapper (Viator Partner API), /tours route and nav link
+- [x] 08-02-PLAN.md — Tour search UI with destination input, result cards with name/description/price/duration, add to itinerary, and provider redirect
 
 ---
 
@@ -245,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Hotels | 2/2 | Complete | 2026-02-12 |
 | 6. Car Rental | 2/2 | Complete | 2026-02-12 |
 | 7. Intercity Transport | 2/2 | Complete | 2026-02-12 |
-| 8. Tours & Experiences | 0/2 | Not started | - |
+| 8. Tours & Experiences | 2/2 | Complete | 2026-02-12 |
 | 9. Attractions | 0/2 | Not started | - |
 | 10. Itinerary Builder | 0/4 | Not started | - |
 | 11. UX Polish | 0/6 | Not started | - |
