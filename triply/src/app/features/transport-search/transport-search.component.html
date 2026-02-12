@@ -81,6 +81,15 @@
   </mat-card-content>
 </mat-card>
 
+<!-- Error Banner -->
+@if (errorMessage()) {
+  <app-error-banner
+    [source]="errorSource() ?? 'Transport'"
+    [message]="errorMessage()!"
+    (dismiss)="dismissError()"
+  />
+}
+
 <!-- Results Section -->
 @if (searchResults().length > 0) {
   <div class="results-section">
@@ -141,7 +150,7 @@
         </mat-card-content>
 
         <mat-card-actions>
-          <button mat-button color="primary" (click)="addToItinerary(route)">
+          <button mat-raised-button color="primary" (click)="addToItinerary(route)">
             <mat-icon>add</mat-icon>
             Add to Itinerary
           </button>

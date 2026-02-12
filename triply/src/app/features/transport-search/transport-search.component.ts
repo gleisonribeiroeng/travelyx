@@ -12,11 +12,12 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TransportApiService, TransportSearchParams } from '../../core/api/transport-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Transport, ItineraryItem } from '../../core/models/trip.models';
+import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 
 @Component({
   selector: 'app-transport-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
   templateUrl: './transport-search.component.html',
   styleUrl: './transport-search.component.scss',
 })
@@ -37,6 +38,8 @@ export class TransportSearchComponent {
   isSearching = signal(false);
   hasSearched = signal(false);
   modeFilter = signal<string>(''); // '' means all modes, or 'bus'/'train'/'ferry'
+  errorMessage = signal<string | null>(null);
+  errorSource = signal<string | null>(null);
 
   // Computed signal for filtered and sorted results
   filteredResults = computed(() => {
@@ -74,6 +77,7 @@ export class TransportSearchComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.errorMessage.set(null);
 
     this.transportApi
       .searchTransport({
@@ -85,23 +89,25 @@ export class TransportSearchComponent {
       .subscribe({
         next: (result) => {
           if (result.error) {
-            this.snackBar.open(
-              'Failed to search transport options. Please try again.',
-              'Close',
-              { duration: 3000 }
-            );
+            this.errorMessage.set(result.error.message);
+            this.errorSource.set(result.error.source);
             this.searchResults.set([]);
           } else {
             this.searchResults.set(result.data);
           }
         },
         error: () => {
-          this.snackBar.open('An error occurred. Please try again.', 'Close', {
-            duration: 3000,
-          });
+          this.errorMessage.set('An unexpected error occurred. Please try again.');
+          this.errorSource.set('Transport');
           this.searchResults.set([]);
         },
       });
+  }
+
+  // Dismiss error banner
+  dismissError(): void {
+    this.errorMessage.set(null);
+    this.errorSource.set(null);
   }
 
   // Add to itinerary
