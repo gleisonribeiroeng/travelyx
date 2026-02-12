@@ -78,13 +78,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Itinerary
 
-- [ ] **ITIN-01**: Day-by-day timeline view organized by date
-- [ ] **ITIN-02**: Items organized by time slot within each day
-- [ ] **ITIN-03**: Reorder items within a day (simple reordering, no advanced drag-and-drop)
-- [ ] **ITIN-04**: Create custom manual items with name, date, time, and notes
-- [ ] **ITIN-05**: Edit existing itinerary items
-- [ ] **ITIN-06**: Remove itinerary items
-- [ ] **ITIN-07**: All search result additions auto-populate date/time in itinerary
+- [x] **ITIN-01**: Day-by-day timeline view organized by date
+- [x] **ITIN-02**: Items organized by time slot within each day
+- [x] **ITIN-03**: Reorder items within a day (simple reordering, no advanced drag-and-drop)
+- [x] **ITIN-04**: Create custom manual items with name, date, time, and notes
+- [x] **ITIN-05**: Edit existing itinerary items
+- [x] **ITIN-06**: Remove itinerary items
+- [x] **ITIN-07**: All search result additions auto-populate date/time in itinerary
 
 ### UX & Polish
 
@@ -181,13 +181,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ATTR-01 | Phase 9 | Done |
 | ATTR-02 | Phase 9 | Done |
 | ATTR-03 | Phase 9 | Done |
-| ITIN-01 | Phase 10 | Pending |
-| ITIN-02 | Phase 10 | Pending |
-| ITIN-03 | Phase 10 | Pending |
-| ITIN-04 | Phase 10 | Pending |
-| ITIN-05 | Phase 10 | Pending |
-| ITIN-06 | Phase 10 | Pending |
-| ITIN-07 | Phase 10 | Pending |
+| ITIN-01 | Phase 10 | Done |
+| ITIN-02 | Phase 10 | Done |
+| ITIN-03 | Phase 10 | Done |
+| ITIN-04 | Phase 10 | Done |
+| ITIN-05 | Phase 10 | Done |
+| ITIN-06 | Phase 10 | Done |
+| ITIN-07 | Phase 10 | Done |
 | UX-01 | Phase 11 | Pending |
 | UX-02 | Phase 11 | Pending |
 | UX-03 | Phase 11 | Pending |

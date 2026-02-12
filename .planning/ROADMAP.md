@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Intercity Transport** - End-to-end intercity transport search (bus/train), result listing, external link, and add to itinerary *(completed 2026-02-12)*
 - [x] **Phase 8: Tours & Experiences** - End-to-end tours and experiences search, result cards with description and price, external link, and add to itinerary *(completed 2026-02-12)*
 - [x] **Phase 9: Attractions** - Attraction listing by city with official link and add to itinerary *(completed 2026-02-12)*
-- [ ] **Phase 10: Itinerary Builder** - Day-by-day timeline view reading from TripStateService, manual items, edit/remove, and reorder
+- [x] **Phase 10: Itinerary Builder** - Day-by-day timeline view reading from TripStateService, manual items, edit/remove, and reorder *(completed 2026-02-12)*
 - [ ] **Phase 11: UX Polish** - Loading states, empty states, per-source error banners, mobile responsiveness, performance, and visual consistency across all 6 search categories
 
 ## Phase Details
@@ -201,9 +201,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — ItineraryComponent + ItineraryItemComponent (day-by-day timeline, grouping, sorting, inline edit, remove, reorder)
-- [ ] 10-02-PLAN.md — ManualItemFormComponent (custom item creation form integrated into itinerary page)
-- [ ] 10-03-PLAN.md — ITIN-07 wiring (all 6 search components auto-create ItineraryItem on add-to-itinerary)
+- [x] 10-01-PLAN.md — ItineraryComponent + ItineraryItemComponent (day-by-day timeline, grouping, sorting, inline edit, remove, reorder)
+- [x] 10-02-PLAN.md — ManualItemFormComponent (custom item creation form integrated into itinerary page)
+- [x] 10-03-PLAN.md — ITIN-07 wiring (all 6 search components auto-create ItineraryItem on add-to-itinerary)
 
 ---
 
@@ -246,7 +246,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Intercity Transport | 2/2 | Complete | 2026-02-12 |
 | 8. Tours & Experiences | 2/2 | Complete | 2026-02-12 |
 | 9. Attractions | 2/2 | Complete | 2026-02-12 |
-| 10. Itinerary Builder | 0/3 | Not started | - |
+| 10. Itinerary Builder | 3/3 | Complete | 2026-02-12 |
 | 11. UX Polish | 0/6 | Not started | - |
 
 ---
