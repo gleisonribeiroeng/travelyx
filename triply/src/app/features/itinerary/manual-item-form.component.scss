@@ -25,3 +25,21 @@ button[mat-raised-button] {
   align-items: center;
   gap: var(--triply-spacing-xs);
 }
+
+@media (max-width: 600px) {
+  .manual-item-form {
+    padding: var(--triply-spacing-md);
+  }
+
+  mat-form-field {
+    min-width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

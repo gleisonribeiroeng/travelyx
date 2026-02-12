@@ -46,3 +46,22 @@
     width: 100%;
   }
 }
+
+@media (max-width: 600px) {
+  .itinerary-item {
+    margin-bottom: var(--triply-spacing-sm);
+  }
+
+  .mat-mdc-card-actions {
+    flex-wrap: wrap;
+    gap: var(--triply-spacing-xs);
+  }
+
+  .time-display {
+    font-size: 0.875rem;
+  }
+
+  .type-chip {
+    font-size: 0.7rem;
+  }
+}

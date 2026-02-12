@@ -43,3 +43,19 @@
   padding-bottom: var(--triply-spacing-sm);
   border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
+
+@media (max-width: 600px) {
+  .view-header {
+    h1 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .day-header {
+    font-size: 1.1rem;
+  }
+
+  .timeline {
+    gap: var(--triply-spacing-lg);
+  }
+}
