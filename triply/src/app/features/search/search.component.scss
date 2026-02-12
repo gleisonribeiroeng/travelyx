@@ -12,15 +12,216 @@
   }
 }
 
-.placeholder-card {
+.search-form-card {
+  max-width: 800px;
+  margin: 0 auto var(--triply-spacing-xl) auto;
+  padding: var(--triply-spacing-md);
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: var(--triply-spacing-md);
+
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.search-button {
+  width: 100%;
+  margin-top: var(--triply-spacing-md);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }
+}
+
+.results-section {
+  margin-top: var(--triply-spacing-xl);
+}
+
+.results-header {
+  margin-bottom: var(--triply-spacing-md);
+
+  h2 {
+    margin: 0;
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.results-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0 0 var(--triply-spacing-lg) 0;
+
+  mat-chip-listbox {
+    flex: 1;
+  }
+
+  .sort-field {
+    min-width: 200px;
+  }
+}
+
+.flight-card {
+  margin-bottom: var(--triply-spacing-md);
+
+  mat-card-content {
+    padding: var(--triply-spacing-md);
+  }
+}
+
+.flight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--triply-spacing-md);
+
+  .route {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .iata {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: var(--mat-sys-on-surface);
+    }
+
+    mat-icon {
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .price {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.flight-details {
+  display: flex;
+  gap: 24px;
+  margin: var(--triply-spacing-md) 0;
+  flex-wrap: wrap;
+
+  .detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--mat-sys-on-surface-variant);
+
+    mat-icon {
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+
+    span {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.flight-times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--triply-spacing-sm);
+  padding-top: var(--triply-spacing-sm);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+
+  .time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mat-sys-on-surface);
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      color: var(--mat-sys-on-surface-variant);
+    }
+
+    span {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.empty-state {
   text-align: center;
   padding: var(--triply-spacing-xl);
+  margin-top: var(--triply-spacing-xl);
 
-  .placeholder-icon {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--triply-spacing-md);
+  }
+
+  mat-icon {
     font-size: 48px;
     height: 48px;
     width: 48px;
-    color: var(--mat-sys-primary);
-    margin-bottom: var(--triply-spacing-md);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  p {
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+
+    mat-form-field {
+      min-width: 100%;
+    }
+  }
+
+  .flight-details {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .flight-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--triply-spacing-sm);
+
+    .price {
+      align-self: flex-end;
+    }
+  }
+
+  .results-controls {
+    flex-direction: column;
+    align-items: stretch;
+
+    mat-chip-listbox {
+      width: 100%;
+    }
+
+    .sort-field {
+      width: 100%;
+    }
   }
 }

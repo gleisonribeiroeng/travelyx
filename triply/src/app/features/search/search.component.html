@@ -1,10 +1,216 @@
 <div class="view-header">
-  <h1>Search</h1>
-  <p>Search for flights, hotels, car rentals, transport, tours, and attractions.</p>
+  <h1>Search Flights</h1>
+  <p>Find the best flights for your trip</p>
 </div>
-<mat-card class="placeholder-card">
+
+<mat-card class="search-form-card">
   <mat-card-content>
-    <mat-icon class="placeholder-icon">flight</mat-icon>
-    <p>Search features will be available in upcoming phases.</p>
+    <form [formGroup]="flightSearchForm" (ngSubmit)="searchFlights()">
+      <!-- Origin and Destination Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Origin</mat-label>
+          <input
+            matInput
+            [formControl]="originControl"
+            [matAutocomplete]="autoOrigin"
+            placeholder="City or airport"
+          />
+          <mat-icon matPrefix>flight_takeoff</mat-icon>
+          <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
+            @for (airport of filteredOrigins$ | async; track airport.iataCode) {
+              <mat-option [value]="airport">
+                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+          @if (originControl.hasError('required')) {
+            <mat-error>Origin is required</mat-error>
+          }
+          @if (originControl.hasError('invalidAirport')) {
+            <mat-error>Please select an airport from the list</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Destination</mat-label>
+          <input
+            matInput
+            [formControl]="destinationControl"
+            [matAutocomplete]="autoDestination"
+            placeholder="City or airport"
+          />
+          <mat-icon matPrefix>flight_land</mat-icon>
+          <mat-autocomplete #autoDestination [displayWith]="displayAirport">
+            @for (airport of filteredDestinations$ | async; track airport.iataCode) {
+              <mat-option [value]="airport">
+                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+          @if (destinationControl.hasError('required')) {
+            <mat-error>Destination is required</mat-error>
+          }
+          @if (destinationControl.hasError('invalidAirport')) {
+            <mat-error>Please select an airport from the list</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Date Range and Passengers Row -->
+      <div class="form-row" formGroupName="dateRange">
+        <mat-form-field appearance="outline">
+          <mat-label>Travel dates</mat-label>
+          <mat-date-range-input [rangePicker]="picker" [min]="minDepartureDate">
+            <input matStartDate formControlName="departure" placeholder="Departure" />
+            <input matEndDate formControlName="return" placeholder="Return (optional)" />
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+          @if (flightSearchForm.get('dateRange.departure')?.hasError('required')) {
+            <mat-error>Departure date is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Passengers</mat-label>
+          <mat-select formControlName="passengers">
+            @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+              <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adult' : 'Adults' }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Submit Button -->
+      @if (isSearching()) {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="true"
+        >
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Searching...</span>
+        </button>
+      } @else {
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="search-button"
+          [disabled]="flightSearchForm.invalid"
+        >
+          <mat-icon>search</mat-icon>
+          <span>Search Flights</span>
+        </button>
+      }
+    </form>
   </mat-card-content>
 </mat-card>
+
+<!-- Results Section -->
+@if (searchResults().length > 0) {
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ filteredFlights().length }} of {{ searchResults().length }} flights</h2>
+    </div>
+
+    <div class="results-controls">
+      <!-- Filter Chips -->
+      <mat-chip-listbox (change)="setFilter($any($event).value)" [value]="filterType()">
+        <mat-chip-option value="all">
+          All ({{ searchResults().length }})
+        </mat-chip-option>
+        <mat-chip-option value="direct">
+          Direct ({{ countDirectFlights() }})
+        </mat-chip-option>
+        <mat-chip-option value="stopovers">
+          Stopovers ({{ countStopoverFlights() }})
+        </mat-chip-option>
+      </mat-chip-listbox>
+
+      <!-- Sort Dropdown -->
+      <mat-form-field appearance="outline" class="sort-field">
+        <mat-label>Sort by</mat-label>
+        <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
+          <mat-option value="price">Price (lowest)</mat-option>
+          <mat-option value="duration">Duration (shortest)</mat-option>
+          <mat-option value="stops">Stops (fewest)</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Flight Result Cards -->
+    @for (flight of filteredFlights(); track flight.id) {
+      <mat-card class="flight-card">
+        <mat-card-content>
+          <div class="flight-header">
+            <div class="route">
+              <span class="iata">{{ flight.origin }}</span>
+              <mat-icon>arrow_forward</mat-icon>
+              <span class="iata">{{ flight.destination }}</span>
+            </div>
+            <div class="price">
+              {{ flight.price.total | currency: flight.price.currency }}
+            </div>
+          </div>
+
+          <div class="flight-details">
+            <div class="detail">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ formatDuration(flight.durationMinutes) }}</span>
+            </div>
+            <div class="detail">
+              <mat-icon>flight</mat-icon>
+              <span>{{ flight.airline }} {{ flight.flightNumber }}</span>
+            </div>
+            <div class="detail">
+              <mat-icon>{{ flight.stops === 0 ? 'check_circle' : 'connecting_airports' }}</mat-icon>
+              <span>{{ flight.stops === 0 ? 'Direct' : flight.stops + ' stop' + (flight.stops > 1 ? 's' : '') }}</span>
+            </div>
+          </div>
+
+          <div class="flight-times">
+            <div class="time">
+              <mat-icon>flight_takeoff</mat-icon>
+              <span>{{ flight.departureAt | date: 'short' }}</span>
+            </div>
+            <div class="time">
+              <mat-icon>flight_land</mat-icon>
+              <span>{{ flight.arrivalAt | date: 'short' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="addToItinerary(flight)">
+            <mat-icon>add</mat-icon>
+            Add to Itinerary
+          </button>
+          <a
+            mat-button
+            [href]="flight.link.url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <mat-icon>open_in_new</mat-icon>
+            View on {{ flight.link.provider }}
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+}
+
+<!-- Empty State -->
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>flight_takeoff</mat-icon>
+      <p>No flights found. Try different dates or airports.</p>
+    </mat-card-content>
+  </mat-card>
+}

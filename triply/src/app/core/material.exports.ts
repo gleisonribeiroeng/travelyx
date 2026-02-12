@@ -16,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 export const MATERIAL_IMPORTS = [
   MatButtonModule,
@@ -32,4 +33,5 @@ export const MATERIAL_IMPORTS = [
   MatProgressSpinnerModule,
   MatSnackBarModule,
   MatTabsModule,
+  MatAutocompleteModule,
 ] as const;
