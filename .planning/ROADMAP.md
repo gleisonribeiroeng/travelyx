@@ -129,12 +129,11 @@ Plans:
   3. Each result card shows the vehicle name, category, and price
   4. Clicking "Add to itinerary" on a car card adds it to TripStateService and it appears in the itinerary view
   5. Clicking the provider link opens the rental site in a new tab
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: CarApiService + CarMapper (RentalCars.com or Amadeus Cars integration)
-- [ ] 06-02: Car rental search form component (pick-up location, dates, times)
-- [ ] 06-03: Car result cards with filters (vehicle type, price range), add to itinerary action, and provider redirect
+- [ ] 06-01-PLAN.md — CarApiService + CarMapper (Booking.com via RapidAPI), /cars route and nav link
+- [ ] 06-02-PLAN.md — Car rental search UI with pick-up/drop-off location and date+time inputs, result cards with vehicle type/price, client-side filters (vehicle type, max price), add to itinerary, and provider redirect
 
 ---
 
@@ -191,8 +190,8 @@ Plans:
 ---
 
 ### Phase 10: Itinerary Builder
-**Goal**: Users can view, organize, and edit a complete day-by-day trip timeline assembled from all items added during Phases 4–9
-**Depends on**: Phase 3 (reads TripStateService populated by Phases 4–9)
+**Goal**: Users can view, organize, and edit a complete day-by-day trip timeline assembled from all items added during Phases 4-9
+**Depends on**: Phase 3 (reads TripStateService populated by Phases 4-9)
 **Requirements**: ITIN-01, ITIN-02, ITIN-03, ITIN-04, ITIN-05, ITIN-06, ITIN-07
 **Success Criteria** (what must be TRUE):
   1. All items added from any search category appear in the itinerary organized by date, each on the correct day
@@ -246,7 +245,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 3. State & Persistence | 2/2 | Complete | 2026-02-12 |
 | 4. Flights | 2/2 | Complete | 2026-02-12 |
 | 5. Hotels | 2/2 | Complete | 2026-02-12 |
-| 6. Car Rental | 0/3 | Not started | - |
+| 6. Car Rental | 0/2 | Planned | - |
 | 7. Intercity Transport | 0/3 | Not started | - |
 | 8. Tours & Experiences | 0/3 | Not started | - |
 | 9. Attractions | 0/2 | Not started | - |
