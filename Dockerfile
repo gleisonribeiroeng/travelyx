@@ -22,10 +22,12 @@ COPY --from=backend-build /app/backend/dist ./backend/dist
 COPY --from=backend-build /app/backend/node_modules ./backend/node_modules
 COPY --from=backend-build /app/backend/package.json ./backend/package.json
 COPY --from=backend-build /app/backend/prisma ./backend/prisma
+COPY --from=backend-build /app/backend/prisma.config.ts ./backend/prisma.config.ts
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV DATABASE_URL="file:./dev.db"
 
 EXPOSE 3000
 
