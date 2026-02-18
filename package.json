@@ -1,0 +1,14 @@
+{
+  "name": "travelyx",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "postinstall": "npm run install:frontend && npm run install:backend",
+    "build:frontend": "cd frontend && npx ng build --configuration production",
+    "build:backend": "cd backend && npx prisma generate && npx nest build",
+    "build": "npm run build:frontend && npm run build:backend",
+    "start": "cd backend && node dist/main"
+  }
+}

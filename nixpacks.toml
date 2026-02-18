@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "npm-9_x"]
+
+[phases.install]
+cmds = [
+  "cd frontend && npm install",
+  "cd backend && npm install"
+]
+
+[phases.build]
+cmds = [
+  "cd frontend && npx ng build --configuration production",
+  "cd backend && npx prisma generate && npx nest build"
+]
+
+[start]
+cmd = "cd backend && npx prisma migrate deploy && node dist/main"
