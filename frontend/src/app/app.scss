@@ -1,0 +1,113 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--triply-page-bg);
+}
+
+// Public layout (landing, showcase pages)
+.public-content {
+  width: 100%;
+  min-height: 100vh;
+}
+
+// Loading overlay (while fetching trip from DB)
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 16px;
+  font-family: 'Open Sans', Roboto, sans-serif;
+  color: #0D0B30;
+
+  p {
+    font-size: 1rem;
+    opacity: 0.6;
+    margin: 0;
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #7C4DFF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Dashboard shell (authenticated pages)
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: var(--triply-sidebar-width) 1fr var(--triply-right-panel-width);
+  grid-template-rows: var(--triply-topbar-height) 1fr;
+  grid-template-areas:
+    "sidebar topbar    rightpanel"
+    "sidebar content   rightpanel";
+  min-height: 100vh;
+
+  app-sidebar {
+    grid-area: sidebar;
+    grid-row: 1 / -1;
+  }
+
+  app-top-bar {
+    grid-area: topbar;
+  }
+
+  .main-content {
+    grid-area: content;
+    padding: var(--triply-spacing-lg) var(--triply-spacing-xl);
+    overflow-y: auto;
+    background: var(--triply-page-bg);
+    box-sizing: border-box;
+  }
+
+  app-right-panel {
+    grid-area: rightpanel;
+    grid-row: 1 / -1;
+  }
+}
+
+// Tablet: hide right panel
+@media (max-width: 1279px) {
+  .dashboard-shell {
+    grid-template-columns: var(--triply-sidebar-width) 1fr;
+    grid-template-areas:
+      "sidebar topbar"
+      "sidebar content";
+
+    app-right-panel {
+      display: none;
+    }
+  }
+}
+
+// Mobile: single column, sidebar overlays
+@media (max-width: 767px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--triply-topbar-height) 1fr;
+    grid-template-areas:
+      "topbar"
+      "content";
+
+    app-sidebar {
+      grid-area: unset;
+      position: fixed;
+    }
+
+    app-right-panel {
+      display: none;
+    }
+
+    .main-content {
+      padding: var(--triply-spacing-md);
+    }
+  }
+}

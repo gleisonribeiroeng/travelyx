@@ -1,0 +1,334 @@
+<div class="landing-page">
+  <!-- NAV -->
+  <nav class="landing-nav">
+    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo">
+    <div class="nav-links">
+      <a routerLink="/voos">Voos</a>
+      <a routerLink="/hoteis">Hotéis</a>
+      <a routerLink="/passeios">Passeios</a>
+    </div>
+    <div class="nav-actions">
+      @if (authService.isLoggedIn()) {
+        <div class="user-pill">
+          <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+          <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
+        </div>
+        <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
+          Painel
+        </button>
+      } @else {
+        <button class="google-login-btn" (click)="loginWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Entrar com Google
+        </button>
+      }
+    </div>
+  </nav>
+
+  <!-- SEÇÃO 1: HERO CAROUSEL -->
+  <section class="hero">
+    @for (slide of slides; track slide.title; let i = $index) {
+      <div
+        class="hero-slide"
+        [class.active]="i === currentSlide()"
+        [style.background-image]="'url(' + slide.image + ')'"
+      >
+        <div class="hero-overlay"></div>
+      </div>
+    }
+
+    <div class="hero-content">
+      <h1>{{ slides[currentSlide()].title }}</h1>
+      <p>{{ slides[currentSlide()].subtitle }}</p>
+      @if (authService.isLoggedIn()) {
+        <button mat-flat-button class="hero-cta" (click)="navigateTo('/home')">
+          <mat-icon>dashboard</mat-icon>
+          Ir para o Painel
+        </button>
+      } @else {
+        <button class="hero-google-btn" (click)="loginWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" width="22" height="22">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Comece agora com Google
+        </button>
+      }
+    </div>
+
+    <button class="carousel-btn prev" (click)="prev()" aria-label="Anterior">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button class="carousel-btn next" (click)="next()" aria-label="Próximo">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+
+    <div class="carousel-dots">
+      @for (slide of slides; track slide.title; let i = $index) {
+        <button
+          class="dot"
+          [class.active]="i === currentSlide()"
+          (click)="goToSlide(i)"
+          [attr.aria-label]="'Slide ' + (i + 1)"
+        ></button>
+      }
+    </div>
+  </section>
+
+  @if (!loading()) {
+    <!-- SEÇÃO 2: DESTINOS EM DESTAQUE -->
+    @if (destinations().length) {
+      <section class="section destinations-section">
+        <div class="section-header">
+          <div>
+            <h2>Destinos em destaque</h2>
+            <p class="section-sub">Os lugares mais procurados pelos viajantes</p>
+          </div>
+        </div>
+        <div class="destinations-grid">
+          @for (dest of destinations(); track dest.city) {
+            <div class="destination-card" (click)="navigateTo('/voos')">
+              @if (dest.image) {
+                <div class="dest-image" [style.background-image]="'url(' + dest.image + ')'">
+                  <div class="dest-overlay"></div>
+                  <span class="dest-tag">{{ dest.tag }}</span>
+                  <div class="dest-info">
+                    <span class="dest-city">{{ dest.city }}</span>
+                    <span class="dest-price">voos a partir de {{ dest.flightFrom | currency: 'BRL' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- SEÇÃO 3: OFERTAS DO MOMENTO -->
+    <section class="section deals-section alt-bg">
+      <div class="section-header">
+        <div>
+          <h2>Ofertas do momento</h2>
+          <p class="section-sub">Os melhores preços que encontramos para você</p>
+        </div>
+      </div>
+
+      <div class="deals-tabs">
+        <button class="tab-btn" [class.active]="activeDealsTab() === 'flights'" (click)="setDealsTab('flights')">
+          <mat-icon>flight</mat-icon> Voos
+        </button>
+        <button class="tab-btn" [class.active]="activeDealsTab() === 'hotels'" (click)="setDealsTab('hotels')">
+          <mat-icon>hotel</mat-icon> Hotéis
+        </button>
+      </div>
+
+      @if (activeDealsTab() === 'flights') {
+        <div class="deals-grid">
+          @for (flight of dealFlights(); track flight.id) {
+            <div class="deal-card">
+              @if (flight.destinationImage) {
+                <div class="deal-image" [style.background-image]="'url(' + flight.destinationImage + ')'">
+                  <span class="deal-image-label">{{ flight.destinationCity }}</span>
+                </div>
+              }
+              <div class="deal-body">
+                <div class="deal-route">
+                  <span class="route-code">{{ flight.origin }}</span>
+                  <span class="route-line"><mat-icon>flight_takeoff</mat-icon></span>
+                  <span class="route-code">{{ flight.destination }}</span>
+                </div>
+                <div class="deal-details">
+                  <span><mat-icon>schedule</mat-icon> {{ formatDuration(flight.durationMinutes) }}</span>
+                  <span><mat-icon>airlines</mat-icon> {{ flight.airline }}</span>
+                  <span>{{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
+                </div>
+              </div>
+              <div class="deal-footer">
+                <div class="deal-price">
+                  <span class="price-label">a partir de</span>
+                  <span class="price-value">{{ flight.price.total | currency: 'BRL' }}</span>
+                </div>
+                <button mat-flat-button class="deal-btn" (click)="navigateTo('/voos')">Ver mais</button>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="deals-cta">
+          <button mat-stroked-button (click)="navigateTo('/voos')">Ver todas as ofertas de voos <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+      }
+
+      @if (activeDealsTab() === 'hotels') {
+        <div class="deals-grid">
+          @for (hotel of dealHotels(); track hotel.id) {
+            <div class="deal-card">
+              <div class="deal-image" [style.background-image]="'url(' + (hotel.cityImage || hotel.photoUrl) + ')'">
+                <span class="deal-image-label">{{ hotel.city }}</span>
+                <span class="deal-type-badge">{{ hotel.type }}</span>
+              </div>
+              <div class="deal-body">
+                <h4 class="deal-name">{{ hotel.name }}</h4>
+                <div class="deal-details">
+                  <span><mat-icon>location_on</mat-icon> {{ hotel.city }}</span>
+                  <span class="stars">{{ formatStars(hotel.rating) }}</span>
+                  <span>{{ hotel.reviewCount }} aval.</span>
+                </div>
+              </div>
+              <div class="deal-footer">
+                <div class="deal-price">
+                  <span class="price-label">diária</span>
+                  <span class="price-value">{{ hotel.pricePerNight.total | currency: 'BRL' }}</span>
+                </div>
+                <button mat-flat-button class="deal-btn" (click)="navigateTo('/hoteis')">Ver mais</button>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="deals-cta">
+          <button mat-stroked-button (click)="navigateTo('/hoteis')">Ver todas as ofertas de hotéis <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+      }
+    </section>
+
+    <!-- SEÇÃO 4: COMO FUNCIONA -->
+    <section class="section how-it-works">
+      <div class="section-header center">
+        <h2>Como funciona</h2>
+        <p class="section-sub">Planeje sua viagem completa em 3 passos simples</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-icon explore"><mat-icon>travel_explore</mat-icon></div>
+          <h3>Explore</h3>
+          <p>Navegue por destinos, voos, hotéis e passeios sem precisar criar uma conta.</p>
+        </div>
+        <div class="step-connector"><mat-icon>arrow_forward</mat-icon></div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-icon plan"><mat-icon>playlist_add</mat-icon></div>
+          <h3>Monte seu roteiro</h3>
+          <p>Adicione tudo que gostou ao seu roteiro personalizado dia a dia.</p>
+        </div>
+        <div class="step-connector"><mat-icon>arrow_forward</mat-icon></div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-icon go"><mat-icon>luggage</mat-icon></div>
+          <h3>Viaje!</h3>
+          <p>Tenha seu roteiro organizado com todos os detalhes na palma da mão.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 5: EXPERIÊNCIAS POPULARES -->
+    @if (popularTours().length) {
+      <section class="section tours-section alt-bg">
+        <div class="section-header">
+          <div>
+            <h2>Experiências populares</h2>
+            <p class="section-sub">Os passeios que todo mundo está fazendo</p>
+          </div>
+          <button mat-stroked-button (click)="navigateTo('/passeios')">Ver todos <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+        <div class="tours-grid">
+          @for (tour of popularTours(); track tour.id) {
+            <div class="tour-card" (click)="navigateTo('/passeios')">
+              <div class="tour-image" [style.background-image]="'url(' + (tour.cityImage || tour.images[0]) + ')'">
+                <span class="tour-city-label">{{ tour.city }}</span>
+              </div>
+              <div class="tour-body">
+                <h4 class="tour-name">{{ tour.name }}</h4>
+                <p class="tour-desc">{{ tour.description }}</p>
+                <div class="tour-meta">
+                  <span><mat-icon>schedule</mat-icon> {{ formatDuration(tour.durationMinutes) }}</span>
+                  <span><mat-icon>star</mat-icon> {{ tour.rating }} ({{ tour.reviewCount }})</span>
+                </div>
+              </div>
+              <div class="tour-footer">
+                <span class="tour-price">{{ tour.price.total | currency: 'BRL' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- SEÇÃO 6: CTA DE CONVERSÃO -->
+    <section class="conversion-cta">
+      <div class="cta-bg"></div>
+      <div class="cta-content">
+        <h2>Pronto para planejar a viagem dos seus sonhos?</h2>
+        <p>Crie seu roteiro personalizado, organize tudo em um só lugar e viaje sem preocupações.</p>
+        @if (authService.isLoggedIn()) {
+          <button mat-flat-button class="cta-btn" (click)="navigateTo('/planner')">
+            <mat-icon>auto_awesome</mat-icon> Montar meu roteiro
+          </button>
+        } @else {
+          <button class="hero-google-btn" (click)="loginWithGoogle()">
+            <svg class="google-icon" viewBox="0 0 24 24" width="22" height="22">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Monte seu roteiro grátis
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- SEÇÃO 7: PROVA SOCIAL -->
+    <section class="section social-proof">
+      <div class="stats-row">
+        <div class="stat-block">
+          <span class="stat-number">{{ stats().destinations }}+</span>
+          <span class="stat-text">Destinos disponíveis</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-block">
+          <span class="stat-number">{{ stats().tripsPlanned | number }}+</span>
+          <span class="stat-text">Viagens planejadas</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-block">
+          <span class="stat-number">{{ stats().reviews }}+</span>
+          <span class="stat-text">Avaliações positivas</span>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- FOOTER -->
+  <footer class="landing-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
+        <p class="footer-tagline">Planeje sua viagem perfeita</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Explorar</h4>
+          <a routerLink="/voos">Voos</a>
+          <a routerLink="/hoteis">Hotéis</a>
+          <a routerLink="/passeios">Passeios</a>
+        </div>
+        <div class="footer-col">
+          <h4>Produto</h4>
+          <a routerLink="/landing">Como funciona</a>
+          <a routerLink="/landing">Planejador de viagem</a>
+          <a routerLink="/landing">Roteiro visual</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Travelyx — Todos os direitos reservados</p>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,86 @@
+<mat-toolbar>
+  <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="app-logo">
+  <span class="spacer"></span>
+
+  <!-- Desktop nav (hidden on mobile via CSS) -->
+  <nav class="nav-links desktop-nav">
+    <a mat-button routerLink="/search" routerLinkActive="active-link">
+      <mat-icon>search</mat-icon> Voos
+    </a>
+    <a mat-button routerLink="/hotels" routerLinkActive="active-link">
+      <mat-icon>hotel</mat-icon> Hotéis
+    </a>
+    <a mat-button routerLink="/cars" routerLinkActive="active-link">
+      <mat-icon>directions_car</mat-icon> Carros
+    </a>
+    <a mat-button routerLink="/transport" routerLinkActive="active-link">
+      <mat-icon>directions_bus</mat-icon> Transporte
+    </a>
+    <a mat-button routerLink="/tours" routerLinkActive="active-link">
+      <mat-icon>local_activity</mat-icon> Passeios
+    </a>
+    <a mat-button routerLink="/attractions" routerLinkActive="active-link">
+      <mat-icon>museum</mat-icon> Atrações
+    </a>
+    <a mat-button routerLink="/itinerary" routerLinkActive="active-link">
+      <mat-icon>map</mat-icon> Roteiro
+    </a>
+  </nav>
+
+  <!-- User menu -->
+  @if (authService.isLoggedIn()) {
+    <button class="user-chip" [matMenuTriggerFor]="userMenu">
+      <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+      <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
+      <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <div class="menu-header">
+        <strong>{{ authService.user()?.name }}</strong>
+        <small>{{ authService.user()?.email }}</small>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Sair</span>
+      </button>
+    </mat-menu>
+  }
+
+  <!-- Mobile hamburger button (visible only on mobile via CSS) -->
+  <button mat-icon-button class="menu-toggle" (click)="toggleMenu()" aria-label="Abrir menu de navegação">
+    <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+  </button>
+</mat-toolbar>
+
+<!-- Mobile nav drawer (shown when menuOpen) -->
+@if (menuOpen()) {
+  <nav class="mobile-nav">
+    <a mat-button routerLink="/search" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>search</mat-icon> Voos
+    </a>
+    <a mat-button routerLink="/hotels" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>hotel</mat-icon> Hotéis
+    </a>
+    <a mat-button routerLink="/cars" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>directions_car</mat-icon> Carros
+    </a>
+    <a mat-button routerLink="/transport" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>directions_bus</mat-icon> Transporte
+    </a>
+    <a mat-button routerLink="/tours" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>local_activity</mat-icon> Passeios
+    </a>
+    <a mat-button routerLink="/attractions" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>museum</mat-icon> Atrações
+    </a>
+    <a mat-button routerLink="/itinerary" routerLinkActive="active-link" (click)="closeMenu()">
+      <mat-icon>map</mat-icon> Roteiro
+    </a>
+    @if (authService.isLoggedIn()) {
+      <a mat-button (click)="logout(); closeMenu()" class="logout-link">
+        <mat-icon>logout</mat-icon> Sair
+      </a>
+    }
+  </nav>
+}

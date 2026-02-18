@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  googleId  String   @unique
+  email     String   @unique
+  name      String
+  picture   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  trips     Trip[]
+}
+
+model Trip {
+  id          String   @id @default(uuid())
+  name        String   @default("")
+  destination String   @default("")
+  dateStart   String   @default("")
+  dateEnd     String   @default("")
+  // Search results stored as JSON strings (complex nested objects)
+  flights     String   @default("[]")
+  stays       String   @default("[]")
+  carRentals  String   @default("[]")
+  transports  String   @default("[]")
+  activities  String   @default("[]")
+  attractions String   @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itineraryItems ItineraryItem[]
+}
+
+model ItineraryItem {
+  id       String  @id @default(uuid())
+  type     String
+  refId    String?
+  date     String
+  timeSlot String?
+  label    String
+  durationMinutes Int?
+  notes    String  @default("")
+  order    Int     @default(0)
+  tripId   String
+  trip     Trip    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}

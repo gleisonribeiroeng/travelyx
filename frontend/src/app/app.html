@@ -1,0 +1,19 @@
+@if (isLandingPage()) {
+  <main class="public-content">
+    <router-outlet></router-outlet>
+  </main>
+} @else if (tripState.isLoading()) {
+  <div class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Carregando sua viagem...</p>
+  </div>
+} @else {
+  <div class="dashboard-shell">
+    <app-sidebar></app-sidebar>
+    <app-top-bar (hamburgerClick)="onHamburgerClick()"></app-top-bar>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+    <app-right-panel></app-right-panel>
+  </div>
+}

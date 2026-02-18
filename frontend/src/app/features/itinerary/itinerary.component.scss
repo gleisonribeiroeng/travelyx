@@ -1,0 +1,457 @@
+// ── Spacing after manual form ──
+
+:host ::ng-deep app-manual-item-form {
+  display: block;
+  margin-bottom: 20px;
+}
+
+// ── Summary Cards Section ──
+
+$type-colors: (
+  flight:   #f59e0b,
+  stay:     #22c55e,
+  car:      #f97316,
+  activity: #ec4899,
+);
+
+.summary-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  display: flex;
+  background: var(--triply-card-bg, #fff);
+  border: 1px solid var(--mat-sys-outline-variant, #e4e9f2);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .summary-accent {
+    width: 4px;
+    flex-shrink: 0;
+  }
+
+  @each $type, $color in $type-colors {
+    &.type-#{$type} .summary-accent {
+      background: $color;
+    }
+    &.type-#{$type} .summary-icon {
+      color: $color;
+    }
+  }
+}
+
+.summary-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  flex: 1;
+  min-width: 0;
+
+  .summary-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .summary-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+
+    .summary-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #0D0B30;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .summary-sub {
+      font-size: 0.78rem;
+      color: var(--mat-sys-on-surface-variant);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .summary-price {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--mat-sys-primary);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .summary-remove {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    opacity: 0;
+    transition: opacity 0.15s;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.summary-card:hover .summary-remove {
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+    color: #ef4444;
+  }
+}
+
+// ── View Toggle ──
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+
+  mat-button-toggle-group {
+    border-radius: 8px;
+  }
+
+  mat-button-toggle {
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      margin-right: 4px;
+    }
+  }
+}
+
+.trip-summary {
+  display: flex;
+  gap: 16px;
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #0D0B30;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--mat-sys-primary);
+    }
+  }
+}
+
+// ── Calendar Wrapper ──
+
+.calendar-wrapper {
+  background: var(--triply-card-bg, #fff);
+  border-radius: 12px;
+  border: 1px solid var(--mat-sys-outline-variant, #e4e9f2);
+  padding: 16px;
+  overflow: hidden;
+
+  // FullCalendar overrides
+  :host ::ng-deep {
+    .fc {
+      font-family: inherit;
+    }
+
+    .fc .fc-toolbar-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #0D0B30;
+      text-transform: capitalize;
+    }
+
+    .fc .fc-button {
+      background: var(--mat-sys-primary);
+      border-color: var(--mat-sys-primary);
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: none;
+
+      &:hover {
+        opacity: 0.9;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+      }
+    }
+
+    .fc .fc-button-active {
+      background: var(--mat-sys-primary) !important;
+      border-color: var(--mat-sys-primary) !important;
+      opacity: 1;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .fc .fc-button-group > .fc-button {
+      border-radius: 0;
+
+      &:first-child {
+        border-radius: 6px 0 0 6px;
+      }
+
+      &:last-child {
+        border-radius: 0 6px 6px 0;
+      }
+    }
+
+    .fc-theme-standard td,
+    .fc-theme-standard th {
+      border-color: #e4e9f2;
+    }
+
+    .fc-theme-standard .fc-scrollgrid {
+      border-color: #e4e9f2;
+    }
+
+    .fc .fc-daygrid-day-number {
+      font-size: 0.85rem;
+      color: #0D0B30;
+      padding: 4px 8px;
+    }
+
+    .fc .fc-col-header-cell-cushion {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--mat-sys-on-surface-variant);
+      text-transform: capitalize;
+      padding: 8px 4px;
+    }
+
+    .fc-event {
+      border-radius: 4px;
+      font-size: 0.78rem;
+      padding: 1px 4px;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.85;
+      }
+    }
+
+    .fc-daygrid-event {
+      margin: 1px 2px;
+    }
+
+    .fc .fc-day-today {
+      background: rgba(var(--mat-sys-primary-rgb, 66, 133, 244), 0.06) !important;
+    }
+
+    .fc .fc-more-link {
+      font-size: 0.75rem;
+      color: var(--mat-sys-primary);
+      font-weight: 600;
+    }
+
+    // Time grid (week/day view)
+    .fc-timegrid-slot {
+      height: 40px;
+    }
+
+    .fc .fc-timegrid-slot-label-cushion {
+      font-size: 0.75rem;
+      color: var(--mat-sys-on-surface-variant);
+    }
+
+    .fc-timegrid-event {
+      border-radius: 4px;
+    }
+
+    // List view
+    .fc-list-event-title {
+      font-size: 0.85rem;
+    }
+
+    .fc-list-day-cushion {
+      background: #f7f9fc;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+  }
+}
+
+// ── Calendar Timeline (List View) ──
+
+.calendar-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.day-panel {
+  background: var(--triply-card-bg, #fff);
+  border-radius: 12px;
+  border: 1px solid var(--mat-sys-outline-variant, #e4e9f2);
+  overflow: hidden;
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  background: #f7f9fc;
+  border-bottom: 1px solid #e4e9f2;
+
+  .day-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 52px;
+    padding: 6px 10px;
+    background: var(--mat-sys-primary);
+    border-radius: 8px;
+    color: #fff;
+
+    .day-number {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .day-date {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+  }
+
+  .day-info {
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #0D0B30;
+      text-transform: capitalize;
+    }
+
+    .item-count {
+      font-size: 0.8rem;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+}
+
+.day-items {
+  padding: 14px 20px;
+}
+
+.time-marker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  margin-top: 6px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  .time-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--mat-sys-primary);
+    min-width: 44px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .time-line {
+    flex: 1;
+    height: 1px;
+    background: #e4e9f2;
+  }
+}
+
+// ── Empty State ──
+
+.empty-state {
+  text-align: center;
+  padding: var(--triply-spacing-xl);
+
+  .empty-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: var(--mat-sys-primary);
+    margin-bottom: var(--triply-spacing-md);
+  }
+}
+
+// ── Responsive ──
+
+@media (max-width: 600px) {
+  .summary-section {
+    grid-template-columns: 1fr;
+  }
+
+  .view-toggle {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .trip-summary {
+    justify-content: center;
+  }
+
+  .calendar-wrapper {
+    padding: 8px;
+    border-radius: 8px;
+
+    :host ::ng-deep {
+      .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .fc .fc-toolbar-title {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .day-header {
+    padding: 10px 14px;
+    gap: 12px;
+
+    .day-badge {
+      min-width: 44px;
+      padding: 4px 8px;
+    }
+
+    .day-info h2 {
+      font-size: 0.95rem;
+    }
+  }
+
+  .day-items {
+    padding: 10px 14px;
+  }
+}

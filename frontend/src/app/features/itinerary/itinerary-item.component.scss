@@ -1,0 +1,173 @@
+// Color map matching the user's Excel travel spreadsheet
+$type-colors: (
+  flight:     #f59e0b,
+  stay:       #22c55e,
+  car:        #f97316,
+  transport:  #3b82f6,
+  activity:   #ec4899,
+  attraction: #8b5cf6,
+  custom:     #8f9bb3,
+);
+
+.itinerary-card {
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-accent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  @each $type, $color in $type-colors {
+    &.type-#{$type} .card-accent {
+      background-color: $color;
+    }
+    &.type-#{$type} .type-icon {
+      color: $color;
+    }
+  }
+}
+
+.card-body {
+  padding: 14px 16px 8px 20px;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+
+  .type-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .route-display {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #0D0B30;
+
+    .code {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .arrow-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #0D0B30;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .price {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--mat-sys-primary);
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  .time-badge {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    margin-left: auto;
+  }
+}
+
+.card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--mat-sys-on-surface-variant);
+      opacity: 0.7;
+    }
+  }
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 0 8px 6px;
+
+  button {
+    opacity: 0.5;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+// Edit form
+.edit-form {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+// Mobile
+@media (max-width: 600px) {
+  .card-header-row {
+    flex-wrap: wrap;
+
+    .price {
+      width: 100%;
+      text-align: left;
+      margin-top: 4px;
+      margin-left: 30px;
+    }
+  }
+
+  .card-details {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

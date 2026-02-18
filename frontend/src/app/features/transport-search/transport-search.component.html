@@ -1,0 +1,141 @@
+<div class="view-header">
+  <h1>Buscar Transporte</h1>
+  <p>Encontre conexões de ônibus, trem e balsa entre cidades</p>
+</div>
+
+@if (formCollapsed()) {
+  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+    <div class="toggle-info">
+      <mat-icon>directions_bus</mat-icon>
+      <span>Busca de Transporte</span>
+    </div>
+    <div class="toggle-action">
+      <span>Editar busca</span>
+      <mat-icon>expand_more</mat-icon>
+    </div>
+  </div>
+}
+
+<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
+  <mat-card-content>
+    <form [formGroup]="transportSearchForm" (ngSubmit)="searchTransport()">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Cidade de Origem</mat-label>
+          <input matInput formControlName="origin" />
+          <mat-icon matPrefix>trip_origin</mat-icon>
+          @if (transportSearchForm.get('origin')?.hasError('required')) { <mat-error>Cidade de origem é obrigatória</mat-error> }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Cidade de Destino</mat-label>
+          <input matInput formControlName="destination" />
+          <mat-icon matPrefix>place</mat-icon>
+          @if (transportSearchForm.get('destination')?.hasError('required')) { <mat-error>Cidade de destino é obrigatória</mat-error> }
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Data de Partida</mat-label>
+          <input matInput [matDatepicker]="departurePicker" formControlName="departureDate" [min]="minDepartureDate" />
+          <mat-datepicker-toggle matIconSuffix [for]="departurePicker"></mat-datepicker-toggle>
+          <mat-datepicker #departurePicker></mat-datepicker>
+          @if (transportSearchForm.get('departureDate')?.hasError('required')) { <mat-error>Data de partida é obrigatória</mat-error> }
+        </mat-form-field>
+      </div>
+
+      @if (isSearching()) {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Buscando...</span>
+        </button>
+      } @else {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="transportSearchForm.invalid">
+          <mat-icon>search</mat-icon>
+          <span>Buscar Transporte</span>
+        </button>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+@if (errorMessage()) {
+  <app-error-banner [source]="errorSource() ?? 'Transporte'" [message]="errorMessage()!" (dismiss)="dismissError()" />
+}
+
+@if (searchResults().length > 0) {
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ filteredResults().length }} rota{{ filteredResults().length !== 1 ? 's' : '' }} encontrada{{ filteredResults().length !== 1 ? 's' : '' }}</h2>
+
+      <div class="mode-filter">
+        <mat-chip-set>
+          <mat-chip [highlighted]="modeFilter() === ''" (click)="setModeFilter('')">Todos</mat-chip>
+          <mat-chip [highlighted]="modeFilter() === 'bus'" (click)="setModeFilter('bus')">
+            <mat-icon>directions_bus</mat-icon> Ônibus
+          </mat-chip>
+          <mat-chip [highlighted]="modeFilter() === 'train'" (click)="setModeFilter('train')">
+            <mat-icon>train</mat-icon> Trem
+          </mat-chip>
+          <mat-chip [highlighted]="modeFilter() === 'ferry'" (click)="setModeFilter('ferry')">
+            <mat-icon>directions_boat</mat-icon> Balsa
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+
+    @for (route of filteredResults(); track route.id) {
+      <mat-card class="result-card">
+        <div class="card-layout">
+          <div class="card-image mode-icon-block">
+            <mat-icon class="mode-big-icon">{{ getModeIcon(route.mode) }}</mat-icon>
+            <span class="mode-label">{{ route.mode | titlecase }}</span>
+          </div>
+
+          <div class="card-info">
+            <div class="route-cities">
+              <span class="city">{{ route.origin }}</span>
+              <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+              <span class="city">{{ route.destination }}</span>
+            </div>
+            <div class="item-detail">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ formatDuration(route.durationMinutes) }}</span>
+            </div>
+            <div class="item-detail">
+              <mat-icon>login</mat-icon>
+              <span>Partida: {{ route.departureAt }}</span>
+            </div>
+            <div class="item-detail">
+              <mat-icon>logout</mat-icon>
+              <span>Chegada: {{ route.arrivalAt }}</span>
+            </div>
+          </div>
+
+          <div class="card-price-column">
+            <div class="price-block">
+              <span class="price-amount">{{ route.price.total | currency: 'BRL' }}</span>
+              <span class="price-label">por pessoa</span>
+            </div>
+            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(route)">
+              <mat-icon>add</mat-icon> Adicionar
+            </button>
+            <a mat-stroked-button class="action-btn detail-btn" [href]="route.link.url" target="_blank" rel="noopener noreferrer">
+              Ver detalhe
+            </a>
+          </div>
+        </div>
+      </mat-card>
+    }
+  </div>
+}
+
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>directions_bus</mat-icon>
+      <p>Nenhuma opção de transporte encontrada. Tente outras cidades ou datas.</p>
+    </mat-card-content>
+  </mat-card>
+}

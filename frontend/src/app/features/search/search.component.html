@@ -1,0 +1,320 @@
+<div class="view-header">
+  <h1>Buscar Voos</h1>
+  <p>Encontre os melhores voos para sua viagem</p>
+</div>
+
+@if (formCollapsed()) {
+  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+    <div class="toggle-info">
+      <mat-icon>flight</mat-icon>
+      <span>Busca de Voos</span>
+    </div>
+    <div class="toggle-action">
+      <span>Editar busca</span>
+      <mat-icon>expand_more</mat-icon>
+    </div>
+  </div>
+}
+
+<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
+  <mat-card-content>
+    <form [formGroup]="flightSearchForm" (ngSubmit)="searchFlights()">
+      <!-- Trip type toggle -->
+      <div class="trip-type-row">
+        <mat-button-toggle-group [value]="tripType()" (change)="tripType.set($event.value)" class="trip-type-toggle">
+          <mat-button-toggle value="roundTrip">
+            <mat-icon>sync_alt</mat-icon> Ida e volta
+          </mat-button-toggle>
+          <mat-button-toggle value="oneWay">
+            <mat-icon>arrow_forward</mat-icon> Só ida
+          </mat-button-toggle>
+          <mat-button-toggle value="returnOnly">
+            <mat-icon>arrow_back</mat-icon> Só volta
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <!-- Origin and Destination Row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Origem</mat-label>
+          <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
+          <mat-icon matPrefix>flight_takeoff</mat-icon>
+          <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
+            @for (airport of filteredOrigins$ | async; track airport.iataCode) {
+              <mat-option [value]="airport">
+                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+          @if (originControl.hasError('required')) {
+            <mat-error>Origem é obrigatória</mat-error>
+          }
+          @if (originControl.hasError('invalidAirport')) {
+            <mat-error>Selecione um aeroporto da lista</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Destino</mat-label>
+          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
+          <mat-icon matPrefix>flight_land</mat-icon>
+          <mat-autocomplete #autoDestination [displayWith]="displayAirport">
+            @for (airport of filteredDestinations$ | async; track airport.iataCode) {
+              <mat-option [value]="airport">
+                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+          @if (destinationControl.hasError('required')) {
+            <mat-error>Destino é obrigatório</mat-error>
+          }
+          @if (destinationControl.hasError('invalidAirport')) {
+            <mat-error>Selecione um aeroporto da lista</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Flexible dates toggle -->
+      <div class="flexible-row">
+        <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
+          Ainda não defini a data
+        </mat-slide-toggle>
+      </div>
+
+      <!-- Date fields (fixed dates) -->
+      @if (!flexibleDates()) {
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Data de ida</mat-label>
+            <input matInput [matDatepicker]="dpDeparture"
+                   formControlName="departure"
+                   [min]="minDepartureDate">
+            <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
+            <mat-datepicker #dpDeparture></mat-datepicker>
+          </mat-form-field>
+
+          @if (tripType() === 'roundTrip') {
+            <mat-form-field appearance="outline">
+              <mat-label>Data de volta</mat-label>
+              <input matInput [matDatepicker]="dpReturn"
+                     formControlName="returnDate"
+                     [min]="minReturnDate">
+              <mat-datepicker-toggle matSuffix [for]="dpReturn"></mat-datepicker-toggle>
+              <mat-datepicker #dpReturn></mat-datepicker>
+            </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline">
+            <mat-label>Passageiros</mat-label>
+            <mat-select formControlName="passengers">
+              @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+        </div>
+      }
+
+      <!-- Month grid (flexible dates) -->
+      @if (flexibleDates()) {
+        <div class="month-grid">
+          @for (month of availableMonths; track month.value) {
+            <mat-checkbox [checked]="isMonthSelected(month.value)"
+                          (change)="toggleMonth(month.value)">
+              {{ month.label }}
+            </mat-checkbox>
+          }
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Passageiros</mat-label>
+            <mat-select formControlName="passengers">
+              @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+        </div>
+      }
+
+      <!-- Submit Button -->
+      @if (isSearching()) {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Buscando...</span>
+        </button>
+      } @else {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="!canSearch()">
+          <mat-icon>search</mat-icon>
+          <span>Buscar Voos</span>
+        </button>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- Error Banner -->
+@if (errorMessage()) {
+  <app-error-banner
+    [source]="errorSource() ?? 'Voos'"
+    [message]="errorMessage()!"
+    (dismiss)="dismissError()"
+  />
+}
+
+<!-- Results Section -->
+@if (searchResults().length > 0) {
+  <!-- Highlight Cards -->
+  @if (categorized().cheapest || categorized().fastest || categorized().bestValue) {
+    <div class="highlights-strip">
+      @if (categorized().cheapest; as cheapest) {
+        <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
+          <div class="hl-badge"><mat-icon>savings</mat-icon> Mais Barato</div>
+          <div class="hl-route">{{ cheapest.origin }} &rarr; {{ cheapest.destination }}</div>
+          <div class="hl-info">{{ cheapest.airline }} · {{ formatDuration(cheapest.durationMinutes) }} · {{ cheapest.stops === 0 ? 'Direto' : cheapest.stops + ' parada(s)' }}</div>
+          <div class="hl-price">{{ cheapest.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
+        </div>
+      }
+      @if (categorized().fastest; as fastest) {
+        <div class="hl-card hl-fast" (click)="addToItinerary(fastest)">
+          <div class="hl-badge"><mat-icon>bolt</mat-icon> Mais Rápido</div>
+          <div class="hl-route">{{ fastest.origin }} &rarr; {{ fastest.destination }}</div>
+          <div class="hl-info">{{ fastest.airline }} · {{ formatDuration(fastest.durationMinutes) }} · {{ fastest.stops === 0 ? 'Direto' : fastest.stops + ' parada(s)' }}</div>
+          <div class="hl-price">{{ fastest.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
+        </div>
+      }
+      @if (categorized().bestValue; as best) {
+        <div class="hl-card hl-value" (click)="addToItinerary(best)">
+          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+          <div class="hl-route">{{ best.origin }} &rarr; {{ best.destination }}</div>
+          <div class="hl-info">{{ best.airline }} · {{ formatDuration(best.durationMinutes) }} · {{ best.stops === 0 ? 'Direto' : best.stops + ' parada(s)' }}</div>
+          <div class="hl-price">{{ best.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ filteredFlights().length }} de {{ searchResults().length }} voos</h2>
+    </div>
+
+    <div class="results-controls">
+      <!-- Filter Chips -->
+      <mat-chip-listbox (change)="setFilter($any($event).value)" [value]="filterType()">
+        <mat-chip-option value="all">
+          Todos ({{ searchResults().length }})
+        </mat-chip-option>
+        <mat-chip-option value="direct">
+          Diretos ({{ countDirectFlights() }})
+        </mat-chip-option>
+        <mat-chip-option value="stopovers">
+          Com escalas ({{ countStopoverFlights() }})
+        </mat-chip-option>
+      </mat-chip-listbox>
+
+      <!-- Sort Dropdown -->
+      <mat-form-field appearance="outline" class="sort-field">
+        <mat-label>Ordenar por</mat-label>
+        <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
+          <mat-option value="price">Preço (menor)</mat-option>
+          <mat-option value="duration">Duração (menor)</mat-option>
+          <mat-option value="stops">Escalas (menos)</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Flight Result Cards -->
+    @for (flight of filteredFlights(); track flight.id) {
+      <div class="flight-card">
+        <div class="flight-row">
+          <!-- Tags -->
+          @if (categorized().cheapest?.id === flight.id || categorized().fastest?.id === flight.id || categorized().bestValue?.id === flight.id) {
+            <div class="flight-tags">
+              @if (categorized().bestValue?.id === flight.id) {
+                <span class="ftag ftag-value">Melhor custo-benefício</span>
+              }
+              @if (categorized().cheapest?.id === flight.id) {
+                <span class="ftag ftag-cheap">Mais barato</span>
+              }
+              @if (categorized().fastest?.id === flight.id) {
+                <span class="ftag ftag-fast">Mais rápido</span>
+              }
+            </div>
+          }
+
+          <!-- Left: Airline + Times -->
+          <div class="flight-left">
+            <div class="airline-logo">
+              <mat-icon>flight</mat-icon>
+            </div>
+
+            <div class="flight-schedule">
+              <div class="airport-pair">
+                <div class="airport">
+                  <span class="iata">{{ flight.origin }}</span>
+                  <span class="time">{{ formatTime(flight.departureAt) }}</span>
+                </div>
+                <div class="airport">
+                  <span class="iata">{{ flight.destination }}</span>
+                  <span class="time">
+                    {{ formatTime(flight.arrivalAt) }}
+                    @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
+                      <span class="next-day">+1</span>
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Center: Stops + Duration -->
+            <div class="flight-meta">
+              @if (flight.stops === 0) {
+                <a class="stops-badge direct">Direto</a>
+              } @else {
+                <a class="stops-badge">{{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</a>
+              }
+              <span class="duration">{{ formatDuration(flight.durationMinutes) }}</span>
+            </div>
+          </div>
+
+          <!-- Right: Price + Actions -->
+          <div class="flight-right">
+            <div class="price-section">
+              <span class="price-label">Final ida e volta</span>
+              <span class="price-amount">{{ flight.price.total | currency: 'BRL':'symbol':'1.0-0' }}</span>
+            </div>
+
+            <div class="card-actions">
+              <button mat-icon-button (click)="addToItinerary(flight)" matTooltip="Adicionar ao roteiro">
+                <mat-icon>add_shopping_cart</mat-icon>
+              </button>
+              <a
+                mat-icon-button
+                [href]="flight.link.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                matTooltip="Ver em {{ flight.link.provider }}"
+              >
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- Empty State -->
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>flight_takeoff</mat-icon>
+      <p>Nenhum voo encontrado. Tente outras datas ou aeroportos.</p>
+    </mat-card-content>
+  </mat-card>
+}

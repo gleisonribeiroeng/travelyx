@@ -1,0 +1,45 @@
+.manual-item-form {
+  padding: var(--triply-spacing-lg);
+  margin-bottom: var(--triply-spacing-lg);
+  max-width: 600px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--triply-spacing-md);
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: var(--triply-spacing-sm);
+  margin-top: var(--triply-spacing-md);
+}
+
+button[mat-raised-button] {
+  display: flex;
+  align-items: center;
+  gap: var(--triply-spacing-xs);
+}
+
+@media (max-width: 600px) {
+  .manual-item-form {
+    padding: var(--triply-spacing-md);
+  }
+
+  mat-form-field {
+    min-width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

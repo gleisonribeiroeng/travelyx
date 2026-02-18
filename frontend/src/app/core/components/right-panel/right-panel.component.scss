@@ -1,0 +1,126 @@
+.right-panel {
+  background: var(--triply-right-panel-bg);
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow-y: auto;
+  border-left: 1px solid #edf1f7;
+  height: 100vh;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+}
+
+.profile-section {
+  text-align: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #edf1f7;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--triply-dash-sidebar-active-accent);
+  margin-bottom: 12px;
+}
+
+.profile-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0D0B30;
+  margin: 0 0 4px 0;
+}
+
+.profile-email {
+  font-size: 0.8rem;
+  color: #8f9bb3;
+  margin: 0;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  margin-bottom: 2px;
+
+  &.flights { color: #7C4DFF; }
+  &.hotels { color: #10b981; }
+  &.activities { color: #f59e0b; }
+}
+
+.stat-number {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0D0B30;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #8f9bb3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.cta-card {
+  background: linear-gradient(135deg, var(--triply-dash-sidebar-active-accent) 0%, var(--triply-dash-sidebar-bg) 100%);
+  border-radius: 16px;
+  padding: 28px 20px;
+  text-align: center;
+  color: #ffffff;
+
+  .cta-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+
+  h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0 0 16px 0;
+    font-size: 0.85rem;
+    opacity: 0.85;
+    line-height: 1.4;
+  }
+
+  .cta-dates {
+    font-size: 0.8rem;
+    opacity: 0.75;
+    margin-bottom: 16px;
+  }
+
+  .cta-button {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    width: 100%;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3) !important;
+    }
+  }
+}

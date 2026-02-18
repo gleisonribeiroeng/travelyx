@@ -1,0 +1,38 @@
+@if (mobileOpen()) {
+  <div class="backdrop" (click)="closeMobile()"></div>
+}
+
+<aside class="sidebar" [class.mobile-open]="mobileOpen()">
+  <div class="sidebar-header">
+    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="brand-logo">
+  </div>
+
+  <nav class="nav-items">
+    @for (item of navItems; track item.route) {
+      @if (item.section) {
+        <div class="section-label">{{ item.section }}</div>
+      }
+      <a
+        class="nav-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/home' }"
+        (click)="closeMobile()"
+      >
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="add-action" (click)="navigateTo('/planner')">
+      <mat-icon>add_circle_outline</mat-icon>
+      <span>Nova Viagem</span>
+    </button>
+    <button class="logout-btn" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Sair</span>
+    </button>
+  </div>
+</aside>

@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out-tsc/
+tmp/
+bazel-out/
+
+# Angular
+frontend/.angular/
+
+# IDEs
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Miscellaneous
+.sass-cache/
+connect.lock
+coverage/
+libpeerconnection.log
+testem.log
+typings/
+__screenshots__/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-journal
+
+# Prisma generated client
+backend/generated/
+
+# Logs
+npm-debug.log
+yarn-error.log
+*.log
+
+# Planning docs (optional - remove this line if you want to include them)
+# .planning/

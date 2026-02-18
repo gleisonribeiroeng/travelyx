@@ -1,0 +1,104 @@
+<div class="view-header">
+  <h1>Buscar Atrações</h1>
+  <p>Descubra atrações turísticas e pontos de interesse em qualquer cidade</p>
+</div>
+
+@if (formCollapsed()) {
+  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+    <div class="toggle-info">
+      <mat-icon>museum</mat-icon>
+      <span>Busca de Atrações</span>
+    </div>
+    <div class="toggle-action">
+      <span>Editar busca</span>
+      <mat-icon>expand_more</mat-icon>
+    </div>
+  </div>
+}
+
+<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
+  <mat-card-content>
+    <form [formGroup]="attractionSearchForm" (ngSubmit)="searchAttractions()">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Cidade</mat-label>
+          <input matInput formControlName="city" />
+          <mat-icon matPrefix>place</mat-icon>
+          @if (attractionSearchForm.get('city')?.hasError('required')) { <mat-error>Cidade é obrigatória</mat-error> }
+        </mat-form-field>
+      </div>
+
+      @if (isSearching()) {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Buscando...</span>
+        </button>
+      } @else {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="attractionSearchForm.invalid">
+          <mat-icon>search</mat-icon>
+          <span>Buscar Atrações</span>
+        </button>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+@if (errorMessage()) {
+  <app-error-banner [source]="errorSource() ?? 'Atrações'" [message]="errorMessage()!" (dismiss)="dismissError()" />
+}
+
+@if (searchResults().length > 0) {
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ searchResults().length }} {{ searchResults().length !== 1 ? 'atrações encontradas' : 'atração encontrada' }}</h2>
+    </div>
+
+    @for (attraction of searchResults(); track attraction.id) {
+      <mat-card class="result-card">
+        <div class="card-layout">
+          <div class="card-image">
+            @if (attraction.images && attraction.images.length > 0) {
+              <img [src]="attraction.images[0]" [alt]="attraction.name" loading="lazy" />
+            } @else {
+              <div class="image-placeholder"><mat-icon>museum</mat-icon></div>
+            }
+          </div>
+
+          <div class="card-info">
+            <h3 class="item-name">{{ attraction.name }}</h3>
+            <div class="item-detail">
+              <mat-chip>{{ attraction.category }}</mat-chip>
+            </div>
+            <div class="item-detail">
+              <mat-icon>place</mat-icon>
+              <span>{{ attraction.city }}</span>
+            </div>
+            @if (attraction.description) {
+              <p class="item-description">{{ attraction.description }}</p>
+            }
+          </div>
+
+          <div class="card-price-column">
+            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(attraction)">
+              <mat-icon>add</mat-icon> Adicionar
+            </button>
+            @if (attraction.link !== null) {
+              <a mat-stroked-button class="action-btn detail-btn" [href]="attraction.link.url" target="_blank" rel="noopener noreferrer">
+                Ver detalhe
+              </a>
+            }
+          </div>
+        </div>
+      </mat-card>
+    }
+  </div>
+}
+
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>museum</mat-icon>
+      <p>Nenhuma atração encontrada. Tente uma cidade diferente.</p>
+    </mat-card-content>
+  </mat-card>
+}

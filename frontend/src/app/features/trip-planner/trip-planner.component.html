@@ -1,0 +1,349 @@
+<div class="view-header">
+  <h1>Planejador de Viagem</h1>
+  <p>Configure todos os detalhes para personalizar sua experiência</p>
+</div>
+
+<!-- ═══ Destino ═══ -->
+<mat-card class="search-form-card">
+  <mat-card-header>
+    <mat-card-title>Destino</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="destinationForm">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Cidade</mat-label>
+          <input matInput formControlName="city" required />
+          <mat-icon matPrefix>place</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="country" (selectionChange)="onCountryChange()" required>
+            @for (c of countries; track c) {
+              <mat-option [value]="c">{{ c }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Região (opcional)</mat-label>
+          <input matInput formControlName="region" />
+        </mat-form-field>
+      </div>
+
+      @if (destinationMeta()) {
+        <div class="info-badges">
+          <span class="info-badge"><mat-icon>attach_money</mat-icon> {{ destinationMeta()!.currency }}</span>
+          <span class="info-badge"><mat-icon>translate</mat-icon> {{ destinationMeta()!.language }}</span>
+          <span class="info-badge"><mat-icon>schedule</mat-icon> {{ destinationMeta()!.timezone }}</span>
+        </div>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- ═══ Datas da Viagem ═══ -->
+<mat-card class="search-form-card">
+  <mat-card-header>
+    <mat-card-title>Datas da Viagem</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="datesForm">
+      <div class="option-row">
+        <mat-checkbox formControlName="useDuration">
+          Definir por duração (dias) em vez de data de volta
+        </mat-checkbox>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Data de ida</mat-label>
+          <input matInput [matDatepicker]="depPicker" formControlName="departure"
+                 [min]="minDate" (dateChange)="onDepartureChange()" required />
+          <mat-datepicker-toggle matIconSuffix [for]="depPicker"></mat-datepicker-toggle>
+          <mat-datepicker #depPicker></mat-datepicker>
+        </mat-form-field>
+
+        @if (!datesForm.get('useDuration')?.value) {
+          <mat-form-field appearance="outline">
+            <mat-label>Data de volta</mat-label>
+            <input matInput [matDatepicker]="retPicker" formControlName="returnDate"
+                   [min]="minDate" (dateChange)="onReturnChange()" />
+            <mat-datepicker-toggle matIconSuffix [for]="retPicker"></mat-datepicker-toggle>
+            <mat-datepicker #retPicker></mat-datepicker>
+          </mat-form-field>
+        }
+
+        @if (datesForm.get('useDuration')?.value) {
+          <mat-form-field appearance="outline">
+            <mat-label>Duração (dias)</mat-label>
+            <input matInput type="number" formControlName="duration"
+                   min="1" max="365" (input)="onDurationChange()" />
+            <mat-icon matIconSuffix>timelapse</mat-icon>
+          </mat-form-field>
+        }
+      </div>
+
+      @if (!datesForm.get('useDuration')?.value && datesForm.get('duration')?.value > 0) {
+        <p class="field-hint">
+          <mat-icon>info</mat-icon> Duração: {{ datesForm.get('duration')?.value }} dias
+        </p>
+      }
+    </form>
+
+    <!-- Season alert -->
+    @if (seasonInfo()) {
+      <div class="alert-banner" [class.warn]="seasonInfo()!.isHighSeason">
+        <div class="alert-banner-header">
+          <mat-icon>{{ seasonInfo()!.isHighSeason ? 'warning_amber' : 'check_circle' }}</mat-icon>
+          <strong>{{ seasonInfo()!.isHighSeason ? 'Alta Temporada' : 'Baixa Temporada' }}</strong>
+        </div>
+        <div class="alert-banner-body">
+          <span><mat-icon>trending_up</mat-icon> {{ seasonInfo()!.priceIncrease }}</span>
+          <span><mat-icon>groups</mat-icon> {{ seasonInfo()!.crowdLevel }}</span>
+          <span><mat-icon>thermostat</mat-icon> {{ seasonInfo()!.avgTemperature }} — {{ seasonInfo()!.climate }}</span>
+          @if (seasonInfo()!.isHighSeason) {
+            <span class="suggestion"><mat-icon>lightbulb</mat-icon> {{ seasonInfo()!.alternativeDates }}</span>
+          }
+        </div>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
+
+<!-- ═══ Viajantes ═══ -->
+<mat-card class="search-form-card">
+  <mat-card-header>
+    <mat-card-title>Viajantes</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="travelersForm">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Adultos</mat-label>
+          <input matInput type="number" formControlName="adults"
+                 min="1" max="20" (input)="onTravelersChange()" required />
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Crianças</mat-label>
+          <input matInput type="number" formControlName="children"
+                 min="0" max="10" (input)="onTravelersChange()" />
+          <mat-icon matPrefix>child_care</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Idosos</mat-label>
+          <input matInput type="number" formControlName="elderly"
+                 min="0" max="10" />
+          <mat-icon matPrefix>elderly</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Perfil -->
+      <div class="section-label">Perfil dos Viajantes</div>
+      <div class="chip-row">
+        @for (opt of profileOptions; track opt.value) {
+          <button type="button" class="option-chip"
+                  [class.active]="travelersForm.get('profile')?.value === opt.value"
+                  (click)="travelersForm.get('profile')?.setValue(opt.value)">
+            <mat-icon>{{ opt.icon }}</mat-icon> {{ opt.label }}
+          </button>
+        }
+      </div>
+
+      <!-- Objetivos -->
+      <div class="section-label">Objetivo da Viagem <span class="label-hint">(selecione um ou mais)</span></div>
+      <div class="chip-row">
+        @for (opt of objectiveOptions; track opt.value) {
+          <button type="button" class="option-chip"
+                  [class.active]="isObjectiveSelected(opt.value)"
+                  (click)="toggleObjective(opt.value)">
+            <mat-icon>{{ opt.icon }}</mat-icon> {{ opt.label }}
+          </button>
+        }
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- ═══ Transporte ═══ -->
+<mat-card class="search-form-card">
+  <mat-card-header>
+    <mat-card-title>Transporte</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="transportForm">
+      <div class="section-label">Preferência de Transporte</div>
+      <div class="chip-row">
+        @for (opt of transportOptions; track opt.value) {
+          <button type="button" class="option-chip"
+                  [class.active]="transportForm.get('preference')?.value === opt.value"
+                  (click)="transportForm.get('preference')?.setValue(opt.value)">
+            <mat-icon>{{ opt.icon }}</mat-icon> {{ opt.label }}
+          </button>
+        }
+      </div>
+
+      @if (isTransportPlane()) {
+        <div class="section-label">Companhia Aérea <span class="label-hint">(opcional, múltipla seleção)</span></div>
+        <div class="chip-row compact">
+          @for (airline of airlines; track airline.code) {
+            <button type="button" class="option-chip small"
+                    [class.active]="isAirlineSelected(airline.code)"
+                    (click)="toggleAirline(airline.code)">
+              {{ airline.name }}
+            </button>
+          }
+        </div>
+
+        <div class="section-label">Forma de Pagamento</div>
+        <div class="chip-row">
+          @for (opt of paymentOptions; track opt.value) {
+            <button type="button" class="option-chip"
+                    [class.active]="transportForm.get('paymentMethod')?.value === opt.value"
+                    (click)="transportForm.get('paymentMethod')?.setValue(opt.value)">
+              <mat-icon>{{ opt.icon }}</mat-icon> {{ opt.label }}
+            </button>
+          }
+        </div>
+
+        @if (transportForm.get('paymentMethod')?.value === 'miles') {
+          <p class="field-hint">
+            <mat-icon>info</mat-icon> Apenas voos com opção de resgate por milhas serão exibidos.
+          </p>
+        }
+        @if (transportForm.get('paymentMethod')?.value === 'mixed') {
+          <p class="field-hint">
+            <mat-icon>info</mat-icon> Será mostrada a proporção estimada de milhas + dinheiro.
+          </p>
+        }
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- ═══ Hospedagem ═══ -->
+<mat-card class="search-form-card">
+  <mat-card-header>
+    <mat-card-title>Hospedagem</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="accommodationForm">
+      <!-- Estrelas -->
+      <div class="section-label">Classificação Mínima</div>
+      <div class="stars-row">
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+          <button type="button" class="star-btn"
+                  [class.on]="star <= accommodationForm.get('minStars')?.value"
+                  (click)="onStarsChange(star)">
+            <mat-icon>{{ star <= accommodationForm.get('minStars')?.value ? 'star' : 'star_border' }}</mat-icon>
+          </button>
+        }
+        <span class="stars-text">{{ accommodationForm.get('minStars')?.value }}+ estrelas</span>
+      </div>
+
+      <!-- Cancelamento -->
+      <div class="section-label">Cancelamento Flexível</div>
+      <div class="chip-row">
+        <button type="button" class="option-chip"
+                [class.active]="accommodationForm.get('flexibleCancellation')?.value === true"
+                (click)="accommodationForm.get('flexibleCancellation')?.setValue(true)">
+          Sim
+        </button>
+        <button type="button" class="option-chip"
+                [class.active]="accommodationForm.get('flexibleCancellation')?.value === false"
+                (click)="accommodationForm.get('flexibleCancellation')?.setValue(false)">
+          Não
+        </button>
+      </div>
+      @if (accommodationForm.get('flexibleCancellation')?.value) {
+        <p class="field-hint">
+          <mat-icon>info</mat-icon> Hotéis com cancelamento gratuito podem custar 5-15% a mais.
+        </p>
+      }
+
+      <!-- Café da manhã -->
+      <div class="section-label">Café da Manhã</div>
+      <div class="chip-row">
+        <button type="button" class="option-chip"
+                [class.active]="accommodationForm.get('breakfastIncluded')?.value === 'yes'"
+                (click)="accommodationForm.get('breakfastIncluded')?.setValue('yes')">
+          Incluso
+        </button>
+        <button type="button" class="option-chip"
+                [class.active]="accommodationForm.get('breakfastIncluded')?.value === 'no'"
+                (click)="accommodationForm.get('breakfastIncluded')?.setValue('no')">
+          Sem
+        </button>
+        <button type="button" class="option-chip"
+                [class.active]="accommodationForm.get('breakfastIncluded')?.value === 'indifferent'"
+                (click)="accommodationForm.get('breakfastIncluded')?.setValue('indifferent')">
+          Indiferente
+        </button>
+      </div>
+
+      <!-- Proximidade -->
+      <div class="form-row" style="margin-top: 16px;">
+        <mat-form-field appearance="outline">
+          <mat-label>Próximo a... (opcional)</mat-label>
+          <input matInput formControlName="proximityTo" />
+          <mat-icon matPrefix>near_me</mat-icon>
+          <mat-hint>Ex: "centro histórico", "praia", "Torre Eiffel"</mat-hint>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- ═══ Requisitos Legais (auto-exibido) ═══ -->
+@if (hasLegalAlerts()) {
+  <mat-card class="search-form-card">
+    <mat-card-header>
+      <mat-card-title>Requisitos Legais</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="legal-list">
+        @if (legalInfo()!.passportRequired) {
+          <div class="legal-item warn">
+            <mat-icon>warning_amber</mat-icon>
+            <span>Passaporte obrigatório ({{ legalInfo()!.passportMinValidity }})</span>
+          </div>
+        }
+        @if (legalInfo()!.visaRequired) {
+          <div class="legal-item warn">
+            <mat-icon>warning_amber</mat-icon>
+            <span>Visto necessário: {{ legalInfo()!.visaType }}</span>
+          </div>
+        } @else if (legalInfo()!.visaType) {
+          <div class="legal-item ok">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ legalInfo()!.visaType }}</span>
+          </div>
+        }
+        @if (legalInfo()!.insuranceRequired) {
+          <div class="legal-item warn">
+            <mat-icon>warning_amber</mat-icon>
+            <span>Seguro viagem obrigatório</span>
+          </div>
+        }
+        @if (legalInfo()!.vaccines.length > 0) {
+          <div class="legal-item warn">
+            <mat-icon>vaccines</mat-icon>
+            <span>Vacinas: {{ legalInfo()!.vaccines.join(', ') }}</span>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+}
+
+<!-- ═══ Finalizar ═══ -->
+<button mat-raised-button color="primary" class="search-button"
+        [disabled]="!destinationForm.valid || !datesForm.get('departure')?.value"
+        (click)="finishPlanning()">
+  <mat-icon>check</mat-icon>
+  <span>Finalizar Planejamento</span>
+</button>

@@ -1,0 +1,503 @@
+@use '@angular/material' as mat;
+
+// Apply M3 theme — generates all --mat-sys-* design tokens on html element
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$violet-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+// ArchitectUI-inspired design tokens
+:root {
+  // Spacing
+  --triply-spacing-xs: 4px;
+  --triply-spacing-sm: 8px;
+  --triply-spacing-md: 16px;
+  --triply-spacing-lg: 24px;
+  --triply-spacing-xl: 48px;
+
+  // Border radius
+  --triply-border-radius-sm: 4px;
+  --triply-border-radius-md: 8px;
+  --triply-border-radius-lg: 16px;
+
+  --triply-max-content-width: 1200px;
+
+  // Sidebar
+  --triply-sidebar-width: 260px;
+
+  // Dashboard layout
+  --triply-right-panel-width: 300px;
+  --triply-topbar-height: 64px;
+
+  // Dashboard sidebar colors
+  --triply-dash-sidebar-bg: #1B1464;
+  --triply-dash-sidebar-bg-dark: #0D0B30;
+  --triply-dash-sidebar-text: #FFFFFF;
+  --triply-dash-sidebar-text-muted: rgba(255, 255, 255, 0.6);
+  --triply-dash-sidebar-section: rgba(255, 255, 255, 0.4);
+  --triply-dash-sidebar-active-bg: rgba(255, 255, 255, 0.12);
+  --triply-dash-sidebar-active-accent: #7C4DFF;
+  --triply-dash-sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+
+  // Top bar
+  --triply-topbar-bg: #FFFFFF;
+  --triply-topbar-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  // Right panel
+  --triply-right-panel-bg: #F8F9FC;
+
+  // Page background (ngx-admin #edf1f7)
+  --triply-page-bg: #edf1f7;
+  --triply-card-bg: #ffffff;
+  --triply-card-hover: rgba(76, 175, 80, 0.06);
+
+  // Card shadows (ArchitectUI-style multi-layer)
+  --triply-card-shadow: 0 0.46875rem 2.1875rem rgba(8, 10, 37, 0.03),
+    0 0.9375rem 1.40625rem rgba(8, 10, 37, 0.03),
+    0 0.25rem 0.53125rem rgba(8, 10, 37, 0.05),
+    0 0.125rem 0.1875rem rgba(8, 10, 37, 0.03);
+  --triply-card-shadow-hover: 0 0.66875rem 2.3875rem rgba(8, 10, 37, 0.06),
+    0 1.1375rem 1.60625rem rgba(8, 10, 37, 0.06),
+    0 0.45rem 0.73125rem rgba(8, 10, 37, 0.08),
+    0 0.225rem 0.3875rem rgba(8, 10, 37, 0.06);
+
+  // Header
+  --triply-header-height: 60px;
+  --triply-header-bg: #ffffff;
+  --triply-header-shadow: 0 0.46875rem 2.1875rem rgba(8, 10, 37, 0.03),
+    0 0.9375rem 1.40625rem rgba(8, 10, 37, 0.03);
+}
+
+// Apply ngx-admin typography to body
+body {
+  font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--triply-page-bg);
+  color: #0D0B30;
+}
+
+// Global heading styles — dark navy, bold (Music App Dashboard style)
+h1, h2, h3, h4, h5, h6 {
+  color: #0D0B30;
+  font-weight: 700;
+  font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// Force white background on all overlay panels (autocomplete, select, menu, dialog)
+.mat-mdc-autocomplete-panel,
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel,
+.mat-mdc-dialog-container .mdc-dialog__surface,
+.cdk-overlay-pane .mat-mdc-autocomplete-panel,
+.cdk-overlay-pane .mat-mdc-select-panel {
+  background: #ffffff !important;
+  --mat-autocomplete-background-color: #ffffff;
+  --mat-select-panel-background-color: #ffffff;
+  --mat-menu-container-color: #ffffff;
+}
+
+.mat-mdc-option {
+  background: #ffffff !important;
+  &:hover, &.mat-mdc-option-active, &.mdc-list-item--selected {
+    background: #f7f9fc !important;
+  }
+}
+
+// ngx-admin-style cards globally — force white bg over M3 surface-container
+mat-card, .mat-mdc-card {
+  border-radius: var(--triply-border-radius-md) !important;
+  box-shadow: var(--triply-card-shadow) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: #ffffff !important;
+  --mdc-elevated-card-container-color: #ffffff;
+  --mdc-outlined-card-container-color: #ffffff;
+  --mat-card-subtitle-text-color: #8f9bb3;
+}
+
+// Shared view-header pattern used across all feature pages
+.view-header {
+  margin-bottom: var(--triply-spacing-lg);
+  padding-bottom: var(--triply-spacing-md);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+  h1 {
+    margin: 0 0 var(--triply-spacing-xs) 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0D0B30;
+  }
+
+  p {
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// Shared search form card - fills available width
+.search-form-card {
+  margin-bottom: var(--triply-spacing-lg);
+  padding: var(--triply-spacing-lg);
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+  max-height: 800px;
+
+  &.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    border-color: transparent;
+    box-shadow: none !important;
+  }
+
+  // Card title (like "Default Inputs" in ngx-admin)
+  mat-card-header {
+    margin-bottom: var(--triply-spacing-lg);
+
+    mat-card-title {
+      font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #0D0B30;
+    }
+  }
+}
+
+// "Editar busca" toggle bar — shown when form is collapsed after search
+.search-toggle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: var(--triply-border-radius-md);
+  box-shadow: var(--triply-card-shadow);
+  padding: 12px 24px;
+  margin-bottom: var(--triply-spacing-lg);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--triply-card-shadow-hover);
+  }
+
+  .toggle-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #0D0B30;
+    font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+
+    mat-icon {
+      color: #7C4DFF;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .toggle-action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #7C4DFF;
+    font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Shared form row - fields side by side, fill available width
+.form-row {
+  display: flex;
+  gap: var(--triply-spacing-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--triply-spacing-sm);
+
+  > * {
+    flex: 1 1 200px;
+    min-width: 200px;
+  }
+
+  mat-form-field,
+  .mat-mdc-form-field {
+    flex: 1 1 200px !important;
+    min-width: 200px;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+
+    > * {
+      flex: 1 1 100%;
+      min-width: 100%;
+    }
+
+    mat-form-field,
+    .mat-mdc-form-field {
+      flex: 1 1 100% !important;
+      min-width: 100% !important;
+    }
+  }
+}
+
+// Shared search/submit button
+.search-button {
+  width: 100%;
+  margin-top: var(--triply-spacing-md);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }
+}
+
+// ─── ngx-admin form field overrides ─────────────────────────────────────────
+// Override Angular Material outline form fields to match ngx-admin style:
+// clean borders, subtle colors, Open Sans typography, proper sizing.
+
+// Outline notch border colors
+.mat-mdc-form-field.mat-form-field-appearance-outline {
+  // Full width by default
+  width: 100%;
+
+  // Notch outline border color
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #e4e9f2 !important;
+  }
+
+  // Border radius
+  .mdc-notched-outline__leading {
+    border-radius: 6px 0 0 6px !important;
+  }
+  .mdc-notched-outline__trailing {
+    border-radius: 0 6px 6px 0 !important;
+  }
+
+  // Hover: slightly darker border
+  &:hover .mdc-notched-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #c5cee0 !important;
+    }
+  }
+
+  // Focused: ngx-admin blue
+  &.mat-focused .mdc-notched-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #7C4DFF !important;
+      border-width: 1px !important;
+    }
+  }
+}
+
+// Input text styling
+.mat-mdc-form-field {
+  font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif !important;
+
+  .mat-mdc-input-element,
+  .mat-mdc-select-value {
+    font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif !important;
+    font-size: 0.9375rem;
+    color: #0D0B30;
+  }
+
+  // Placeholder
+  .mat-mdc-input-element::placeholder {
+    color: #8f9bb3 !important;
+    opacity: 1;
+  }
+
+  // Floating label
+  .mat-mdc-floating-label {
+    font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif !important;
+    color: #8f9bb3 !important;
+    font-size: 0.9375rem;
+  }
+
+  // Focused label color
+  &.mat-focused .mat-mdc-floating-label {
+    color: #7C4DFF !important;
+  }
+
+  // Hint text
+  .mat-mdc-form-field-hint {
+    font-size: 0.75rem;
+    color: #8f9bb3;
+  }
+
+  // Error text
+  .mat-mdc-form-field-error {
+    font-size: 0.75rem;
+  }
+
+  // Prefix/suffix icon color
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    color: #8f9bb3;
+  }
+}
+
+// Buttons — ngx-admin style
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
+  font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif !important;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.4px;
+  border-radius: 6px !important;
+  text-transform: uppercase;
+}
+
+// Chips
+.mat-mdc-chip {
+  font-family: 'Open Sans', Roboto, 'Helvetica Neue', sans-serif !important;
+  font-size: 0.8125rem;
+}
+
+// Shared search result card styles
+.result-card {
+  margin-bottom: var(--triply-spacing-md);
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--triply-spacing-md);
+  }
+
+  .result-info {
+    flex: 1;
+  }
+
+  .result-name {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0 0 var(--triply-spacing-sm) 0;
+    color: #0D0B30;
+  }
+
+  .result-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--mat-sys-on-surface-variant);
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+    }
+
+    .separator {
+      color: var(--mat-sys-outline);
+    }
+  }
+
+  .result-price {
+    text-align: right;
+
+    .amount {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--mat-sys-primary);
+    }
+
+    .price-label {
+      font-size: 0.8rem;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .result-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--triply-spacing-sm);
+    margin-top: var(--triply-spacing-sm);
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--mat-sys-on-surface-variant);
+
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+      }
+
+      span {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .result-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--triply-spacing-sm);
+    }
+  }
+}
+
+// Shared empty state card styles
+.empty-state-card {
+  text-align: center;
+  padding: var(--triply-spacing-xl);
+  margin-top: var(--triply-spacing-xl);
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--triply-spacing-md);
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  p {
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}

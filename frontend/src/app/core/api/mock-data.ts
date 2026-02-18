@@ -1,0 +1,618 @@
+import { Flight, Stay, CarRental, Transport, Activity, Attraction } from '../models/trip.models';
+import { AirportOption } from './flight-api.service';
+import { DestinationOption } from './hotel-api.service';
+import { CarLocationOption } from './car-api.service';
+
+// ─── Airports ──────────────────────────────────────────────────────────────────
+
+export const MOCK_AIRPORTS: AirportOption[] = [
+  { iataCode: 'GRU', name: 'Guarulhos International', cityName: 'São Paulo' },
+  { iataCode: 'CGH', name: 'Congonhas', cityName: 'São Paulo' },
+  { iataCode: 'VCP', name: 'Viracopos', cityName: 'Campinas' },
+  { iataCode: 'GIG', name: 'Galeão - Tom Jobim', cityName: 'Rio de Janeiro' },
+  { iataCode: 'SDU', name: 'Santos Dumont', cityName: 'Rio de Janeiro' },
+  { iataCode: 'BSB', name: 'Presidente Juscelino Kubitschek', cityName: 'Brasília' },
+  { iataCode: 'CNF', name: 'Tancredo Neves / Confins', cityName: 'Belo Horizonte' },
+  { iataCode: 'SSA', name: 'Deputado Luís Eduardo Magalhães', cityName: 'Salvador' },
+  { iataCode: 'REC', name: 'Guararapes - Gilberto Freyre', cityName: 'Recife' },
+  { iataCode: 'POA', name: 'Salgado Filho', cityName: 'Porto Alegre' },
+  { iataCode: 'CWB', name: 'Afonso Pena', cityName: 'Curitiba' },
+  { iataCode: 'FOR', name: 'Pinto Martins', cityName: 'Fortaleza' },
+  { iataCode: 'MAO', name: 'Eduardo Gomes', cityName: 'Manaus' },
+  { iataCode: 'FLN', name: 'Hercílio Luz', cityName: 'Florianópolis' },
+  { iataCode: 'NAT', name: 'São Gonçalo do Amarante', cityName: 'Natal' },
+  { iataCode: 'BEL', name: 'Val de Cans', cityName: 'Belém' },
+  { iataCode: 'MCZ', name: 'Zumbi dos Palmares', cityName: 'Maceió' },
+  { iataCode: 'CGB', name: 'Marechal Rondon', cityName: 'Cuiabá' },
+  { iataCode: 'GYN', name: 'Santa Genoveva', cityName: 'Goiânia' },
+  // International
+  { iataCode: 'LIS', name: 'Humberto Delgado', cityName: 'Lisboa' },
+  { iataCode: 'CDG', name: 'Charles de Gaulle', cityName: 'Paris' },
+  { iataCode: 'JFK', name: 'John F. Kennedy', cityName: 'Nova York' },
+  { iataCode: 'MIA', name: 'Miami International', cityName: 'Miami' },
+  { iataCode: 'EZE', name: 'Ministro Pistarini', cityName: 'Buenos Aires' },
+  { iataCode: 'SCL', name: 'Arturo Merino Benítez', cityName: 'Santiago' },
+  { iataCode: 'BOG', name: 'El Dorado', cityName: 'Bogotá' },
+  { iataCode: 'MEX', name: 'Benito Juárez', cityName: 'Cidade do México' },
+  { iataCode: 'FCO', name: 'Leonardo da Vinci - Fiumicino', cityName: 'Roma' },
+  { iataCode: 'LHR', name: 'Heathrow', cityName: 'Londres' },
+  { iataCode: 'MAD', name: 'Adolfo Suárez Madrid-Barajas', cityName: 'Madrid' },
+];
+
+// ─── Flights ───────────────────────────────────────────────────────────────────
+
+export const MOCK_FLIGHTS: Flight[] = [
+  {
+    id: 'fl-001', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'GIG',
+    departureAt: '2026-03-15T08:30:00', arrivalAt: '2026-03-15T09:40:00',
+    airline: 'LATAM', flightNumber: 'LA3021', durationMinutes: 70, stops: 0,
+    price: { total: 389.90, currency: 'BRL' },
+    link: { url: 'https://www.latam.com', provider: 'LATAM' },
+  },
+  {
+    id: 'fl-002', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'GIG',
+    departureAt: '2026-03-15T10:15:00', arrivalAt: '2026-03-15T11:20:00',
+    airline: 'GOL', flightNumber: 'G3 1102', durationMinutes: 65, stops: 0,
+    price: { total: 329.00, currency: 'BRL' },
+    link: { url: 'https://www.voegol.com.br', provider: 'GOL' },
+  },
+  {
+    id: 'fl-003', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'GIG',
+    departureAt: '2026-03-15T14:00:00', arrivalAt: '2026-03-15T15:10:00',
+    airline: 'Azul', flightNumber: 'AD 4112', durationMinutes: 70, stops: 0,
+    price: { total: 349.50, currency: 'BRL' },
+    link: { url: 'https://www.voeazul.com.br', provider: 'Azul' },
+  },
+  {
+    id: 'fl-004', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'SSA',
+    departureAt: '2026-03-15T07:00:00', arrivalAt: '2026-03-15T09:30:00',
+    airline: 'LATAM', flightNumber: 'LA3401', durationMinutes: 150, stops: 0,
+    price: { total: 649.90, currency: 'BRL' },
+    link: { url: 'https://www.latam.com', provider: 'LATAM' },
+  },
+  {
+    id: 'fl-005', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'SSA',
+    departureAt: '2026-03-15T11:30:00', arrivalAt: '2026-03-15T15:45:00',
+    airline: 'GOL', flightNumber: 'G3 1520', durationMinutes: 255, stops: 1,
+    price: { total: 479.00, currency: 'BRL' },
+    link: { url: 'https://www.voegol.com.br', provider: 'GOL' },
+  },
+  {
+    id: 'fl-006', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'REC',
+    departureAt: '2026-03-15T06:45:00', arrivalAt: '2026-03-15T10:00:00',
+    airline: 'Azul', flightNumber: 'AD 2740', durationMinutes: 195, stops: 0,
+    price: { total: 599.00, currency: 'BRL' },
+    link: { url: 'https://www.voeazul.com.br', provider: 'Azul' },
+  },
+  {
+    id: 'fl-007', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'FOR',
+    departureAt: '2026-03-15T09:15:00', arrivalAt: '2026-03-15T12:50:00',
+    airline: 'LATAM', flightNumber: 'LA3155', durationMinutes: 215, stops: 0,
+    price: { total: 719.90, currency: 'BRL' },
+    link: { url: 'https://www.latam.com', provider: 'LATAM' },
+  },
+  {
+    id: 'fl-008', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'LIS',
+    departureAt: '2026-03-15T22:00:00', arrivalAt: '2026-03-16T10:30:00',
+    airline: 'LATAM', flightNumber: 'LA8084', durationMinutes: 570, stops: 0,
+    price: { total: 3249.00, currency: 'BRL' },
+    link: { url: 'https://www.latam.com', provider: 'LATAM' },
+  },
+  {
+    id: 'fl-009', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'MIA',
+    departureAt: '2026-03-15T23:30:00', arrivalAt: '2026-03-16T06:15:00',
+    airline: 'GOL', flightNumber: 'G3 8701', durationMinutes: 525, stops: 0,
+    price: { total: 2890.00, currency: 'BRL' },
+    link: { url: 'https://www.voegol.com.br', provider: 'GOL' },
+  },
+  {
+    id: 'fl-010', source: 'mock', addedToItinerary: false,
+    origin: 'GRU', destination: 'EZE',
+    departureAt: '2026-03-15T08:00:00', arrivalAt: '2026-03-15T11:30:00',
+    airline: 'Azul', flightNumber: 'AD 8502', durationMinutes: 210, stops: 0,
+    price: { total: 1450.00, currency: 'BRL' },
+    link: { url: 'https://www.voeazul.com.br', provider: 'Azul' },
+  },
+];
+
+// ─── Hotel Destinations ────────────────────────────────────────────────────────
+
+export const MOCK_HOTEL_DESTINATIONS: DestinationOption[] = [
+  { destId: 'br-sp', name: 'São Paulo', label: 'São Paulo, Brasil', searchType: 'CITY' },
+  { destId: 'br-rj', name: 'Rio de Janeiro', label: 'Rio de Janeiro, Brasil', searchType: 'CITY' },
+  { destId: 'br-ssa', name: 'Salvador', label: 'Salvador, Bahia, Brasil', searchType: 'CITY' },
+  { destId: 'br-fln', name: 'Florianópolis', label: 'Florianópolis, Brasil', searchType: 'CITY' },
+  { destId: 'br-for', name: 'Fortaleza', label: 'Fortaleza, Brasil', searchType: 'CITY' },
+  { destId: 'br-rec', name: 'Recife', label: 'Recife, Brasil', searchType: 'CITY' },
+  { destId: 'br-cwb', name: 'Curitiba', label: 'Curitiba, Brasil', searchType: 'CITY' },
+  { destId: 'br-bsb', name: 'Brasília', label: 'Brasília, Brasil', searchType: 'CITY' },
+  { destId: 'br-bh', name: 'Belo Horizonte', label: 'Belo Horizonte, Brasil', searchType: 'CITY' },
+  { destId: 'br-nat', name: 'Natal', label: 'Natal, Brasil', searchType: 'CITY' },
+  { destId: 'br-mcz', name: 'Maceió', label: 'Maceió, Brasil', searchType: 'CITY' },
+  { destId: 'br-poa', name: 'Porto Alegre', label: 'Porto Alegre, Brasil', searchType: 'CITY' },
+  { destId: 'pt-lis', name: 'Lisboa', label: 'Lisboa, Portugal', searchType: 'CITY' },
+  { destId: 'ar-bue', name: 'Buenos Aires', label: 'Buenos Aires, Argentina', searchType: 'CITY' },
+];
+
+// ─── Hotels/Stays ──────────────────────────────────────────────────────────────
+
+export const MOCK_STAYS: Stay[] = [
+  {
+    id: 'ht-001', source: 'mock', addedToItinerary: false,
+    name: 'Hotel Fasano Rio de Janeiro',
+    location: { latitude: -22.9868, longitude: -43.1986 },
+    address: 'Av. Vieira Souto, 80 - Ipanema, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 1850.00, currency: 'BRL' },
+    rating: 4.8, reviewCount: 342, photoUrl: 'https://picsum.photos/seed/hotel1a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel1a/800/600',
+      'https://picsum.photos/seed/hotel1b/800/600',
+      'https://picsum.photos/seed/hotel1c/800/600',
+      'https://picsum.photos/seed/hotel1d/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+  {
+    id: 'ht-002', source: 'mock', addedToItinerary: false,
+    name: 'Copacabana Palace',
+    location: { latitude: -22.9671, longitude: -43.1780 },
+    address: 'Av. Atlântica, 1702 - Copacabana, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 2950.00, currency: 'BRL' },
+    rating: 4.9, reviewCount: 1203, photoUrl: 'https://picsum.photos/seed/hotel2a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel2a/800/600',
+      'https://picsum.photos/seed/hotel2b/800/600',
+      'https://picsum.photos/seed/hotel2c/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+  {
+    id: 'ht-003', source: 'mock', addedToItinerary: false,
+    name: 'Ibis Copacabana Posto 2',
+    location: { latitude: -22.9660, longitude: -43.1770 },
+    address: 'Rua Ministro Viveiros de Castro, 134 - Copacabana, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 320.00, currency: 'BRL' },
+    rating: 3.8, reviewCount: 856, photoUrl: 'https://picsum.photos/seed/hotel3a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel3a/800/600',
+      'https://picsum.photos/seed/hotel3b/800/600',
+      'https://picsum.photos/seed/hotel3c/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+  {
+    id: 'ht-004', source: 'mock', addedToItinerary: false,
+    name: 'Windsor Atlantica Hotel',
+    location: { latitude: -22.9670, longitude: -43.1785 },
+    address: 'Av. Atlântica, 1020 - Copacabana, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 680.00, currency: 'BRL' },
+    rating: 4.3, reviewCount: 512, photoUrl: 'https://picsum.photos/seed/hotel4a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel4a/800/600',
+      'https://picsum.photos/seed/hotel4b/800/600',
+      'https://picsum.photos/seed/hotel4c/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+  {
+    id: 'ht-005', source: 'mock', addedToItinerary: false,
+    name: 'Hotel Emiliano Rio',
+    location: { latitude: -22.9844, longitude: -43.1992 },
+    address: 'Av. Atlântica, 3804 - Copacabana, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 1250.00, currency: 'BRL' },
+    rating: 4.6, reviewCount: 189, photoUrl: 'https://picsum.photos/seed/hotel5a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel5a/800/600',
+      'https://picsum.photos/seed/hotel5b/800/600',
+      'https://picsum.photos/seed/hotel5c/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+  {
+    id: 'ht-006', source: 'mock', addedToItinerary: false,
+    name: 'Selina Lapa Rio de Janeiro',
+    location: { latitude: -22.9130, longitude: -43.1815 },
+    address: 'R. do Riachuelo, 169 - Lapa, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 195.00, currency: 'BRL' },
+    rating: 3.5, reviewCount: 67, photoUrl: 'https://picsum.photos/seed/hotel6a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel6a/800/600',
+      'https://picsum.photos/seed/hotel6b/800/600',
+      'https://picsum.photos/seed/hotel6c/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+  {
+    id: 'ht-007', source: 'mock', addedToItinerary: false,
+    name: 'Grand Hyatt Rio de Janeiro',
+    location: { latitude: -23.0010, longitude: -43.3050 },
+    address: 'Av. Lúcio Costa, 9600 - Barra da Tijuca, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 890.00, currency: 'BRL' },
+    rating: 4.5, reviewCount: 724, photoUrl: 'https://picsum.photos/seed/hotel7a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel7a/800/600',
+      'https://picsum.photos/seed/hotel7b/800/600',
+      'https://picsum.photos/seed/hotel7c/800/600',
+      'https://picsum.photos/seed/hotel7d/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+  {
+    id: 'ht-008', source: 'mock', addedToItinerary: false,
+    name: 'Novotel RJ Botafogo',
+    location: { latitude: -22.9520, longitude: -43.1830 },
+    address: 'R. Humaitá, 305 - Botafogo, Rio de Janeiro',
+    checkIn: '2026-03-15', checkOut: '2026-03-18',
+    pricePerNight: { total: 450.00, currency: 'BRL' },
+    rating: 4.1, reviewCount: 398, photoUrl: 'https://picsum.photos/seed/hotel8a/800/600',
+    images: [
+      'https://picsum.photos/seed/hotel8a/800/600',
+      'https://picsum.photos/seed/hotel8b/800/600',
+      'https://picsum.photos/seed/hotel8c/800/600',
+    ],
+    link: { url: 'https://www.booking.com', provider: 'Booking.com' },
+  },
+];
+
+// ─── Car Locations ─────────────────────────────────────────────────────────────
+
+export const MOCK_CAR_LOCATIONS: CarLocationOption[] = [
+  { id: 'cl-01', name: 'São Paulo - Guarulhos', label: 'Aeroporto de Guarulhos (GRU), São Paulo', cityId: 'sp-gru', latitude: -23.4356, longitude: -46.4731 },
+  { id: 'cl-02', name: 'Rio de Janeiro - Galeão', label: 'Aeroporto do Galeão (GIG), Rio de Janeiro', cityId: 'rj-gig', latitude: -22.8100, longitude: -43.2505 },
+  { id: 'cl-03', name: 'Rio de Janeiro - Santos Dumont', label: 'Aeroporto Santos Dumont (SDU), Rio de Janeiro', cityId: 'rj-sdu', latitude: -22.9104, longitude: -43.1630 },
+  { id: 'cl-04', name: 'Florianópolis', label: 'Aeroporto Hercílio Luz (FLN), Florianópolis', cityId: 'fln', latitude: -27.6706, longitude: -48.5525 },
+  { id: 'cl-05', name: 'Salvador', label: 'Aeroporto de Salvador (SSA), Salvador', cityId: 'ssa', latitude: -12.9111, longitude: -38.3313 },
+  { id: 'cl-06', name: 'Brasília', label: 'Aeroporto de Brasília (BSB), Brasília', cityId: 'bsb', latitude: -15.8711, longitude: -47.9186 },
+  { id: 'cl-07', name: 'Curitiba', label: 'Aeroporto Afonso Pena (CWB), Curitiba', cityId: 'cwb', latitude: -25.5285, longitude: -49.1758 },
+  { id: 'cl-08', name: 'Belo Horizonte', label: 'Aeroporto de Confins (CNF), Belo Horizonte', cityId: 'cnf', latitude: -19.6244, longitude: -43.9720 },
+];
+
+// ─── Car Rentals ───────────────────────────────────────────────────────────────
+
+export const MOCK_CAR_RENTALS: CarRental[] = [
+  {
+    id: 'cr-001', source: 'mock', addedToItinerary: false,
+    vehicleType: 'Economy',
+    pickUpLocation: 'Aeroporto de Guarulhos (GRU)', dropOffLocation: 'Aeroporto de Guarulhos (GRU)',
+    pickUpAt: '2026-03-15T10:00:00', dropOffAt: '2026-03-20T10:00:00',
+    price: { total: 485.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/car1a/800/600',
+      'https://picsum.photos/seed/car1b/800/600',
+      'https://picsum.photos/seed/car1c/800/600',
+    ],
+    link: { url: 'https://www.localiza.com', provider: 'Localiza' },
+  },
+  {
+    id: 'cr-002', source: 'mock', addedToItinerary: false,
+    vehicleType: 'Compact',
+    pickUpLocation: 'Aeroporto de Guarulhos (GRU)', dropOffLocation: 'Aeroporto de Guarulhos (GRU)',
+    pickUpAt: '2026-03-15T10:00:00', dropOffAt: '2026-03-20T10:00:00',
+    price: { total: 620.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/car2a/800/600',
+      'https://picsum.photos/seed/car2b/800/600',
+      'https://picsum.photos/seed/car2c/800/600',
+    ],
+    link: { url: 'https://www.movida.com.br', provider: 'Movida' },
+  },
+  {
+    id: 'cr-003', source: 'mock', addedToItinerary: false,
+    vehicleType: 'SUV',
+    pickUpLocation: 'Aeroporto de Guarulhos (GRU)', dropOffLocation: 'Aeroporto de Guarulhos (GRU)',
+    pickUpAt: '2026-03-15T10:00:00', dropOffAt: '2026-03-20T10:00:00',
+    price: { total: 1150.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/car3a/800/600',
+      'https://picsum.photos/seed/car3b/800/600',
+      'https://picsum.photos/seed/car3c/800/600',
+    ],
+    link: { url: 'https://www.unidas.com.br', provider: 'Unidas' },
+  },
+  {
+    id: 'cr-004', source: 'mock', addedToItinerary: false,
+    vehicleType: 'Full Size',
+    pickUpLocation: 'Aeroporto de Guarulhos (GRU)', dropOffLocation: 'Aeroporto de Guarulhos (GRU)',
+    pickUpAt: '2026-03-15T10:00:00', dropOffAt: '2026-03-20T10:00:00',
+    price: { total: 870.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/car4a/800/600',
+      'https://picsum.photos/seed/car4b/800/600',
+      'https://picsum.photos/seed/car4c/800/600',
+    ],
+    link: { url: 'https://www.localiza.com', provider: 'Localiza' },
+  },
+  {
+    id: 'cr-005', source: 'mock', addedToItinerary: false,
+    vehicleType: 'Premium',
+    pickUpLocation: 'Aeroporto do Galeão (GIG)', dropOffLocation: 'Aeroporto do Galeão (GIG)',
+    pickUpAt: '2026-03-15T10:00:00', dropOffAt: '2026-03-20T10:00:00',
+    price: { total: 1680.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/car5a/800/600',
+      'https://picsum.photos/seed/car5b/800/600',
+      'https://picsum.photos/seed/car5c/800/600',
+    ],
+    link: { url: 'https://www.movida.com.br', provider: 'Movida' },
+  },
+  {
+    id: 'cr-006', source: 'mock', addedToItinerary: false,
+    vehicleType: 'Minivan',
+    pickUpLocation: 'Aeroporto do Galeão (GIG)', dropOffLocation: 'Aeroporto do Galeão (GIG)',
+    pickUpAt: '2026-03-15T10:00:00', dropOffAt: '2026-03-20T10:00:00',
+    price: { total: 1350.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/car6a/800/600',
+      'https://picsum.photos/seed/car6b/800/600',
+      'https://picsum.photos/seed/car6c/800/600',
+    ],
+    link: { url: 'https://www.unidas.com.br', provider: 'Unidas' },
+  },
+];
+
+// ─── Transport ─────────────────────────────────────────────────────────────────
+
+export const MOCK_TRANSPORTS: Transport[] = [
+  {
+    id: 'tr-001', source: 'mock', addedToItinerary: false,
+    mode: 'bus', origin: 'São Paulo', destination: 'Rio de Janeiro',
+    departureAt: '2026-03-15T08:00:00', arrivalAt: '2026-03-15T14:30:00',
+    durationMinutes: 390, price: { total: 120.00, currency: 'BRL' },
+    link: { url: 'https://www.clickbus.com.br', provider: 'ClickBus' },
+  },
+  {
+    id: 'tr-002', source: 'mock', addedToItinerary: false,
+    mode: 'bus', origin: 'São Paulo', destination: 'Rio de Janeiro',
+    departureAt: '2026-03-15T23:00:00', arrivalAt: '2026-03-16T05:30:00',
+    durationMinutes: 390, price: { total: 95.00, currency: 'BRL' },
+    link: { url: 'https://www.buser.com.br', provider: 'Buser' },
+  },
+  {
+    id: 'tr-003', source: 'mock', addedToItinerary: false,
+    mode: 'bus', origin: 'São Paulo', destination: 'Curitiba',
+    departureAt: '2026-03-15T07:30:00', arrivalAt: '2026-03-15T13:30:00',
+    durationMinutes: 360, price: { total: 110.00, currency: 'BRL' },
+    link: { url: 'https://www.clickbus.com.br', provider: 'ClickBus' },
+  },
+  {
+    id: 'tr-004', source: 'mock', addedToItinerary: false,
+    mode: 'train', origin: 'São Paulo', destination: 'Jundiaí',
+    departureAt: '2026-03-15T06:00:00', arrivalAt: '2026-03-15T07:20:00',
+    durationMinutes: 80, price: { total: 15.00, currency: 'BRL' },
+    link: { url: 'https://www.cptm.sp.gov.br', provider: 'CPTM' },
+  },
+  {
+    id: 'tr-005', source: 'mock', addedToItinerary: false,
+    mode: 'ferry', origin: 'Salvador', destination: 'Ilha de Itaparica',
+    departureAt: '2026-03-15T09:00:00', arrivalAt: '2026-03-15T10:00:00',
+    durationMinutes: 60, price: { total: 8.50, currency: 'BRL' },
+    link: { url: 'https://www.internacional.com.br', provider: 'Internacional Travessias' },
+  },
+  {
+    id: 'tr-006', source: 'mock', addedToItinerary: false,
+    mode: 'bus', origin: 'Rio de Janeiro', destination: 'Búzios',
+    departureAt: '2026-03-15T08:30:00', arrivalAt: '2026-03-15T11:30:00',
+    durationMinutes: 180, price: { total: 75.00, currency: 'BRL' },
+    link: { url: 'https://www.clickbus.com.br', provider: 'ClickBus' },
+  },
+];
+
+// ─── Tours/Activities ──────────────────────────────────────────────────────────
+
+export const MOCK_ACTIVITIES: Activity[] = [
+  {
+    id: 'ac-001', source: 'mock', addedToItinerary: false,
+    name: 'Passeio de Helicóptero pelo Rio de Janeiro',
+    description: 'Voo panorâmico sobrevoando Cristo Redentor, Pão de Açúcar e praias da Zona Sul.',
+    location: { latitude: -22.9519, longitude: -43.2105 },
+    city: 'Rio de Janeiro', durationMinutes: 30,
+    rating: 4.8, reviewCount: 234,
+    price: { total: 590.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/tour1a/800/600',
+      'https://picsum.photos/seed/tour1b/800/600',
+      'https://picsum.photos/seed/tour1c/800/600',
+    ],
+    link: { url: 'https://www.viator.com', provider: 'Viator' },
+  },
+  {
+    id: 'ac-002', source: 'mock', addedToItinerary: false,
+    name: 'Tour Gastronômico em Santa Teresa',
+    description: 'Explore os sabores do bairro boêmio de Santa Teresa com degustações em 5 restaurantes.',
+    location: { latitude: -22.9213, longitude: -43.1858 },
+    city: 'Rio de Janeiro', durationMinutes: 240,
+    rating: 4.9, reviewCount: 567,
+    price: { total: 195.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/tour2a/800/600',
+      'https://picsum.photos/seed/tour2b/800/600',
+      'https://picsum.photos/seed/tour2c/800/600',
+    ],
+    link: { url: 'https://www.getyourguide.com', provider: 'GetYourGuide' },
+  },
+  {
+    id: 'ac-003', source: 'mock', addedToItinerary: false,
+    name: 'Trilha na Floresta da Tijuca',
+    description: 'Caminhada guiada pela maior floresta urbana do mundo, com parada em cachoeiras.',
+    location: { latitude: -22.9537, longitude: -43.2830 },
+    city: 'Rio de Janeiro', durationMinutes: 300,
+    rating: 4.6, reviewCount: 312,
+    price: { total: 140.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/tour3a/800/600',
+      'https://picsum.photos/seed/tour3b/800/600',
+      'https://picsum.photos/seed/tour3c/800/600',
+    ],
+    link: { url: 'https://www.viator.com', provider: 'Viator' },
+  },
+  {
+    id: 'ac-004', source: 'mock', addedToItinerary: false,
+    name: 'Aula de Surf em Copacabana',
+    description: 'Aula particular de surf para iniciantes na praia de Copacabana com instrutor certificado.',
+    location: { latitude: -22.9711, longitude: -43.1823 },
+    city: 'Rio de Janeiro', durationMinutes: 120,
+    rating: 4.3, reviewCount: 89,
+    price: { total: 180.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/tour4a/800/600',
+      'https://picsum.photos/seed/tour4b/800/600',
+      'https://picsum.photos/seed/tour4c/800/600',
+    ],
+    link: { url: 'https://www.getyourguide.com', provider: 'GetYourGuide' },
+  },
+  {
+    id: 'ac-005', source: 'mock', addedToItinerary: false,
+    name: 'Passeio de Escuna pela Baía de Guanabara',
+    description: 'Navegue pela Baía de Guanabara com paradas para mergulho e vista do Pão de Açúcar.',
+    location: { latitude: -22.9064, longitude: -43.1657 },
+    city: 'Rio de Janeiro', durationMinutes: 360,
+    rating: 4.7, reviewCount: 445,
+    price: { total: 250.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/tour5a/800/600',
+      'https://picsum.photos/seed/tour5b/800/600',
+      'https://picsum.photos/seed/tour5c/800/600',
+    ],
+    link: { url: 'https://www.viator.com', provider: 'Viator' },
+  },
+  {
+    id: 'ac-006', source: 'mock', addedToItinerary: false,
+    name: 'Show de Samba com Jantar na Lapa',
+    description: 'Noite de samba autêntico com jantar típico em casa de shows tradicional da Lapa.',
+    location: { latitude: -22.9129, longitude: -43.1801 },
+    city: 'Rio de Janeiro', durationMinutes: 180,
+    rating: 4.5, reviewCount: 198,
+    price: { total: 220.00, currency: 'BRL' },
+    images: [
+      'https://picsum.photos/seed/tour6a/800/600',
+      'https://picsum.photos/seed/tour6b/800/600',
+      'https://picsum.photos/seed/tour6c/800/600',
+    ],
+    link: { url: 'https://www.getyourguide.com', provider: 'GetYourGuide' },
+  },
+];
+
+// ─── Attractions ───────────────────────────────────────────────────────────────
+
+export const MOCK_ATTRACTIONS: Attraction[] = [
+  {
+    id: 'at-001', source: 'mock', addedToItinerary: false,
+    name: 'Cristo Redentor',
+    description: 'Uma das Sete Maravilhas do Mundo Moderno, com vista panorâmica da cidade.',
+    location: { latitude: -22.9519, longitude: -43.2105 },
+    city: 'Rio de Janeiro', category: 'Monumento',
+    images: [
+      'https://picsum.photos/seed/attr1a/800/600',
+      'https://picsum.photos/seed/attr1b/800/600',
+      'https://picsum.photos/seed/attr1c/800/600',
+    ],
+    link: { url: 'https://www.cristoredentoroficial.com.br', provider: 'Site Oficial' },
+  },
+  {
+    id: 'at-002', source: 'mock', addedToItinerary: false,
+    name: 'Pão de Açúcar',
+    description: 'Complexo de morros com bondinho aéreo e vistas espetaculares da cidade e do mar.',
+    location: { latitude: -22.9492, longitude: -43.1545 },
+    city: 'Rio de Janeiro', category: 'Natureza',
+    images: [
+      'https://picsum.photos/seed/attr2a/800/600',
+      'https://picsum.photos/seed/attr2b/800/600',
+      'https://picsum.photos/seed/attr2c/800/600',
+    ],
+    link: { url: 'https://www.bondinho.com.br', provider: 'Bondinho Pão de Açúcar' },
+  },
+  {
+    id: 'at-003', source: 'mock', addedToItinerary: false,
+    name: 'Jardim Botânico do Rio de Janeiro',
+    description: 'Jardim histórico com mais de 6.500 espécies de plantas tropicais e subtropicais.',
+    location: { latitude: -22.9672, longitude: -43.2249 },
+    city: 'Rio de Janeiro', category: 'Parque',
+    images: [
+      'https://picsum.photos/seed/attr3a/800/600',
+      'https://picsum.photos/seed/attr3b/800/600',
+      'https://picsum.photos/seed/attr3c/800/600',
+    ],
+    link: { url: 'https://www.jbrj.gov.br', provider: 'Site Oficial' },
+  },
+  {
+    id: 'at-004', source: 'mock', addedToItinerary: false,
+    name: 'Museu do Amanhã',
+    description: 'Museu de ciências focado no futuro, projetado por Santiago Calatrava na Praça Mauá.',
+    location: { latitude: -22.8944, longitude: -43.1796 },
+    city: 'Rio de Janeiro', category: 'Museu',
+    images: [
+      'https://picsum.photos/seed/attr4a/800/600',
+      'https://picsum.photos/seed/attr4b/800/600',
+      'https://picsum.photos/seed/attr4c/800/600',
+    ],
+    link: { url: 'https://www.museudoamanha.org.br', provider: 'Site Oficial' },
+  },
+  {
+    id: 'at-005', source: 'mock', addedToItinerary: false,
+    name: 'Escadaria Selarón',
+    description: 'Escadaria coberta com mais de 2.000 azulejos de 60 países, obra de Jorge Selarón.',
+    location: { latitude: -22.9155, longitude: -43.1790 },
+    city: 'Rio de Janeiro', category: 'Arte Pública',
+    images: [
+      'https://picsum.photos/seed/attr5a/800/600',
+      'https://picsum.photos/seed/attr5b/800/600',
+      'https://picsum.photos/seed/attr5c/800/600',
+    ],
+    link: null,
+  },
+  {
+    id: 'at-006', source: 'mock', addedToItinerary: false,
+    name: 'Maracanã',
+    description: 'O maior estádio do Brasil e palco de momentos históricos do futebol mundial.',
+    location: { latitude: -22.9121, longitude: -43.2302 },
+    city: 'Rio de Janeiro', category: 'Esporte',
+    images: [
+      'https://picsum.photos/seed/attr6a/800/600',
+      'https://picsum.photos/seed/attr6b/800/600',
+      'https://picsum.photos/seed/attr6c/800/600',
+    ],
+    link: { url: 'https://www.maracana.com', provider: 'Site Oficial' },
+  },
+  {
+    id: 'at-007', source: 'mock', addedToItinerary: false,
+    name: 'Arcos da Lapa',
+    description: 'Aqueduto colonial do século XVIII, cartão-postal da boêmia carioca.',
+    location: { latitude: -22.9131, longitude: -43.1804 },
+    city: 'Rio de Janeiro', category: 'Histórico',
+    images: [
+      'https://picsum.photos/seed/attr7a/800/600',
+      'https://picsum.photos/seed/attr7b/800/600',
+      'https://picsum.photos/seed/attr7c/800/600',
+    ],
+    link: null,
+  },
+  {
+    id: 'at-008', source: 'mock', addedToItinerary: false,
+    name: 'Praia de Ipanema',
+    description: 'Uma das praias mais famosas do mundo, imortalizada pela música "Garota de Ipanema".',
+    location: { latitude: -22.9838, longitude: -43.2048 },
+    city: 'Rio de Janeiro', category: 'Praia',
+    images: [
+      'https://picsum.photos/seed/attr8a/800/600',
+      'https://picsum.photos/seed/attr8b/800/600',
+      'https://picsum.photos/seed/attr8c/800/600',
+    ],
+    link: null,
+  },
+];

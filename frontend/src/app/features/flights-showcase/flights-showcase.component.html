@@ -1,0 +1,319 @@
+<div class="showcase-page">
+  <!-- Nav (same as landing) -->
+  <nav class="showcase-nav">
+    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo" routerLink="/landing" style="cursor:pointer">
+    <div class="nav-links">
+      <a routerLink="/landing">Home</a>
+      <a routerLink="/voos" class="active">Voos</a>
+      <a routerLink="/hoteis">Hotéis</a>
+      <a routerLink="/passeios">Passeios</a>
+    </div>
+    <div class="nav-actions">
+      @if (authService.isLoggedIn()) {
+        <div class="user-pill">
+          <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+          <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
+        </div>
+        <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
+          Painel
+        </button>
+      } @else {
+        <button class="google-login-btn" (click)="loginWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Entrar com Google
+        </button>
+      }
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="showcase-hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>Voos para todos os destinos</h1>
+      <p>Encontre as melhores passagens aéreas com preços imperdíveis. De praias paradisíacas a capitais europeias.</p>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="loading-section">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Carregando ofertas...</p>
+    </div>
+  } @else {
+    <!-- Highlights: Cheapest / Fastest / Best Value -->
+    @if (highlights().cheapest || highlights().fastest || highlights().bestValue) {
+      <section class="highlights-section">
+        <div class="section-header">
+          <div class="section-icon highlights"><mat-icon>stars</mat-icon></div>
+          <div>
+            <h2>Destaques para você</h2>
+            <p>Os melhores voos analisados por preço, duração e custo-benefício</p>
+          </div>
+        </div>
+        <div class="highlights-grid">
+          @if (highlights().cheapest; as cheapest) {
+            <div class="highlight-card highlight-cheap">
+              <div class="highlight-badge"><mat-icon>savings</mat-icon> Mais Barato</div>
+              <div class="highlight-route">
+                <span class="hl-iata">{{ cheapest.origin }}</span>
+                <mat-icon>arrow_forward</mat-icon>
+                <span class="hl-iata">{{ cheapest.destination }}</span>
+              </div>
+              <div class="highlight-airline">{{ cheapest.airline }} · {{ cheapest.flightNumber }}</div>
+              <div class="highlight-meta">
+                <span>{{ formatDuration(cheapest.durationMinutes) }}</span>
+                <span>{{ cheapest.stops === 0 ? 'Direto' : cheapest.stops + ' parada(s)' }}</span>
+              </div>
+              <div class="highlight-price">{{ cheapest.price.total | currency: 'BRL' }}</div>
+              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/search')">
+                <mat-icon>search</mat-icon> Ver voos
+              </button>
+            </div>
+          }
+          @if (highlights().fastest; as fastest) {
+            <div class="highlight-card highlight-fast">
+              <div class="highlight-badge"><mat-icon>bolt</mat-icon> Mais Rápido</div>
+              <div class="highlight-route">
+                <span class="hl-iata">{{ fastest.origin }}</span>
+                <mat-icon>arrow_forward</mat-icon>
+                <span class="hl-iata">{{ fastest.destination }}</span>
+              </div>
+              <div class="highlight-airline">{{ fastest.airline }} · {{ fastest.flightNumber }}</div>
+              <div class="highlight-meta">
+                <span>{{ formatDuration(fastest.durationMinutes) }}</span>
+                <span>{{ fastest.stops === 0 ? 'Direto' : fastest.stops + ' parada(s)' }}</span>
+              </div>
+              <div class="highlight-price">{{ fastest.price.total | currency: 'BRL' }}</div>
+              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/search')">
+                <mat-icon>search</mat-icon> Ver voos
+              </button>
+            </div>
+          }
+          @if (highlights().bestValue; as best) {
+            <div class="highlight-card highlight-value">
+              <div class="highlight-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+              <div class="highlight-route">
+                <span class="hl-iata">{{ best.origin }}</span>
+                <mat-icon>arrow_forward</mat-icon>
+                <span class="hl-iata">{{ best.destination }}</span>
+              </div>
+              <div class="highlight-airline">{{ best.airline }} · {{ best.flightNumber }}</div>
+              <div class="highlight-meta">
+                <span>{{ formatDuration(best.durationMinutes) }}</span>
+                <span>{{ best.stops === 0 ? 'Direto' : best.stops + ' parada(s)' }}</span>
+              </div>
+              <div class="highlight-price">{{ best.price.total | currency: 'BRL' }}</div>
+              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/search')">
+                <mat-icon>search</mat-icon> Ver voos
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Section 1: Best Deals -->
+    <section class="showcase-section">
+      <div class="section-header">
+        <div class="section-icon deals"><mat-icon>local_fire_department</mat-icon></div>
+        <div>
+          <h2>Melhores Ofertas</h2>
+          <p>Os voos com os menores preços para você viajar gastando menos</p>
+        </div>
+      </div>
+      <div class="flights-grid">
+        @for (flight of deals(); track flight.id) {
+          <div class="flight-card">
+            @if (flight.destinationImage) {
+              <div class="card-image" [style.background-image]="'url(' + flight.destinationImage + ')'">
+                <span class="card-image-label">{{ flight.destinationCity }}</span>
+              </div>
+            }
+            <div class="flight-route">
+              <div class="route-endpoint">
+                <span class="iata">{{ flight.origin }}</span>
+                <span class="city">{{ flight.originCity }}</span>
+              </div>
+              <div class="route-line">
+                <mat-icon>flight_takeoff</mat-icon>
+                <div class="dashed-line"></div>
+                <mat-icon>flight_land</mat-icon>
+              </div>
+              <div class="route-endpoint">
+                <span class="iata">{{ flight.destination }}</span>
+                <span class="city">{{ flight.destinationCity }}</span>
+              </div>
+            </div>
+            <div class="flight-details">
+              <div class="detail-row">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ flight.departureAt | date: "d 'de' MMM" }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatTime(flight.departureAt) }} - {{ formatTime(flight.arrivalAt) }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>airlines</mat-icon>
+                <span>{{ flight.airline }} · {{ flight.flightNumber }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>timer</mat-icon>
+                <span>{{ formatDuration(flight.durationMinutes) }} · {{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
+              </div>
+            </div>
+            <div class="flight-footer">
+              <div class="flight-price">
+                <span class="price-label">a partir de</span>
+                <span class="price-value">{{ flight.price.total | currency: 'BRL' }}</span>
+              </div>
+              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/search')">
+                <mat-icon>search</mat-icon> Ver voos
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Section 2: Popular Destinations -->
+    <section class="showcase-section alt-bg">
+      <div class="section-header">
+        <div class="section-icon popular"><mat-icon>public</mat-icon></div>
+        <div>
+          <h2>Destinos Mais Populares</h2>
+          <p>As rotas mais buscadas pelos viajantes brasileiros</p>
+        </div>
+      </div>
+      <div class="flights-grid">
+        @for (flight of popular(); track flight.id) {
+          <div class="flight-card">
+            @if (flight.destinationImage) {
+              <div class="card-image" [style.background-image]="'url(' + flight.destinationImage + ')'">
+                <span class="card-image-label">{{ flight.destinationCity }}</span>
+              </div>
+            }
+            <div class="flight-route">
+              <div class="route-endpoint">
+                <span class="iata">{{ flight.origin }}</span>
+                <span class="city">{{ flight.originCity }}</span>
+              </div>
+              <div class="route-line">
+                <mat-icon>flight_takeoff</mat-icon>
+                <div class="dashed-line"></div>
+                <mat-icon>flight_land</mat-icon>
+              </div>
+              <div class="route-endpoint">
+                <span class="iata">{{ flight.destination }}</span>
+                <span class="city">{{ flight.destinationCity }}</span>
+              </div>
+            </div>
+            <div class="flight-details">
+              <div class="detail-row">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ flight.departureAt | date: "d 'de' MMM" }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatTime(flight.departureAt) }} - {{ formatTime(flight.arrivalAt) }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>airlines</mat-icon>
+                <span>{{ flight.airline }} · {{ flight.flightNumber }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>timer</mat-icon>
+                <span>{{ formatDuration(flight.durationMinutes) }} · {{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
+              </div>
+            </div>
+            <div class="flight-footer">
+              <div class="flight-price">
+                <span class="price-label">a partir de</span>
+                <span class="price-value">{{ flight.price.total | currency: 'BRL' }}</span>
+              </div>
+              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/search')">
+                <mat-icon>search</mat-icon> Ver voos
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Section 3: Recommended Trips -->
+    <section class="showcase-section">
+      <div class="section-header">
+        <div class="section-icon recommended"><mat-icon>auto_awesome</mat-icon></div>
+        <div>
+          <h2>Viagens Recomendadas</h2>
+          <p>Sugestões curadas para quem busca lazer e turismo</p>
+        </div>
+      </div>
+      <div class="flights-grid">
+        @for (flight of recommended(); track flight.id) {
+          <div class="flight-card">
+            @if (flight.destinationImage) {
+              <div class="card-image" [style.background-image]="'url(' + flight.destinationImage + ')'">
+                <span class="card-image-label">{{ flight.destinationCity }}</span>
+              </div>
+            }
+            <div class="flight-route">
+              <div class="route-endpoint">
+                <span class="iata">{{ flight.origin }}</span>
+                <span class="city">{{ flight.originCity }}</span>
+              </div>
+              <div class="route-line">
+                <mat-icon>flight_takeoff</mat-icon>
+                <div class="dashed-line"></div>
+                <mat-icon>flight_land</mat-icon>
+              </div>
+              <div class="route-endpoint">
+                <span class="iata">{{ flight.destination }}</span>
+                <span class="city">{{ flight.destinationCity }}</span>
+              </div>
+            </div>
+            <div class="flight-details">
+              <div class="detail-row">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ flight.departureAt | date: "d 'de' MMM" }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatTime(flight.departureAt) }} - {{ formatTime(flight.arrivalAt) }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>airlines</mat-icon>
+                <span>{{ flight.airline }} · {{ flight.flightNumber }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>timer</mat-icon>
+                <span>{{ formatDuration(flight.durationMinutes) }} · {{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
+              </div>
+            </div>
+            <div class="flight-footer">
+              <div class="flight-price">
+                <span class="price-label">a partir de</span>
+                <span class="price-value">{{ flight.price.total | currency: 'BRL' }}</span>
+              </div>
+              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/search')">
+                <mat-icon>search</mat-icon> Ver voos
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Footer -->
+  <footer class="showcase-footer">
+    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
+    <p>&copy; 2026 Travelyx — Planeje sua viagem perfeita</p>
+  </footer>
+</div>

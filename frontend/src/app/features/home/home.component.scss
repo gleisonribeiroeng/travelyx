@@ -1,0 +1,451 @@
+.welcome-section {
+  margin-bottom: var(--triply-spacing-lg);
+  padding-bottom: var(--triply-spacing-md);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0D0B30;
+    margin: 0 0 var(--triply-spacing-xs) 0;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}
+
+// Hero CTA card
+.hero-card {
+  cursor: pointer;
+  margin-bottom: var(--triply-spacing-lg);
+  background: linear-gradient(135deg, #7C4DFF 0%, #5B2FCF 100%) !important;
+  border: none !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(51, 102, 255, 0.3) !important;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #7C4DFF;
+    outline-offset: 2px;
+  }
+
+  mat-card-content {
+    padding: var(--triply-spacing-lg) var(--triply-spacing-xl);
+  }
+}
+
+.hero-content {
+  display: flex;
+  align-items: center;
+  gap: var(--triply-spacing-lg);
+}
+
+.hero-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #ffffff;
+  }
+}
+
+.hero-text {
+  flex: 1;
+
+  h2 {
+    margin: 0 0 4px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.4;
+  }
+}
+
+.hero-arrow {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+// Trip meta chips
+.trip-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--triply-spacing-sm);
+  margin-bottom: var(--triply-spacing-lg);
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Stats grid
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--triply-spacing-md);
+  margin-bottom: var(--triply-spacing-lg);
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--triply-spacing-md) var(--triply-spacing-sm);
+  background: var(--mat-sys-surface-container-low);
+  border-radius: var(--triply-border-radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.stat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+
+  &.flight { color: #f59e0b; }
+  &.hotel { color: #22c55e; }
+  &.car { color: #f97316; }
+  &.activity { color: #ec4899; }
+  &.transport { color: #3b82f6; }
+  &.attraction { color: #8b5cf6; }
+  &.itinerary { color: #7C4DFF; }
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0D0B30;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  text-align: center;
+}
+
+// Section title
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0D0B30;
+  margin: 0 0 var(--triply-spacing-md) 0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+// Cost breakdown card
+.cost-card {
+  margin-bottom: var(--triply-spacing-lg);
+}
+
+.cost-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: var(--triply-spacing-md);
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.cost-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.cost-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #0D0B30;
+}
+
+.cost-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--triply-spacing-md);
+  border-top: 2px solid var(--mat-sys-primary);
+
+  span:first-child {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0D0B30;
+  }
+}
+
+.total-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--mat-sys-primary);
+}
+
+// Upcoming items card
+.upcoming-card {
+  margin-bottom: var(--triply-spacing-lg);
+}
+
+.upcoming-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+}
+
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--triply-spacing-md);
+}
+
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: var(--triply-spacing-sm);
+  padding: 10px 8px;
+  border-radius: var(--triply-border-radius);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.upcoming-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-primary);
+  flex-shrink: 0;
+}
+
+.upcoming-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.upcoming-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #0D0B30;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcoming-date {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.upcoming-type {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container);
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// Checklist card
+.checklist-card {
+  margin-bottom: var(--triply-spacing-lg);
+}
+
+.checklist-progress {
+  margin-bottom: var(--triply-spacing-md);
+}
+
+.progress-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+  text-align: right;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: var(--triply-border-radius);
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+
+  &.done {
+    color: #0D0B30;
+
+    .check-icon {
+      color: #22c55e;
+    }
+
+    span {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+  }
+}
+
+.check-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-outline);
+  flex-shrink: 0;
+}
+
+.step-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+// Empty state
+.empty-state {
+  text-align: center;
+
+  mat-card-content {
+    padding: var(--triply-spacing-xl);
+  }
+
+  h3 {
+    margin: var(--triply-spacing-md) 0 var(--triply-spacing-xs);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0D0B30;
+  }
+
+  p {
+    margin: 0 0 var(--triply-spacing-lg);
+    font-size: 0.9rem;
+    color: var(--mat-sys-on-surface-variant);
+    line-height: 1.5;
+  }
+}
+
+.empty-icon {
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+  color: var(--mat-sys-primary);
+  opacity: 0.6;
+}
+
+.quick-links {
+  display: flex;
+  gap: var(--triply-spacing-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+// Mobile
+@media (max-width: 480px) {
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-arrow { display: none; }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .quick-links {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

@@ -1,0 +1,164 @@
+<div class="view-header">
+  <h1>Roteiro</h1>
+  <p>Seu roteiro de viagem organizado dia a dia</p>
+</div>
+
+<app-manual-item-form />
+
+@if (tripState.hasItems() || hasSummaryItems()) {
+  <!-- Summary cards: compact cards for flights, hotels, cars, tours -->
+  @if (hasSummaryItems()) {
+    <div class="summary-section">
+      <!-- Flights -->
+      @for (flight of summaryFlights(); track flight.id) {
+        <div class="summary-card type-flight">
+          <div class="summary-accent"></div>
+          <div class="summary-body">
+            <mat-icon class="summary-icon">flight</mat-icon>
+            <div class="summary-info">
+              <span class="summary-title">{{ flight.origin }} → {{ flight.destination }}</span>
+              <span class="summary-sub">{{ flight.airline }} {{ flight.flightNumber }} · {{ formatTime(flight.departureAt) }}–{{ formatTime(flight.arrivalAt) }}</span>
+            </div>
+            <span class="summary-price">{{ flight.price.total | currency: 'BRL' }}</span>
+            <button mat-icon-button class="summary-remove" (click)="removeFlight(flight.id)" matTooltip="Remover voo">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Hotels -->
+      @for (hotel of summaryStays(); track hotel.id) {
+        <div class="summary-card type-stay">
+          <div class="summary-accent"></div>
+          <div class="summary-body">
+            <mat-icon class="summary-icon">hotel</mat-icon>
+            <div class="summary-info">
+              <span class="summary-title">{{ hotel.name }}</span>
+              <span class="summary-sub">{{ hotel.checkIn }} — {{ hotel.checkOut }}</span>
+            </div>
+            <span class="summary-price">{{ hotel.pricePerNight.total | currency: 'BRL' }}/noite</span>
+            <button mat-icon-button class="summary-remove" (click)="removeStay(hotel.id)" matTooltip="Remover hotel">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Cars -->
+      @for (car of summaryCarRentals(); track car.id) {
+        <div class="summary-card type-car">
+          <div class="summary-accent"></div>
+          <div class="summary-body">
+            <mat-icon class="summary-icon">directions_car</mat-icon>
+            <div class="summary-info">
+              <span class="summary-title">{{ car.vehicleType }}</span>
+              <span class="summary-sub">{{ car.pickUpLocation }} → {{ car.dropOffLocation }}</span>
+            </div>
+            <span class="summary-price">{{ car.price.total | currency: 'BRL' }}</span>
+            <button mat-icon-button class="summary-remove" (click)="removeCarRental(car.id)" matTooltip="Remover carro">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Activities -->
+      @for (tour of summaryActivities(); track tour.id) {
+        <div class="summary-card type-activity">
+          <div class="summary-accent"></div>
+          <div class="summary-body">
+            <mat-icon class="summary-icon">local_activity</mat-icon>
+            <div class="summary-info">
+              <span class="summary-title">{{ tour.name }}</span>
+              <span class="summary-sub">{{ tour.city }}</span>
+            </div>
+            <span class="summary-price">{{ tour.price.total | currency: 'BRL' }}</span>
+            <button mat-icon-button class="summary-remove" (click)="removeActivity(tour.id)" matTooltip="Remover passeio">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- View toggle -->
+  <div class="view-toggle">
+    <mat-button-toggle-group [value]="activeView()" (change)="activeView.set($event.value)">
+      <mat-button-toggle value="calendar">
+        <mat-icon>calendar_month</mat-icon> Calendário
+      </mat-button-toggle>
+      <mat-button-toggle value="list">
+        <mat-icon>view_list</mat-icon> Lista
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+    @if (activeView() === 'list') {
+      <div class="trip-summary">
+        <span class="summary-item">
+          <mat-icon>event</mat-icon>
+          {{ tripDayCount() }} {{ tripDayCount() === 1 ? 'dia' : 'dias' }}
+        </span>
+        <span class="summary-item">
+          <mat-icon>list</mat-icon>
+          {{ tripState.itineraryItems().length }} {{ tripState.itineraryItems().length === 1 ? 'item' : 'itens' }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- Calendar View -->
+  @if (activeView() === 'calendar') {
+    <div class="calendar-wrapper">
+      <full-calendar [options]="calendarOptions()" />
+    </div>
+  }
+
+  <!-- List View -->
+  @if (activeView() === 'list') {
+    <div class="calendar-timeline">
+      @for (dayEntry of itemsByDay() | keyvalue: dateOrder; track dayEntry.key; let i = $index) {
+        <section class="day-panel">
+          <div class="day-header">
+            <div class="day-badge">
+              <span class="day-number">Dia {{ i + 1 }}</span>
+              <span class="day-date">{{ dayEntry.key | date: 'EEE' }}</span>
+            </div>
+            <div class="day-info">
+              <h2>{{ dayEntry.key | date: "d 'de' MMMM 'de' yyyy" }}</h2>
+              <span class="item-count">{{ dayEntry.value.length }} {{ dayEntry.value.length === 1 ? 'item' : 'itens' }}</span>
+            </div>
+          </div>
+
+          <div class="day-items">
+            @for (item of dayEntry.value; track item.id) {
+              @if (item.timeSlot) {
+                <div class="time-marker">
+                  <span class="time-label">{{ item.timeSlot }}</span>
+                  <div class="time-line"></div>
+                </div>
+              }
+
+              <app-itinerary-item
+                [item]="item"
+                [isFirst]="$first"
+                [isLast]="$last"
+                (moveUp)="moveItemUp(item, dayEntry.value)"
+                (moveDown)="moveItemDown(item, dayEntry.value)"
+                (remove)="removeItem(item.id)"
+              />
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+} @else {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon class="empty-icon">map</mat-icon>
+      <p>Seu roteiro está vazio. Adicione itens das páginas de busca para começar a planejar sua viagem.</p>
+    </mat-card-content>
+  </mat-card>
+}

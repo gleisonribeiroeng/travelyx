@@ -1,0 +1,196 @@
+<div class="view-header">
+  <h1>Buscar Passeios e Experiências</h1>
+  <p>Encontre passeios, atividades e experiências no seu destino</p>
+</div>
+
+@if (formCollapsed()) {
+  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+    <div class="toggle-info">
+      <mat-icon>local_activity</mat-icon>
+      <span>Busca de Passeios</span>
+    </div>
+    <div class="toggle-action">
+      <span>Editar busca</span>
+      <mat-icon>expand_more</mat-icon>
+    </div>
+  </div>
+}
+
+<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
+  <mat-card-content>
+    <form [formGroup]="tourSearchForm" (ngSubmit)="searchTours()">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Destino</mat-label>
+          <input matInput formControlName="destination" />
+          <mat-icon matPrefix>place</mat-icon>
+          @if (tourSearchForm.get('destination')?.hasError('required')) {
+            <mat-error>Destino é obrigatório</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      @if (isSearching()) {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Buscando...</span>
+        </button>
+      } @else {
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="tourSearchForm.invalid">
+          <mat-icon>search</mat-icon>
+          <span>Buscar Passeios</span>
+        </button>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>
+
+@if (errorMessage()) {
+  <app-error-banner [source]="errorSource() ?? 'Passeios'" [message]="errorMessage()!" (dismiss)="dismissError()" />
+}
+
+@if (searchResults().length > 0) {
+  <!-- Highlight Cards -->
+  @if (categorized().cheapest || categorized().bestRated || categorized().bestValue) {
+    <div class="highlights-strip">
+      @if (categorized().cheapest; as cheapest) {
+        <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
+          <div class="hl-badge"><mat-icon>savings</mat-icon> Melhor Preço</div>
+          <div class="hl-name">{{ cheapest.name }}</div>
+          <div class="hl-info">
+            {{ cheapest.city }}
+            @if (cheapest.rating) {
+              · <mat-icon class="hl-star">star</mat-icon> {{ cheapest.rating.toFixed(1) }}
+            }
+          </div>
+          <div class="hl-price">{{ cheapest.price.total | currency: 'BRL' }}<span class="hl-price-label">/pessoa</span></div>
+        </div>
+      }
+      @if (categorized().bestRated; as rated) {
+        <div class="hl-card hl-rated" (click)="addToItinerary(rated)">
+          <div class="hl-badge"><mat-icon>star</mat-icon> Mais Bem Avaliado</div>
+          <div class="hl-name">{{ rated.name }}</div>
+          <div class="hl-info">
+            {{ rated.city }}
+            @if (rated.rating) {
+              · <mat-icon class="hl-star">star</mat-icon> {{ rated.rating.toFixed(1) }}
+            }
+            @if (rated.reviewCount > 0) {
+              ({{ rated.reviewCount }})
+            }
+          </div>
+          <div class="hl-price">{{ rated.price.total | currency: 'BRL' }}<span class="hl-price-label">/pessoa</span></div>
+        </div>
+      }
+      @if (categorized().bestValue; as best) {
+        <div class="hl-card hl-value" (click)="addToItinerary(best)">
+          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+          <div class="hl-name">{{ best.name }}</div>
+          <div class="hl-info">
+            {{ best.city }}
+            @if (best.rating) {
+              · <mat-icon class="hl-star">star</mat-icon> {{ best.rating.toFixed(1) }}
+            }
+          </div>
+          <div class="hl-price">{{ best.price.total | currency: 'BRL' }}<span class="hl-price-label">/pessoa</span></div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="results-section">
+    <div class="results-header">
+      <h2>{{ sortedResults().length }} passeio{{ sortedResults().length !== 1 ? 's' : '' }} encontrado{{ sortedResults().length !== 1 ? 's' : '' }}</h2>
+
+      <!-- Sort Dropdown -->
+      <mat-form-field appearance="outline" class="sort-field">
+        <mat-label>Ordenar por</mat-label>
+        <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
+          <mat-option value="price">Preço (menor)</mat-option>
+          <mat-option value="rating">Avaliação (melhor)</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @for (tour of sortedResults(); track tour.id) {
+      <mat-card class="result-card">
+        <!-- Tags -->
+        @if (categorized().cheapest?.id === tour.id || categorized().bestRated?.id === tour.id || categorized().bestValue?.id === tour.id) {
+          <div class="tour-tags">
+            @if (categorized().bestValue?.id === tour.id) {
+              <span class="htag htag-value">Melhor custo-benefício</span>
+            }
+            @if (categorized().cheapest?.id === tour.id) {
+              <span class="htag htag-cheap">Melhor preço</span>
+            }
+            @if (categorized().bestRated?.id === tour.id) {
+              <span class="htag htag-rated">Mais bem avaliado</span>
+            }
+          </div>
+        }
+        <div class="card-layout">
+          <div class="card-image">
+            @if (tour.images && tour.images.length > 0) {
+              <img [src]="tour.images[0]" [alt]="tour.name" loading="lazy" />
+            } @else {
+              <div class="image-placeholder"><mat-icon>local_activity</mat-icon></div>
+            }
+          </div>
+
+          <div class="card-info">
+            <h3 class="item-name">{{ tour.name }}</h3>
+            <div class="item-detail">
+              <mat-icon>place</mat-icon>
+              <span>{{ tour.city }}</span>
+            </div>
+            <div class="item-detail">
+              <mat-icon>schedule</mat-icon>
+              @if (tour.durationMinutes !== null) {
+                <span>{{ formatDuration(tour.durationMinutes) }}</span>
+              } @else {
+                <span>Duração flexível</span>
+              }
+            </div>
+
+            <div class="tour-rating">
+              @for (star of renderStars(tour.rating); track $index) {
+                <mat-icon class="star-icon">{{ star }}</mat-icon>
+              }
+              <span class="rating-text">{{ formatRating(tour.rating) }}</span>
+              @if (tour.reviewCount > 0) {
+                <span class="review-count-text">({{ tour.reviewCount }} avaliações)</span>
+              }
+            </div>
+
+            @if (tour.description) {
+              <p class="item-description">{{ tour.description }}</p>
+            }
+          </div>
+
+          <div class="card-price-column">
+            <div class="price-block">
+              <span class="price-label">a partir de</span>
+              <span class="price-amount">{{ tour.price.total | currency: 'BRL' }}</span>
+              <span class="price-label">por pessoa</span>
+            </div>
+            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(tour)">
+              <mat-icon>add</mat-icon> Adicionar
+            </button>
+            <a mat-stroked-button class="action-btn detail-btn" [href]="tour.link.url" target="_blank" rel="noopener noreferrer">
+              Ver detalhe
+            </a>
+          </div>
+        </div>
+      </mat-card>
+    }
+  </div>
+}
+
+@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>local_activity</mat-icon>
+      <p>Nenhum passeio encontrado. Tente um destino diferente.</p>
+    </mat-card-content>
+  </mat-card>
+}

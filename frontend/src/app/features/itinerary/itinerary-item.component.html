@@ -1,0 +1,238 @@
+<mat-card [class]="'itinerary-card ' + getTypeClass(item().type)">
+  @if (!isEditing()) {
+    @switch (item().type) {
+
+      <!-- ─── FLIGHT ─── -->
+      @case ('flight') {
+        @if (asFlight(); as flight) {
+          <div class="card-accent"></div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <mat-icon class="type-icon">flight</mat-icon>
+              <div class="route-display">
+                <span class="code">{{ flight.origin }}</span>
+                <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                <span class="code">{{ flight.destination }}</span>
+              </div>
+              <span class="price">{{ flight.price.total | currency: 'BRL' }}</span>
+            </div>
+            <div class="card-details">
+              <span><mat-icon>schedule</mat-icon> {{ formatTime(flight.departureAt) }} — {{ formatTime(flight.arrivalAt) }}</span>
+              <span><mat-icon>airlines</mat-icon> {{ flight.airline }} {{ flight.flightNumber }}</span>
+              <span><mat-icon>timelapse</mat-icon> {{ formatDuration(flight.durationMinutes) }}</span>
+              @if (flight.stops > 0) {
+                <span><mat-icon>connecting_airports</mat-icon> {{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</span>
+              } @else {
+                <span><mat-icon>check_circle</mat-icon> Direto</span>
+              }
+            </div>
+          </div>
+        } @else {
+          <ng-container *ngTemplateOutlet="genericCard"></ng-container>
+        }
+      }
+
+      <!-- ─── HOTEL ─── -->
+      @case ('stay') {
+        @if (asStay(); as hotel) {
+          <div class="card-accent"></div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <mat-icon class="type-icon">hotel</mat-icon>
+              <div class="card-title">{{ hotel.name }}</div>
+              <span class="price">{{ hotel.pricePerNight.total | currency: 'BRL' }}/noite</span>
+            </div>
+            <div class="card-details">
+              <span><mat-icon>login</mat-icon> Check-in: {{ formatDate(hotel.checkIn) }}</span>
+              <span><mat-icon>logout</mat-icon> Check-out: {{ formatDate(hotel.checkOut) }}</span>
+              @if (hotel.address) {
+                <span><mat-icon>place</mat-icon> {{ hotel.address }}</span>
+              }
+              @if (hotel.rating) {
+                <span><mat-icon>star</mat-icon> {{ hotel.rating }}/5</span>
+              }
+            </div>
+          </div>
+        } @else {
+          <ng-container *ngTemplateOutlet="genericCard"></ng-container>
+        }
+      }
+
+      <!-- ─── CAR RENTAL ─── -->
+      @case ('car-rental') {
+        @if (asCarRental(); as car) {
+          <div class="card-accent"></div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <mat-icon class="type-icon">directions_car</mat-icon>
+              <div class="card-title">{{ car.vehicleType }}</div>
+              <span class="price">{{ car.price.total | currency: 'BRL' }}</span>
+            </div>
+            <div class="card-details">
+              <span><mat-icon>login</mat-icon> Retirada: {{ formatTime(car.pickUpAt) }} — {{ car.pickUpLocation }}</span>
+              <span><mat-icon>logout</mat-icon> Devolução: {{ formatTime(car.dropOffAt) }} — {{ car.dropOffLocation }}</span>
+            </div>
+          </div>
+        } @else {
+          <ng-container *ngTemplateOutlet="genericCard"></ng-container>
+        }
+      }
+
+      <!-- ─── TRANSPORT ─── -->
+      @case ('transport') {
+        @if (asTransport(); as transport) {
+          <div class="card-accent"></div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <mat-icon class="type-icon">{{ getTransportIcon(transport.mode) }}</mat-icon>
+              <div class="route-display">
+                <span class="code">{{ transport.origin }}</span>
+                <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                <span class="code">{{ transport.destination }}</span>
+              </div>
+              <span class="price">{{ transport.price.total | currency: 'BRL' }}</span>
+            </div>
+            <div class="card-details">
+              <span><mat-icon>schedule</mat-icon> {{ formatTime(transport.departureAt) }} — {{ formatTime(transport.arrivalAt) }}</span>
+              <span><mat-icon>timelapse</mat-icon> {{ formatDuration(transport.durationMinutes) }}</span>
+            </div>
+          </div>
+        } @else {
+          <ng-container *ngTemplateOutlet="genericCard"></ng-container>
+        }
+      }
+
+      <!-- ─── ACTIVITY / TOUR ─── -->
+      @case ('activity') {
+        @if (asActivity(); as tour) {
+          <div class="card-accent"></div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <mat-icon class="type-icon">local_activity</mat-icon>
+              <div class="card-title">{{ tour.name }}</div>
+              <span class="price">{{ tour.price.total | currency: 'BRL' }}</span>
+            </div>
+            <div class="card-details">
+              @if (tour.city) {
+                <span><mat-icon>place</mat-icon> {{ tour.city }}</span>
+              }
+              @if (tour.durationMinutes) {
+                <span><mat-icon>timelapse</mat-icon> {{ formatDuration(tour.durationMinutes) }}</span>
+              }
+            </div>
+          </div>
+        } @else {
+          <ng-container *ngTemplateOutlet="genericCard"></ng-container>
+        }
+      }
+
+      <!-- ─── ATTRACTION ─── -->
+      @case ('attraction') {
+        @if (asAttraction(); as attraction) {
+          <div class="card-accent"></div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <mat-icon class="type-icon">museum</mat-icon>
+              <div class="card-title">{{ attraction.name }}</div>
+            </div>
+            <div class="card-details">
+              @if (attraction.category) {
+                <span><mat-icon>category</mat-icon> {{ attraction.category }}</span>
+              }
+              @if (attraction.city) {
+                <span><mat-icon>place</mat-icon> {{ attraction.city }}</span>
+              }
+            </div>
+          </div>
+        } @else {
+          <ng-container *ngTemplateOutlet="genericCard"></ng-container>
+        }
+      }
+
+      <!-- ─── CUSTOM / DEFAULT ─── -->
+      @default {
+        <ng-container *ngTemplateOutlet="genericCard"></ng-container>
+      }
+    }
+
+    <!-- Shared action buttons -->
+    <div class="card-actions">
+      <button mat-icon-button (click)="startEdit()" matTooltip="Editar">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="remove.emit()" matTooltip="Remover">
+        <mat-icon>delete</mat-icon>
+      </button>
+      @if (!isFirst()) {
+        <button mat-icon-button (click)="moveUp.emit()" matTooltip="Mover para cima">
+          <mat-icon>arrow_upward</mat-icon>
+        </button>
+      }
+      @if (!isLast()) {
+        <button mat-icon-button (click)="moveDown.emit()" matTooltip="Mover para baixo">
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+      }
+    </div>
+
+  } @else {
+    <!-- Edit Mode -->
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="edit-form">
+      <mat-card-content>
+        <mat-form-field appearance="outline">
+          <mat-label>Data</mat-label>
+          <input matInput type="date" formControlName="date" required>
+          <mat-error>Data é obrigatória</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Horário (opcional)</mat-label>
+          <input matInput type="time" formControlName="timeSlot">
+          <mat-hint>Deixe vazio para itens de dia inteiro</mat-hint>
+          <mat-error>Formato de horário inválido (HH:MM)</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Duração (minutos)</mat-label>
+          <input matInput type="number" formControlName="durationMinutes" min="15" step="15">
+          <mat-hint>Tempo estimado da atividade</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Título</mat-label>
+          <input matInput formControlName="label" required>
+          <mat-error>Título é obrigatório</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Notas (opcional)</mat-label>
+          <textarea matInput formControlName="notes" rows="2"></textarea>
+        </mat-form-field>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-button type="button" (click)="cancelEdit()">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="editForm.invalid">
+          Salvar
+        </button>
+      </mat-card-actions>
+    </form>
+  }
+</mat-card>
+
+<!-- Generic fallback template for custom items or missing source data -->
+<ng-template #genericCard>
+  <div class="card-accent"></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <mat-icon class="type-icon">{{ getTypeIcon(item().type) }}</mat-icon>
+      <div class="card-title">{{ item().label }}</div>
+      <span class="time-badge">{{ item().timeSlot || 'Dia inteiro' }}</span>
+    </div>
+    @if (item().notes) {
+      <div class="card-details">
+        <span>{{ item().notes }}</span>
+      </div>
+    }
+  </div>
+</ng-template>

@@ -1,0 +1,274 @@
+<div class="showcase-page">
+  <!-- Nav -->
+  <nav class="showcase-nav">
+    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo" routerLink="/landing" style="cursor:pointer">
+    <div class="nav-links">
+      <a routerLink="/landing">Home</a>
+      <a routerLink="/voos">Voos</a>
+      <a routerLink="/hoteis">Hotéis</a>
+      <a routerLink="/passeios" class="active">Passeios</a>
+    </div>
+    <div class="nav-actions">
+      @if (authService.isLoggedIn()) {
+        <div class="user-pill">
+          <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+          <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
+        </div>
+        <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
+          Painel
+        </button>
+      } @else {
+        <button class="google-login-btn" (click)="loginWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Entrar com Google
+        </button>
+      }
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="showcase-hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>Passeios e experiências incríveis</h1>
+      <p>City tours, aventuras, gastronomia e muito mais. Descubra o melhor de cada destino.</p>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="loading-section">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Carregando passeios...</p>
+    </div>
+  } @else {
+    <!-- Highlights -->
+    @if (highlights().cheapest || highlights().bestRated || highlights().bestValue) {
+      <section class="highlights-section">
+        <div class="section-header">
+          <div class="section-icon highlights"><mat-icon>insights</mat-icon></div>
+          <div>
+            <h2>Destaques para você</h2>
+            <p>Passeios selecionados com base em preço, avaliação e custo-benefício</p>
+          </div>
+        </div>
+        <div class="highlights-grid">
+          @if (highlights().cheapest; as cheapest) {
+            <div class="highlight-card highlight-cheap" (click)="navigateTo('/tours')">
+              <div class="highlight-badge"><mat-icon>savings</mat-icon> Melhor Preço</div>
+              <div class="highlight-route"><span class="hl-name">{{ cheapest.name }}</span></div>
+              <div class="highlight-city">{{ cheapest.city }}</div>
+              <div class="highlight-meta">
+                <span>{{ formatDuration(cheapest.durationMinutes) }}</span>
+                <span>·</span>
+                <span>⭐ {{ cheapest.rating }}</span>
+                <span>({{ cheapest.reviewCount }})</span>
+              </div>
+              <div class="highlight-price">
+                {{ cheapest.price.total | currency: 'BRL' }}
+                <span class="price-suffix">/pessoa</span>
+              </div>
+              <button mat-flat-button color="primary" class="highlight-cta" (click)="navigateTo('/tours'); $event.stopPropagation()">
+                <mat-icon>search</mat-icon> Ver passeios
+              </button>
+            </div>
+          }
+          @if (highlights().bestRated; as rated) {
+            <div class="highlight-card highlight-rated" (click)="navigateTo('/tours')">
+              <div class="highlight-badge"><mat-icon>star</mat-icon> Mais Bem Avaliado</div>
+              <div class="highlight-route"><span class="hl-name">{{ rated.name }}</span></div>
+              <div class="highlight-city">{{ rated.city }}</div>
+              <div class="highlight-meta">
+                <span>{{ formatDuration(rated.durationMinutes) }}</span>
+                <span>·</span>
+                <span>⭐ {{ rated.rating }}</span>
+                <span>({{ rated.reviewCount }} avaliações)</span>
+              </div>
+              <div class="highlight-price">
+                {{ rated.price.total | currency: 'BRL' }}
+                <span class="price-suffix">/pessoa</span>
+              </div>
+              <button mat-flat-button color="primary" class="highlight-cta" (click)="navigateTo('/tours'); $event.stopPropagation()">
+                <mat-icon>search</mat-icon> Ver passeios
+              </button>
+            </div>
+          }
+          @if (highlights().bestValue; as best) {
+            <div class="highlight-card highlight-value" (click)="navigateTo('/tours')">
+              <div class="highlight-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+              <div class="highlight-route"><span class="hl-name">{{ best.name }}</span></div>
+              <div class="highlight-city">{{ best.city }}</div>
+              <div class="highlight-meta">
+                <span>{{ formatDuration(best.durationMinutes) }}</span>
+                <span>·</span>
+                <span>⭐ {{ best.rating }}</span>
+                <span>({{ best.reviewCount }})</span>
+              </div>
+              <div class="highlight-price">
+                {{ best.price.total | currency: 'BRL' }}
+                <span class="price-suffix">/pessoa</span>
+              </div>
+              <button mat-flat-button color="primary" class="highlight-cta" (click)="navigateTo('/tours'); $event.stopPropagation()">
+                <mat-icon>search</mat-icon> Ver passeios
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Section 1: Most Booked -->
+    <section class="showcase-section">
+      <div class="section-header">
+        <div class="section-icon most-booked"><mat-icon>local_fire_department</mat-icon></div>
+        <div>
+          <h2>Mais Reservados</h2>
+          <p>Os passeios que todo mundo está fazendo — os favoritos dos viajantes</p>
+        </div>
+      </div>
+      <div class="tours-grid">
+        @for (tour of mostBooked(); track tour.id) {
+          <div class="tour-card">
+            <div class="card-image" [style.background-image]="'url(' + (tour.cityImage || tour.images[0]) + ')'">
+              <span class="card-image-label">{{ tour.city }}</span>
+            </div>
+            <div class="tour-info">
+              <h3 class="tour-name">{{ tour.name }}</h3>
+              <p class="tour-description">{{ tour.description }}</p>
+              <div class="tour-meta">
+                <div class="meta-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ formatDuration(tour.durationMinutes) }}</span>
+                </div>
+                <div class="meta-item">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ tour.city }}</span>
+                </div>
+              </div>
+              <div class="tour-rating">
+                <mat-icon class="star-icon">star</mat-icon>
+                <span class="rating-value">{{ tour.rating }}</span>
+                <span class="review-count">({{ tour.reviewCount }} avaliações)</span>
+              </div>
+            </div>
+            <div class="tour-footer">
+              <div class="tour-price">
+                <span class="price-label">a partir de</span>
+                <span class="price-value">{{ tour.price.total | currency: 'BRL' }}</span>
+              </div>
+              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/tours')">
+                <mat-icon>search</mat-icon> Ver passeios
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Section 2: Must Do -->
+    <section class="showcase-section alt-bg">
+      <div class="section-header">
+        <div class="section-icon must-do"><mat-icon>flag</mat-icon></div>
+        <div>
+          <h2>Imperdíveis do Destino</h2>
+          <p>Se for para esse lugar, faça isso — experiências que definem o destino</p>
+        </div>
+      </div>
+      <div class="tours-grid">
+        @for (tour of mustDo(); track tour.id) {
+          <div class="tour-card">
+            <div class="card-image" [style.background-image]="'url(' + (tour.cityImage || tour.images[0]) + ')'">
+              <span class="card-image-label">{{ tour.city }}</span>
+            </div>
+            <div class="tour-info">
+              <h3 class="tour-name">{{ tour.name }}</h3>
+              <p class="tour-description">{{ tour.description }}</p>
+              <div class="tour-meta">
+                <div class="meta-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ formatDuration(tour.durationMinutes) }}</span>
+                </div>
+                <div class="meta-item">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ tour.city }}</span>
+                </div>
+              </div>
+              <div class="tour-rating">
+                <mat-icon class="star-icon">star</mat-icon>
+                <span class="rating-value">{{ tour.rating }}</span>
+                <span class="review-count">({{ tour.reviewCount }} avaliações)</span>
+              </div>
+            </div>
+            <div class="tour-footer">
+              <div class="tour-price">
+                <span class="price-label">a partir de</span>
+                <span class="price-value">{{ tour.price.total | currency: 'BRL' }}</span>
+              </div>
+              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/tours')">
+                <mat-icon>search</mat-icon> Ver passeios
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Section 3: Unique Experiences -->
+    <section class="showcase-section">
+      <div class="section-header">
+        <div class="section-icon unique"><mat-icon>auto_awesome</mat-icon></div>
+        <div>
+          <h2>Experiências Diferentes</h2>
+          <p>Gastronomia, fotografia, trilhas e atividades que criam memórias únicas</p>
+        </div>
+      </div>
+      <div class="tours-grid">
+        @for (tour of unique(); track tour.id) {
+          <div class="tour-card">
+            <div class="card-image" [style.background-image]="'url(' + (tour.cityImage || tour.images[0]) + ')'">
+              <span class="card-image-label">{{ tour.city }}</span>
+            </div>
+            <div class="tour-info">
+              <h3 class="tour-name">{{ tour.name }}</h3>
+              <p class="tour-description">{{ tour.description }}</p>
+              <div class="tour-meta">
+                <div class="meta-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ formatDuration(tour.durationMinutes) }}</span>
+                </div>
+                <div class="meta-item">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ tour.city }}</span>
+                </div>
+              </div>
+              <div class="tour-rating">
+                <mat-icon class="star-icon">star</mat-icon>
+                <span class="rating-value">{{ tour.rating }}</span>
+                <span class="review-count">({{ tour.reviewCount }} avaliações)</span>
+              </div>
+            </div>
+            <div class="tour-footer">
+              <div class="tour-price">
+                <span class="price-label">a partir de</span>
+                <span class="price-value">{{ tour.price.total | currency: 'BRL' }}</span>
+              </div>
+              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/tours')">
+                <mat-icon>search</mat-icon> Ver passeios
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Footer -->
+  <footer class="showcase-footer">
+    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
+    <p>&copy; 2026 Travelyx — Planeje sua viagem perfeita</p>
+  </footer>
+</div>
