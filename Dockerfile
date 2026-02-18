@@ -1,29 +1,23 @@
-FROM node:20-alpine AS frontend-build
-
-WORKDIR /app/frontend
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm install
-COPY frontend/ ./
-RUN npx ng build --configuration production
-
-FROM node:20-alpine AS backend-build
-
-WORKDIR /app/backend
-COPY backend/package.json backend/package-lock.json ./
-RUN npm install
-COPY backend/ ./
-RUN npx prisma generate && npx nest build
-
 FROM node:20-alpine
 
 WORKDIR /app
 
-COPY --from=backend-build /app/backend/dist ./backend/dist
-COPY --from=backend-build /app/backend/node_modules ./backend/node_modules
-COPY --from=backend-build /app/backend/package.json ./backend/package.json
-COPY --from=backend-build /app/backend/prisma ./backend/prisma
-COPY --from=backend-build /app/backend/prisma.config.ts ./backend/prisma.config.ts
-COPY --from=frontend-build /app/frontend/dist ./frontend/dist
+# Install frontend dependencies and build
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN cd frontend && npm install
+
+COPY frontend/ ./frontend/
+RUN cd frontend && npx ng build --configuration production
+
+# Install backend dependencies and build
+COPY backend/package.json backend/package-lock.json ./backend/
+RUN cd backend && npm install
+
+COPY backend/ ./backend/
+RUN cd backend && npx prisma generate && npx tsc -p tsconfig.build.json
+
+# Verify build output exists
+RUN ls -la backend/dist/main.js
 
 ENV NODE_ENV=production
 ENV PORT=3000
