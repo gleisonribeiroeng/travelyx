@@ -1,10 +1,15 @@
 [phases.setup]
 nixPkgs = ["nodejs_20", "npm-9_x"]
 
+[variables]
+NODE_ENV = "production"
+NPM_CONFIG_PRODUCTION = "false"
+NIXPACKS_NO_PRUNE = "1"
+
 [phases.install]
 cmds = [
-  "cd frontend && npm install",
-  "cd backend && npm install"
+  "cd frontend && npm install --include=dev",
+  "cd backend && npm install --include=dev"
 ]
 
 [phases.build]
