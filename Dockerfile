@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install frontend dependencies and build
 COPY frontend/package.json frontend/package-lock.json ./frontend/
-RUN cd frontend && npm install
+RUN cd frontend && npm install --include=dev
 
 COPY frontend/ ./frontend/
 RUN cd frontend && npx ng build --configuration production
@@ -14,9 +14,13 @@ COPY backend/package.json backend/package-lock.json ./backend/
 RUN cd backend && npm install
 
 COPY backend/ ./backend/
-RUN cd backend && npx prisma generate
-RUN cd backend && npx tsc -p tsconfig.build.json 2>&1 || true
-RUN echo "=== Backend dir ===" && ls -la backend/ && echo "=== Dist dir ===" && ls -laR backend/dist/ 2>/dev/null || echo "dist/ NOT FOUND" && echo "=== Find main ===" && find backend/ -name "main.*" -type f 2>/dev/null || true
+
+WORKDIR /app/backend
+RUN npx prisma generate
+RUN npm run build
+RUN test -f dist/main.js && echo "BUILD OK: dist/main.js exists" || (echo "BUILD FAILED: dist/main.js missing" && ls -laR dist/ && exit 1)
+
+WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
