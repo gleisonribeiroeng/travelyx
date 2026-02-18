@@ -21,7 +21,7 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist', 'triply', 'browser'),
-      exclude: ['/api/(.*)'],
+      exclude: ['/api/{*path}'],
     }),
     PrismaModule,
     AuthModule,
