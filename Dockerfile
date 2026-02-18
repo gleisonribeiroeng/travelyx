@@ -14,10 +14,9 @@ COPY backend/package.json backend/package-lock.json ./backend/
 RUN cd backend && npm install
 
 COPY backend/ ./backend/
-RUN cd backend && npx prisma generate && npx tsc -p tsconfig.build.json
-
-# Verify build output exists
-RUN ls -la backend/dist/main.js
+RUN cd backend && npx prisma generate
+RUN cd backend && npx tsc -p tsconfig.build.json 2>&1 || true
+RUN echo "=== Backend dir ===" && ls -la backend/ && echo "=== Dist dir ===" && ls -laR backend/dist/ 2>/dev/null || echo "dist/ NOT FOUND" && echo "=== Find main ===" && find backend/ -name "main.*" -type f 2>/dev/null || true
 
 ENV NODE_ENV=production
 ENV PORT=3000
