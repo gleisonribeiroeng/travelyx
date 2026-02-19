@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Observable } from 'rxjs';
 import {
   debounceTime,
@@ -350,7 +350,7 @@ import {
 export class WizardHotelStepComponent {
   private readonly api = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   readonly selectedHotels = this.tripState.stays;
   readonly results = signal<Stay[]>([]);
@@ -448,7 +448,7 @@ export class WizardHotelStepComponent {
       notes: hotel.address || '',
       order: 0,
     });
-    this.snackBar.open('Hotel adicionado!', 'OK', { duration: 2000 });
+    this.notify.success('Hotel adicionado!');
   }
 
   remove(id: string): void {

@@ -14,7 +14,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -42,7 +41,6 @@ export const MATERIAL_IMPORTS = [
   MatChipsModule,
   MatDividerModule,
   MatProgressSpinnerModule,
-  MatSnackBarModule,
   MatTabsModule,
   MatAutocompleteModule,
   MatCheckboxModule,

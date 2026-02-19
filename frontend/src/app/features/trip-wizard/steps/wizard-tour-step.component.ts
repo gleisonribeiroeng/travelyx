@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
@@ -314,7 +314,7 @@ import {
 export class WizardTourStepComponent {
   private readonly api = inject(TourApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   readonly selectedTours = this.tripState.activities;
@@ -390,7 +390,7 @@ export class WizardTourStepComponent {
         notes: tour.city || '',
         order: 0,
       });
-      this.snackBar.open('Passeio adicionado!', 'OK', { duration: 2000 });
+      this.notify.success('Passeio adicionado!');
     });
   }
 

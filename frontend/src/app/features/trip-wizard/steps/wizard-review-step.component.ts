@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TripStateService } from '../../../core/services/trip-state.service';
 
@@ -247,7 +247,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
 export class WizardReviewStepComponent {
   readonly tripState = inject(TripStateService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   readonly flightCount = computed(() => this.tripState.flights().length);
   readonly hotelCount = computed(() => this.tripState.stays().length);
@@ -313,7 +313,7 @@ export class WizardReviewStepComponent {
   }
 
   finalize(): void {
-    this.snackBar.open('Viagem finalizada! Confira seu roteiro.', 'OK', { duration: 3000 });
+    this.notify.success('Viagem finalizada! Confira seu roteiro.');
     this.router.navigate(['/itinerary']);
   }
 }

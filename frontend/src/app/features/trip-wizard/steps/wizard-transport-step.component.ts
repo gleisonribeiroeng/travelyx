@@ -1,7 +1,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TransportApiService } from '../../../core/api/transport-api.service';
@@ -172,7 +172,7 @@ import { Transport } from '../../../core/models/trip.models';
 export class WizardTransportStepComponent {
   private readonly api = inject(TransportApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   readonly selectedTransports = this.tripState.transports;
   readonly results = signal<Transport[]>([]);
@@ -236,7 +236,7 @@ export class WizardTransportStepComponent {
       notes: '',
       order: 0,
     });
-    this.snackBar.open('Transporte adicionado!', 'OK', { duration: 2000 });
+    this.notify.success('Transporte adicionado!');
   }
 
   remove(id: string): void {

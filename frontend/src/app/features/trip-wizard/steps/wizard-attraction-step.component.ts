@@ -1,7 +1,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
@@ -157,7 +157,7 @@ import { Attraction } from '../../../core/models/trip.models';
 export class WizardAttractionStepComponent {
   private readonly api = inject(AttractionApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   readonly selectedAttractions = this.tripState.attractions;
@@ -213,7 +213,7 @@ export class WizardAttractionStepComponent {
         notes: attraction.category || '',
         order: 0,
       });
-      this.snackBar.open('Atração adicionada!', 'OK', { duration: 2000 });
+      this.notify.success('Atração adicionada!');
     });
   }
 

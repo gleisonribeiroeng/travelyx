@@ -4,13 +4,14 @@ import { filter } from 'rxjs/operators';
 import { SidebarComponent } from './core/components/sidebar/sidebar.component';
 import { TopBarComponent } from './core/components/top-bar/top-bar.component';
 import { RightPanelComponent } from './core/components/right-panel/right-panel.component';
+import { ToastContainerComponent } from './shared/components/toast/toast-container.component';
 import { AuthService } from './core/services/auth.service';
 import { TripStateService } from './core/services/trip-state.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, TopBarComponent, RightPanelComponent],
+  imports: [RouterOutlet, SidebarComponent, TopBarComponent, RightPanelComponent, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

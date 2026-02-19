@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { Observable } from 'rxjs';
 import {
   debounceTime,
@@ -34,7 +34,7 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 export class CarSearchComponent {
   private readonly carApi = inject(CarApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   // Autocomplete form controls (separate to enable object values)
   pickupLocationControl = new FormControl<CarLocationOption | null>(null, [
@@ -230,9 +230,7 @@ export class CarSearchComponent {
       notes: `Retirada: ${car.pickUpLocation}`,
       order: 0,
     });
-    this.snackBar.open('Aluguel de carro adicionado ao roteiro', 'Fechar', {
-      duration: 3000,
-    });
+    this.notify.success('Aluguel de carro adicionado ao roteiro');
   }
 
   // Format Date to MM/DD/YYYY for Priceline API

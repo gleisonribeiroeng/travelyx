@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { Observable, forkJoin } from 'rxjs';
 import {
   debounceTime,
@@ -49,7 +49,7 @@ interface MonthOption {
 export class SearchComponent {
   private readonly flightApi = inject(FlightApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   // Trip type & flexible dates
   readonly tripType = signal<TripType>('roundTrip');
@@ -295,7 +295,7 @@ export class SearchComponent {
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: 0,
     });
-    this.snackBar.open('Voo adicionado ao roteiro', 'Fechar', { duration: 3000 });
+    this.notify.success('Voo adicionado ao roteiro');
   }
 
   setFilter(value: string): void {

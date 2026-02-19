@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { Observable } from 'rxjs';
 import {
   debounceTime,
@@ -41,7 +41,7 @@ import {
 export class HotelSearchComponent {
   private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   // Form controls with custom destination validator
   destinationControl = new FormControl<DestinationOption | null>(null, [
@@ -257,7 +257,7 @@ export class HotelSearchComponent {
       notes: hotel.address || '',
       order: 0,
     });
-    this.snackBar.open('Hotel adicionado ao roteiro', 'Fechar', { duration: 3000 });
+    this.notify.success('Hotel adicionado ao roteiro');
   }
 
   // Set sort by

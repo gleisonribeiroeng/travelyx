@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import {
@@ -41,7 +41,7 @@ export class ItineraryItemComponent implements OnInit {
 
   protected readonly tripState = inject(TripStateService);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   readonly isEditing = signal(false);
   editForm!: FormGroup;
@@ -146,14 +146,14 @@ export class ItineraryItemComponent implements OnInit {
       const result = detectConflicts(updated.date, updated.timeSlot, updated.durationMinutes, blocks);
       if (result.hasConflict) {
         const conflictNames = result.conflicts.map(c => c.label).join(', ');
-        this.snackBar.open(`Conflito de horário: ${conflictNames}`, 'OK', { duration: 5000 });
+        this.notify.warning(`Conflito de horário: ${conflictNames}`);
         return;
       }
     }
 
     this.tripState.updateItineraryItem(updated);
     this.isEditing.set(false);
-    this.snackBar.open('Item atualizado', undefined, { duration: 2000 });
+    this.notify.success('Item atualizado');
   }
 
   // ── Helpers ──

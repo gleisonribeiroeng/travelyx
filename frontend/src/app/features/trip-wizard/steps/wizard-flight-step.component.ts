@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Observable, of, forkJoin } from 'rxjs';
 import {
   debounceTime,
@@ -435,7 +435,7 @@ interface MonthOption {
 export class WizardFlightStepComponent {
   private readonly api = inject(FlightApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   readonly selectedFlights = this.tripState.flights;
   readonly results = signal<Flight[]>([]);
@@ -603,7 +603,7 @@ export class WizardFlightStepComponent {
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: 0,
     });
-    this.snackBar.open('Voo adicionado!', 'OK', { duration: 2000 });
+    this.notify.success('Voo adicionado!');
   }
 
   remove(id: string): void {

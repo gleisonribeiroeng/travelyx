@@ -6,7 +6,7 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
@@ -27,7 +27,7 @@ import { categorizeTours, CategorizedTours } from '../../core/utils/tour-categor
 export class TourSearchComponent {
   private readonly tourApi = inject(TourApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   // Form controls
@@ -127,7 +127,7 @@ export class TourSearchComponent {
         notes: tour.city || '',
         order: 0,
       });
-      this.snackBar.open('Passeio adicionado ao roteiro', 'Fechar', { duration: 3000 });
+      this.notify.success('Passeio adicionado ao roteiro');
     });
   }
 

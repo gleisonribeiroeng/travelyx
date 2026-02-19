@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { KeyValuePipe, DatePipe, CurrencyPipe } from '@angular/common';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
@@ -50,7 +50,7 @@ const TYPE_COLORS: Record<string, string> = {
 })
 export class ItineraryComponent {
   protected readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   // ── View toggle ──
@@ -314,7 +314,7 @@ export class ItineraryComponent {
       if (result.hasConflict) {
         info.revert();
         const conflictNames = result.conflicts.map(c => c.label).join(', ');
-        this.snackBar.open(`Conflito de horário: ${conflictNames}`, 'OK', { duration: 5000 });
+        this.notify.warning(`Conflito de horário: ${conflictNames}`);
         return;
       }
     }
@@ -374,7 +374,7 @@ export class ItineraryComponent {
     if (result.hasConflict) {
       info.revert();
       const conflictNames = result.conflicts.map(c => c.label).join(', ');
-      this.snackBar.open(`Conflito de horário: ${conflictNames}`, 'OK', { duration: 5000 });
+      this.notify.warning(`Conflito de horário: ${conflictNames}`);
       return;
     }
 
@@ -420,7 +420,7 @@ export class ItineraryComponent {
 
       if (result.action === 'remove') {
         this.tripState.removeItineraryItem(eventId);
-        this.snackBar.open('Item removido do roteiro', 'OK', { duration: 3000 });
+        this.notify.success('Item removido do roteiro');
         return;
       }
 
@@ -430,7 +430,7 @@ export class ItineraryComponent {
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
       });
-      this.snackBar.open('Horário atualizado', 'OK', { duration: 2000 });
+      this.notify.success('Horário atualizado');
     });
   }
 

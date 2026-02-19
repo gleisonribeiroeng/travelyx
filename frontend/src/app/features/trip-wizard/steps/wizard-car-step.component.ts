@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Observable } from 'rxjs';
 import {
   debounceTime,
@@ -218,7 +218,7 @@ import { CarRental } from '../../../core/models/trip.models';
 export class WizardCarStepComponent {
   private readonly api = inject(CarApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   readonly selectedCars = this.tripState.carRentals;
   readonly results = signal<CarRental[]>([]);
@@ -326,7 +326,7 @@ export class WizardCarStepComponent {
       notes: `Retirada: ${car.pickUpLocation}`,
       order: 0,
     });
-    this.snackBar.open('Carro adicionado!', 'OK', { duration: 2000 });
+    this.notify.success('Carro adicionado!');
   }
 
   remove(id: string): void {
