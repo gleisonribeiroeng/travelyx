@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { FlightsModule } from './flights/flights.module';
@@ -17,6 +19,10 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'frontend', 'dist', 'triply', 'browser'),
+      exclude: ['/api/{*path}'],
+    }),
     PrismaModule,
     AuthModule,
     TripsModule,
