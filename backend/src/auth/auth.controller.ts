@@ -33,9 +33,9 @@ export class AuthController {
         return;
       }
       console.log('[AUTH] Google callback user:', user.email);
-      await this.authService.validateGoogleUser(user);
+      const dbUser = await this.authService.validateGoogleUser(user);
       console.log('[AUTH] User validated in DB');
-      const token = this.authService.generateJwt(user);
+      const token = this.authService.generateJwt(user, dbUser.id);
       console.log('[AUTH] JWT generated, redirecting to frontend');
       res.redirect(`${this.frontendUrl}/auth/callback?token=${token}`);
     } catch (error) {

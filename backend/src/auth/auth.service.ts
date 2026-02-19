@@ -36,9 +36,10 @@ export class AuthService {
     return user;
   }
 
-  generateJwt(user: GoogleUser): string {
+  generateJwt(user: GoogleUser, dbUserId: string): string {
     const payload = {
       sub: user.googleId,
+      userId: dbUserId,
       email: user.email,
       name: user.name,
       picture: user.picture,

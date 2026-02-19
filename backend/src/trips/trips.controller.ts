@@ -19,34 +19,34 @@ export class TripsController {
 
   @Get()
   findAll(@Req() req: any) {
-    return this.tripsService.findAllByUser(req.user.sub);
+    return this.tripsService.findAllByUser(req.user.userId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {
-    return this.tripsService.findOne(id, req.user.sub);
+    return this.tripsService.findOne(id, req.user.userId);
   }
 
   @Post()
   create(@Body() body: any, @Req() req: any) {
-    return this.tripsService.create(req.user.sub, body);
+    return this.tripsService.create(req.user.userId, body);
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() body: any, @Req() req: any) {
-    return this.tripsService.update(id, req.user.sub, body);
+    return this.tripsService.update(id, req.user.userId, body);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: any) {
-    return this.tripsService.remove(id, req.user.sub);
+    return this.tripsService.remove(id, req.user.userId);
   }
 
   // --- Itinerary Items ---
 
   @Post(':tripId/items')
   addItem(@Param('tripId') tripId: string, @Body() body: any, @Req() req: any) {
-    return this.tripsService.addItineraryItem(tripId, req.user.sub, body);
+    return this.tripsService.addItineraryItem(tripId, req.user.userId, body);
   }
 
   @Put(':tripId/items/:itemId')
@@ -56,7 +56,7 @@ export class TripsController {
     @Body() body: any,
     @Req() req: any,
   ) {
-    return this.tripsService.updateItineraryItem(tripId, itemId, req.user.sub, body);
+    return this.tripsService.updateItineraryItem(tripId, itemId, req.user.userId, body);
   }
 
   @Delete(':tripId/items/:itemId')
@@ -65,6 +65,6 @@ export class TripsController {
     @Param('itemId') itemId: string,
     @Req() req: any,
   ) {
-    return this.tripsService.removeItineraryItem(tripId, itemId, req.user.sub);
+    return this.tripsService.removeItineraryItem(tripId, itemId, req.user.userId);
   }
 }
