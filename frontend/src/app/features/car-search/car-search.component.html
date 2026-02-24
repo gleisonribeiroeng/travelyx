@@ -53,37 +53,29 @@
         <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">Devolver no mesmo local da retirada</mat-checkbox>
       </div>
 
-      <div class="form-row">
+      <div class="form-row" formGroupName="dateRange">
         <mat-form-field appearance="outline">
-          <mat-label>Data de Retirada</mat-label>
-          <input matInput [matDatepicker]="pickupDatePicker" formControlName="pickupDate" [min]="minPickupDate" />
-          <mat-datepicker-toggle matIconSuffix [for]="pickupDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #pickupDatePicker></mat-datepicker>
-          @if (carSearchForm.get('pickupDate')?.hasError('required')) { <mat-error>Data de retirada é obrigatória</mat-error> }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Horário de Retirada</mat-label>
-          <input matInput type="time" formControlName="pickupTime" />
-          <mat-icon matPrefix>schedule</mat-icon>
-          @if (carSearchForm.get('pickupTime')?.hasError('required')) { <mat-error>Horário de retirada é obrigatório</mat-error> }
+          <mat-label>Retirada — Devolução</mat-label>
+          <mat-date-range-input [rangePicker]="rangePicker" [min]="minPickupDate">
+            <input matStartDate formControlName="start" placeholder="Retirada">
+            <input matEndDate formControlName="end" placeholder="Devolução">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+          <mat-date-range-picker #rangePicker></mat-date-range-picker>
         </mat-form-field>
       </div>
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Data de Devolução</mat-label>
-          <input matInput [matDatepicker]="dropoffDatePicker" formControlName="dropoffDate" [min]="minDropoffDate" />
-          <mat-datepicker-toggle matIconSuffix [for]="dropoffDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #dropoffDatePicker></mat-datepicker>
-          @if (carSearchForm.get('dropoffDate')?.hasError('required')) { <mat-error>Data de devolução é obrigatória</mat-error> }
+          <mat-label>Horário de Retirada</mat-label>
+          <input matInput type="time" formControlName="pickupTime" />
+          <mat-icon matPrefix>schedule</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Horário de Devolução</mat-label>
           <input matInput type="time" formControlName="dropoffTime" />
           <mat-icon matPrefix>schedule</mat-icon>
-          @if (carSearchForm.get('dropoffTime')?.hasError('required')) { <mat-error>Horário de devolução é obrigatório</mat-error> }
         </mat-form-field>
       </div>
 

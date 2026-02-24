@@ -71,8 +71,10 @@ export class SearchComponent {
   flightSearchForm = new FormGroup({
     origin: this.originControl,
     destination: this.destinationControl,
-    departure: new FormControl<Date | null>(null),
-    returnDate: new FormControl<Date | null>(null),
+    dateRange: new FormGroup({
+      start: new FormControl<Date | null>(null),
+      end: new FormControl<Date | null>(null),
+    }),
     passengers: new FormControl(1, [
       Validators.required,
       Validators.min(1),
@@ -166,7 +168,7 @@ export class SearchComponent {
   }
 
   get minReturnDate(): Date {
-    return this.flightSearchForm.value.departure || new Date();
+    return this.flightSearchForm.value.dateRange?.start || new Date();
   }
 
   // Airport validator
@@ -359,7 +361,7 @@ export class SearchComponent {
     if (this.flexibleDates()) {
       return hasAirports && passengersValid && this.selectedMonths().length > 0;
     }
-    return hasAirports && passengersValid && !!this.flightSearchForm.get('departure')?.value;
+    return hasAirports && passengersValid && !!this.flightSearchForm.get('dateRange')?.get('start')?.value;
   }
 
   isMonthSelected(value: string): boolean {
@@ -427,7 +429,7 @@ export class SearchComponent {
           },
         });
     } else {
-      const departure = this.flightSearchForm.value.departure;
+      const departure = this.flightSearchForm.value.dateRange?.start;
       if (!departure) return;
 
       const params: any = {
@@ -437,8 +439,8 @@ export class SearchComponent {
         adults: passengers,
       };
 
-      if (this.tripType() === 'roundTrip' && this.flightSearchForm.value.returnDate) {
-        params.returnDate = this.flightSearchForm.value.returnDate.toISOString().split('T')[0];
+      if (this.tripType() === 'roundTrip' && this.flightSearchForm.value.dateRange?.end) {
+        params.returnDate = this.flightSearchForm.value.dateRange.end.toISOString().split('T')[0];
       }
 
       this.flightApi

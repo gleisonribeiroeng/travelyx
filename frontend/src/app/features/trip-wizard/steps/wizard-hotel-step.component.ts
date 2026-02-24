@@ -88,21 +88,19 @@ import {
               </mat-form-field>
             </div>
 
+            <div class="form-row" formGroupName="dateRange">
+              <mat-form-field appearance="outline">
+                <mat-label>Check-in — Check-out</mat-label>
+                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate">
+                  <input matStartDate formControlName="start" placeholder="Check-in">
+                  <input matEndDate formControlName="end" placeholder="Check-out">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+                <mat-date-range-picker #rangePicker></mat-date-range-picker>
+              </mat-form-field>
+            </div>
+
             <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Check-in</mat-label>
-                <input matInput [matDatepicker]="dpIn" formControlName="checkIn" [min]="minDate">
-                <mat-datepicker-toggle matSuffix [for]="dpIn"></mat-datepicker-toggle>
-                <mat-datepicker #dpIn></mat-datepicker>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Check-out</mat-label>
-                <input matInput [matDatepicker]="dpOut" formControlName="checkOut" [min]="minCheckOut">
-                <mat-datepicker-toggle matSuffix [for]="dpOut"></mat-datepicker-toggle>
-                <mat-datepicker #dpOut></mat-datepicker>
-              </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Hóspedes</mat-label>
                 <input matInput type="number" formControlName="guests" min="1" max="30">
@@ -362,7 +360,7 @@ export class WizardHotelStepComponent {
   readonly minDate = new Date();
 
   get minCheckOut(): Date {
-    return this.searchForm.value.checkIn || new Date();
+    return this.searchForm.value.dateRange?.start || new Date();
   }
 
   destinationControl = new FormControl<DestinationOption | null>(null, [
@@ -372,8 +370,10 @@ export class WizardHotelStepComponent {
 
   searchForm = new FormGroup({
     destination: this.destinationControl,
-    checkIn: new FormControl<Date | null>(null, Validators.required),
-    checkOut: new FormControl<Date | null>(null, Validators.required),
+    dateRange: new FormGroup({
+      start: new FormControl<Date | null>(null, Validators.required),
+      end: new FormControl<Date | null>(null, Validators.required),
+    }),
     guests: new FormControl(2, [Validators.required, Validators.min(1), Validators.max(30)]),
   });
 
@@ -430,8 +430,8 @@ export class WizardHotelStepComponent {
   search(): void {
     if (this.searchForm.invalid) return;
     const dest = this.searchForm.value.destination as DestinationOption;
-    const checkIn = this.searchForm.value.checkIn;
-    const checkOut = this.searchForm.value.checkOut;
+    const checkIn = this.searchForm.value.dateRange?.start;
+    const checkOut = this.searchForm.value.dateRange?.end;
     if (!dest || !checkIn || !checkOut) return;
 
     this.isSearching.set(true);

@@ -46,35 +46,15 @@
       </div>
 
       <!-- Check-in and Check-out Row -->
-      <div class="form-row">
+      <div class="form-row" formGroupName="dateRange">
         <mat-form-field appearance="outline">
-          <mat-label>Check-in</mat-label>
-          <input
-            matInput
-            [matDatepicker]="checkInPicker"
-            formControlName="checkIn"
-            [min]="minCheckInDate"
-          />
-          <mat-datepicker-toggle matIconSuffix [for]="checkInPicker"></mat-datepicker-toggle>
-          <mat-datepicker #checkInPicker></mat-datepicker>
-          @if (hotelSearchForm.get('checkIn')?.hasError('required')) {
-            <mat-error>Data de check-in é obrigatória</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Check-out</mat-label>
-          <input
-            matInput
-            [matDatepicker]="checkOutPicker"
-            formControlName="checkOut"
-            [min]="minCheckOutDate"
-          />
-          <mat-datepicker-toggle matIconSuffix [for]="checkOutPicker"></mat-datepicker-toggle>
-          <mat-datepicker #checkOutPicker></mat-datepicker>
-          @if (hotelSearchForm.get('checkOut')?.hasError('required')) {
-            <mat-error>Data de check-out é obrigatória</mat-error>
-          }
+          <mat-label>Check-in — Check-out</mat-label>
+          <mat-date-range-input [rangePicker]="rangePicker" [min]="minCheckInDate">
+            <input matStartDate formControlName="start" placeholder="Check-in">
+            <input matEndDate formControlName="end" placeholder="Check-out">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+          <mat-date-range-picker #rangePicker></mat-date-range-picker>
         </mat-form-field>
       </div>
 

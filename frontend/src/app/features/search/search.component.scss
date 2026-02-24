@@ -1,5 +1,8 @@
 // Wrapper for dateRange formGroupName — inherits flex sizing from .form-row > *
 .date-range-wrapper {
+  flex: 1;
+  min-width: 0;
+
   mat-form-field,
   .mat-mdc-form-field {
     width: 100%;

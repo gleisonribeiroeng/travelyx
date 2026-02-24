@@ -51,8 +51,10 @@ export class HotelSearchComponent {
 
   hotelSearchForm = new FormGroup({
     destination: this.destinationControl,
-    checkIn: new FormControl<Date | null>(null, Validators.required),
-    checkOut: new FormControl<Date | null>(null, Validators.required),
+    dateRange: new FormGroup({
+      start: new FormControl<Date | null>(null, Validators.required),
+      end: new FormControl<Date | null>(null, Validators.required),
+    }),
     guests: new FormControl(2, [
       Validators.required,
       Validators.min(1),
@@ -113,7 +115,7 @@ export class HotelSearchComponent {
   }
 
   get minCheckOutDate(): Date {
-    return this.hotelSearchForm.value.checkIn || new Date();
+    return this.hotelSearchForm.value.dateRange?.start || new Date();
   }
 
   // Destination validator
@@ -202,8 +204,8 @@ export class HotelSearchComponent {
 
     const formValue = this.hotelSearchForm.value;
     const destination = formValue.destination as DestinationOption;
-    const checkIn = formValue.checkIn;
-    const checkOut = formValue.checkOut;
+    const checkIn = formValue.dateRange?.start;
+    const checkOut = formValue.dateRange?.end;
     const guests = formValue.guests ?? 2;
     const rooms = formValue.rooms ?? 1;
 

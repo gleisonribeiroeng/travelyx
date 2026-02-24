@@ -94,25 +94,28 @@
         <!-- Date fields (fixed dates) -->
         @if (!flexibleDates()) {
           <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Data de ida</mat-label>
-              <input matInput [matDatepicker]="dpDeparture"
-                     formControlName="departure"
-                     [min]="minDepartureDate">
-              <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
-              <mat-datepicker #dpDeparture></mat-datepicker>
-            </mat-form-field>
-
-            @if (tripType() === 'roundTrip') {
-              <mat-form-field appearance="outline">
-                <mat-label>Data de volta</mat-label>
-                <input matInput [matDatepicker]="dpReturn"
-                       formControlName="returnDate"
-                       [min]="minReturnDate">
-                <mat-datepicker-toggle matSuffix [for]="dpReturn"></mat-datepicker-toggle>
-                <mat-datepicker #dpReturn></mat-datepicker>
-              </mat-form-field>
-            }
+            <div class="date-range-wrapper" formGroupName="dateRange">
+              @if (tripType() === 'roundTrip') {
+                <mat-form-field appearance="outline">
+                  <mat-label>Ida — Volta</mat-label>
+                  <mat-date-range-input [rangePicker]="rangePicker" [min]="minDepartureDate">
+                    <input matStartDate formControlName="start" placeholder="Ida">
+                    <input matEndDate formControlName="end" placeholder="Volta">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #rangePicker></mat-date-range-picker>
+                </mat-form-field>
+              } @else {
+                <mat-form-field appearance="outline">
+                  <mat-label>Data de ida</mat-label>
+                  <input matInput [matDatepicker]="dpDeparture"
+                         formControlName="start"
+                         [min]="minDepartureDate">
+                  <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
+                  <mat-datepicker #dpDeparture></mat-datepicker>
+                </mat-form-field>
+              }
+            </div>
 
             <mat-form-field appearance="outline">
               <mat-label>Passageiros</mat-label>
