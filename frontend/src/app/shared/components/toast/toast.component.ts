@@ -93,9 +93,9 @@ const ICONS: Record<string, string> = {
 
     .toast-close {
       flex-shrink: 0;
-      width: 32px !important;
-      height: 32px !important;
-      line-height: 32px !important;
+      width: 44px !important;
+      height: 44px !important;
+      line-height: 44px !important;
 
       mat-icon {
         font-size: 18px;
@@ -128,48 +128,49 @@ const ICONS: Record<string, string> = {
       background: #ffffff;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08),
                   0 1px 3px rgba(0, 0, 0, 0.06);
-      border: 1px solid rgba(0, 0, 0, 0.06);
       border-left: 4px solid transparent;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
     }
 
     .toast.variant-minimal .toast-message {
-      color: #1a1a2e;
+      color: var(--triply-text-primary);
     }
 
     .toast.variant-minimal .toast-close {
-      color: #8f9bb3;
+      color: var(--triply-text-secondary);
     }
 
     /* Minimal — success */
     .toast.variant-minimal.type-success {
-      border-left-color: #22c55e;
+      border-left-color: var(--triply-success);
     }
     .toast.variant-minimal.type-success .toast-icon {
-      color: #22c55e;
+      color: var(--triply-success);
     }
 
     /* Minimal — error */
     .toast.variant-minimal.type-error {
-      border-left-color: #ef4444;
+      border-left-color: var(--triply-error);
     }
     .toast.variant-minimal.type-error .toast-icon {
-      color: #ef4444;
+      color: var(--triply-error);
     }
 
     /* Minimal — warning */
     .toast.variant-minimal.type-warning {
-      border-left-color: #f59e0b;
+      border-left-color: var(--triply-warning);
     }
     .toast.variant-minimal.type-warning .toast-icon {
-      color: #f59e0b;
+      color: var(--triply-warning);
     }
 
     /* Minimal — info */
     .toast.variant-minimal.type-info {
-      border-left-color: #3b82f6;
+      border-left-color: var(--triply-cat-transport);
     }
     .toast.variant-minimal.type-info .toast-icon {
-      color: #3b82f6;
+      color: var(--triply-cat-transport);
     }
 
     /* ────────────────────────────────────────────────────────────────── */
@@ -178,8 +179,9 @@ const ICONS: Record<string, string> = {
     /* ────────────────────────────────────────────────────────────────── */
     .toast.variant-bold {
       color: #ffffff;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
-                  0 2px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2),
+                  0 4px 8px rgba(0, 0, 0, 0.08);
     }
 
     .toast.variant-bold .toast-message {
@@ -196,7 +198,7 @@ const ICONS: Record<string, string> = {
 
     /* Bold — success */
     .toast.variant-bold.type-success {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      background: linear-gradient(135deg, var(--triply-success) 0%, color-mix(in srgb, var(--triply-success) 85%, #000) 100%);
     }
     .toast.variant-bold.type-success .toast-progress {
       background: rgba(255, 255, 255, 0.35);
@@ -204,7 +206,7 @@ const ICONS: Record<string, string> = {
 
     /* Bold — error */
     .toast.variant-bold.type-error {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: linear-gradient(135deg, var(--triply-error) 0%, color-mix(in srgb, var(--triply-error) 85%, #000) 100%);
     }
     .toast.variant-bold.type-error .toast-progress {
       background: rgba(255, 255, 255, 0.35);
@@ -212,7 +214,7 @@ const ICONS: Record<string, string> = {
 
     /* Bold — warning */
     .toast.variant-bold.type-warning {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: linear-gradient(135deg, var(--triply-warning) 0%, color-mix(in srgb, var(--triply-warning) 85%, #000) 100%);
     }
     .toast.variant-bold.type-warning .toast-progress {
       background: rgba(255, 255, 255, 0.35);
@@ -220,7 +222,7 @@ const ICONS: Record<string, string> = {
 
     /* Bold — info */
     .toast.variant-bold.type-info {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      background: linear-gradient(135deg, var(--triply-cat-transport) 0%, color-mix(in srgb, var(--triply-cat-transport) 85%, #000) 100%);
     }
     .toast.variant-bold.type-info .toast-progress {
       background: rgba(255, 255, 255, 0.35);

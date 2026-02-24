@@ -7,7 +7,11 @@
   <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
     <div class="toggle-info">
       <mat-icon>flight</mat-icon>
-      <span>Busca de Voos</span>
+      @if (tripType() === 'multi') {
+        <span>Multi-Cidade: {{ segmentsArray.length }} trechos</span>
+      } @else {
+        <span>Busca de Voos</span>
+      }
     </div>
     <div class="toggle-action">
       <span>Editar busca</span>
@@ -21,7 +25,7 @@
     <form [formGroup]="flightSearchForm" (ngSubmit)="searchFlights()">
       <!-- Trip type toggle -->
       <div class="trip-type-row">
-        <mat-button-toggle-group [value]="tripType()" (change)="tripType.set($event.value)" class="trip-type-toggle">
+        <mat-button-toggle-group [value]="tripType()" (change)="onTripTypeChange($event.value)" class="trip-type-toggle">
           <mat-button-toggle value="roundTrip">
             <mat-icon>sync_alt</mat-icon> Ida e volta
           </mat-button-toggle>
@@ -31,112 +35,230 @@
           <mat-button-toggle value="returnOnly">
             <mat-icon>arrow_back</mat-icon> Só volta
           </mat-button-toggle>
+          <mat-button-toggle value="multi">
+            <mat-icon>connecting_airports</mat-icon> Multi-cidade
+          </mat-button-toggle>
         </mat-button-toggle-group>
       </div>
 
-      <!-- Origin and Destination Row -->
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Origem</mat-label>
-          <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
-          <mat-icon matPrefix>flight_takeoff</mat-icon>
-          <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
-            @for (airport of filteredOrigins$ | async; track airport.iataCode) {
-              <mat-option [value]="airport">
-                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
-              </mat-option>
-            }
-          </mat-autocomplete>
-          @if (originControl.hasError('required')) {
-            <mat-error>Origem é obrigatória</mat-error>
-          }
-          @if (originControl.hasError('invalidAirport')) {
-            <mat-error>Selecione um aeroporto da lista</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Destino</mat-label>
-          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
-          <mat-icon matPrefix>flight_land</mat-icon>
-          <mat-autocomplete #autoDestination [displayWith]="displayAirport">
-            @for (airport of filteredDestinations$ | async; track airport.iataCode) {
-              <mat-option [value]="airport">
-                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
-              </mat-option>
-            }
-          </mat-autocomplete>
-          @if (destinationControl.hasError('required')) {
-            <mat-error>Destino é obrigatório</mat-error>
-          }
-          @if (destinationControl.hasError('invalidAirport')) {
-            <mat-error>Selecione um aeroporto da lista</mat-error>
-          }
-        </mat-form-field>
-      </div>
-
-      <!-- Flexible dates toggle -->
-      <div class="flexible-row">
-        <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
-          Ainda não defini a data
-        </mat-slide-toggle>
-      </div>
-
-      <!-- Date fields (fixed dates) -->
-      @if (!flexibleDates()) {
+      <!-- Standard form (non-multi) -->
+      @if (tripType() !== 'multi') {
+        <!-- Origin and Destination Row -->
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Data de ida</mat-label>
-            <input matInput [matDatepicker]="dpDeparture"
-                   formControlName="departure"
-                   [min]="minDepartureDate">
-            <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
-            <mat-datepicker #dpDeparture></mat-datepicker>
+            <mat-label>Origem</mat-label>
+            <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
+            <mat-icon matPrefix>flight_takeoff</mat-icon>
+            <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
+              @for (airport of filteredOrigins$ | async; track airport.iataCode) {
+                <mat-option [value]="airport">
+                  {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (originControl.hasError('required')) {
+              <mat-error>Origem é obrigatória</mat-error>
+            }
+            @if (originControl.hasError('invalidAirport')) {
+              <mat-error>Selecione um aeroporto da lista</mat-error>
+            }
           </mat-form-field>
-
-          @if (tripType() === 'roundTrip') {
-            <mat-form-field appearance="outline">
-              <mat-label>Data de volta</mat-label>
-              <input matInput [matDatepicker]="dpReturn"
-                     formControlName="returnDate"
-                     [min]="minReturnDate">
-              <mat-datepicker-toggle matSuffix [for]="dpReturn"></mat-datepicker-toggle>
-              <mat-datepicker #dpReturn></mat-datepicker>
-            </mat-form-field>
-          }
 
           <mat-form-field appearance="outline">
-            <mat-label>Passageiros</mat-label>
-            <mat-select formControlName="passengers">
-              @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
-                <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+            <mat-label>Destino</mat-label>
+            <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
+            <mat-icon matPrefix>flight_land</mat-icon>
+            <mat-autocomplete #autoDestination [displayWith]="displayAirport">
+              @for (airport of filteredDestinations$ | async; track airport.iataCode) {
+                <mat-option [value]="airport">
+                  {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                </mat-option>
               }
-            </mat-select>
-            <mat-icon matPrefix>person</mat-icon>
+            </mat-autocomplete>
+            @if (destinationControl.hasError('required')) {
+              <mat-error>Destino é obrigatório</mat-error>
+            }
+            @if (destinationControl.hasError('invalidAirport')) {
+              <mat-error>Selecione um aeroporto da lista</mat-error>
+            }
           </mat-form-field>
         </div>
+
+        <!-- Flexible dates toggle -->
+        <div class="flexible-row">
+          <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
+            Ainda não defini a data
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Date fields (fixed dates) -->
+        @if (!flexibleDates()) {
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Data de ida</mat-label>
+              <input matInput [matDatepicker]="dpDeparture"
+                     formControlName="departure"
+                     [min]="minDepartureDate">
+              <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
+              <mat-datepicker #dpDeparture></mat-datepicker>
+            </mat-form-field>
+
+            @if (tripType() === 'roundTrip') {
+              <mat-form-field appearance="outline">
+                <mat-label>Data de volta</mat-label>
+                <input matInput [matDatepicker]="dpReturn"
+                       formControlName="returnDate"
+                       [min]="minReturnDate">
+                <mat-datepicker-toggle matSuffix [for]="dpReturn"></mat-datepicker-toggle>
+                <mat-datepicker #dpReturn></mat-datepicker>
+              </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline">
+              <mat-label>Passageiros</mat-label>
+              <mat-select formControlName="passengers">
+                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                  <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
+        }
+
+        <!-- Month grid (flexible dates) -->
+        @if (flexibleDates()) {
+          <div class="month-grid">
+            @for (month of availableMonths; track month.value) {
+              <mat-checkbox [checked]="isMonthSelected(month.value)"
+                            (change)="toggleMonth(month.value)">
+                {{ month.label }}
+              </mat-checkbox>
+            }
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Passageiros</mat-label>
+              <mat-select formControlName="passengers">
+                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                  <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
+        }
       }
 
-      <!-- Month grid (flexible dates) -->
-      @if (flexibleDates()) {
-        <div class="month-grid">
-          @for (month of availableMonths; track month.value) {
-            <mat-checkbox [checked]="isMonthSelected(month.value)"
-                          (change)="toggleMonth(month.value)">
-              {{ month.label }}
-            </mat-checkbox>
-          }
-        </div>
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Passageiros</mat-label>
-            <mat-select formControlName="passengers">
-              @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
-                <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+      <!-- Multi-city segments form -->
+      @if (tripType() === 'multi') {
+        <div class="multi-segments">
+          @for (group of segmentsArray.controls; track $index; let i = $index) {
+            <div class="segment-card">
+              <div class="segment-header">
+                <span class="segment-label">
+                  <mat-icon>flight</mat-icon>
+                  Trecho {{ i + 1 }}
+                </span>
+                @if (segmentsArray.length > 2) {
+                  <button mat-icon-button
+                          type="button"
+                          (click)="removeSegment(i)"
+                          matTooltip="Remover trecho"
+                          class="segment-remove">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+
+              <div class="form-row" [formGroup]="group">
+                <!-- Segment Origin -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Origem</mat-label>
+                  <input matInput formControlName="origin" [matAutocomplete]="segOrigin">
+                  <mat-icon matPrefix>flight_takeoff</mat-icon>
+                  <mat-autocomplete #segOrigin [displayWith]="displayAirport">
+                    @for (airport of (segmentOriginStreams()[i] | async) ?? []; track airport.iataCode) {
+                      <mat-option [value]="airport">
+                        {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                  @if (group.get('origin')?.hasError('required') && group.get('origin')?.touched) {
+                    <mat-error>Origem é obrigatória</mat-error>
+                  }
+                  @if (group.get('origin')?.hasError('invalidAirport')) {
+                    <mat-error>Selecione um aeroporto da lista</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Segment Destination -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Destino</mat-label>
+                  <input matInput formControlName="destination" [matAutocomplete]="segDest">
+                  <mat-icon matPrefix>flight_land</mat-icon>
+                  <mat-autocomplete #segDest [displayWith]="displayAirport">
+                    @for (airport of (segmentDestinationStreams()[i] | async) ?? []; track airport.iataCode) {
+                      <mat-option [value]="airport">
+                        {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                  @if (group.get('destination')?.hasError('required') && group.get('destination')?.touched) {
+                    <mat-error>Destino é obrigatório</mat-error>
+                  }
+                  @if (group.get('destination')?.hasError('invalidAirport')) {
+                    <mat-error>Selecione um aeroporto da lista</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Segment Date -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Data</mat-label>
+                  <input matInput [matDatepicker]="segDp"
+                         formControlName="date"
+                         [min]="getMinDateForSegment(i)">
+                  <mat-datepicker-toggle matSuffix [for]="segDp"></mat-datepicker-toggle>
+                  <mat-datepicker #segDp></mat-datepicker>
+                  @if (group.get('date')?.hasError('required') && group.get('date')?.touched) {
+                    <mat-error>Data é obrigatória</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              @if (segmentHasSameAirports(i)) {
+                <mat-error class="segment-error">
+                  <mat-icon>warning</mat-icon>
+                  Origem e destino devem ser diferentes
+                </mat-error>
               }
-            </mat-select>
-            <mat-icon matPrefix>person</mat-icon>
-          </mat-form-field>
+            </div>
+          }
+
+          <!-- Add Segment Button -->
+          @if (segmentsArray.length < 6) {
+            <button mat-stroked-button
+                    type="button"
+                    color="primary"
+                    (click)="addSegment()"
+                    class="add-segment-button">
+              <mat-icon>add</mat-icon>
+              Adicionar trecho ({{ segmentsArray.length }}/6)
+            </button>
+          }
+
+          <!-- Passengers (shared with multi-city) -->
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Passageiros</mat-label>
+              <mat-select formControlName="passengers">
+                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                  <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
         </div>
       }
 
@@ -165,8 +287,8 @@
   />
 }
 
-<!-- Results Section -->
-@if (searchResults().length > 0) {
+<!-- Standard Results Section (non-multi) -->
+@if (tripType() !== 'multi' && searchResults().length > 0) {
   <!-- Highlight Cards -->
   @if (categorized().cheapest || categorized().fastest || categorized().bestValue) {
     <div class="highlights-strip">
@@ -309,12 +431,119 @@
   </div>
 }
 
+<!-- Multi-City Results Section -->
+@if (tripType() === 'multi' && multiCityHasResults()) {
+  <!-- Total Price Banner -->
+  @if (multiCityTotalPrice() !== null) {
+    <div class="multi-total-banner">
+      <mat-icon>calculate</mat-icon>
+      <span>Estimativa total (voos mais baratos por trecho):
+        <strong>{{ multiCityTotalPrice() | currency: 'BRL':'symbol':'1.0-0' }}</strong>
+      </span>
+    </div>
+  }
+
+  @for (segResults of multiCityResults(); track $index; let i = $index) {
+    <div class="segment-results-group">
+      <div class="segment-results-header">
+        <h3>
+          <mat-icon>flight</mat-icon>
+          Trecho {{ i + 1 }}:
+          {{ segmentsArray.at(i)?.get('origin')?.value?.iataCode ?? '?' }}
+          &rarr;
+          {{ segmentsArray.at(i)?.get('destination')?.value?.iataCode ?? '?' }}
+        </h3>
+        <span class="segment-count">{{ segResults.length }} voos encontrados</span>
+      </div>
+
+      @if (segResults.length === 0) {
+        <mat-card class="empty-state">
+          <mat-card-content>
+            <mat-icon>flight_takeoff</mat-icon>
+            <p>Nenhum voo encontrado para este trecho.</p>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @for (flight of segResults; track flight.id) {
+        <div class="flight-card">
+          <div class="flight-row">
+            <div class="flight-left">
+              <div class="airline-logo">
+                <mat-icon>flight</mat-icon>
+              </div>
+
+              <div class="flight-schedule">
+                <div class="airport-pair">
+                  <div class="airport">
+                    <span class="iata">{{ flight.origin }}</span>
+                    <span class="time">{{ formatTime(flight.departureAt) }}</span>
+                  </div>
+                  <div class="airport">
+                    <span class="iata">{{ flight.destination }}</span>
+                    <span class="time">
+                      {{ formatTime(flight.arrivalAt) }}
+                      @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
+                        <span class="next-day">+1</span>
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flight-meta">
+                @if (flight.stops === 0) {
+                  <a class="stops-badge direct">Direto</a>
+                } @else {
+                  <a class="stops-badge">{{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</a>
+                }
+                <span class="duration">{{ formatDuration(flight.durationMinutes) }}</span>
+              </div>
+            </div>
+
+            <div class="flight-right">
+              <div class="price-section">
+                <span class="price-label">Trecho {{ i + 1 }}</span>
+                <span class="price-amount">{{ flight.price.total | currency: 'BRL':'symbol':'1.0-0' }}</span>
+              </div>
+
+              <div class="card-actions">
+                <button mat-icon-button
+                        (click)="addSegmentFlightToItinerary(flight, i)"
+                        matTooltip="Adicionar trecho ao roteiro">
+                  <mat-icon>add_shopping_cart</mat-icon>
+                </button>
+                <a mat-icon-button
+                   [href]="flight.link.url"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   matTooltip="Ver em {{ flight.link.provider }}">
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+
 <!-- Empty State -->
-@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+@if (tripType() !== 'multi' && searchResults().length === 0 && !isSearching() && hasSearched()) {
   <mat-card class="empty-state">
     <mat-card-content>
       <mat-icon>flight_takeoff</mat-icon>
       <p>Nenhum voo encontrado. Tente outras datas ou aeroportos.</p>
+    </mat-card-content>
+  </mat-card>
+}
+
+@if (tripType() === 'multi' && !multiCityHasResults() && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>connecting_airports</mat-icon>
+      <p>Nenhum voo encontrado para os trechos informados. Tente outras datas ou aeroportos.</p>
     </mat-card-content>
   </mat-card>
 }

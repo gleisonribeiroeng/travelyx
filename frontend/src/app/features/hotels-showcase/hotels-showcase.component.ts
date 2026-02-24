@@ -1,4 +1,12 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  inject,
+  signal,
+  ElementRef,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
@@ -19,9 +27,10 @@ import {
   templateUrl: './hotels-showcase.component.html',
   styleUrl: './hotels-showcase.component.scss',
 })
-export class HotelsShowcaseComponent implements OnInit {
+export class HotelsShowcaseComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly api = inject(HotelShowcaseApiService);
+  private readonly el = inject(ElementRef);
   readonly authService = inject(AuthService);
 
   readonly bestPrices = signal<ShowcaseHotel[]>([]);
@@ -31,6 +40,8 @@ export class HotelsShowcaseComponent implements OnInit {
   readonly highlights = signal<CategorizedHotels<ShowcaseHotel>>({
     cheapest: null, bestRated: null, bestValue: null, all: [],
   });
+
+  private observer!: IntersectionObserver;
 
   ngOnInit(): void {
     this.api.getShowcase().subscribe({
@@ -49,9 +60,35 @@ export class HotelsShowcaseComponent implements OnInit {
         this.highlights.set(categorizeHotels(uniqueHotels));
 
         this.loading.set(false);
+
+        setTimeout(() => {
+          (this.el.nativeElement as HTMLElement)
+            .querySelectorAll('.reveal:not(.revealed)')
+            .forEach((el) => this.observer.observe(el));
+        });
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.observer = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('revealed');
+            this.observer.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.15 },
+    );
+    (this.el.nativeElement as HTMLElement)
+      .querySelectorAll('.reveal')
+      .forEach((el) => this.observer.observe(el));
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
   }
 
   navigateTo(route: string): void {
@@ -60,6 +97,18 @@ export class HotelsShowcaseComponent implements OnInit {
 
   loginWithGoogle(): void {
     window.location.href = this.authService.getGoogleLoginUrl();
+  }
+
+  scrollToSection(id: string): void {
+    (this.el.nativeElement as HTMLElement)
+      .querySelector(`#${id}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    img.closest('.card-img-wrap')?.classList.add('img-fallback');
   }
 
   formatStars(rating: number): string {

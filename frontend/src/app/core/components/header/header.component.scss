@@ -34,11 +34,12 @@ mat-toolbar {
 
 // ── User chip ──
 
+// Mobile-first: compact chip, user name hidden
 .user-chip {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: 12px;
+  margin-left: 8px;
   padding: 4px 8px 4px 4px;
   border: none;
   border-radius: 24px;
@@ -47,8 +48,10 @@ mat-toolbar {
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.25);
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
   }
 }
 
@@ -63,6 +66,7 @@ mat-toolbar {
 .user-name {
   font-size: 0.85rem;
   font-weight: 500;
+  display: none;
 }
 
 .dropdown-icon {
@@ -82,12 +86,12 @@ mat-toolbar {
 
   strong {
     font-size: 0.9rem;
-    color: #0D0B30;
+    color: var(--triply-text-primary);
   }
 
   small {
     font-size: 0.8rem;
-    color: #8f9bb3;
+    color: var(--triply-text-secondary);
   }
 }
 
@@ -95,9 +99,16 @@ mat-toolbar {
   color: #ef4444 !important;
 }
 
-// Hamburger toggle - hidden on desktop
-.menu-toggle {
+// Desktop nav — hidden on mobile
+.desktop-nav {
   display: none;
+}
+
+// Hamburger toggle — visible on mobile with touch-friendly target
+.menu-toggle {
+  display: inline-flex;
+  min-width: var(--triply-touch-min, 48px);
+  min-height: var(--triply-touch-min, 48px);
   color: var(--mat-sys-on-primary);
 }
 
@@ -127,20 +138,21 @@ mat-toolbar {
   }
 }
 
-@media (max-width: 768px) {
+// Desktop: show nav links, hide hamburger, show user name
+@media (min-width: 960px) {
   .desktop-nav {
-    display: none;
+    display: flex;
   }
 
   .menu-toggle {
-    display: inline-flex;
+    display: none;
   }
 
   .user-chip {
-    margin-left: 8px;
+    margin-left: 12px;
 
     .user-name {
-      display: none;
+      display: inline;
     }
   }
 }

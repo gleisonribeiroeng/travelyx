@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../../shared/components/schedule-dialog/schedule-dialog.component';
@@ -92,7 +93,7 @@ import {
         @if (categorized().bestValue; as best) {
           <div class="recommended-section">
             <h3>Recomendado para voce</h3>
-            <mat-card class="recommended-card" [class.added]="isAdded(best.id)">
+            <mat-card class="recommended-card" [class.added]="isAdded(best.id)" (click)="openDetail(best)">
               <div class="rec-layout">
                 @if (best.images.length > 0) {
                   <img [src]="best.images[0]" class="rec-photo" alt="">
@@ -125,17 +126,14 @@ import {
                     </div>
                     <div class="rec-actions">
                       @if (isAdded(best.id)) {
-                        <button mat-stroked-button color="warn" (click)="remove(best.id)">
+                        <button mat-stroked-button color="warn" (click)="remove(best.id); $event.stopPropagation()">
                           <mat-icon>check</mat-icon> Adicionado
                         </button>
                       } @else {
-                        <button mat-flat-button color="primary" (click)="select(best)">
-                          Selecionar
+                        <button mat-flat-button color="primary" (click)="openDetail(best); $event.stopPropagation()">
+                          Ver detalhes
                         </button>
                       }
-                      <a mat-stroked-button [href]="best.link.url" target="_blank" rel="noopener noreferrer">
-                        Ver detalhes
-                      </a>
                     </div>
                   </div>
                 </div>
@@ -150,7 +148,7 @@ import {
             <h3>Outras opcoes ({{ otherTours().length }})</h3>
             <div class="tour-grid">
               @for (tour of otherTours(); track tour.id) {
-                <mat-card class="tour-card" [class.added]="isAdded(tour.id)">
+                <mat-card class="tour-card" [class.added]="isAdded(tour.id)" (click)="openDetail(tour)">
                   <!-- Tags -->
                   @if (categorized().cheapest?.id === tour.id || categorized().bestRated?.id === tour.id) {
                     <div class="tour-tags">
@@ -188,17 +186,14 @@ import {
                     </div>
                     <div class="card-buttons">
                       @if (isAdded(tour.id)) {
-                        <button mat-stroked-button color="warn" class="full-width" (click)="remove(tour.id)">
+                        <button mat-stroked-button color="warn" class="full-width" (click)="remove(tour.id); $event.stopPropagation()">
                           <mat-icon>check</mat-icon> Adicionado
                         </button>
                       } @else {
-                        <button mat-flat-button color="primary" class="full-width" (click)="select(tour)">
-                          Selecionar
+                        <button mat-flat-button color="primary" class="full-width" (click)="openDetail(tour); $event.stopPropagation()">
+                          Ver detalhes
                         </button>
                       }
-                      <a mat-stroked-button class="full-width detail-link" [href]="tour.link.url" target="_blank" rel="noopener noreferrer">
-                        Ver detalhes
-                      </a>
                     </div>
                   </mat-card-content>
                 </mat-card>
@@ -211,82 +206,84 @@ import {
   `,
   styles: [`
     .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: #0D0B30; }
-    .step-header p { margin: 0; font-size: 0.9rem; color: var(--mat-sys-on-surface-variant); }
+    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--triply-text-primary); letter-spacing: -0.02em; }
+    .step-header p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
 
     .current-selection { display: flex; flex-direction: column; gap: 8px; }
-    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: #0D0B30; }
-    .selected-card { border-left: 3px solid #10b981 !important; }
+    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .selected-card { border-left: 3px solid var(--triply-success) !important; }
     .selected-info { display: flex; align-items: center; gap: 12px; }
-    .selected-info mat-icon { color: #10b981; }
+    .selected-info mat-icon { color: var(--triply-success); }
     .selected-details { flex: 1; display: flex; flex-direction: column; }
-    .selected-details strong { font-size: 0.9rem; color: #0D0B30; }
-    .selected-details span { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
-    .selected-price { font-weight: 700; color: #7C4DFF; font-size: 0.95rem; white-space: nowrap; }
+    .selected-details strong { font-size: 0.9rem; color: var(--triply-text-primary); }
+    .selected-details span { font-size: 0.8rem; color: var(--triply-text-secondary); }
+    .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.95rem; white-space: nowrap; }
 
     .search-form-card { margin-top: 8px; }
-    .form-row { display: flex; gap: var(--triply-spacing-md); margin-bottom: var(--triply-spacing-sm); }
+    .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
     .form-row mat-form-field { flex: 1; }
     form button[type="submit"] { width: 100%; height: 44px; }
 
     .loading-state, .empty-results { text-align: center; padding: var(--triply-spacing-xl); }
-    .loading-state p, .empty-results p { margin-top: 12px; color: var(--mat-sys-on-surface-variant); }
-    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-on-surface-variant); opacity: 0.5; }
+    .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
+    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
     /* Recommended section */
-    .recommended-section h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 1rem; font-weight: 700; color: #0D0B30; }
+    .recommended-section h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 1rem; font-weight: 700; color: var(--triply-text-primary); }
     .recommended-card {
-      border-left: 4px solid #7C4DFF !important;
-      background: linear-gradient(135deg, rgba(124, 77, 255, 0.03) 0%, #fff 60%) !important;
+      border-left: 4px solid var(--triply-primary) !important;
+      background: linear-gradient(135deg, rgba(124, 77, 255, 0.03) 0%, rgba(124, 77, 255, 0.08) 60%) !important;
       transition: all 0.2s ease;
+      box-shadow: var(--triply-shadow-sm);
     }
+    .recommended-card { cursor: pointer; }
     .recommended-card:hover { box-shadow: 0 4px 16px rgba(124, 77, 255, 0.12); }
-    .recommended-card.added { border-left-color: #10b981 !important; opacity: 0.7; }
+    .recommended-card.added { border-left-color: var(--triply-success) !important; opacity: 0.7; }
 
-    .rec-layout { display: flex; gap: 16px; }
-    .rec-photo { width: 200px; height: 160px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+    .rec-layout { display: flex; flex-direction: column; gap: 16px; }
+    .rec-photo { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
     .rec-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
 
     .rec-badge {
       display: inline-flex; align-items: center; gap: 4px;
       font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-      color: #7C4DFF;
+      color: var(--triply-primary);
     }
     .rec-badge mat-icon { font-size: 14px; width: 14px; height: 14px; }
-    .rec-content h4 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #0D0B30; }
-    .rec-desc { margin: 0; font-size: 0.85rem; color: var(--mat-sys-on-surface-variant); line-height: 1.4; }
+    .rec-content h4 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--triply-text-primary); }
+    .rec-desc { margin: 0; font-size: 0.85rem; color: var(--triply-text-secondary); line-height: 1.4; }
     .rec-meta { display: flex; gap: 12px; }
-    .rec-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
+    .rec-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--triply-text-secondary); }
     .rec-meta mat-icon { font-size: 16px; width: 16px; height: 16px; }
 
     .rec-rating { display: flex; align-items: center; gap: 4px; }
-    .rec-rating .star-icon { font-size: 16px; width: 16px; height: 16px; color: #f59e0b; }
-    .rec-rating .rating-num { font-size: 0.9rem; font-weight: 600; color: #0D0B30; }
-    .rec-rating .review-count { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
+    .rec-rating .star-icon { font-size: 16px; width: 16px; height: 16px; color: var(--triply-cat-flight); }
+    .rec-rating .rating-num { font-size: 0.9rem; font-weight: 600; color: var(--triply-text-primary); }
+    .rec-rating .review-count { font-size: 0.8rem; color: var(--triply-text-secondary); }
 
-    .rec-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
-    .rec-price .price-value { font-size: 1.2rem; font-weight: 700; color: #7C4DFF; }
-    .rec-actions { display: flex; gap: 8px; }
+    .rec-footer { display: flex; flex-direction: column; gap: 12px; align-items: stretch; margin-top: auto; }
+    .rec-price .price-value { font-size: 1.2rem; font-weight: 700; color: var(--triply-primary); }
+    .rec-actions { display: flex; flex-direction: column; gap: 8px; }
     .rec-actions a { text-decoration: none; }
 
     /* Other options */
-    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: #0D0B30; }
-    .tour-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--triply-spacing-md); }
-    .tour-card { overflow: hidden; transition: all 0.2s ease; }
+    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .tour-grid { display: grid; grid-template-columns: 1fr; gap: var(--triply-spacing-md); }
+    .tour-card { overflow: hidden; transition: all 0.2s ease; cursor: pointer; }
     .tour-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .tour-card.added { border: 2px solid #10b981 !important; opacity: 0.7; }
+    .tour-card.added { border: 2px solid var(--triply-success) !important; opacity: 0.7; }
     .tour-photo { width: 100%; height: 160px; object-fit: cover; }
-    .tour-card h4 { margin: 8px 0 4px; font-size: 0.95rem; font-weight: 700; color: #0D0B30; }
-    .tour-desc { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); margin: 0 0 8px; line-height: 1.4; }
+    .tour-card h4 { margin: 8px 0 4px; font-size: 0.95rem; font-weight: 700; color: var(--triply-text-primary); }
+    .tour-desc { font-size: 0.8rem; color: var(--triply-text-secondary); margin: 0 0 8px; line-height: 1.4; }
     .tour-meta { display: flex; gap: 12px; margin-bottom: 8px; }
-    .tour-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
+    .tour-meta span { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--triply-text-secondary); }
     .tour-meta mat-icon { font-size: 16px; width: 16px; height: 16px; }
     .tour-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
-    .tour-rating mat-icon { font-size: 16px; width: 16px; height: 16px; color: #f59e0b; }
-    .tour-rating span { font-size: 0.85rem; font-weight: 600; color: #0D0B30; }
-    .tour-rating .review-count { font-weight: 400; color: var(--mat-sys-on-surface-variant); font-size: 0.8rem; }
+    .tour-rating mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--triply-cat-flight); }
+    .tour-rating span { font-size: 0.85rem; font-weight: 600; color: var(--triply-text-primary); }
+    .tour-rating .review-count { font-weight: 400; color: var(--triply-text-secondary); font-size: 0.8rem; }
     .tour-price { margin-bottom: 12px; }
-    .price-value { font-size: 1.1rem; font-weight: 700; color: #7C4DFF; }
+    .price-value { font-size: 1.1rem; font-weight: 700; color: var(--triply-primary); }
     .full-width { width: 100%; }
     .card-buttons { display: flex; flex-direction: column; gap: 6px; }
     .detail-link { text-decoration: none; text-align: center; }
@@ -299,15 +296,15 @@ import {
     }
     .htag-cheap { background: rgba(16, 185, 129, 0.1); color: #059669; }
     .htag-rated { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-    .htag-value { background: rgba(124, 77, 255, 0.1); color: #7C4DFF; }
+    .htag-value { background: rgba(124, 77, 255, 0.1); color: var(--triply-primary); }
 
-    @media (max-width: 600px) {
-      .form-row { flex-direction: column; gap: 0; }
-      .tour-grid { grid-template-columns: 1fr; }
-      .rec-layout { flex-direction: column; }
-      .rec-photo { width: 100%; height: 180px; }
-      .rec-footer { flex-direction: column; gap: 12px; align-items: stretch; }
-      .rec-actions { flex-direction: column; }
+    @media (min-width: 600px) {
+      .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
+      .tour-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+      .rec-layout { flex-direction: row; }
+      .rec-photo { width: 200px; height: 160px; }
+      .rec-footer { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; }
+      .rec-actions { flex-direction: row; }
     }
   `],
 })
@@ -364,9 +361,24 @@ export class WizardTourStepComponent {
       });
   }
 
+  openDetail(tour: Activity): void {
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'activity', item: tour, isAdded: this.isAdded(tour.id) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.select(tour);
+      else if (result.action === 'remove') this.remove(tour.id);
+    });
+  }
+
   select(tour: Activity): void {
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '400px',
+      panelClass: 'mobile-fullscreen-dialog',
       data: {
         name: tour.name,
         type: 'activity',
@@ -389,6 +401,8 @@ export class WizardTourStepComponent {
         label: `Passeio: ${tour.name}`,
         notes: tour.city || '',
         order: 0,
+        isPaid: false,
+        attachment: null,
       });
       this.notify.success('Passeio adicionado!');
     });

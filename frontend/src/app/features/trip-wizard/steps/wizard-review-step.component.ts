@@ -208,39 +208,39 @@ import { TripStateService } from '../../../core/services/trip-state.service';
   `,
   styles: [`
     .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: #0D0B30; }
-    .step-header p { margin: 0; font-size: 0.9rem; color: var(--mat-sys-on-surface-variant); }
+    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--triply-text-primary); letter-spacing: -0.02em; }
+    .step-header p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
 
     .empty-state { text-align: center; padding: var(--triply-spacing-xl); }
-    .empty-state mat-icon { font-size: 56px; width: 56px; height: 56px; color: var(--mat-sys-on-surface-variant); opacity: 0.5; }
-    .empty-state h3 { margin: 12px 0 8px; font-size: 1.1rem; font-weight: 700; color: #0D0B30; }
-    .empty-state p { margin: 0; font-size: 0.9rem; color: var(--mat-sys-on-surface-variant); }
+    .empty-state mat-icon { font-size: 56px; width: 56px; height: 56px; color: var(--triply-text-secondary); opacity: 0.5; }
+    .empty-state h3 { margin: 12px 0 8px; font-size: 1.1rem; font-weight: 700; color: var(--triply-text-primary); }
+    .empty-state p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
 
-    .summary-stats { display: flex; flex-wrap: wrap; gap: 8px; }
-    .stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(124,77,255,0.1); color: #7C4DFF; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+    .summary-stats { display: flex; flex-wrap: wrap; gap: 6px; }
+    .stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(124,77,255,0.1); color: var(--triply-primary); border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
     .stat-chip mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
     .review-section { margin-bottom: 4px; }
-    .review-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 1rem; font-weight: 700; color: #0D0B30; }
-    .review-section h3 mat-icon { font-size: 20px; width: 20px; height: 20px; color: #7C4DFF; }
+    .review-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 1rem; font-weight: 700; color: var(--triply-text-primary); }
+    .review-section h3 mat-icon { font-size: 20px; width: 20px; height: 20px; color: var(--triply-primary); }
 
-    .review-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .review-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--triply-border-subtle); }
     .review-item:last-child { border-bottom: none; }
     .review-item-info { flex: 1; display: flex; flex-direction: column; }
-    .review-item-info strong { font-size: 0.9rem; color: #0D0B30; }
-    .review-item-info span { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
-    .review-item-price { font-weight: 700; color: #7C4DFF; font-size: 0.9rem; white-space: nowrap; }
+    .review-item-info strong { font-size: 0.9rem; color: var(--triply-text-primary); }
+    .review-item-info span { font-size: 0.8rem; color: var(--triply-text-secondary); }
+    .review-item-price { font-weight: 700; color: var(--triply-primary); font-size: 0.9rem; white-space: nowrap; }
 
-    .total-card { background: var(--mat-sys-surface-container-low) !important; }
+    .total-card { background: linear-gradient(135deg, var(--triply-surface-0), rgba(108, 92, 231, 0.04)) !important; box-shadow: var(--triply-shadow-sm); }
     .total-row { display: flex; justify-content: space-between; align-items: center; }
-    .total-label { font-size: 1rem; font-weight: 600; color: #0D0B30; }
-    .total-value { font-size: 1.3rem; font-weight: 700; color: #7C4DFF; }
+    .total-label { font-size: 1rem; font-weight: 600; color: var(--triply-text-primary); }
+    .total-value { font-size: 1.3rem; font-weight: 700; color: var(--triply-primary); }
 
-    .finalize-btn { width: 100%; height: 48px; font-size: 1rem; }
+    .finalize-btn { width: 100%; height: 52px; font-size: 1rem; box-shadow: var(--triply-shadow-colored); }
 
-    @media (max-width: 600px) {
-      .summary-stats { gap: 6px; }
-      .stat-chip { font-size: 0.8rem; padding: 4px 10px; }
+    @media (min-width: 600px) {
+      .summary-stats { gap: 8px; }
+      .stat-chip { font-size: 0.85rem; padding: 6px 14px; }
     }
   `],
 })

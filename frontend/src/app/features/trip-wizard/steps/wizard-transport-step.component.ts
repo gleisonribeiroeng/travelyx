@@ -1,7 +1,9 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TransportApiService } from '../../../core/api/transport-api.service';
@@ -97,7 +99,7 @@ import { Transport } from '../../../core/models/trip.models';
         <div class="results-list">
           <h3>{{ results().length }} opções encontradas</h3>
           @for (t of results(); track t.id) {
-            <mat-card class="result-card" [class.added]="isAdded(t.id)">
+            <mat-card class="result-card" [class.added]="isAdded(t.id)" (click)="openDetail(t)">
               <mat-card-content>
                 <div class="result-row">
                   <mat-icon class="mode-icon">{{ getModeIcon(t.mode) }}</mat-icon>
@@ -108,12 +110,12 @@ import { Transport } from '../../../core/models/trip.models';
                   <div class="result-price">
                     <span class="price-value">{{ t.price.currency }} {{ t.price.total | number:'1.2-2' }}</span>
                     @if (isAdded(t.id)) {
-                      <button mat-stroked-button color="warn" (click)="remove(t.id)">
+                      <button mat-stroked-button color="warn" (click)="remove(t.id); $event.stopPropagation()">
                         <mat-icon>check</mat-icon> Adicionado
                       </button>
                     } @else {
-                      <button mat-flat-button color="primary" (click)="select(t)">
-                        Selecionar
+                      <button mat-flat-button color="primary" (click)="openDetail(t); $event.stopPropagation()">
+                        Ver detalhes
                       </button>
                     }
                   </div>
@@ -127,45 +129,45 @@ import { Transport } from '../../../core/models/trip.models';
   `,
   styles: [`
     .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: #0D0B30; }
-    .step-header p { margin: 0; font-size: 0.9rem; color: var(--mat-sys-on-surface-variant); }
+    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--triply-text-primary); letter-spacing: -0.02em; }
+    .step-header p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
 
     .current-selection { display: flex; flex-direction: column; gap: 8px; }
-    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: #0D0B30; }
-    .selected-card { border-left: 3px solid #10b981 !important; }
+    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .selected-card { border-left: 3px solid var(--triply-success) !important; }
     .selected-info { display: flex; align-items: center; gap: 12px; }
-    .selected-info mat-icon { color: #10b981; }
+    .selected-info mat-icon { color: var(--triply-success); }
     .selected-details { flex: 1; display: flex; flex-direction: column; }
-    .selected-details strong { font-size: 0.9rem; color: #0D0B30; }
-    .selected-details span { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
-    .selected-price { font-weight: 700; color: #7C4DFF; font-size: 0.95rem; }
+    .selected-details strong { font-size: 0.9rem; color: var(--triply-text-primary); }
+    .selected-details span { font-size: 0.8rem; color: var(--triply-text-secondary); }
+    .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.95rem; }
 
     .search-form-card { margin-top: 8px; }
-    .form-row { display: flex; gap: var(--triply-spacing-md); margin-bottom: var(--triply-spacing-sm); }
+    .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
     .form-row mat-form-field { flex: 1; }
     form button[type="submit"] { width: 100%; height: 44px; }
 
     .loading-state, .empty-results { text-align: center; padding: var(--triply-spacing-xl); }
-    .loading-state p, .empty-results p { margin-top: 12px; color: var(--mat-sys-on-surface-variant); }
-    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-on-surface-variant); opacity: 0.5; }
+    .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
+    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
     .results-list { display: flex; flex-direction: column; gap: 8px; }
-    .results-list h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: #0D0B30; }
-    .result-card { transition: all 0.2s ease; }
+    .results-list h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .result-card { transition: all 0.2s ease; cursor: pointer; box-shadow: var(--triply-shadow-xs); }
     .result-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .result-card.added { border-left: 3px solid #10b981 !important; opacity: 0.7; }
-    .result-row { display: flex; align-items: center; gap: var(--triply-spacing-md); }
-    .mode-icon { color: #3b82f6; }
+    .result-card.added { border-left: 3px solid var(--triply-success) !important; opacity: 0.7; }
+    .result-row { display: flex; align-items: center; gap: var(--triply-spacing-md); flex-wrap: wrap; }
+    .mode-icon { color: var(--triply-cat-transport); }
     .result-info { flex: 1; display: flex; flex-direction: column; }
-    .result-info strong { font-size: 0.9rem; color: #0D0B30; }
-    .result-info span { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
-    .result-price { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .price-value { font-size: 1.05rem; font-weight: 700; color: #7C4DFF; }
+    .result-info strong { font-size: 0.9rem; color: var(--triply-text-primary); }
+    .result-info span { font-size: 0.8rem; color: var(--triply-text-secondary); }
+    .result-price { width: 100%; display: flex; flex-direction: row; justify-content: space-between; gap: 4px; margin-top: 8px; }
+    .price-value { font-size: 1.05rem; font-weight: 700; color: var(--triply-primary); }
 
-    @media (max-width: 600px) {
-      .form-row { flex-direction: column; gap: 0; }
-      .result-row { flex-wrap: wrap; }
-      .result-price { width: 100%; flex-direction: row; justify-content: space-between; margin-top: 8px; }
+    @media (min-width: 600px) {
+      .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
+      .result-row { flex-wrap: nowrap; }
+      .result-price { width: auto; flex-direction: column; align-items: flex-end; text-align: right; margin-top: 0; }
     }
   `],
 })
@@ -173,6 +175,7 @@ export class WizardTransportStepComponent {
   private readonly api = inject(TransportApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   readonly selectedTransports = this.tripState.transports;
   readonly results = signal<Transport[]>([]);
@@ -223,6 +226,20 @@ export class WizardTransportStepComponent {
       });
   }
 
+  openDetail(transport: Transport): void {
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'transport', item: transport, isAdded: this.isAdded(transport.id) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.select(transport);
+      else if (result.action === 'remove') this.remove(transport.id);
+    });
+  }
+
   select(transport: Transport): void {
     this.tripState.addTransport(transport);
     this.tripState.addItineraryItem({
@@ -235,6 +252,8 @@ export class WizardTransportStepComponent {
       label: `Transporte: ${transport.origin} → ${transport.destination}`,
       notes: '',
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
     this.notify.success('Transporte adicionado!');
   }

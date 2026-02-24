@@ -1,11 +1,11 @@
 <div class="showcase-page">
-  <!-- Nav -->
+  <!-- NAV -->
   <nav class="showcase-nav">
     <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo" routerLink="/landing" style="cursor:pointer">
     <div class="nav-links">
       <a routerLink="/landing">Home</a>
       <a routerLink="/voos">Voos</a>
-      <a routerLink="/hoteis">Hotéis</a>
+      <a routerLink="/hoteis">Hoteis</a>
       <a routerLink="/passeios" class="active">Passeios</a>
     </div>
     <div class="nav-actions">
@@ -31,12 +31,79 @@
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="showcase-hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
-      <h1>Passeios e experiências incríveis</h1>
-      <p>City tours, aventuras, gastronomia e muito mais. Descubra o melhor de cada destino.</p>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <span class="hero-badge">Passeios e experiencias</span>
+        <h1>Experiencias que ficam<br>na memoria.</h1>
+        <p class="hero-sub">
+          City tours, aventuras e gastronomia local.
+          Encontre o melhor de cada destino.
+        </p>
+        <div class="hero-actions">
+          @if (authService.isLoggedIn()) {
+            <button mat-flat-button class="hero-cta-primary" (click)="navigateTo('/tours')">
+              <mat-icon>explore</mat-icon> Explorar passeios
+            </button>
+          } @else {
+            <button class="hero-google-btn" (click)="loginWithGoogle()">
+              <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Comece gratis com Google
+            </button>
+          }
+          <button class="hero-cta-secondary" (click)="scrollToSection('deals-section')">
+            Ver destaques <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="mock-header">
+          <span class="mock-dot"></span>
+          <span class="mock-dot"></span>
+          <span class="mock-dot"></span>
+          <span class="mock-title">Melhores Passeios</span>
+        </div>
+        <div class="mock-card">
+          <div class="mock-accent"></div>
+          <div class="mock-body">
+            <mat-icon>explore</mat-icon>
+            <div class="mock-info">
+              <span class="mock-label">Tour por Sintra</span>
+              <span class="mock-sub">4h . Lisboa</span>
+            </div>
+            <span class="mock-price">R$ 320</span>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-accent"></div>
+          <div class="mock-body">
+            <mat-icon>explore</mat-icon>
+            <div class="mock-info">
+              <span class="mock-label">Aventura Chapada</span>
+              <span class="mock-sub">8h . Brasilia</span>
+            </div>
+            <span class="mock-price">R$ 180</span>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-accent"></div>
+          <div class="mock-body">
+            <mat-icon>explore</mat-icon>
+            <div class="mock-info">
+              <span class="mock-label">Wine Tasting</span>
+              <span class="mock-sub">3h . Mendoza</span>
+            </div>
+            <span class="mock-price">R$ 250</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -46,73 +113,71 @@
       <p>Carregando passeios...</p>
     </div>
   } @else {
-    <!-- Highlights -->
+    <!-- HIGHLIGHTS -->
     @if (highlights().cheapest || highlights().bestRated || highlights().bestValue) {
-      <section class="highlights-section">
-        <div class="section-header">
-          <div class="section-icon highlights"><mat-icon>insights</mat-icon></div>
-          <div>
-            <h2>Destaques para você</h2>
-            <p>Passeios selecionados com base em preço, avaliação e custo-benefício</p>
-          </div>
+      <section class="highlights-section reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Destaques</span>
+          <h2>Passeios selecionados para voce</h2>
+          <p>Por preco, avaliacao e custo-beneficio</p>
         </div>
         <div class="highlights-grid">
           @if (highlights().cheapest; as cheapest) {
-            <div class="highlight-card highlight-cheap" (click)="navigateTo('/tours')">
-              <div class="highlight-badge"><mat-icon>savings</mat-icon> Melhor Preço</div>
+            <div class="highlight-card highlight-cheap">
+              <div class="highlight-badge"><mat-icon>savings</mat-icon> Melhor Preco</div>
               <div class="highlight-route"><span class="hl-name">{{ cheapest.name }}</span></div>
               <div class="highlight-city">{{ cheapest.city }}</div>
               <div class="highlight-meta">
                 <span>{{ formatDuration(cheapest.durationMinutes) }}</span>
-                <span>·</span>
-                <span>⭐ {{ cheapest.rating }}</span>
+                <span>.</span>
+                <span>{{ cheapest.rating }}</span>
                 <span>({{ cheapest.reviewCount }})</span>
               </div>
               <div class="highlight-price">
                 {{ cheapest.price.total | currency: 'BRL' }}
                 <span class="price-suffix">/pessoa</span>
               </div>
-              <button mat-flat-button color="primary" class="highlight-cta" (click)="navigateTo('/tours'); $event.stopPropagation()">
+              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/tours')">
                 <mat-icon>search</mat-icon> Ver passeios
               </button>
             </div>
           }
           @if (highlights().bestRated; as rated) {
-            <div class="highlight-card highlight-rated" (click)="navigateTo('/tours')">
+            <div class="highlight-card highlight-rated">
               <div class="highlight-badge"><mat-icon>star</mat-icon> Mais Bem Avaliado</div>
               <div class="highlight-route"><span class="hl-name">{{ rated.name }}</span></div>
               <div class="highlight-city">{{ rated.city }}</div>
               <div class="highlight-meta">
                 <span>{{ formatDuration(rated.durationMinutes) }}</span>
-                <span>·</span>
-                <span>⭐ {{ rated.rating }}</span>
-                <span>({{ rated.reviewCount }} avaliações)</span>
+                <span>.</span>
+                <span>{{ rated.rating }}</span>
+                <span>({{ rated.reviewCount }} avaliacoes)</span>
               </div>
               <div class="highlight-price">
                 {{ rated.price.total | currency: 'BRL' }}
                 <span class="price-suffix">/pessoa</span>
               </div>
-              <button mat-flat-button color="primary" class="highlight-cta" (click)="navigateTo('/tours'); $event.stopPropagation()">
+              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/tours')">
                 <mat-icon>search</mat-icon> Ver passeios
               </button>
             </div>
           }
           @if (highlights().bestValue; as best) {
-            <div class="highlight-card highlight-value" (click)="navigateTo('/tours')">
-              <div class="highlight-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+            <div class="highlight-card highlight-value">
+              <div class="highlight-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Beneficio</div>
               <div class="highlight-route"><span class="hl-name">{{ best.name }}</span></div>
               <div class="highlight-city">{{ best.city }}</div>
               <div class="highlight-meta">
                 <span>{{ formatDuration(best.durationMinutes) }}</span>
-                <span>·</span>
-                <span>⭐ {{ best.rating }}</span>
+                <span>.</span>
+                <span>{{ best.rating }}</span>
                 <span>({{ best.reviewCount }})</span>
               </div>
               <div class="highlight-price">
                 {{ best.price.total | currency: 'BRL' }}
                 <span class="price-suffix">/pessoa</span>
               </div>
-              <button mat-flat-button color="primary" class="highlight-cta" (click)="navigateTo('/tours'); $event.stopPropagation()">
+              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/tours')">
                 <mat-icon>search</mat-icon> Ver passeios
               </button>
             </div>
@@ -121,19 +186,21 @@
       </section>
     }
 
-    <!-- Section 1: Most Booked -->
-    <section class="showcase-section">
-      <div class="section-header">
-        <div class="section-icon most-booked"><mat-icon>local_fire_department</mat-icon></div>
-        <div>
-          <h2>Mais Reservados</h2>
-          <p>Os passeios que todo mundo está fazendo — os favoritos dos viajantes</p>
-        </div>
+    <!-- SECTION 1: MOST BOOKED -->
+    <section class="showcase-section reveal" id="deals-section">
+      <div class="section-header-new">
+        <span class="section-tag">Mais reservados</span>
+        <h2>Os favoritos dos viajantes</h2>
+        <p>Passeios que todo mundo esta fazendo</p>
       </div>
       <div class="tours-grid">
         @for (tour of mostBooked(); track tour.id) {
           <div class="tour-card">
-            <div class="card-image" [style.background-image]="'url(' + (tour.cityImage || tour.images[0]) + ')'">
+            <div class="card-img-wrap">
+              @if (tour.cityImage || tour.images[0]) {
+                <img [src]="tour.cityImage || tour.images[0]" [alt]="tour.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
+              }
+              <div class="card-img-overlay"></div>
               <span class="card-image-label">{{ tour.city }}</span>
             </div>
             <div class="tour-info">
@@ -152,7 +219,7 @@
               <div class="tour-rating">
                 <mat-icon class="star-icon">star</mat-icon>
                 <span class="rating-value">{{ tour.rating }}</span>
-                <span class="review-count">({{ tour.reviewCount }} avaliações)</span>
+                <span class="review-count">({{ tour.reviewCount }} avaliacoes)</span>
               </div>
             </div>
             <div class="tour-footer">
@@ -169,19 +236,21 @@
       </div>
     </section>
 
-    <!-- Section 2: Must Do -->
-    <section class="showcase-section alt-bg">
-      <div class="section-header">
-        <div class="section-icon must-do"><mat-icon>flag</mat-icon></div>
-        <div>
-          <h2>Imperdíveis do Destino</h2>
-          <p>Se for para esse lugar, faça isso — experiências que definem o destino</p>
-        </div>
+    <!-- SECTION 2: MUST DO -->
+    <section class="showcase-section section-surface reveal">
+      <div class="section-header-new">
+        <span class="section-tag">Imperdiveis</span>
+        <h2>Experiencias que definem o destino</h2>
+        <p>Se for para esse lugar, faca isso</p>
       </div>
       <div class="tours-grid">
         @for (tour of mustDo(); track tour.id) {
           <div class="tour-card">
-            <div class="card-image" [style.background-image]="'url(' + (tour.cityImage || tour.images[0]) + ')'">
+            <div class="card-img-wrap">
+              @if (tour.cityImage || tour.images[0]) {
+                <img [src]="tour.cityImage || tour.images[0]" [alt]="tour.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
+              }
+              <div class="card-img-overlay"></div>
               <span class="card-image-label">{{ tour.city }}</span>
             </div>
             <div class="tour-info">
@@ -200,7 +269,7 @@
               <div class="tour-rating">
                 <mat-icon class="star-icon">star</mat-icon>
                 <span class="rating-value">{{ tour.rating }}</span>
-                <span class="review-count">({{ tour.reviewCount }} avaliações)</span>
+                <span class="review-count">({{ tour.reviewCount }} avaliacoes)</span>
               </div>
             </div>
             <div class="tour-footer">
@@ -217,19 +286,21 @@
       </div>
     </section>
 
-    <!-- Section 3: Unique Experiences -->
-    <section class="showcase-section">
-      <div class="section-header">
-        <div class="section-icon unique"><mat-icon>auto_awesome</mat-icon></div>
-        <div>
-          <h2>Experiências Diferentes</h2>
-          <p>Gastronomia, fotografia, trilhas e atividades que criam memórias únicas</p>
-        </div>
+    <!-- SECTION 3: UNIQUE -->
+    <section class="showcase-section reveal">
+      <div class="section-header-new">
+        <span class="section-tag">Experiencias diferentes</span>
+        <h2>Memorias unicas</h2>
+        <p>Gastronomia, fotografia, trilhas e atividades especiais</p>
       </div>
       <div class="tours-grid">
         @for (tour of unique(); track tour.id) {
           <div class="tour-card">
-            <div class="card-image" [style.background-image]="'url(' + (tour.cityImage || tour.images[0]) + ')'">
+            <div class="card-img-wrap">
+              @if (tour.cityImage || tour.images[0]) {
+                <img [src]="tour.cityImage || tour.images[0]" [alt]="tour.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
+              }
+              <div class="card-img-overlay"></div>
               <span class="card-image-label">{{ tour.city }}</span>
             </div>
             <div class="tour-info">
@@ -248,7 +319,7 @@
               <div class="tour-rating">
                 <mat-icon class="star-icon">star</mat-icon>
                 <span class="rating-value">{{ tour.rating }}</span>
-                <span class="review-count">({{ tour.reviewCount }} avaliações)</span>
+                <span class="review-count">({{ tour.reviewCount }} avaliacoes)</span>
               </div>
             </div>
             <div class="tour-footer">
@@ -266,9 +337,53 @@
     </section>
   }
 
-  <!-- Footer -->
-  <footer class="showcase-footer">
-    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
-    <p>&copy; 2026 Travelyx — Planeje sua viagem perfeita</p>
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="cta-inner">
+      <h2>Planeje sua viagem completa.</h2>
+      <p>Voos, hoteis, passeios e roteiros — tudo em um so lugar.</p>
+      @if (authService.isLoggedIn()) {
+        <button mat-flat-button class="cta-btn" (click)="navigateTo('/planner')">
+          <mat-icon>auto_awesome</mat-icon> Montar meu roteiro
+        </button>
+      } @else {
+        <button class="cta-google-btn" (click)="loginWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Comecar agora com Google
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="landing-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
+        <p class="footer-tagline">Planeje sua viagem perfeita</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Explorar</h4>
+          <a routerLink="/voos">Voos</a>
+          <a routerLink="/hoteis">Hoteis</a>
+          <a routerLink="/passeios">Passeios</a>
+        </div>
+        <div class="footer-col">
+          <h4>Produto</h4>
+          <a routerLink="/landing">Como funciona</a>
+          <a routerLink="/landing">Planejador de viagem</a>
+          <a routerLink="/landing">Roteiro visual</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Travelyx — Todos os direitos reservados</p>
+    </div>
   </footer>
 </div>

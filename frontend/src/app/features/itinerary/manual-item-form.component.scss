@@ -1,5 +1,6 @@
+/* Mobile-first base (320px+) */
 .manual-item-form {
-  padding: var(--triply-spacing-lg);
+  padding: var(--triply-spacing-md);
   margin-bottom: var(--triply-spacing-lg);
   max-width: 600px;
 }
@@ -12,12 +13,18 @@ form {
 
 mat-form-field {
   width: 100%;
+  min-width: 100%;
 }
 
 .actions {
   display: flex;
+  flex-direction: column;
   gap: var(--triply-spacing-sm);
   margin-top: var(--triply-spacing-md);
+
+  button {
+    width: 100%;
+  }
 }
 
 button[mat-raised-button] {
@@ -26,20 +33,20 @@ button[mat-raised-button] {
   gap: var(--triply-spacing-xs);
 }
 
-@media (max-width: 600px) {
+@media (min-width: 600px) {
   .manual-item-form {
-    padding: var(--triply-spacing-md);
+    padding: var(--triply-spacing-lg);
   }
 
   mat-form-field {
-    min-width: 100%;
+    min-width: 0;
   }
 
   .actions {
-    flex-direction: column;
+    flex-direction: row;
 
     button {
-      width: 100%;
+      width: auto;
     }
   }
 }

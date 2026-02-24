@@ -104,6 +104,7 @@ export class TourSearchComponent {
   addToItinerary(tour: Activity): void {
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '400px',
+      panelClass: 'mobile-fullscreen-dialog',
       data: {
         name: tour.name,
         type: 'activity',
@@ -126,6 +127,8 @@ export class TourSearchComponent {
         label: `Passeio: ${tour.name}`,
         notes: tour.city || '',
         order: 0,
+        isPaid: false,
+        attachment: null,
       });
       this.notify.success('Passeio adicionado ao roteiro');
     });

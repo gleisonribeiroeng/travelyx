@@ -9,7 +9,9 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { Observable } from 'rxjs';
 import {
   debounceTime,
@@ -144,7 +146,8 @@ import { CarRental } from '../../../core/models/trip.models';
           <h3>{{ results().length }} carros encontrados</h3>
           <div class="car-grid">
             @for (car of results(); track car.id) {
-              <mat-card class="car-card" [class.added]="isAdded(car.id)">
+              <mat-card class="car-card" [class.added]="isAdded(car.id)"
+                        (click)="openDetail(car)" role="button" tabindex="0">
                 @if (car.images.length > 0) {
                   <img [src]="car.images[0]" class="car-photo" alt="">
                 }
@@ -156,12 +159,12 @@ import { CarRental } from '../../../core/models/trip.models';
                     <span class="price-label">/total</span>
                   </div>
                   @if (isAdded(car.id)) {
-                    <button mat-stroked-button color="warn" class="full-width" (click)="remove(car.id)">
+                    <button mat-stroked-button color="warn" class="full-width" (click)="openDetail(car); $event.stopPropagation()">
                       <mat-icon>check</mat-icon> Adicionado
                     </button>
                   } @else {
-                    <button mat-flat-button color="primary" class="full-width" (click)="select(car)">
-                      Selecionar
+                    <button mat-flat-button color="primary" class="full-width" (click)="openDetail(car); $event.stopPropagation()">
+                      Ver detalhes
                     </button>
                   }
                 </mat-card-content>
@@ -174,44 +177,44 @@ import { CarRental } from '../../../core/models/trip.models';
   `,
   styles: [`
     .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: #0D0B30; }
-    .step-header p { margin: 0; font-size: 0.9rem; color: var(--mat-sys-on-surface-variant); }
+    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--triply-text-primary); letter-spacing: -0.02em; }
+    .step-header p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
 
     .current-selection { display: flex; flex-direction: column; gap: 8px; }
-    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: #0D0B30; }
-    .selected-card { border-left: 3px solid #10b981 !important; }
+    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .selected-card { border-left: 3px solid var(--triply-success) !important; }
     .selected-info { display: flex; align-items: center; gap: 12px; }
-    .selected-info mat-icon { color: #10b981; }
+    .selected-info mat-icon { color: var(--triply-success); }
     .selected-details { flex: 1; display: flex; flex-direction: column; }
-    .selected-details strong { font-size: 0.9rem; color: #0D0B30; }
-    .selected-details span { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
-    .selected-price { font-weight: 700; color: #7C4DFF; font-size: 0.95rem; }
+    .selected-details strong { font-size: 0.9rem; color: var(--triply-text-primary); }
+    .selected-details span { font-size: 0.8rem; color: var(--triply-text-secondary); }
+    .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.95rem; }
 
     .search-form-card { margin-top: 8px; }
-    .form-row { display: flex; gap: var(--triply-spacing-md); margin-bottom: var(--triply-spacing-sm); }
+    .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
     .form-row mat-form-field { flex: 1; }
     form button[type="submit"] { width: 100%; height: 44px; }
 
     .loading-state, .empty-results { text-align: center; padding: var(--triply-spacing-xl); }
-    .loading-state p, .empty-results p { margin-top: 12px; color: var(--mat-sys-on-surface-variant); }
-    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-on-surface-variant); opacity: 0.5; }
+    .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
+    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: #0D0B30; }
-    .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--triply-spacing-md); }
-    .car-card { overflow: hidden; transition: all 0.2s ease; }
+    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .car-grid { display: grid; grid-template-columns: 1fr; gap: var(--triply-spacing-md); }
+    .car-card { overflow: hidden; transition: all 0.2s ease; cursor: pointer; box-shadow: var(--triply-shadow-xs); }
     .car-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .car-card.added { border: 2px solid #10b981 !important; opacity: 0.7; }
+    .car-card.added { border: 2px solid var(--triply-success) !important; opacity: 0.7; }
     .car-photo { width: 100%; height: 140px; object-fit: cover; }
-    .car-card h4 { margin: 8px 0 4px; font-size: 0.95rem; font-weight: 700; color: #0D0B30; }
-    .car-location { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); margin: 0 0 8px; }
+    .car-card h4 { margin: 8px 0 4px; font-size: 0.95rem; font-weight: 700; color: var(--triply-text-primary); }
+    .car-location { font-size: 0.8rem; color: var(--triply-text-secondary); margin: 0 0 8px; }
     .car-price { margin-bottom: 12px; }
-    .price-value { font-size: 1.1rem; font-weight: 700; color: #7C4DFF; }
-    .price-label { font-size: 0.8rem; color: var(--mat-sys-on-surface-variant); }
+    .price-value { font-size: 1.1rem; font-weight: 700; color: var(--triply-primary); }
+    .price-label { font-size: 0.8rem; color: var(--triply-text-secondary); }
     .full-width { width: 100%; }
 
-    @media (max-width: 600px) {
-      .form-row { flex-direction: column; gap: 0; }
-      .car-grid { grid-template-columns: 1fr; }
+    @media (min-width: 600px) {
+      .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
+      .car-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
     }
   `],
 })
@@ -219,6 +222,7 @@ export class WizardCarStepComponent {
   private readonly api = inject(CarApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   readonly selectedCars = this.tripState.carRentals;
   readonly results = signal<CarRental[]>([]);
@@ -313,6 +317,20 @@ export class WizardCarStepComponent {
       });
   }
 
+  openDetail(car: CarRental): void {
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'car-rental', item: car, isAdded: this.isAdded(car.id) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.select(car);
+      else if (result.action === 'remove') this.remove(car.id);
+    });
+  }
+
   select(car: CarRental): void {
     this.tripState.addCarRental(car);
     this.tripState.addItineraryItem({
@@ -325,6 +343,8 @@ export class WizardCarStepComponent {
       label: `Carro: ${car.vehicleType}`,
       notes: `Retirada: ${car.pickUpLocation}`,
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
     this.notify.success('Carro adicionado!');
   }

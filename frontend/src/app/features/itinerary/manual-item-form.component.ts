@@ -61,6 +61,8 @@ export class ManualItemFormComponent {
       label: this.form.value.label!,
       notes: this.form.value.notes || '',
       order: 0,
+      isPaid: false,
+      attachment: null,
     };
 
     this.tripState.addItineraryItem(newItem);

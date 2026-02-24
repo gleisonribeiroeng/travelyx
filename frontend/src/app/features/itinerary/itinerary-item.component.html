@@ -1,5 +1,11 @@
-<mat-card [class]="'itinerary-card ' + getTypeClass(item().type)">
+<mat-card [class]="'itinerary-card ' + getTypeClass(item().type) + (item().isPaid ? ' is-paid' : '')">
   @if (!isEditing()) {
+    @if (item().isPaid) {
+      <div class="paid-badge">
+        <mat-icon>check_circle</mat-icon>
+        Pago
+      </div>
+    }
     @switch (item().type) {
 
       <!-- ─── FLIGHT ─── -->
@@ -19,6 +25,7 @@
             <div class="card-details">
               <span><mat-icon>schedule</mat-icon> {{ formatTime(flight.departureAt) }} — {{ formatTime(flight.arrivalAt) }}</span>
               <span><mat-icon>airlines</mat-icon> {{ flight.airline }} {{ flight.flightNumber }}</span>
+              <span><mat-icon>calendar_today</mat-icon> {{ formatDate(flight.departureAt) }}</span>
               <span><mat-icon>timelapse</mat-icon> {{ formatDuration(flight.durationMinutes) }}</span>
               @if (flight.stops > 0) {
                 <span><mat-icon>connecting_airports</mat-icon> {{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</span>
@@ -69,8 +76,11 @@
               <span class="price">{{ car.price.total | currency: 'BRL' }}</span>
             </div>
             <div class="card-details">
-              <span><mat-icon>login</mat-icon> Retirada: {{ formatTime(car.pickUpAt) }} — {{ car.pickUpLocation }}</span>
-              <span><mat-icon>logout</mat-icon> Devolução: {{ formatTime(car.dropOffAt) }} — {{ car.dropOffLocation }}</span>
+              <span><mat-icon>login</mat-icon> Retirada: {{ formatDate(car.pickUpAt) }} {{ formatTime(car.pickUpAt) }} — {{ car.pickUpLocation }}</span>
+              <span><mat-icon>logout</mat-icon> Devolução: {{ formatDate(car.dropOffAt) }} {{ formatTime(car.dropOffAt) }} — {{ car.dropOffLocation }}</span>
+              @if (car.link?.provider) {
+                <span><mat-icon>business</mat-icon> {{ car.link.provider }}</span>
+              }
             </div>
           </div>
         } @else {
@@ -157,6 +167,16 @@
 
     <!-- Shared action buttons -->
     <div class="card-actions">
+      <button mat-icon-button (click)="togglePaid()"
+              [matTooltip]="item().isPaid ? 'Marcar como pendente' : 'Marcar como pago'"
+              [class.paid-active]="item().isPaid">
+        <mat-icon>{{ item().isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+      </button>
+      <button mat-icon-button (click)="openAttachment()"
+              [matTooltip]="item().attachment ? 'Ver comprovante' : 'Anexar comprovante'"
+              [class.has-attachment]="item().attachment">
+        <mat-icon>{{ item().attachment ? 'attach_file' : 'upload_file' }}</mat-icon>
+      </button>
       <button mat-icon-button (click)="startEdit()" matTooltip="Editar">
         <mat-icon>edit</mat-icon>
       </button>

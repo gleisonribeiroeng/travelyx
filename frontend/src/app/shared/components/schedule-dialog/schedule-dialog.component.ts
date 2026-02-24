@@ -102,7 +102,7 @@ export interface ScheduleDialogResult {
     .item-name {
       font-size: 1.1rem;
       font-weight: 600;
-      color: #0D0B30;
+      color: var(--triply-text-primary);
       margin: 0 0 16px;
     }
 
@@ -120,13 +120,14 @@ export interface ScheduleDialogResult {
       display: flex;
       gap: 12px;
       padding: 12px 16px;
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      border-radius: 8px;
+      background: color-mix(in srgb, var(--triply-warning) 10%, #fff);
+      border-left: 4px solid var(--triply-warning);
+      border-radius: var(--triply-radius-sm);
+      box-shadow: var(--triply-shadow-xs);
       margin-top: 8px;
 
       mat-icon {
-        color: #f59e0b;
+        color: var(--triply-warning);
         flex-shrink: 0;
         margin-top: 2px;
       }
@@ -134,13 +135,13 @@ export interface ScheduleDialogResult {
       strong {
         display: block;
         font-size: 0.85rem;
-        color: #856404;
+        color: color-mix(in srgb, var(--triply-warning) 70%, #000);
         margin-bottom: 4px;
       }
 
       p {
         font-size: 0.8rem;
-        color: #856404;
+        color: color-mix(in srgb, var(--triply-warning) 70%, #000);
         margin: 2px 0;
       }
     }

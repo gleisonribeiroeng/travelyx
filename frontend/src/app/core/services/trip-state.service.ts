@@ -13,6 +13,7 @@ import {
   Activity,
   Attraction,
   ItineraryItem,
+  AttachmentMeta,
 } from '../models/trip.models';
 
 const DEFAULT_TRIP: Trip = {
@@ -50,6 +51,9 @@ export class TripStateService {
   readonly attractions = computed(() => this._trip().attractions);
   readonly itineraryItems = computed(() => this._trip().itineraryItems);
   readonly hasItems = computed(() => this._trip().itineraryItems.length > 0);
+  readonly paidItemCount = computed(() =>
+    this._trip().itineraryItems.filter(i => i.isPaid).length
+  );
 
   private syncTimer: ReturnType<typeof setTimeout> | null = null;
   private _synced = false;
@@ -279,6 +283,27 @@ export class TripStateService {
       updatedAt: new Date().toISOString(),
     }));
     this.scheduleSyncToApi();
+  }
+
+  toggleItemPaid(itemId: string): void {
+    this._trip.update((t) => ({
+      ...t,
+      itineraryItems: t.itineraryItems.map((i) =>
+        i.id === itemId ? { ...i, isPaid: !i.isPaid } : i
+      ),
+      updatedAt: new Date().toISOString(),
+    }));
+    this.scheduleSyncToApi();
+  }
+
+  setItemAttachment(itemId: string, attachment: AttachmentMeta | null): void {
+    this._trip.update((t) => ({
+      ...t,
+      itineraryItems: t.itineraryItems.map((i) =>
+        i.id === itemId ? { ...i, attachment } : i
+      ),
+      updatedAt: new Date().toISOString(),
+    }));
   }
 
   // ---------------------------------------------------------------------------

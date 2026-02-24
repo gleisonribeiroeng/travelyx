@@ -1,5 +1,5 @@
 <div class="showcase-page">
-  <!-- Nav (same as landing) -->
+  <!-- NAV -->
   <nav class="showcase-nav">
     <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo" routerLink="/landing" style="cursor:pointer">
     <div class="nav-links">
@@ -31,12 +31,79 @@
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="showcase-hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
-      <h1>Voos para todos os destinos</h1>
-      <p>Encontre as melhores passagens aéreas com preços imperdíveis. De praias paradisíacas a capitais europeias.</p>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <span class="hero-badge">Passagens aéreas</span>
+        <h1>Seu próximo destino<br>está a um clique.</h1>
+        <p class="hero-sub">
+          Compare voos de dezenas de companhias aéreas.
+          Preços atualizados em tempo real.
+        </p>
+        <div class="hero-actions">
+          @if (authService.isLoggedIn()) {
+            <button mat-flat-button class="hero-cta-primary" (click)="navigateTo('/search')">
+              <mat-icon>search</mat-icon> Comece a pesquisar
+            </button>
+          } @else {
+            <button class="hero-google-btn" (click)="loginWithGoogle()">
+              <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Comece grátis com Google
+            </button>
+          }
+          <button class="hero-cta-secondary" (click)="scrollToSection('deals-section')">
+            Ver ofertas <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="mock-header">
+          <span class="mock-dot"></span>
+          <span class="mock-dot"></span>
+          <span class="mock-dot"></span>
+          <span class="mock-title">Melhores Voos</span>
+        </div>
+        <div class="mock-card">
+          <div class="mock-accent"></div>
+          <div class="mock-body">
+            <mat-icon>flight</mat-icon>
+            <div class="mock-info">
+              <span class="mock-label">GRU → LIS</span>
+              <span class="mock-sub">Direto · 10h15</span>
+            </div>
+            <span class="mock-price">R$ 2.450</span>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-accent"></div>
+          <div class="mock-body">
+            <mat-icon>flight</mat-icon>
+            <div class="mock-info">
+              <span class="mock-label">GRU → CDG</span>
+              <span class="mock-sub">1 parada · 14h30</span>
+            </div>
+            <span class="mock-price">R$ 3.180</span>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-accent"></div>
+          <div class="mock-body">
+            <mat-icon>flight</mat-icon>
+            <div class="mock-info">
+              <span class="mock-label">GRU → FCO</span>
+              <span class="mock-sub">Direto · 11h45</span>
+            </div>
+            <span class="mock-price">R$ 2.890</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -46,15 +113,13 @@
       <p>Carregando ofertas...</p>
     </div>
   } @else {
-    <!-- Highlights: Cheapest / Fastest / Best Value -->
+    <!-- HIGHLIGHTS -->
     @if (highlights().cheapest || highlights().fastest || highlights().bestValue) {
-      <section class="highlights-section">
-        <div class="section-header">
-          <div class="section-icon highlights"><mat-icon>stars</mat-icon></div>
-          <div>
-            <h2>Destaques para você</h2>
-            <p>Os melhores voos analisados por preço, duração e custo-benefício</p>
-          </div>
+      <section class="highlights-section reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Destaques</span>
+          <h2>Analisamos os melhores voos para você</h2>
+          <p>Seleções inteligentes por preço, duração e custo-benefício</p>
         </div>
         <div class="highlights-grid">
           @if (highlights().cheapest; as cheapest) {
@@ -118,23 +183,23 @@
       </section>
     }
 
-    <!-- Section 1: Best Deals -->
-    <section class="showcase-section">
-      <div class="section-header">
-        <div class="section-icon deals"><mat-icon>local_fire_department</mat-icon></div>
-        <div>
-          <h2>Melhores Ofertas</h2>
-          <p>Os voos com os menores preços para você viajar gastando menos</p>
-        </div>
+    <!-- SECTION 1: DEALS -->
+    <section class="showcase-section reveal" id="deals-section">
+      <div class="section-header-new">
+        <span class="section-tag">Melhores ofertas</span>
+        <h2>Voos com preços imperdíveis</h2>
+        <p>Os menores preços para você viajar gastando menos</p>
       </div>
       <div class="flights-grid">
         @for (flight of deals(); track flight.id) {
           <div class="flight-card">
-            @if (flight.destinationImage) {
-              <div class="card-image" [style.background-image]="'url(' + flight.destinationImage + ')'">
-                <span class="card-image-label">{{ flight.destinationCity }}</span>
-              </div>
-            }
+            <div class="card-img-wrap">
+              @if (flight.destinationImage) {
+                <img [src]="flight.destinationImage" [alt]="flight.destinationCity" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
+              }
+              <div class="card-img-overlay"></div>
+              <span class="card-image-label">{{ flight.destinationCity }}</span>
+            </div>
             <div class="flight-route">
               <div class="route-endpoint">
                 <span class="iata">{{ flight.origin }}</span>
@@ -182,23 +247,23 @@
       </div>
     </section>
 
-    <!-- Section 2: Popular Destinations -->
-    <section class="showcase-section alt-bg">
-      <div class="section-header">
-        <div class="section-icon popular"><mat-icon>public</mat-icon></div>
-        <div>
-          <h2>Destinos Mais Populares</h2>
-          <p>As rotas mais buscadas pelos viajantes brasileiros</p>
-        </div>
+    <!-- SECTION 2: POPULAR -->
+    <section class="showcase-section section-surface reveal">
+      <div class="section-header-new">
+        <span class="section-tag">Mais populares</span>
+        <h2>Destinos favoritos dos brasileiros</h2>
+        <p>As rotas mais buscadas pelos viajantes</p>
       </div>
       <div class="flights-grid">
         @for (flight of popular(); track flight.id) {
           <div class="flight-card">
-            @if (flight.destinationImage) {
-              <div class="card-image" [style.background-image]="'url(' + flight.destinationImage + ')'">
-                <span class="card-image-label">{{ flight.destinationCity }}</span>
-              </div>
-            }
+            <div class="card-img-wrap">
+              @if (flight.destinationImage) {
+                <img [src]="flight.destinationImage" [alt]="flight.destinationCity" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
+              }
+              <div class="card-img-overlay"></div>
+              <span class="card-image-label">{{ flight.destinationCity }}</span>
+            </div>
             <div class="flight-route">
               <div class="route-endpoint">
                 <span class="iata">{{ flight.origin }}</span>
@@ -246,23 +311,23 @@
       </div>
     </section>
 
-    <!-- Section 3: Recommended Trips -->
-    <section class="showcase-section">
-      <div class="section-header">
-        <div class="section-icon recommended"><mat-icon>auto_awesome</mat-icon></div>
-        <div>
-          <h2>Viagens Recomendadas</h2>
-          <p>Sugestões curadas para quem busca lazer e turismo</p>
-        </div>
+    <!-- SECTION 3: RECOMMENDED -->
+    <section class="showcase-section reveal">
+      <div class="section-header-new">
+        <span class="section-tag">Recomendados</span>
+        <h2>Viagens curadas para você</h2>
+        <p>Sugestões para quem busca lazer e turismo</p>
       </div>
       <div class="flights-grid">
         @for (flight of recommended(); track flight.id) {
           <div class="flight-card">
-            @if (flight.destinationImage) {
-              <div class="card-image" [style.background-image]="'url(' + flight.destinationImage + ')'">
-                <span class="card-image-label">{{ flight.destinationCity }}</span>
-              </div>
-            }
+            <div class="card-img-wrap">
+              @if (flight.destinationImage) {
+                <img [src]="flight.destinationImage" [alt]="flight.destinationCity" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
+              }
+              <div class="card-img-overlay"></div>
+              <span class="card-image-label">{{ flight.destinationCity }}</span>
+            </div>
             <div class="flight-route">
               <div class="route-endpoint">
                 <span class="iata">{{ flight.origin }}</span>
@@ -311,9 +376,53 @@
     </section>
   }
 
-  <!-- Footer -->
-  <footer class="showcase-footer">
-    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
-    <p>&copy; 2026 Travelyx — Planeje sua viagem perfeita</p>
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="cta-inner">
+      <h2>Planeje sua viagem completa.</h2>
+      <p>Voos, hotéis, passeios e roteiros — tudo em um só lugar.</p>
+      @if (authService.isLoggedIn()) {
+        <button mat-flat-button class="cta-btn" (click)="navigateTo('/planner')">
+          <mat-icon>auto_awesome</mat-icon> Montar meu roteiro
+        </button>
+      } @else {
+        <button class="cta-google-btn" (click)="loginWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Começar agora com Google
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="landing-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
+        <p class="footer-tagline">Planeje sua viagem perfeita</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Explorar</h4>
+          <a routerLink="/voos">Voos</a>
+          <a routerLink="/hoteis">Hotéis</a>
+          <a routerLink="/passeios">Passeios</a>
+        </div>
+        <div class="footer-col">
+          <h4>Produto</h4>
+          <a routerLink="/landing">Como funciona</a>
+          <a routerLink="/landing">Planejador de viagem</a>
+          <a routerLink="/landing">Roteiro visual</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Travelyx — Todos os direitos reservados</p>
+    </div>
   </footer>
 </div>

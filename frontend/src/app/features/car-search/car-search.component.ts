@@ -36,15 +36,15 @@ export class CarSearchComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
 
+  // Same drop-off location toggle (default: true)
+  sameDropOff = signal(true);
+
   // Autocomplete form controls (separate to enable object values)
   pickupLocationControl = new FormControl<CarLocationOption | null>(null, [
     Validators.required,
     this.locationValidator(),
   ]);
-  dropoffLocationControl = new FormControl<CarLocationOption | null>(null, [
-    Validators.required,
-    this.locationValidator(),
-  ]);
+  dropoffLocationControl = new FormControl<CarLocationOption | null>(null);
 
   // Form controls
   carSearchForm = new FormGroup({
@@ -151,9 +151,16 @@ export class CarSearchComponent {
     return loc ? loc.label || loc.name : '';
   }
 
-  // Copy pickup to dropoff when "Same as pick-up" is checked
-  copyPickupToDropoff(): void {
-    this.dropoffLocationControl.setValue(this.pickupLocationControl.value);
+  // Toggle same drop-off location
+  toggleSameDropOff(checked: boolean): void {
+    this.sameDropOff.set(checked);
+    if (checked) {
+      this.dropoffLocationControl.setValue(this.pickupLocationControl.value);
+      this.dropoffLocationControl.clearValidators();
+    } else {
+      this.dropoffLocationControl.setValidators([Validators.required, this.locationValidator()]);
+    }
+    this.dropoffLocationControl.updateValueAndValidity();
   }
 
   // Dismiss error banner
@@ -164,13 +171,18 @@ export class CarSearchComponent {
 
   // Search cars
   searchCars(): void {
+    // Sync dropoff with pickup when same location is selected
+    if (this.sameDropOff()) {
+      this.dropoffLocationControl.setValue(this.pickupLocationControl.value);
+    }
+
     if (this.carSearchForm.invalid) {
       return;
     }
 
     const formValue = this.carSearchForm.value;
     const pickupLoc = formValue.pickupLocation as CarLocationOption;
-    const dropoffLoc = formValue.dropoffLocation as CarLocationOption;
+    const dropoffLoc = this.sameDropOff() ? pickupLoc : formValue.dropoffLocation as CarLocationOption;
     const pickupDate = formValue.pickupDate;
     const pickupTime = formValue.pickupTime ?? '10:00';
     const dropoffDate = formValue.dropoffDate;
@@ -229,6 +241,8 @@ export class CarSearchComponent {
       label: `Carro: ${car.vehicleType}`,
       notes: `Retirada: ${car.pickUpLocation}`,
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
     this.notify.success('Aluguel de carro adicionado ao roteiro');
   }

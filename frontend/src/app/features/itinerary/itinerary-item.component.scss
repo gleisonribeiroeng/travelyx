@@ -1,23 +1,10 @@
-// Color map matching the user's Excel travel spreadsheet
-$type-colors: (
-  flight:     #f59e0b,
-  stay:       #22c55e,
-  car:        #f97316,
-  transport:  #3b82f6,
-  activity:   #ec4899,
-  attraction: #8b5cf6,
-  custom:     #8f9bb3,
-);
-
+// ── Itinerary Item Card ──
 .itinerary-card {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   position: relative;
   overflow: hidden;
-  transition: box-shadow 0.2s;
-
-  &:hover {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
+  box-shadow: var(--triply-shadow-xs);
+  transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-normal);
 
   .card-accent {
     position: absolute;
@@ -25,27 +12,50 @@ $type-colors: (
     top: 0;
     bottom: 0;
     width: 4px;
+    border-radius: 0 2px 2px 0;
   }
 
-  @each $type, $color in $type-colors {
-    &.type-#{$type} .card-accent {
-      background-color: $color;
-    }
-    &.type-#{$type} .type-icon {
-      color: $color;
+  // Category accent + icon colors (manual selectors — CSS vars can't iterate)
+  &.type-flight .card-accent { background-color: var(--triply-cat-flight); }
+  &.type-flight .type-icon { color: var(--triply-cat-flight); }
+
+  &.type-stay .card-accent { background-color: var(--triply-cat-stay); }
+  &.type-stay .type-icon { color: var(--triply-cat-stay); }
+
+  &.type-car .card-accent { background-color: var(--triply-cat-car); }
+  &.type-car .type-icon { color: var(--triply-cat-car); }
+
+  &.type-transport .card-accent { background-color: var(--triply-cat-transport); }
+  &.type-transport .type-icon { color: var(--triply-cat-transport); }
+
+  &.type-activity .card-accent { background-color: var(--triply-cat-activity); }
+  &.type-activity .type-icon { color: var(--triply-cat-activity); }
+
+  &.type-attraction .card-accent { background-color: var(--triply-cat-attraction); }
+  &.type-attraction .type-icon { color: var(--triply-cat-attraction); }
+
+  &.type-custom .card-accent { background-color: var(--triply-cat-custom); }
+  &.type-custom .type-icon { color: var(--triply-cat-custom); }
+
+  // Paid item styles
+  &.is-paid {
+    .card-accent {
+      background-color: #16a34a !important;
     }
   }
 }
 
 .card-body {
-  padding: 14px 16px 8px 20px;
+  padding: 16px 18px 10px 22px;
 }
 
+// Mobile-first: wrap header, price below
 .card-header-row {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 6px;
+  flex-wrap: wrap;
 
   .type-icon {
     font-size: 22px;
@@ -60,7 +70,7 @@ $type-colors: (
     gap: 4px;
     font-weight: 600;
     font-size: 1rem;
-    color: #0D0B30;
+    color: var(--triply-text-primary);
 
     .code {
       font-weight: 700;
@@ -71,14 +81,14 @@ $type-colors: (
       font-size: 18px;
       width: 18px;
       height: 18px;
-      color: var(--mat-sys-on-surface-variant);
+      color: var(--triply-text-tertiary);
     }
   }
 
   .card-title {
     font-weight: 600;
     font-size: 1rem;
-    color: #0D0B30;
+    color: var(--triply-text-primary);
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -87,26 +97,30 @@ $type-colors: (
 
   .price {
     font-weight: 700;
-    font-size: 1.05rem;
-    color: var(--mat-sys-primary);
+    font-size: 1.1rem;
+    color: var(--triply-primary);
     white-space: nowrap;
-    margin-left: auto;
+    width: 100%;
+    text-align: left;
+    margin-top: 4px;
+    margin-left: 30px;
   }
 
   .time-badge {
-    font-size: 0.85rem;
+    font-size: var(--triply-font-sm);
     font-weight: 500;
-    color: var(--mat-sys-on-surface-variant);
+    color: var(--triply-text-secondary);
     margin-left: auto;
   }
 }
 
+// Mobile-first: stacked details
 .card-details {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px 16px;
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--triply-font-sm);
+  color: var(--triply-text-secondary);
 
   > span {
     display: inline-flex;
@@ -117,7 +131,7 @@ $type-colors: (
       font-size: 16px;
       width: 16px;
       height: 16px;
-      color: var(--mat-sys-on-surface-variant);
+      color: var(--triply-text-tertiary);
       opacity: 0.7;
     }
   }
@@ -130,13 +144,42 @@ $type-colors: (
   padding: 0 8px 6px;
 
   button {
-    opacity: 0.5;
+    opacity: 0.6;
     transition: opacity 0.15s;
-
-    &:hover {
-      opacity: 1;
-    }
   }
+}
+
+// Paid badge
+.paid-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  z-index: 1;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Paid toggle button
+.paid-active {
+  color: #16a34a !important;
+}
+
+// Attachment button indicator
+.has-attachment {
+  color: var(--triply-primary, #3b82f6) !important;
 }
 
 // Edit form
@@ -153,21 +196,35 @@ $type-colors: (
   }
 }
 
-// Mobile
-@media (max-width: 600px) {
+// ── Hover — conditional ──
+@media (hover: hover) {
+  .itinerary-card:hover {
+    box-shadow: var(--triply-shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .card-actions button:hover {
+    opacity: 1;
+    color: var(--triply-primary);
+  }
+}
+
+// ── Responsive — Mobile-first (min-width) ──
+@media (min-width: 600px) {
   .card-header-row {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 
     .price {
-      width: 100%;
-      text-align: left;
-      margin-top: 4px;
-      margin-left: 30px;
+      width: auto;
+      text-align: right;
+      margin-top: 0;
+      margin-left: auto;
     }
   }
 
   .card-details {
-    flex-direction: column;
-    gap: 4px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 16px;
   }
 }

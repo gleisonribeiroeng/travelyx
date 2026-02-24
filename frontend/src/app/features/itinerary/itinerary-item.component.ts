@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../core/services/notification.service';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
@@ -15,6 +16,11 @@ import {
   Attraction,
 } from '../../core/models/trip.models';
 import { buildTimeBlocks, detectConflicts } from '../../core/utils/schedule-conflict.util';
+import {
+  AttachmentDialogComponent,
+  AttachmentDialogData,
+  AttachmentDialogResult,
+} from '../../shared/components/attachment-dialog/attachment-dialog.component';
 
 function timeSlotValidator(control: any) {
   const value = control.value;
@@ -42,6 +48,7 @@ export class ItineraryItemComponent implements OnInit {
   protected readonly tripState = inject(TripStateService);
   private readonly fb = inject(FormBuilder);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   readonly isEditing = signal(false);
   editForm!: FormGroup;
@@ -154,6 +161,40 @@ export class ItineraryItemComponent implements OnInit {
     this.tripState.updateItineraryItem(updated);
     this.isEditing.set(false);
     this.notify.success('Item atualizado');
+  }
+
+  togglePaid(): void {
+    const wasPaid = this.item().isPaid;
+    this.tripState.toggleItemPaid(this.item().id);
+    if (!wasPaid) {
+      // Just marked as paid — offer to attach a receipt
+      this.openAttachment();
+    }
+    this.notify.success(wasPaid ? 'Marcado como pendente' : 'Marcado como pago');
+  }
+
+  openAttachment(): void {
+    const item = this.item();
+    const tripId = this.tripState.trip().id;
+
+    const dialogRef = this.dialog.open(AttachmentDialogComponent, {
+      width: '440px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: {
+        tripId,
+        itemId: item.id,
+        existingAttachment: item.attachment,
+      } as AttachmentDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((result: AttachmentDialogResult | undefined) => {
+      if (!result || result.action === 'cancelled') return;
+      if (result.action === 'uploaded') {
+        this.tripState.setItemAttachment(item.id, result.attachment!);
+      } else if (result.action === 'removed') {
+        this.tripState.setItemAttachment(item.id, null);
+      }
+    });
   }
 
   // ── Helpers ──

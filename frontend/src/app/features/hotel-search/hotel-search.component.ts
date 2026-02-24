@@ -256,6 +256,8 @@ export class HotelSearchComponent {
       label: `Hotel: ${hotel.name}`,
       notes: hotel.address || '',
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
     this.notify.success('Hotel adicionado ao roteiro');
   }

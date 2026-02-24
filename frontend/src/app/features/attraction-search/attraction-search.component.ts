@@ -81,6 +81,7 @@ export class AttractionSearchComponent {
   addToItinerary(attraction: Attraction): void {
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '400px',
+      panelClass: 'mobile-fullscreen-dialog',
       data: {
         name: attraction.name,
         type: 'attraction',
@@ -103,6 +104,8 @@ export class AttractionSearchComponent {
         label: `Atração: ${attraction.name}`,
         notes: attraction.category || '',
         order: 0,
+        isPaid: false,
+        attachment: null,
       });
       this.notify.success('Atração adicionada ao roteiro');
     });

@@ -151,6 +151,14 @@ export type ItineraryItemType =
   | 'attraction'
   | 'custom';
 
+export interface AttachmentMeta {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
 /**
  * A single entry on the trip itinerary timeline.
  * References a domain model via refId, or stands alone for custom items.
@@ -171,4 +179,6 @@ export interface ItineraryItem {
   notes: string;
   /** Integer sort key within day + timeSlot group */
   order: number;
+  isPaid: boolean;
+  attachment: AttachmentMeta | null;
 }

@@ -125,6 +125,8 @@ export class TransportSearchComponent {
       label: `Transporte: ${transport.origin} → ${transport.destination}`,
       notes: '',
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
     this.notify.success('Transporte adicionado ao roteiro');
   }

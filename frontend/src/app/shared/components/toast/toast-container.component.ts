@@ -18,6 +18,7 @@ import { ToastComponent } from './toast.component';
     </div>
   `,
   styles: [`
+    /* Mobile-first: near full width, offset below top bar */
     .toast-container {
       position: fixed;
       top: 0;
@@ -27,17 +28,16 @@ import { ToastComponent } from './toast.component';
       display: flex;
       flex-direction: column;
       gap: 8px;
-      padding-top: 16px;
-      width: 420px;
+      padding-top: calc(var(--triply-topbar-height, 64px) + 8px);
+      width: calc(100vw - 24px);
       max-width: calc(100vw - 32px);
       pointer-events: none;
     }
 
-    /* On mobile — near full width, offset below top bar */
-    @media (max-width: 767px) {
+    @media (min-width: 960px) {
       .toast-container {
-        width: calc(100vw - 24px);
-        padding-top: calc(var(--triply-topbar-height, 64px) + 8px);
+        width: 420px;
+        padding-top: 16px;
       }
     }
   `]

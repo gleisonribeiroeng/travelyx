@@ -33,22 +33,24 @@
           @if (pickupLocationControl.hasError('invalidLocation')) { <mat-error>Selecione um local da lista</mat-error> }
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Local de Devolução</mat-label>
-          <input matInput [formControl]="dropoffLocationControl" [matAutocomplete]="autoDropoff" />
-          <mat-icon matPrefix>location_on</mat-icon>
-          <mat-autocomplete #autoDropoff [displayWith]="displayLocation">
-            @for (loc of filteredDropoffLocations$ | async; track loc.id) {
-              <mat-option [value]="loc">{{ loc.label }}</mat-option>
-            }
-          </mat-autocomplete>
-          @if (dropoffLocationControl.hasError('required')) { <mat-error>Local de devolução é obrigatório</mat-error> }
-          @if (dropoffLocationControl.hasError('invalidLocation')) { <mat-error>Selecione um local da lista</mat-error> }
-        </mat-form-field>
+        @if (!sameDropOff()) {
+          <mat-form-field appearance="outline" class="dropoff-field">
+            <mat-label>Local de Devolução</mat-label>
+            <input matInput [formControl]="dropoffLocationControl" [matAutocomplete]="autoDropoff" />
+            <mat-icon matPrefix>location_on</mat-icon>
+            <mat-autocomplete #autoDropoff [displayWith]="displayLocation">
+              @for (loc of filteredDropoffLocations$ | async; track loc.id) {
+                <mat-option [value]="loc">{{ loc.label }}</mat-option>
+              }
+            </mat-autocomplete>
+            @if (dropoffLocationControl.hasError('required')) { <mat-error>Local de devolução é obrigatório</mat-error> }
+            @if (dropoffLocationControl.hasError('invalidLocation')) { <mat-error>Selecione um local da lista</mat-error> }
+          </mat-form-field>
+        }
       </div>
 
       <div class="same-location-row">
-        <mat-checkbox (change)="$event.checked ? copyPickupToDropoff() : null">Mesmo local de retirada</mat-checkbox>
+        <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">Devolver no mesmo local da retirada</mat-checkbox>
       </div>
 
       <div class="form-row">

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
+  FormArray,
   Validators,
   ValidatorFn,
   AbstractControl,
@@ -10,7 +11,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { NotificationService } from '../../core/services/notification.service';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, Subscription } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -32,7 +33,7 @@ import {
   CategorizedFlights,
 } from '../../core/utils/flight-categorizer.util';
 
-type TripType = 'roundTrip' | 'oneWay' | 'returnOnly';
+type TripType = 'roundTrip' | 'oneWay' | 'returnOnly' | 'multi';
 
 interface MonthOption {
   value: string;
@@ -95,6 +96,33 @@ export class SearchComponent {
       filter((v) => typeof v === 'string' && (v as string).length >= 2),
       switchMap((keyword) => this.flightApi.searchAirports(keyword as string))
     );
+
+  // Multi-city segment state
+  readonly MIN_SEGMENTS = 2;
+  readonly MAX_SEGMENTS = 6;
+  segmentsArray = new FormArray<FormGroup>([]);
+  segmentOriginStreams = signal<Observable<AirportOption[]>[]>([]);
+  segmentDestinationStreams = signal<Observable<AirportOption[]>[]>([]);
+  multiCityResults = signal<Flight[][]>([]);
+  private smartFillSubs: Subscription[] = [];
+
+  multiCityHasResults = computed(() =>
+    this.multiCityResults().some(segment => segment.length > 0)
+  );
+
+  multiCityTotalPrice = computed(() => {
+    const results = this.multiCityResults();
+    if (results.length === 0) return null;
+    let total = 0;
+    for (const segResults of results) {
+      if (segResults.length === 0) return null;
+      const cheapest = segResults.reduce((a, b) =>
+        a.price.total < b.price.total ? a : b
+      );
+      total += cheapest.price.total;
+    }
+    return total;
+  });
 
   // Search state signals
   formCollapsed = signal(false);
@@ -182,7 +210,150 @@ export class SearchComponent {
     this.errorSource.set(null);
   }
 
+  // ── Multi-city segment management ──
+
+  private createSegmentGroup(): FormGroup {
+    return new FormGroup({
+      origin: new FormControl<AirportOption | null>(null, [
+        Validators.required,
+        this.airportValidator(),
+      ]),
+      destination: new FormControl<AirportOption | null>(null, [
+        Validators.required,
+        this.airportValidator(),
+      ]),
+      date: new FormControl<Date | null>(null, Validators.required),
+    });
+  }
+
+  initMultiSegments(): void {
+    this.segmentsArray.clear();
+    for (let i = 0; i < this.MIN_SEGMENTS; i++) {
+      this.segmentsArray.push(this.createSegmentGroup());
+    }
+    this.rebuildSegmentAutocomplete();
+    this.multiCityResults.set([]);
+  }
+
+  addSegment(): void {
+    if (this.segmentsArray.length >= this.MAX_SEGMENTS) return;
+    const newGroup = this.createSegmentGroup();
+    const prevIndex = this.segmentsArray.length - 1;
+    if (prevIndex >= 0) {
+      const prevDest = this.segmentsArray.at(prevIndex).get('destination')?.value;
+      if (prevDest && typeof prevDest === 'object' && prevDest.iataCode) {
+        newGroup.get('origin')?.setValue(prevDest);
+      }
+    }
+    this.segmentsArray.push(newGroup);
+    this.rebuildSegmentAutocomplete();
+  }
+
+  removeSegment(index: number): void {
+    if (this.segmentsArray.length <= this.MIN_SEGMENTS) return;
+    this.segmentsArray.removeAt(index);
+    this.rebuildSegmentAutocomplete();
+  }
+
+  private rebuildSegmentAutocomplete(): void {
+    this.smartFillSubs.forEach(s => s.unsubscribe());
+    this.smartFillSubs = [];
+
+    const originStreams: Observable<AirportOption[]>[] = [];
+    const destStreams: Observable<AirportOption[]>[] = [];
+
+    for (let i = 0; i < this.segmentsArray.length; i++) {
+      const group = this.segmentsArray.at(i);
+      const originCtrl = group.get('origin') as FormControl;
+      const destCtrl = group.get('destination') as FormControl;
+
+      originStreams.push(
+        originCtrl.valueChanges.pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          filter((v) => typeof v === 'string' && (v as string).length >= 2),
+          switchMap((keyword) => this.flightApi.searchAirports(keyword as string))
+        )
+      );
+
+      destStreams.push(
+        destCtrl.valueChanges.pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          filter((v) => typeof v === 'string' && (v as string).length >= 2),
+          switchMap((keyword) => this.flightApi.searchAirports(keyword as string))
+        )
+      );
+
+      // Smart-fill: destination of segment N → origin of segment N+1
+      if (i < this.segmentsArray.length - 1) {
+        const nextOriginCtrl = this.segmentsArray.at(i + 1).get('origin') as FormControl;
+        this.smartFillSubs.push(
+          destCtrl.valueChanges.pipe(
+            filter(val => val && typeof val === 'object' && val.iataCode),
+          ).subscribe(val => {
+            if (!nextOriginCtrl.value || !nextOriginCtrl.value.iataCode) {
+              nextOriginCtrl.setValue(val);
+            }
+          })
+        );
+      }
+    }
+
+    this.segmentOriginStreams.set(originStreams);
+    this.segmentDestinationStreams.set(destStreams);
+  }
+
+  getMinDateForSegment(index: number): Date {
+    if (index === 0) return new Date();
+    const prevDate = this.segmentsArray.at(index - 1)?.get('date')?.value;
+    return prevDate instanceof Date ? prevDate : new Date();
+  }
+
+  segmentHasSameAirports(index: number): boolean {
+    const group = this.segmentsArray.at(index);
+    const origin = group.get('origin')?.value;
+    const dest = group.get('destination')?.value;
+    if (!origin || !dest) return false;
+    if (typeof origin === 'string' || typeof dest === 'string') return false;
+    return origin.iataCode === dest.iataCode;
+  }
+
+  onTripTypeChange(value: string): void {
+    this.tripType.set(value as TripType);
+    if (value === 'multi') {
+      this.initMultiSegments();
+      this.flexibleDates.set(false);
+    } else {
+      this.segmentsArray.clear();
+      this.multiCityResults.set([]);
+      this.smartFillSubs.forEach(s => s.unsubscribe());
+      this.smartFillSubs = [];
+    }
+  }
+
+  private canSearchMulti(): boolean {
+    const passengersValid = this.flightSearchForm.get('passengers')?.valid ?? false;
+    if (!passengersValid) return false;
+    if (this.segmentsArray.length < this.MIN_SEGMENTS) return false;
+
+    for (let i = 0; i < this.segmentsArray.length; i++) {
+      const group = this.segmentsArray.at(i);
+      if (!group.valid) return false;
+      if (this.segmentHasSameAirports(i)) return false;
+      if (i > 0) {
+        const prevDate = this.segmentsArray.at(i - 1).get('date')?.value;
+        const currDate = group.get('date')?.value;
+        if (prevDate && currDate && currDate < prevDate) return false;
+      }
+    }
+    return true;
+  }
+
   canSearch(): boolean {
+    if (this.tripType() === 'multi') {
+      return this.canSearchMulti();
+    }
     const hasAirports = this.originControl.valid && this.destinationControl.valid;
     const passengersValid = this.flightSearchForm.get('passengers')?.valid ?? false;
     if (this.flexibleDates()) {
@@ -204,6 +375,11 @@ export class SearchComponent {
 
   searchFlights(): void {
     if (!this.canSearch()) return;
+
+    if (this.tripType() === 'multi') {
+      this.searchMultiCity();
+      return;
+    }
 
     const origin = this.originControl.value as AirportOption;
     const destination = this.destinationControl.value as AirportOption;
@@ -282,6 +458,85 @@ export class SearchComponent {
     }
   }
 
+  private searchMultiCity(): void {
+    const passengers = this.flightSearchForm.value.passengers ?? 1;
+
+    this.errorMessage.set(null);
+    this.isSearching.set(true);
+    this.hasSearched.set(true);
+    this.formCollapsed.set(true);
+    this.searchResults.set([]);
+    this.multiCityResults.set([]);
+
+    const segmentSearches = [];
+
+    for (let i = 0; i < this.segmentsArray.length; i++) {
+      const group = this.segmentsArray.at(i);
+      const origin = group.get('origin')?.value as AirportOption;
+      const dest = group.get('destination')?.value as AirportOption;
+      const date = group.get('date')?.value as Date;
+
+      segmentSearches.push(
+        this.flightApi.searchFlights({
+          origin: origin.iataCode,
+          destination: dest.iataCode,
+          departureDate: date.toISOString().split('T')[0],
+          adults: passengers,
+        })
+      );
+    }
+
+    forkJoin(segmentSearches)
+      .pipe(finalize(() => this.isSearching.set(false)))
+      .subscribe({
+        next: (results) => {
+          const segmentResults: Flight[][] = [];
+          const errors: string[] = [];
+
+          results.forEach((result, index) => {
+            if (result.error) {
+              const seg = this.segmentsArray.at(index);
+              const orig = (seg.get('origin')?.value as AirportOption)?.iataCode ?? '?';
+              const dest = (seg.get('destination')?.value as AirportOption)?.iataCode ?? '?';
+              errors.push(`Trecho ${index + 1} (${orig} → ${dest}): ${result.error.message}`);
+              segmentResults.push([]);
+            } else {
+              segmentResults.push(result.data);
+            }
+          });
+
+          this.multiCityResults.set(segmentResults);
+
+          if (errors.length > 0) {
+            this.errorMessage.set(errors.join('\n'));
+            this.errorSource.set('Voos Multi-Cidade');
+          }
+        },
+        error: (err) => {
+          this.errorMessage.set(err.message || 'Erro ao buscar voos multi-cidade');
+          this.errorSource.set('Voos Multi-Cidade');
+        },
+      });
+  }
+
+  addSegmentFlightToItinerary(flight: Flight, segmentIndex: number): void {
+    this.tripState.addFlight(flight);
+    this.tripState.addItineraryItem({
+      id: crypto.randomUUID(),
+      type: 'flight',
+      refId: flight.id,
+      date: flight.departureAt.split('T')[0],
+      timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
+      durationMinutes: null,
+      label: `Voo Trecho ${segmentIndex + 1}: ${flight.origin} → ${flight.destination}`,
+      notes: `${flight.airline} ${flight.flightNumber}`,
+      order: segmentIndex,
+      isPaid: false,
+      attachment: null,
+    });
+    this.notify.success(`Trecho ${segmentIndex + 1} adicionado ao roteiro`);
+  }
+
   addToItinerary(flight: Flight): void {
     this.tripState.addFlight(flight);
     this.tripState.addItineraryItem({
@@ -294,6 +549,8 @@ export class SearchComponent {
       label: `Voo: ${flight.origin} \u2192 ${flight.destination}`,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
     this.notify.success('Voo adicionado ao roteiro');
   }

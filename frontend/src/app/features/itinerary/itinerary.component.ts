@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { KeyValuePipe, DatePipe, CurrencyPipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { NotificationService } from '../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -22,15 +23,15 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 
-// Color map per item type
+// Color map per item type (desaturated palette matching design tokens)
 const TYPE_COLORS: Record<string, string> = {
-  flight: '#f59e0b',
-  stay: '#22c55e',
-  'car-rental': '#f97316',
-  transport: '#3b82f6',
-  activity: '#ec4899',
-  attraction: '#8b5cf6',
-  custom: '#8f9bb3',
+  flight: '#D4A04A',
+  stay: '#4AAF72',
+  'car-rental': '#C8764A',
+  transport: '#5B8DC9',
+  activity: '#C46B9B',
+  attraction: '#8B7EC8',
+  custom: '#9CA3AF',
 };
 
 @Component({
@@ -52,6 +53,7 @@ export class ItineraryComponent {
   protected readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   // ── View toggle ──
   readonly activeView = signal<'calendar' | 'list'>('calendar');
@@ -60,7 +62,7 @@ export class ItineraryComponent {
   readonly calendarEvents = computed<EventInput[]>(() => {
     const items = this.tripState.itineraryItems();
     return items.map(item => {
-      const color = TYPE_COLORS[item.type] || '#8f9bb3';
+      const color = TYPE_COLORS[item.type] || '#9CA3AF';
       const isDraggable = item.type === 'activity' || item.type === 'attraction' || item.type === 'custom';
 
       if (item.timeSlot) {
@@ -70,7 +72,7 @@ export class ItineraryComponent {
 
         return {
           id: item.id,
-          title: item.label,
+          title: item.isPaid ? `✓ ${item.label}` : item.label,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
           allDay: false,
@@ -84,7 +86,7 @@ export class ItineraryComponent {
 
       return {
         id: item.id,
-        title: item.label,
+        title: item.isPaid ? `✓ ${item.label}` : item.label,
         start: item.date,
         allDay: true,
         backgroundColor: color,
@@ -169,11 +171,19 @@ export class ItineraryComponent {
     }));
   });
 
+  readonly summaryAttractions = computed(() => {
+    return this.tripState.attractions().map(a => ({
+      ...a,
+      _type: 'attraction' as const,
+    }));
+  });
+
   readonly hasSummaryItems = computed(() =>
     this.summaryFlights().length > 0 ||
     this.summaryStays().length > 0 ||
     this.summaryCarRentals().length > 0 ||
-    this.summaryActivities().length > 0
+    this.summaryActivities().length > 0 ||
+    this.summaryAttractions().length > 0
   );
 
   // ── List view data ──
@@ -219,6 +229,20 @@ export class ItineraryComponent {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h${mins.toString().padStart(2, '0')}`;
+  }
+
+  formatDate(isoDatetime: string): string {
+    const d = new Date(isoDatetime.includes('T') ? isoDatetime : isoDatetime + 'T00:00:00');
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  stopsLabel(stops: number): string {
+    if (stops === 0) return 'Direto';
+    return `${stops} parada${stops > 1 ? 's' : ''}`;
+  }
+
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
   }
 
   // ── List view actions ──
@@ -403,6 +427,7 @@ export class ItineraryComponent {
     // Open edit dialog for editable types
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '400px',
+      panelClass: 'mobile-fullscreen-dialog',
       data: {
         name: item.label,
         type: item.type as 'activity' | 'attraction' | 'custom',
