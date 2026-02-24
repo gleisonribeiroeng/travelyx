@@ -103,6 +103,7 @@ export class AttractionMapper {
       },
       city: params.city,
       category: this.extractPrimaryCategory(raw.kinds),
+      images: [],
       link: null, // Not available in radius response; enriched later
     };
   }
@@ -123,6 +124,7 @@ export class AttractionMapper {
         : details.url
           ? 'Official site available.'
           : '',
+      images: [details.image, details.preview?.source].filter((u): u is string => !!u),
       link: details.url ? { url: details.url, provider: 'Official' } : null,
     };
   }

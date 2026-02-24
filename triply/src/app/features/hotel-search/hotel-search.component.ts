@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { Observable } from 'rxjs';
 import {
   debounceTime,
@@ -26,6 +26,10 @@ import {
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Stay, ItineraryItem } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import {
+  categorizeHotels,
+  CategorizedHotels,
+} from '../../core/utils/hotel-categorizer.util';
 
 @Component({
   selector: 'app-hotel-search',
@@ -37,7 +41,7 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 export class HotelSearchComponent {
   private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   // Form controls with custom destination validator
   destinationControl = new FormControl<DestinationOption | null>(null, [
@@ -71,12 +75,18 @@ export class HotelSearchComponent {
     );
 
   // Search state signals
+  formCollapsed = signal(false);
   searchResults = signal<Stay[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
   sortBy = signal<'price' | 'rating'>('price');
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
+
+  // Categorization
+  readonly categorized = computed((): CategorizedHotels<Stay> =>
+    categorizeHotels(this.searchResults())
+  );
 
   // Computed signal for sorted hotels
   sortedHotels = computed(() => {
@@ -129,7 +139,7 @@ export class HotelSearchComponent {
 
   // Format rating
   formatRating(rating: number | null): string {
-    return rating != null ? rating.toFixed(1) + ' / 5' : 'No rating';
+    return rating != null ? rating.toFixed(1) + ' / 5' : 'Sem avaliação';
   }
 
   // Render star icons based on rating
@@ -148,6 +158,34 @@ export class HotelSearchComponent {
     }
 
     return stars;
+  }
+
+  // Carousel state: hotel id -> current image index
+  private carouselIndex = new Map<string, number>();
+
+  getImageIndex(hotelId: string): number {
+    return this.carouselIndex.get(hotelId) ?? 0;
+  }
+
+  getCurrentImage(hotel: Stay): string {
+    const idx = this.getImageIndex(hotel.id);
+    return hotel.images?.[idx] ?? hotel.photoUrl ?? '';
+  }
+
+  prevImage(hotel: Stay, event: Event): void {
+    event.stopPropagation();
+    const images = hotel.images ?? [];
+    if (images.length === 0) return;
+    const current = this.getImageIndex(hotel.id);
+    this.carouselIndex.set(hotel.id, current === 0 ? images.length - 1 : current - 1);
+  }
+
+  nextImage(hotel: Stay, event: Event): void {
+    event.stopPropagation();
+    const images = hotel.images ?? [];
+    if (images.length === 0) return;
+    const current = this.getImageIndex(hotel.id);
+    this.carouselIndex.set(hotel.id, (current + 1) % images.length);
   }
 
   // Dismiss error banner
@@ -180,6 +218,7 @@ export class HotelSearchComponent {
     this.errorMessage.set(null);
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     this.hotelApi
       .searchHotels({
@@ -213,11 +252,14 @@ export class HotelSearchComponent {
       refId: hotel.id,
       date: hotel.checkIn,
       timeSlot: null,
-      label: `Stay: ${hotel.name}`,
+      durationMinutes: null,
+      label: `Hotel: ${hotel.name}`,
       notes: hotel.address || '',
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
-    this.snackBar.open('Hotel added to itinerary', 'Close', { duration: 3000 });
+    this.notify.success('Hotel adicionado ao roteiro');
   }
 
   // Set sort by

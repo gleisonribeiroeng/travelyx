@@ -4,14 +4,24 @@ import {
   FormControl,
   FormGroup,
   Validators,
+  ValidatorFn,
+  AbstractControl,
+  ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { finalize } from 'rxjs/operators';
+import { NotificationService } from '../../core/services/notification.service';
+import { Observable } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  switchMap,
+  finalize,
+} from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
-import { CarApiService, CarSearchParams } from '../../core/api/car-api.service';
+import { CarApiService, CarLocationOption, CarSearchParams } from '../../core/api/car-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { CarRental, ItineraryItem } from '../../core/models/trip.models';
+import { CarRental } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 
 @Component({
@@ -24,12 +34,22 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 export class CarSearchComponent {
   private readonly carApi = inject(CarApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
+
+  // Same drop-off location toggle (default: true)
+  sameDropOff = signal(true);
+
+  // Autocomplete form controls (separate to enable object values)
+  pickupLocationControl = new FormControl<CarLocationOption | null>(null, [
+    Validators.required,
+    this.locationValidator(),
+  ]);
+  dropoffLocationControl = new FormControl<CarLocationOption | null>(null);
 
   // Form controls
   carSearchForm = new FormGroup({
-    pickupLocation: new FormControl('', Validators.required),
-    dropoffLocation: new FormControl('', Validators.required),
+    pickupLocation: this.pickupLocationControl,
+    dropoffLocation: this.dropoffLocationControl,
     pickupDate: new FormControl<Date | null>(null, Validators.required),
     pickupTime: new FormControl('10:00', Validators.required),
     dropoffDate: new FormControl<Date | null>(null, Validators.required),
@@ -40,6 +60,23 @@ export class CarSearchComponent {
       Validators.max(99),
     ]),
   });
+
+  // Autocomplete observables
+  filteredPickupLocations$: Observable<CarLocationOption[]> =
+    this.pickupLocationControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter((v) => typeof v === 'string' && (v as string).length >= 2),
+      switchMap((keyword) => this.carApi.searchLocations(keyword as string)),
+    );
+
+  filteredDropoffLocations$: Observable<CarLocationOption[]> =
+    this.dropoffLocationControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter((v) => typeof v === 'string' && (v as string).length >= 2),
+      switchMap((keyword) => this.carApi.searchLocations(keyword as string)),
+    );
 
   // Filter signals (separate from form, for client-side filtering)
   vehicleTypeFilter = signal<string>('');
@@ -57,6 +94,7 @@ export class CarSearchComponent {
   ];
 
   // Search state signals
+  formCollapsed = signal(false);
   searchResults = signal<CarRental[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
@@ -92,6 +130,39 @@ export class CarSearchComponent {
     return this.carSearchForm.value.pickupDate || new Date();
   }
 
+  // Location validator - ensures a CarLocationOption was selected from autocomplete
+  private locationValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null; // Let required handle empty
+      }
+      if (
+        typeof control.value === 'string' ||
+        !(control.value as CarLocationOption).cityId
+      ) {
+        return { invalidLocation: true };
+      }
+      return null;
+    };
+  }
+
+  // Display function for autocomplete
+  displayLocation(loc: CarLocationOption | null): string {
+    return loc ? loc.label || loc.name : '';
+  }
+
+  // Toggle same drop-off location
+  toggleSameDropOff(checked: boolean): void {
+    this.sameDropOff.set(checked);
+    if (checked) {
+      this.dropoffLocationControl.setValue(this.pickupLocationControl.value);
+      this.dropoffLocationControl.clearValidators();
+    } else {
+      this.dropoffLocationControl.setValidators([Validators.required, this.locationValidator()]);
+    }
+    this.dropoffLocationControl.updateValueAndValidity();
+  }
+
   // Dismiss error banner
   dismissError(): void {
     this.errorMessage.set(null);
@@ -100,39 +171,47 @@ export class CarSearchComponent {
 
   // Search cars
   searchCars(): void {
+    // Sync dropoff with pickup when same location is selected
+    if (this.sameDropOff()) {
+      this.dropoffLocationControl.setValue(this.pickupLocationControl.value);
+    }
+
     if (this.carSearchForm.invalid) {
       return;
     }
 
     const formValue = this.carSearchForm.value;
-    const pickupLocation = formValue.pickupLocation ?? '';
-    const dropoffLocation = formValue.dropoffLocation ?? '';
+    const pickupLoc = formValue.pickupLocation as CarLocationOption;
+    const dropoffLoc = this.sameDropOff() ? pickupLoc : formValue.dropoffLocation as CarLocationOption;
     const pickupDate = formValue.pickupDate;
     const pickupTime = formValue.pickupTime ?? '10:00';
     const dropoffDate = formValue.dropoffDate;
     const dropoffTime = formValue.dropoffTime ?? '10:00';
     const driverAge = formValue.driverAge ?? 30;
 
-    if (!pickupDate || !dropoffDate) {
+    if (!pickupLoc || !dropoffLoc || !pickupDate || !dropoffDate) {
       return;
     }
 
-    // Build ISO 8601 datetimes by combining date + time
-    const pickupDateStr = pickupDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    const pickupAt = `${pickupDateStr}T${pickupTime}:00`; // YYYY-MM-DDTHH:MM:00
-    const dropoffDateStr = dropoffDate.toISOString().split('T')[0];
-    const dropoffAt = `${dropoffDateStr}T${dropoffTime}:00`;
+    // Priceline API requires MM/DD/YYYY date format
+    const pickupDateStr = this.formatDate(pickupDate);
+    const dropoffDateStr = this.formatDate(dropoffDate);
 
     this.errorMessage.set(null);
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     this.carApi
       .searchCars({
-        pickupLocation,
-        dropoffLocation,
-        pickupAt,
-        dropoffAt,
+        pickupLocationName: pickupLoc.label || pickupLoc.name,
+        dropoffLocationName: dropoffLoc.label || dropoffLoc.name,
+        pickupCityId: pickupLoc.cityId,
+        dropoffCityId: dropoffLoc.cityId,
+        pickupDate: pickupDateStr,
+        pickupTime: pickupTime,
+        dropoffDate: dropoffDateStr,
+        dropoffTime: dropoffTime,
         driverAge,
       })
       .pipe(finalize(() => this.isSearching.set(false)))
@@ -158,13 +237,22 @@ export class CarSearchComponent {
       refId: car.id,
       date: car.pickUpAt.split('T')[0],
       timeSlot: car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
-      label: `Car Rental: ${car.vehicleType}`,
-      notes: `Pick-up: ${car.pickUpLocation}`,
+      durationMinutes: null,
+      label: `Carro: ${car.vehicleType}`,
+      notes: `Retirada: ${car.pickUpLocation}`,
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
-    this.snackBar.open('Car rental added to itinerary', 'Close', {
-      duration: 3000,
-    });
+    this.notify.success('Aluguel de carro adicionado ao roteiro');
+  }
+
+  // Format Date to MM/DD/YYYY for Priceline API
+  private formatDate(date: Date): string {
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const y = date.getFullYear();
+    return `${m}/${d}/${y}`;
   }
 
   // Set vehicle type filter

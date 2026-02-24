@@ -6,13 +6,16 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
+import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { ScheduleDialogComponent, ScheduleDialogData } from '../../shared/components/schedule-dialog/schedule-dialog.component';
 import { TourApiService } from '../../core/api/tour-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Activity, ItineraryItem } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { categorizeTours, CategorizedTours } from '../../core/utils/tour-categorizer.util';
 
 @Component({
   selector: 'app-tour-search',
@@ -24,7 +27,8 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 export class TourSearchComponent {
   private readonly tourApi = inject(TourApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // Form controls
   tourSearchForm = new FormGroup({
@@ -32,16 +36,34 @@ export class TourSearchComponent {
   });
 
   // Search state signals
+  formCollapsed = signal(false);
   searchResults = signal<Activity[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
+  sortBy = signal<'price' | 'rating'>('price');
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
 
-  // Computed signal for sorted results (price ascending)
-  sortedResults = computed(() =>
-    [...this.searchResults()].sort((a, b) => a.price.total - b.price.total)
+  // Categorization
+  readonly categorized = computed((): CategorizedTours<Activity> =>
+    categorizeTours(this.searchResults())
   );
+
+  // Computed signal for sorted results
+  sortedResults = computed(() => {
+    const results = this.searchResults();
+    const sort = this.sortBy();
+    return [...results].sort((a, b) => {
+      if (sort === 'price') return a.price.total - b.price.total;
+      if (sort === 'rating') {
+        if (a.rating === null && b.rating === null) return 0;
+        if (a.rating === null) return 1;
+        if (b.rating === null) return -1;
+        return b.rating - a.rating;
+      }
+      return 0;
+    });
+  });
 
   // Search tours
   searchTours(): void {
@@ -54,6 +76,7 @@ export class TourSearchComponent {
     this.isSearching.set(true);
     this.hasSearched.set(true);
     this.errorMessage.set(null);
+    this.formCollapsed.set(true);
 
     this.tourApi
       .searchTours({ destination })
@@ -79,20 +102,35 @@ export class TourSearchComponent {
 
   // Add to itinerary
   addToItinerary(tour: Activity): void {
-    this.tripState.addActivity({ ...tour, addedToItinerary: true });
-    const defaultDate = this.tripState.trip().dates.start || new Date().toISOString().split('T')[0];
-    this.tripState.addItineraryItem({
-      id: crypto.randomUUID(),
-      type: 'activity',
-      refId: tour.id,
-      date: defaultDate,
-      timeSlot: null,
-      label: `Tour: ${tour.name}`,
-      notes: tour.city || '',
-      order: 0,
+    const dialogRef = this.dialog.open(ScheduleDialogComponent, {
+      width: '400px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: {
+        name: tour.name,
+        type: 'activity',
+        defaultDate: this.tripState.trip().dates.start || new Date().toISOString().split('T')[0],
+        tripDates: this.tripState.trip().dates,
+        durationMinutes: tour.durationMinutes,
+      } as ScheduleDialogData,
     });
-    this.snackBar.open('Tour added to itinerary', 'Close', {
-      duration: 3000,
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+      this.tripState.addActivity({ ...tour, addedToItinerary: true });
+      this.tripState.addItineraryItem({
+        id: crypto.randomUUID(),
+        type: 'activity',
+        refId: tour.id,
+        date: result.date,
+        timeSlot: result.timeSlot,
+        durationMinutes: result.durationMinutes,
+        label: `Passeio: ${tour.name}`,
+        notes: tour.city || '',
+        order: 0,
+        isPaid: false,
+        attachment: null,
+      });
+      this.notify.success('Passeio adicionado ao roteiro');
     });
   }
 
@@ -103,5 +141,33 @@ export class TourSearchComponent {
     if (h === 0) return `${m}m`;
     if (m === 0) return `${h}h`;
     return `${h}h ${m}m`;
+  }
+
+  // Set sort by
+  setSortBy(value: string): void {
+    this.sortBy.set(value as 'price' | 'rating');
+  }
+
+  // Format rating
+  formatRating(rating: number | null): string {
+    return rating != null ? rating.toFixed(1) + ' / 5' : 'Sem avaliação';
+  }
+
+  // Render star icons based on rating
+  renderStars(rating: number | null): string[] {
+    const stars: string[] = [];
+    const ratingValue = rating ?? 0;
+
+    for (let i = 1; i <= 5; i++) {
+      if (ratingValue >= i) {
+        stars.push('star');
+      } else if (ratingValue >= i - 0.5) {
+        stars.push('star_half');
+      } else {
+        stars.push('star_border');
+      }
+    }
+
+    return stars;
   }
 }

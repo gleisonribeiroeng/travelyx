@@ -1,0 +1,204 @@
+<div class="dashboard">
+  <div class="welcome-section">
+    <h1>Bem-vindo ao Travelyx</h1>
+    <p>Planeje sua viagem perfeita</p>
+  </div>
+
+  <!-- Hero CTA: Trip Planner -->
+  <mat-card class="hero-card" (click)="navigateTo('/planner')" tabindex="0">
+    <mat-card-content>
+      <div class="hero-content">
+        <div class="hero-icon">
+          <mat-icon>explore</mat-icon>
+        </div>
+        <div class="hero-text">
+          <h2>Planejar Nova Viagem</h2>
+          <p>Configure destino, datas, viajantes, transporte e hospedagem em um assistente completo</p>
+        </div>
+        <mat-icon class="hero-arrow">arrow_forward</mat-icon>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  @if (hasTrip()) {
+    <!-- Trip Summary -->
+    @if (tripDestination() || tripDates()) {
+      <section class="trip-meta">
+        @if (tripDestination()) {
+          <div class="meta-chip">
+            <mat-icon>place</mat-icon>
+            <span>{{ tripDestination() }}</span>
+          </div>
+        }
+        @if (tripDates()?.start) {
+          <div class="meta-chip">
+            <mat-icon>date_range</mat-icon>
+            <span>{{ tripDates()!.start | date: "d 'de' MMM" }} — {{ tripDates()!.end | date: "d 'de' MMM 'de' yyyy" }}</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Quick Stats -->
+    <section class="stats-grid">
+      @if (flightCount() > 0) {
+        <div class="stat-card" (click)="navigateTo('/search')">
+          <mat-icon class="stat-icon flight">flight</mat-icon>
+          <span class="stat-value">{{ flightCount() }}</span>
+          <span class="stat-label">{{ flightCount() === 1 ? 'Voo' : 'Voos' }}</span>
+        </div>
+      }
+      @if (hotelCount() > 0) {
+        <div class="stat-card" (click)="navigateTo('/hotels')">
+          <mat-icon class="stat-icon hotel">hotel</mat-icon>
+          <span class="stat-value">{{ hotelCount() }}</span>
+          <span class="stat-label">{{ hotelCount() === 1 ? 'Hotel' : 'Hotéis' }}</span>
+        </div>
+      }
+      @if (carCount() > 0) {
+        <div class="stat-card" (click)="navigateTo('/cars')">
+          <mat-icon class="stat-icon car">directions_car</mat-icon>
+          <span class="stat-value">{{ carCount() }}</span>
+          <span class="stat-label">{{ carCount() === 1 ? 'Carro' : 'Carros' }}</span>
+        </div>
+      }
+      @if (activityCount() > 0) {
+        <div class="stat-card" (click)="navigateTo('/tours')">
+          <mat-icon class="stat-icon activity">local_activity</mat-icon>
+          <span class="stat-value">{{ activityCount() }}</span>
+          <span class="stat-label">{{ activityCount() === 1 ? 'Passeio' : 'Passeios' }}</span>
+        </div>
+      }
+      @if (transportCount() > 0) {
+        <div class="stat-card" (click)="navigateTo('/transports')">
+          <mat-icon class="stat-icon transport">directions_bus</mat-icon>
+          <span class="stat-value">{{ transportCount() }}</span>
+          <span class="stat-label">{{ transportCount() === 1 ? 'Transporte' : 'Transportes' }}</span>
+        </div>
+      }
+      @if (attractionCount() > 0) {
+        <div class="stat-card" (click)="navigateTo('/attractions')">
+          <mat-icon class="stat-icon attraction">museum</mat-icon>
+          <span class="stat-value">{{ attractionCount() }}</span>
+          <span class="stat-label">{{ attractionCount() === 1 ? 'Atração' : 'Atrações' }}</span>
+        </div>
+      }
+      @if (itineraryItemCount() > 0) {
+        <div class="stat-card" (click)="navigateTo('/itinerary')">
+          <mat-icon class="stat-icon itinerary">map</mat-icon>
+          <span class="stat-value">{{ itineraryItemCount() }}</span>
+          <span class="stat-label">{{ itineraryItemCount() === 1 ? 'Item no roteiro' : 'Itens no roteiro' }}</span>
+        </div>
+      }
+    </section>
+
+    <!-- Cost Breakdown -->
+    @if (totalCost() > 0) {
+      <mat-card class="cost-card">
+        <mat-card-content>
+          <h3 class="section-title"><mat-icon>payments</mat-icon> Custos Estimados</h3>
+          <div class="cost-rows">
+            @if (costFlights() > 0) {
+              <div class="cost-row">
+                <span class="cost-label"><mat-icon>flight</mat-icon> Voos</span>
+                <span class="cost-value">{{ costFlights() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+              </div>
+            }
+            @if (costHotels() > 0) {
+              <div class="cost-row">
+                <span class="cost-label"><mat-icon>hotel</mat-icon> Hotéis</span>
+                <span class="cost-value">{{ costHotels() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+              </div>
+            }
+            @if (costCars() > 0) {
+              <div class="cost-row">
+                <span class="cost-label"><mat-icon>directions_car</mat-icon> Carros</span>
+                <span class="cost-value">{{ costCars() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+              </div>
+            }
+            @if (costActivities() > 0) {
+              <div class="cost-row">
+                <span class="cost-label"><mat-icon>local_activity</mat-icon> Passeios</span>
+                <span class="cost-value">{{ costActivities() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+              </div>
+            }
+            @if (costTransports() > 0) {
+              <div class="cost-row">
+                <span class="cost-label"><mat-icon>directions_bus</mat-icon> Transportes</span>
+                <span class="cost-value">{{ costTransports() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+              </div>
+            }
+          </div>
+          <div class="cost-total">
+            <span>Total estimado</span>
+            <span class="total-value">{{ totalCost() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Upcoming Items -->
+    @if (upcomingItems().length > 0) {
+      <mat-card class="upcoming-card">
+        <mat-card-content>
+          <div class="upcoming-header">
+            <h3 class="section-title"><mat-icon>schedule</mat-icon> Próximos no Roteiro</h3>
+            <button mat-button (click)="navigateTo('/itinerary')">Ver tudo</button>
+          </div>
+          <div class="upcoming-list">
+            @for (item of upcomingItems(); track item.id) {
+              <div class="upcoming-item">
+                <mat-icon class="upcoming-icon">{{ getTypeIcon(item.type) }}</mat-icon>
+                <div class="upcoming-info">
+                  <span class="upcoming-label">{{ item.label }}</span>
+                  <span class="upcoming-date">{{ item.date | date: "d 'de' MMM" }} {{ item.timeSlot ? '· ' + item.timeSlot : '' }}</span>
+                </div>
+                <span class="upcoming-type">{{ getTypeLabel(item.type) }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Planning Checklist -->
+    <mat-card class="checklist-card">
+      <mat-card-content>
+        <h3 class="section-title"><mat-icon>checklist</mat-icon> Planejamento</h3>
+        <div class="checklist-progress">
+          <mat-progress-bar mode="determinate" [value]="(completedSteps() / checklistSteps().length) * 100"></mat-progress-bar>
+          <span class="progress-label">{{ completedSteps() }} de {{ checklistSteps().length }} etapas</span>
+        </div>
+        <div class="checklist-items">
+          @for (step of checklistSteps(); track step.label) {
+            <div class="checklist-item" [class.done]="step.done">
+              <mat-icon class="check-icon">{{ step.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              <mat-icon class="step-icon">{{ step.icon }}</mat-icon>
+              <span>{{ step.label }}</span>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <!-- Empty State -->
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon class="empty-icon">luggage</mat-icon>
+        <h3>Nenhuma viagem planejada ainda</h3>
+        <p>Clique em "Planejar Nova Viagem" acima ou explore as categorias para começar.</p>
+        <div class="quick-links">
+          <button mat-stroked-button (click)="navigateTo('/search')">
+            <mat-icon>flight</mat-icon> Buscar Voos
+          </button>
+          <button mat-stroked-button (click)="navigateTo('/hotels')">
+            <mat-icon>hotel</mat-icon> Buscar Hotéis
+          </button>
+          <button mat-stroked-button (click)="navigateTo('/tours')">
+            <mat-icon>local_activity</mat-icon> Buscar Passeios
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

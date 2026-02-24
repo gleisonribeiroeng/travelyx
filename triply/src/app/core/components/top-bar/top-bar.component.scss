@@ -1,0 +1,80 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  height: var(--triply-topbar-height);
+  background: var(--triply-topbar-bg);
+  padding: 0 24px;
+  box-shadow: var(--triply-shadow-xs);
+  z-index: 10;
+  gap: 16px;
+}
+
+// Mobile-first: hamburger visible with touch-friendly target
+.hamburger-btn {
+  display: inline-flex;
+  min-width: var(--triply-touch-min, 48px);
+  min-height: var(--triply-touch-min, 48px);
+}
+
+.topbar-search {
+  display: flex;
+  align-items: center;
+  background: var(--triply-surface-0);
+  border: 1px solid var(--triply-border-subtle);
+  border-radius: var(--triply-radius-full);
+  padding: 8px 16px;
+  gap: 8px;
+  max-width: 400px;
+  flex: 1;
+  transition: border-color var(--triply-transition-fast), box-shadow var(--triply-transition-fast);
+
+  &:focus-within {
+    border-color: var(--triply-primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+  }
+}
+
+.search-icon {
+  color: var(--triply-text-tertiary);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.search-input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: var(--triply-font-base);
+  color: var(--triply-text-primary);
+  width: 100%;
+
+  &::placeholder {
+    color: var(--triply-text-tertiary);
+  }
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  button {
+    color: var(--triply-text-tertiary);
+
+    &:hover {
+      color: var(--triply-primary);
+    }
+  }
+}
+
+// Desktop: hide hamburger (sidebar is always visible)
+@media (min-width: 960px) {
+  .hamburger-btn {
+    display: none;
+  }
+}

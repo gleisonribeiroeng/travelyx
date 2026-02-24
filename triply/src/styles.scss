@@ -1,50 +1,486 @@
 @use '@angular/material' as mat;
 
-// Apply M3 theme — generates all --mat-sys-* design tokens on html element
+// ─── M3 Theme ──────────────────────────────────────────────────────────────────
+// Refined indigo-violet primary, warm gray neutrals
 html {
   @include mat.theme((
     color: (
       theme-type: light,
-      primary: mat.$azure-palette,
+      primary: mat.$violet-palette,
       tertiary: mat.$blue-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
+
+  // Override M3 primary with our refined indigo-violet
+  --mat-sys-primary: #6C5CE7;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #EDE9FE;
+  --mat-sys-on-primary-container: #1A1A2E;
 }
 
-// Custom spacing tokens (supplement --mat-sys-* with project-specific values)
+// ─── Design Tokens ─────────────────────────────────────────────────────────────
 :root {
+  // ── Primary ──
+  --triply-primary: #6C5CE7;
+  --triply-primary-hover: #5A4BD4;
+  --triply-primary-light: #EDE9FE;
+  --triply-primary-muted: rgba(108, 92, 231, 0.08);
+  --triply-primary-subtle: rgba(108, 92, 231, 0.04);
+
+  // ── Semantic ──
+  --triply-success: #22C55E;
+  --triply-warning: #F59E0B;
+  --triply-error: #EF4444;
+
+  // ── Text ──
+  --triply-text-primary: #111827;
+  --triply-text-secondary: #6B7280;
+  --triply-text-tertiary: #9CA3AF;
+
+  // ── Borders ──
+  --triply-border: #E5E7EB;
+  --triply-border-subtle: #F3F4F6;
+
+  // ── Surfaces ──
+  --triply-surface-0: #F5F5F7;
+  --triply-surface-1: #FFFFFF;
+  --triply-surface-2: #F3F4F6;
+  --triply-surface-3: #E5E7EB;
+
+  // ── Category Colors (desaturated) ──
+  --triply-cat-flight: #D4A04A;
+  --triply-cat-stay: #4AAF72;
+  --triply-cat-car: #C8764A;
+  --triply-cat-activity: #C46B9B;
+  --triply-cat-transport: #5B8DC9;
+  --triply-cat-attraction: #8B7EC8;
+  --triply-cat-custom: #9CA3AF;
+
+  // Category light variants (for subtle backgrounds)
+  --triply-cat-flight-light: rgba(212, 160, 74, 0.08);
+  --triply-cat-stay-light: rgba(74, 175, 114, 0.08);
+  --triply-cat-car-light: rgba(200, 118, 74, 0.08);
+  --triply-cat-activity-light: rgba(196, 107, 155, 0.08);
+  --triply-cat-transport-light: rgba(91, 141, 201, 0.08);
+  --triply-cat-attraction-light: rgba(139, 126, 200, 0.08);
+  --triply-cat-custom-light: rgba(156, 163, 175, 0.08);
+
+  // ── Shadows (premium elevation system) ──
+  --triply-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --triply-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --triply-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --triply-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --triply-shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+  --triply-shadow-colored: 0 4px 14px rgba(108, 92, 231, 0.25), 0 2px 4px rgba(108, 92, 231, 0.1);
+
+  // ── Backwards compat aliases (consumed by existing components) ──
+  --triply-card-shadow: var(--triply-shadow-sm);
+  --triply-card-shadow-hover: var(--triply-shadow-md);
+  --triply-page-bg: var(--triply-surface-0);
+  --triply-card-bg: var(--triply-surface-1);
+  --triply-card-hover: rgba(108, 92, 231, 0.06);
+
+  // ── Spacing ──
   --triply-spacing-xs: 4px;
   --triply-spacing-sm: 8px;
   --triply-spacing-md: 16px;
   --triply-spacing-lg: 24px;
   --triply-spacing-xl: 48px;
 
-  --triply-border-radius-sm: 4px;
-  --triply-border-radius-md: 8px;
-  --triply-border-radius-lg: 16px;
+  // ── Border Radius ──
+  --triply-radius-sm: 8px;
+  --triply-radius-md: 12px;
+  --triply-radius-lg: 16px;
+  --triply-radius-xl: 20px;
+  --triply-radius-full: 9999px;
+  // Backwards compat aliases
+  --triply-border-radius-sm: var(--triply-radius-sm);
+  --triply-border-radius-md: var(--triply-radius-md);
+  --triply-border-radius-lg: var(--triply-radius-lg);
 
+  // ── Typography ──
+  --triply-font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --triply-font-xs: 0.75rem;
+  --triply-font-sm: 0.8125rem;
+  --triply-font-base: 0.875rem;
+  --triply-font-md: 0.9375rem;
+  --triply-font-lg: 1.125rem;
+  --triply-font-xl: 1.625rem;
+  --triply-font-2xl: 2rem;
+  --triply-line-height-tight: 1.25;
+  --triply-line-height-normal: 1.5;
+  --triply-line-height-relaxed: 1.65;
+  --triply-letter-spacing-tight: -0.02em;
+
+  // ── Layout ──
   --triply-max-content-width: 1200px;
+  --triply-sidebar-width: 260px;
+  --triply-right-panel-width: 300px;
+  --triply-topbar-height: 64px;
+  --triply-topbar-bg: var(--triply-surface-1);
+  --triply-topbar-shadow: var(--triply-shadow-xs);
+  --triply-right-panel-bg: var(--triply-surface-1);
+  --triply-header-height: 60px;
+  --triply-header-bg: var(--triply-surface-1);
+  --triply-header-shadow: var(--triply-shadow-sm);
+
+  // ── Sidebar (light theme) ──
+  --triply-dash-sidebar-bg: var(--triply-surface-1);
+  --triply-dash-sidebar-bg-dark: var(--triply-surface-2);
+  --triply-dash-sidebar-text: var(--triply-text-secondary);
+  --triply-dash-sidebar-text-muted: var(--triply-text-tertiary);
+  --triply-dash-sidebar-section: var(--triply-text-tertiary);
+  --triply-dash-sidebar-active-bg: rgba(108, 92, 231, 0.1);
+  --triply-dash-sidebar-active-accent: var(--triply-primary);
+  --triply-dash-sidebar-hover-bg: rgba(108, 92, 231, 0.05);
+
+  // ── Touch (WCAG 2.5.8) ──
+  --triply-touch-min: 48px;
+  --triply-touch-comfortable: 56px;
+  --triply-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  // ── Transitions ──
+  --triply-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --triply-transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-// Apply Material typography to body
+// ─── Global Base ───────────────────────────────────────────────────────────────
 body {
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  font-family: var(--triply-font-family);
   margin: 0;
   padding: 0;
+  padding-bottom: var(--triply-safe-area-bottom);
+  background-color: var(--triply-page-bg);
+  color: var(--triply-text-primary);
 }
 
-// Shared search result card styles
-// Components apply .result-card class to get consistent card design
+h1, h2, h3, h4, h5, h6 {
+  color: var(--triply-text-primary);
+  font-weight: 700;
+  font-family: var(--triply-font-family);
+  letter-spacing: var(--triply-letter-spacing-tight);
+  line-height: var(--triply-line-height-tight);
+}
+
+// ─── Overlay Panels ────────────────────────────────────────────────────────────
+.mat-mdc-autocomplete-panel,
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel,
+.mat-mdc-dialog-container .mdc-dialog__surface,
+.cdk-overlay-pane .mat-mdc-autocomplete-panel,
+.cdk-overlay-pane .mat-mdc-select-panel {
+  background: var(--triply-surface-1) !important;
+  border-radius: var(--triply-radius-md) !important;
+  box-shadow: var(--triply-shadow-xl) !important;
+  --mat-autocomplete-background-color: var(--triply-surface-1);
+  --mat-select-panel-background-color: var(--triply-surface-1);
+  --mat-menu-container-color: var(--triply-surface-1);
+}
+
+.mat-mdc-option {
+  background: var(--triply-surface-1) !important;
+  &:hover, &.mat-mdc-option-active, &.mdc-list-item--selected {
+    background: var(--triply-surface-2) !important;
+  }
+}
+
+// ─── Cards ─────────────────────────────────────────────────────────────────────
+mat-card, .mat-mdc-card {
+  border-radius: var(--triply-radius-md) !important;
+  box-shadow: var(--triply-shadow-sm) !important;
+  border: none;
+  background: var(--triply-surface-1) !important;
+  --mdc-elevated-card-container-color: var(--triply-surface-1);
+  --mdc-outlined-card-container-color: var(--triply-surface-1);
+  --mat-card-subtitle-text-color: var(--triply-text-secondary);
+  transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-normal);
+}
+
+// ─── Shared View Header ────────────────────────────────────────────────────────
+.view-header {
+  margin-bottom: var(--triply-spacing-lg);
+  padding-bottom: var(--triply-spacing-md);
+
+  h1 {
+    margin: 0 0 var(--triply-spacing-xs) 0;
+    font-size: var(--triply-font-xl);
+    font-weight: 700;
+    color: var(--triply-text-primary);
+  }
+
+  p {
+    color: var(--triply-text-secondary);
+    margin: 0;
+    font-size: var(--triply-font-base);
+  }
+}
+
+// ─── Shared Search Form Card ───────────────────────────────────────────────────
+.search-form-card {
+  margin-bottom: var(--triply-spacing-lg);
+  padding: var(--triply-spacing-md);
+  overflow: hidden;
+  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+
+  @media (min-width: 600px) {
+    padding: var(--triply-spacing-lg);
+  }
+
+  &.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    border-color: transparent;
+    box-shadow: none !important;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease;
+  }
+
+  mat-card-header {
+    margin-bottom: var(--triply-spacing-lg);
+
+    mat-card-title {
+      font-family: var(--triply-font-family);
+      font-size: var(--triply-font-lg);
+      font-weight: 700;
+      color: var(--triply-text-primary);
+    }
+  }
+}
+
+// ─── Search Toggle Bar ─────────────────────────────────────────────────────────
+.search-toggle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--triply-surface-1);
+  border: none;
+  border-radius: var(--triply-radius-md);
+  box-shadow: var(--triply-shadow-sm);
+  padding: 12px 16px;
+  margin-bottom: var(--triply-spacing-lg);
+  cursor: pointer;
+  transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-normal);
+  min-height: var(--triply-touch-min);
+
+  @media (min-width: 600px) {
+    padding: 12px 24px;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      box-shadow: var(--triply-shadow-md);
+    }
+  }
+
+  .toggle-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--triply-text-primary);
+    font-family: var(--triply-font-family);
+    font-size: var(--triply-font-md);
+    font-weight: 600;
+
+    mat-icon {
+      color: var(--triply-primary);
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .toggle-action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--triply-primary);
+    font-family: var(--triply-font-family);
+    font-size: var(--triply-font-base);
+    font-weight: 600;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// ─── Form Row ──────────────────────────────────────────────────────────────────
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--triply-spacing-md);
+  margin-bottom: var(--triply-spacing-sm);
+
+  > * {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  mat-form-field,
+  .mat-mdc-form-field {
+    flex: 1 1 100% !important;
+    min-width: 0;
+    width: 100% !important;
+  }
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    > * {
+      flex: 1 1 200px;
+      min-width: 200px;
+    }
+
+    mat-form-field,
+    .mat-mdc-form-field {
+      flex: 1 1 200px !important;
+      min-width: 200px;
+      width: auto !important;
+    }
+  }
+}
+
+// ─── Search Button ─────────────────────────────────────────────────────────────
+.search-button {
+  width: 100%;
+  margin-top: var(--triply-spacing-md);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }
+}
+
+// ─── Form Field Overrides ──────────────────────────────────────────────────────
+.mat-mdc-form-field.mat-form-field-appearance-outline {
+  width: 100%;
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--triply-border) !important;
+  }
+
+  .mdc-notched-outline__leading {
+    border-radius: var(--triply-radius-sm) 0 0 var(--triply-radius-sm) !important;
+  }
+  .mdc-notched-outline__trailing {
+    border-radius: 0 var(--triply-radius-sm) var(--triply-radius-sm) 0 !important;
+  }
+
+  &:hover .mdc-notched-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #D1D5DB !important;
+    }
+  }
+
+  &.mat-focused .mdc-notched-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--triply-primary) !important;
+      border-width: 1px !important;
+    }
+  }
+}
+
+.mat-mdc-form-field {
+  font-family: var(--triply-font-family) !important;
+
+  .mat-mdc-input-element,
+  .mat-mdc-select-value {
+    font-family: var(--triply-font-family) !important;
+    font-size: var(--triply-font-md);
+    color: var(--triply-text-primary);
+  }
+
+  .mat-mdc-input-element::placeholder {
+    color: var(--triply-text-tertiary) !important;
+    opacity: 1;
+  }
+
+  .mat-mdc-floating-label {
+    font-family: var(--triply-font-family) !important;
+    color: var(--triply-text-tertiary) !important;
+    font-size: var(--triply-font-md);
+  }
+
+  &.mat-focused .mat-mdc-floating-label {
+    color: var(--triply-primary) !important;
+  }
+
+  .mat-mdc-form-field-hint {
+    font-size: var(--triply-font-xs);
+    color: var(--triply-text-tertiary);
+  }
+
+  .mat-mdc-form-field-error {
+    font-size: var(--triply-font-xs);
+  }
+
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    color: var(--triply-text-tertiary);
+  }
+}
+
+// ─── Button Overrides ──────────────────────────────────────────────────────────
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
+  font-family: var(--triply-font-family) !important;
+  font-weight: 600;
+  font-size: var(--triply-font-base);
+  letter-spacing: 0.2px;
+  border-radius: var(--triply-radius-md) !important;
+  box-shadow: var(--triply-shadow-colored) !important;
+  transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-fast);
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3), 0 3px 6px rgba(108, 92, 231, 0.15) !important;
+    transform: translateY(-1px);
+  }
+}
+
+// ─── Chips ─────────────────────────────────────────────────────────────────────
+.mat-mdc-chip {
+  font-family: var(--triply-font-family) !important;
+  font-size: var(--triply-font-sm);
+}
+
+// ─── Result Cards ──────────────────────────────────────────────────────────────
 .result-card {
   margin-bottom: var(--triply-spacing-md);
 
   .result-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: flex-start;
+    gap: var(--triply-spacing-sm);
     margin-bottom: var(--triply-spacing-md);
+
+    @media (min-width: 600px) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
   }
 
   .result-info {
@@ -52,17 +488,17 @@ body {
   }
 
   .result-name {
-    font-size: 1.1rem;
+    font-size: var(--triply-font-lg);
     font-weight: 500;
     margin: 0 0 var(--triply-spacing-sm) 0;
-    color: var(--mat-sys-on-surface);
+    color: var(--triply-text-primary);
   }
 
   .result-meta {
     display: flex;
     align-items: center;
     gap: 6px;
-    color: var(--mat-sys-on-surface-variant);
+    color: var(--triply-text-secondary);
 
     mat-icon {
       font-size: 18px;
@@ -71,7 +507,7 @@ body {
     }
 
     .separator {
-      color: var(--mat-sys-outline);
+      color: var(--triply-border);
     }
   }
 
@@ -81,12 +517,12 @@ body {
     .amount {
       font-size: 1.4rem;
       font-weight: bold;
-      color: var(--mat-sys-primary);
+      color: var(--triply-primary);
     }
 
     .price-label {
-      font-size: 0.8rem;
-      color: var(--mat-sys-on-surface-variant);
+      font-size: var(--triply-font-sm);
+      color: var(--triply-text-secondary);
     }
   }
 
@@ -100,7 +536,7 @@ body {
       display: flex;
       align-items: center;
       gap: 4px;
-      color: var(--mat-sys-on-surface-variant);
+      color: var(--triply-text-secondary);
 
       mat-icon {
         font-size: 18px;
@@ -113,17 +549,28 @@ body {
       }
     }
   }
+}
 
-  @media (max-width: 600px) {
-    .result-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--triply-spacing-sm);
+// ─── Touch-friendly Inputs ─────────────────────────────────────────────────────
+.mat-mdc-form-field .mat-mdc-input-element {
+  min-height: var(--triply-touch-min);
+}
+
+// ─── Mobile Fullscreen Dialogs ─────────────────────────────────────────────────
+@media (max-width: 599px) {
+  .mobile-fullscreen-dialog {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    width: 100vw !important;
+    height: 100vh !important;
+
+    .mat-mdc-dialog-container .mdc-dialog__surface {
+      border-radius: 0 !important;
     }
   }
 }
 
-// Shared empty state card styles
+// ─── Empty State Cards ─────────────────────────────────────────────────────────
 .empty-state-card {
   text-align: center;
   padding: var(--triply-spacing-xl);
@@ -140,11 +587,11 @@ body {
     font-size: 48px;
     height: 48px;
     width: 48px;
-    color: var(--mat-sys-on-surface-variant);
+    color: var(--triply-text-tertiary);
   }
 
   p {
-    color: var(--mat-sys-on-surface-variant);
+    color: var(--triply-text-secondary);
     margin: 0;
   }
 }

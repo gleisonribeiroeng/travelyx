@@ -12,20 +12,9 @@ import { withBackoff } from './retry.utils';
 export type { TourSearchParams } from './tour.mapper';
 
 /**
- * TourApiService handles Viator Partner API integration for tours and experiences search.
- *
- * Features:
- * - Tours/experiences search with automatic mapping to Activity model
- * - Rate-limit retry with exponential backoff
- * - Standard X-API-Key authentication via apiKeyInterceptor (NOT RapidAPI)
- * - Per-source error isolation with fallback to empty results
- *
- * Extends BaseApiService('tours') for common HTTP patterns.
- *
- * NOTE: Viator Partner API may require a partnership application with lead time.
- * The endpoint path `/partner/products/search` and parameters are based on public
- * API documentation. They MUST be verified when the Viator partnership is approved.
- * The mapper is designed to handle response format uncertainty with safe fallback chains.
+ * TourApiService — calls NestJS backend which proxies Viator Partner API.
+ * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
+ * or raw Viator response in real mode (needs mapping).
  */
 @Injectable({ providedIn: 'root' })
 export class TourApiService extends BaseApiService {
@@ -35,15 +24,6 @@ export class TourApiService extends BaseApiService {
     super('tours');
   }
 
-  /**
-   * Search for tours and experiences based on destination.
-   *
-   * NOTE: This endpoint uses POST (not GET) because Viator /products/search accepts
-   * complex filtering criteria in the request body.
-   *
-   * @param params Tour search criteria
-   * @returns Observable<ApiResult<Activity[]>> with mapped tours or error
-   */
   searchTours(params: TourSearchParams): Observable<ApiResult<Activity[]>> {
     return this.post<any>('/partner/products/search', {
       filtering: { destination: params.destination },
@@ -53,7 +33,9 @@ export class TourApiService extends BaseApiService {
       withBackoff(),
       map(
         (response): ApiResult<Activity[]> => {
-          // Defensive extraction - API may return products at different nesting levels
+          if (response._mock) {
+            return { data: response.data, error: null };
+          }
           const results =
             response.products || response.data?.products || response.data || [];
           const products = Array.isArray(results) ? results : [];

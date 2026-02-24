@@ -6,7 +6,7 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TransportApiService, TransportSearchParams } from '../../core/api/transport-api.service';
@@ -24,7 +24,7 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 export class TransportSearchComponent {
   private readonly transportApi = inject(TransportApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   // Form controls
   transportSearchForm = new FormGroup({
@@ -34,6 +34,7 @@ export class TransportSearchComponent {
   });
 
   // Search state signals
+  formCollapsed = signal(false);
   searchResults = signal<Transport[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
@@ -78,6 +79,7 @@ export class TransportSearchComponent {
     this.isSearching.set(true);
     this.hasSearched.set(true);
     this.errorMessage.set(null);
+    this.formCollapsed.set(true);
 
     this.transportApi
       .searchTransport({
@@ -97,7 +99,7 @@ export class TransportSearchComponent {
           }
         },
         error: () => {
-          this.errorMessage.set('An unexpected error occurred. Please try again.');
+          this.errorMessage.set('Ocorreu um erro inesperado. Tente novamente.');
           this.errorSource.set('Transport');
           this.searchResults.set([]);
         },
@@ -119,13 +121,14 @@ export class TransportSearchComponent {
       refId: transport.id,
       date: transport.departureAt.split('T')[0],
       timeSlot: transport.departureAt.split('T')[1]?.substring(0, 5) || null,
-      label: `${transport.mode.charAt(0).toUpperCase() + transport.mode.slice(1)}: ${transport.origin} → ${transport.destination}`,
+      durationMinutes: null,
+      label: `Transporte: ${transport.origin} → ${transport.destination}`,
       notes: '',
       order: 0,
+      isPaid: false,
+      attachment: null,
     });
-    this.snackBar.open('Transport added to itinerary', 'Close', {
-      duration: 3000,
-    });
+    this.notify.success('Transporte adicionado ao roteiro');
   }
 
   // Set mode filter

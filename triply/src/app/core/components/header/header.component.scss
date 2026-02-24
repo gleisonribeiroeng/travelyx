@@ -3,10 +3,10 @@ mat-toolbar {
   color: var(--mat-sys-on-primary);
 }
 
-.app-name {
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.app-logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
 }
 
 .spacer {
@@ -32,9 +32,83 @@ mat-toolbar {
   border-radius: var(--triply-border-radius-sm);
 }
 
-// Hamburger toggle - hidden on desktop
-.menu-toggle {
+// ── User chip ──
+
+// Mobile-first: compact chip, user name hidden
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+  padding: 4px 8px 4px 4px;
+  border: none;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--mat-sys-on-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 500;
   display: none;
+}
+
+.dropdown-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  margin-left: -4px;
+}
+
+// ── User menu dropdown ──
+
+.menu-header {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 0.9rem;
+    color: var(--triply-text-primary);
+  }
+
+  small {
+    font-size: 0.8rem;
+    color: var(--triply-text-secondary);
+  }
+}
+
+.logout-link {
+  color: #ef4444 !important;
+}
+
+// Desktop nav — hidden on mobile
+.desktop-nav {
+  display: none;
+}
+
+// Hamburger toggle — visible on mobile with touch-friendly target
+.menu-toggle {
+  display: inline-flex;
+  min-width: var(--triply-touch-min, 48px);
+  min-height: var(--triply-touch-min, 48px);
   color: var(--mat-sys-on-primary);
 }
 
@@ -64,12 +138,21 @@ mat-toolbar {
   }
 }
 
-@media (max-width: 768px) {
+// Desktop: show nav links, hide hamburger, show user name
+@media (min-width: 960px) {
   .desktop-nav {
-    display: none;
+    display: flex;
   }
 
   .menu-toggle {
-    display: inline-flex;
+    display: none;
+  }
+
+  .user-chip {
+    margin-left: 12px;
+
+    .user-name {
+      display: inline;
+    }
   }
 }

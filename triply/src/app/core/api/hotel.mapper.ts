@@ -4,84 +4,67 @@ import { Stay } from '../models/trip.models';
 
 /**
  * Booking.com hotel response shape from booking-com15.p.rapidapi.com API.
- * Most fields are optional because API responses vary by hotel and availability.
+ * Data is nested under data.hotels[].property in the API response.
  */
 export interface BookingComHotel {
   hotel_id: number;
-  hotel_name?: string;
-  hotel_name_trans?: string;
-  latitude?: number | string;
-  longitude?: number | string;
-  address?: string;
-  address_trans?: string;
-  review_score?: number; // 0-10 scale from Booking.com
-  min_total_price?: number;
-  composite_price_breakdown?: {
-    gross_amount?: {
-      value?: number;
-      currency?: string;
+  property: {
+    id?: number;
+    name?: string;
+    latitude?: number;
+    longitude?: number;
+    wishlistName?: string; // City name (e.g. "Paris")
+    countryCode?: string;
+    reviewScore?: number; // 0-10 scale
+    reviewCount?: number;
+    reviewScoreWord?: string;
+    propertyClass?: number; // Star rating
+    currency?: string;
+    priceBreakdown?: {
+      grossPrice?: {
+        value?: number;
+        currency?: string;
+      };
     };
+    photoUrls?: string[];
+    checkinDate?: string;
+    checkoutDate?: string;
   };
-  currency_code?: string;
-  url?: string;
-  checkin?: { until?: string; from?: string };
-  checkout?: { until?: string; from?: string };
 }
 
 /**
  * HotelMapper transforms Booking.com API responses into canonical Stay models.
- *
- * Features:
- * - Converts 0-10 review score to 0-5 rating scale
- * - Calculates price per night from total price and date range
- * - Preserves datetime fields as ISO 8601 strings (no Date objects)
- * - Handles optional fields with sensible fallbacks
  */
 @Injectable({ providedIn: 'root' })
 export class HotelMapper implements Mapper<BookingComHotel, Stay> {
-  /**
-   * Transform a Booking.com hotel response into a canonical Stay model.
-   *
-   * @param raw The external Booking.com hotel object
-   * @param checkIn Optional check-in date (YYYY-MM-DD) from search params
-   * @param checkOut Optional check-out date (YYYY-MM-DD) from search params
-   * @returns Canonical Stay model
-   */
   mapResponse(raw: BookingComHotel, checkIn?: string, checkOut?: string): Stay {
-    const ci = checkIn || '';
-    const co = checkOut || '';
+    const prop = raw.property || {} as BookingComHotel['property'];
+    const ci = checkIn || prop.checkinDate || '';
+    const co = checkOut || prop.checkoutDate || '';
 
-    // Extract total price from either field
-    const totalPrice =
-      raw.min_total_price ||
-      raw.composite_price_breakdown?.gross_amount?.value ||
-      0;
+    const totalPrice = prop.priceBreakdown?.grossPrice?.value || 0;
+    const currency = 'BRL'; // TODO: dynamic currency based on user locale
 
-    // Calculate number of nights to derive price per night
     const nights = this.calculateNights(ci, co);
     const pricePerNight = nights > 0 ? totalPrice / nights : totalPrice;
 
-    // Extract currency
-    const currency =
-      raw.currency_code ||
-      raw.composite_price_breakdown?.gross_amount?.currency ||
-      'USD';
-
-    // Convert 0-10 review score to 0-5 rating, round to 1 decimal
+    // Convert 0-10 review score to 0-5 rating
     const rating =
-      raw.review_score != null
-        ? Math.round((raw.review_score / 2) * 10) / 10
+      prop.reviewScore != null
+        ? Math.round((prop.reviewScore / 2) * 10) / 10
         : null;
 
+    const hotelId = prop.id || raw.hotel_id;
+
     return {
-      id: String(raw.hotel_id),
+      id: String(hotelId),
       source: 'hotel',
-      name: raw.hotel_name_trans || raw.hotel_name || 'Unknown Hotel',
+      name: prop.name || 'Unknown Hotel',
       location: {
-        latitude: parseFloat(String(raw.latitude || 0)),
-        longitude: parseFloat(String(raw.longitude || 0)),
+        latitude: prop.latitude || 0,
+        longitude: prop.longitude || 0,
       },
-      address: raw.address_trans || raw.address || '',
+      address: [prop.wishlistName, prop.countryCode?.toUpperCase()].filter(Boolean).join(', '),
       checkIn: ci,
       checkOut: co,
       pricePerNight: {
@@ -89,22 +72,17 @@ export class HotelMapper implements Mapper<BookingComHotel, Stay> {
         currency,
       },
       rating,
+      reviewCount: prop.reviewCount ?? 0,
+      photoUrl: prop.photoUrls?.[0] || null,
+      images: prop.photoUrls || [],
       link: {
-        url: raw.url || 'https://www.booking.com',
+        url: `https://www.booking.com/hotel/searchresults.html?aid=304142&dest_id=${hotelId}`,
         provider: 'Booking.com',
       },
       addedToItinerary: false,
     };
   }
 
-  /**
-   * Calculate number of nights between check-in and check-out dates.
-   * Returns at least 1 to avoid division by zero when computing price per night.
-   *
-   * @param checkIn Check-in date string (YYYY-MM-DD)
-   * @param checkOut Check-out date string (YYYY-MM-DD)
-   * @returns Number of nights (minimum 1)
-   */
   private calculateNights(checkIn: string, checkOut: string): number {
     if (!checkIn || !checkOut) {
       return 1;

@@ -2,73 +2,85 @@ import { Injectable } from '@angular/core';
 import { CarRental } from '../models/trip.models';
 
 /**
- * Booking.com car rental response shape from booking-com15.p.rapidapi.com API.
- * All fields are optional because API response format is hypothetical and may vary.
+ * Priceline car rental result shape from priceline-com-provider.p.rapidapi.com.
  */
-export interface BookingComCar {
-  vehicle_id?: number | string;
-  vehicle_name?: string;
-  vehicle_category?: string; // e.g. "Economy", "Compact", "SUV"
-  group?: string; // Alternative field for vehicle category
-  price?: number;
-  total_price?: number;
-  currency?: string;
-  url?: string;
-  deep_link?: string;
-  supplier?: string; // e.g. "Hertz", "Avis"
-  supplier_name?: string;
+export interface PricelineCar {
+  partner?: { name?: string; logo?: string };
+  car?: {
+    example?: string;
+    description?: string;
+    type_name?: string;
+    vehicle_code?: string;
+    passengers?: string;
+    doors?: string;
+    bags?: { small?: string; large?: string };
+    transmission?: string;
+    imageURL?: string;
+    images?: { SIZE335X180?: string };
+  };
+  pickup?: { location?: string; latitude?: string; longitude?: string };
+  dropoff?: { location?: string; latitude?: string; longitude?: string };
+  price_details?: {
+    display?: {
+      price?: string;
+      total_price?: string;
+      currency?: string;
+      symbol?: string;
+    };
+  };
+  num_rental_days?: string;
 }
 
 /**
- * Car rental search parameters.
- * Used by CarApiService and CarMapper to structure search requests.
+ * Car rental search parameters for Priceline API.
+ * Uses city IDs resolved from the autoComplete endpoint.
  */
 export interface CarSearchParams {
-  pickupLocation: string; // City name or airport code (plain text)
-  dropoffLocation: string; // City name or airport code (plain text)
-  pickupAt: string; // ISO 8601 datetime: 2026-03-15T10:00:00
-  dropoffAt: string; // ISO 8601 datetime: 2026-03-20T10:00:00
-  driverAge: number; // Default 30, range 18-99
-  currency?: string; // Default 'USD'
+  pickupLocationName: string;
+  dropoffLocationName: string;
+  pickupCityId: string;
+  dropoffCityId: string;
+  pickupDate: string; // MM/DD/YYYY
+  pickupTime: string; // HH:MM
+  dropoffDate: string; // MM/DD/YYYY
+  dropoffTime: string; // HH:MM
+  driverAge: number;
 }
 
 /**
- * CarMapper transforms Booking.com car rental API responses into canonical CarRental models.
- *
- * Features:
- * - Maps hypothetical BookingComCar response to CarRental model
- * - Uses safe fallback chains for all optional fields
- * - Echoes location and datetime fields from search params (not API response)
- * - Preserves datetime fields as ISO 8601 strings (no Date objects)
- * - Does NOT implement Mapper interface (signature differs - takes two params)
+ * CarMapper transforms Priceline car rental API responses into canonical CarRental models.
  */
 @Injectable({ providedIn: 'root' })
 export class CarMapper {
-  /**
-   * Transform a Booking.com car rental response into a canonical CarRental model.
-   *
-   * @param raw The external Booking.com car object
-   * @param params Search parameters containing pickup/dropoff locations and datetimes
-   * @returns Canonical CarRental model
-   */
-  mapResponse(raw: BookingComCar, params: CarSearchParams): CarRental {
+  mapResponse(raw: PricelineCar, params: CarSearchParams): CarRental {
+    const car = raw.car || {};
+    const price = raw.price_details?.display;
+    const partner = raw.partner?.name || 'Priceline';
+
     return {
-      id: String(raw.vehicle_id || crypto.randomUUID()),
+      id: crypto.randomUUID(),
       source: 'carRental',
       addedToItinerary: false,
-      vehicleType: raw.vehicle_category || raw.group || 'Unknown',
-      pickUpLocation: params.pickupLocation,
-      dropOffLocation: params.dropoffLocation,
-      pickUpAt: params.pickupAt,
-      dropOffAt: params.dropoffAt,
+      vehicleType: car.description || car.type_name || car.example || 'Unknown',
+      pickUpLocation: raw.pickup?.location || params.pickupLocationName,
+      dropOffLocation: raw.dropoff?.location || params.dropoffLocationName,
+      pickUpAt: this.toIsoDateTime(params.pickupDate, params.pickupTime),
+      dropOffAt: this.toIsoDateTime(params.dropoffDate, params.dropoffTime),
       price: {
-        total: raw.price || raw.total_price || 0,
-        currency: raw.currency || 'USD',
+        total: parseFloat(price?.total_price || price?.price || '0'),
+        currency: 'BRL', // TODO: dynamic currency based on user locale
       },
+      images: [car.imageURL, car.images?.SIZE335X180].filter((u): u is string => !!u),
       link: {
-        url: raw.url || raw.deep_link || 'https://www.booking.com',
-        provider: raw.supplier || raw.supplier_name || 'Booking.com',
+        url: 'https://www.priceline.com',
+        provider: partner,
       },
     };
+  }
+
+  /** Convert MM/DD/YYYY + HH:MM to ISO 8601 datetime string. */
+  private toIsoDateTime(date: string, time: string): string {
+    const [month, day, year] = date.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${time}:00`;
   }
 }

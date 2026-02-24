@@ -1,0 +1,47 @@
+<aside class="right-panel">
+  @if (user()) {
+    <div class="profile-section">
+      <img [src]="user()!.picture" alt="" class="profile-avatar" referrerpolicy="no-referrer">
+      <h3 class="profile-name">{{ user()!.name }}</h3>
+      <p class="profile-email">{{ user()!.email }}</p>
+    </div>
+  }
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <mat-icon class="stat-icon flights">flight</mat-icon>
+      <span class="stat-label">Voos</span>
+      <span class="stat-number">{{ flightCount() }}</span>
+    </div>
+    <div class="stat-box">
+      <mat-icon class="stat-icon hotels">hotel</mat-icon>
+      <span class="stat-label">Hotéis</span>
+      <span class="stat-number">{{ hotelCount() }}</span>
+    </div>
+    <div class="stat-box">
+      <mat-icon class="stat-icon activities">local_activity</mat-icon>
+      <span class="stat-label">Passeios</span>
+      <span class="stat-number">{{ activityCount() }}</span>
+    </div>
+  </div>
+
+  <div class="cta-card">
+    @if (hasTrip()) {
+      <mat-icon class="cta-icon">map</mat-icon>
+      <h4>{{ trip().destination || 'Minha Viagem' }}</h4>
+      @if (trip().dates.start) {
+        <p class="cta-dates">{{ trip().dates.start }} — {{ trip().dates.end }}</p>
+      }
+      <button mat-flat-button class="cta-button" (click)="navigateTo('/itinerary')">
+        Ver Roteiro
+      </button>
+    } @else {
+      <mat-icon class="cta-icon">explore</mat-icon>
+      <h4>Comece sua viagem</h4>
+      <p>Planeje seu destino, voos e hospedagem</p>
+      <button mat-flat-button class="cta-button" (click)="navigateTo('/planner')">
+        Planejar Viagem
+      </button>
+    }
+  </div>
+</aside>

@@ -1,5 +1,9 @@
-import { Injectable, signal, computed, effect, inject } from '@angular/core';
-import { LocalStorageService } from './local-storage.service';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { tap, map, catchError } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 import {
   Trip,
   Flight,
@@ -9,9 +13,8 @@ import {
   Activity,
   Attraction,
   ItineraryItem,
+  AttachmentMeta,
 } from '../models/trip.models';
-
-const STORAGE_KEY = 'triply_trip';
 
 const DEFAULT_TRIP: Trip = {
   id: crypto.randomUUID(),
@@ -29,27 +32,17 @@ const DEFAULT_TRIP: Trip = {
   updatedAt: new Date().toISOString(),
 };
 
-/**
- * Signal-based single source of truth for all trip data.
- *
- * - Hydrates from localStorage synchronously on construction (startup recovery).
- * - Auto-persists every state change via a root effect().
- * - Exposes all data as readonly signals and computed slices.
- * - Accepts mutations only through explicit public methods.
- */
 @Injectable({ providedIn: 'root' })
 export class TripStateService {
-  private readonly storage = inject(LocalStorageService);
+  private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/trips`;
 
-  /** Private writable signal — hydrated from localStorage on construction. */
-  private readonly _trip = signal<Trip>(
-    this.storage.get<Trip>(STORAGE_KEY) ?? { ...DEFAULT_TRIP }
-  );
+  private readonly _trip = signal<Trip>({ ...DEFAULT_TRIP });
 
-  /** Public readonly view — components read this, never _trip directly. */
   readonly trip = this._trip.asReadonly();
+  readonly isLoading = signal(false);
 
-  // Computed slices — each exposes one array from the trip.
   readonly flights = computed(() => this._trip().flights);
   readonly stays = computed(() => this._trip().stays);
   readonly carRentals = computed(() => this._trip().carRentals);
@@ -58,11 +51,53 @@ export class TripStateService {
   readonly attractions = computed(() => this._trip().attractions);
   readonly itineraryItems = computed(() => this._trip().itineraryItems);
   readonly hasItems = computed(() => this._trip().itineraryItems.length > 0);
+  readonly paidItemCount = computed(() =>
+    this._trip().itineraryItems.filter(i => i.isPaid).length
+  );
 
-  constructor() {
-    // Auto-persist: re-runs whenever _trip() changes.
-    effect(() => {
-      this.storage.set(STORAGE_KEY, this._trip());
+  private syncTimer: ReturnType<typeof setTimeout> | null = null;
+  private _synced = false;
+
+  /**
+   * Load the user's trip from the API (DB).
+   * Returns an Observable so callers can wait for completion.
+   */
+  loadFromApi(): Observable<void> {
+    this.isLoading.set(true);
+    return this.http.get<Trip[]>(this.baseUrl).pipe(
+      tap((trips) => {
+        if (trips.length > 0) {
+          this._trip.set(trips[0]);
+        }
+        this._synced = true;
+        this.isLoading.set(false);
+      }),
+      map(() => void 0),
+      catchError(() => {
+        this._synced = true;
+        this.isLoading.set(false);
+        return of(void 0);
+      })
+    );
+  }
+
+  private scheduleSyncToApi(): void {
+    if (!this.auth.isLoggedIn()) return;
+    if (this.syncTimer) clearTimeout(this.syncTimer);
+    this.syncTimer = setTimeout(() => this.syncToApi(), 800);
+  }
+
+  private syncToApi(): void {
+    if (!this.auth.isLoggedIn() || !this._synced) return;
+    const t = this._trip();
+    this.http.put<Trip>(`${this.baseUrl}/${t.id}`, t).subscribe({
+      next: () => {},
+      error: () => {
+        // If trip doesn't exist yet on server, create it
+        this.http.post<Trip>(this.baseUrl, t).subscribe({
+          next: (saved) => this._trip.set(saved),
+        });
+      },
     });
   }
 
@@ -82,6 +117,7 @@ export class TripStateService {
       dates,
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   // ---------------------------------------------------------------------------
@@ -94,6 +130,7 @@ export class TripStateService {
       flights: [...t.flights, flight],
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   removeFlight(id: string): void {
@@ -102,6 +139,7 @@ export class TripStateService {
       flights: t.flights.filter((f) => f.id !== id),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   // ---------------------------------------------------------------------------
@@ -114,6 +152,7 @@ export class TripStateService {
       stays: [...t.stays, stay],
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   removeStay(id: string): void {
@@ -122,6 +161,7 @@ export class TripStateService {
       stays: t.stays.filter((s) => s.id !== id),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   // ---------------------------------------------------------------------------
@@ -134,6 +174,7 @@ export class TripStateService {
       carRentals: [...t.carRentals, car],
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   removeCarRental(id: string): void {
@@ -142,6 +183,7 @@ export class TripStateService {
       carRentals: t.carRentals.filter((c) => c.id !== id),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   // ---------------------------------------------------------------------------
@@ -154,6 +196,7 @@ export class TripStateService {
       transports: [...t.transports, transport],
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   removeTransport(id: string): void {
@@ -162,6 +205,7 @@ export class TripStateService {
       transports: t.transports.filter((tr) => tr.id !== id),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   // ---------------------------------------------------------------------------
@@ -174,6 +218,7 @@ export class TripStateService {
       activities: [...t.activities, activity],
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   removeActivity(id: string): void {
@@ -182,6 +227,7 @@ export class TripStateService {
       activities: t.activities.filter((a) => a.id !== id),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   // ---------------------------------------------------------------------------
@@ -194,6 +240,7 @@ export class TripStateService {
       attractions: [...t.attractions, attraction],
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   removeAttraction(id: string): void {
@@ -202,6 +249,7 @@ export class TripStateService {
       attractions: t.attractions.filter((a) => a.id !== id),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   // ---------------------------------------------------------------------------
@@ -214,6 +262,7 @@ export class TripStateService {
       itineraryItems: [...t.itineraryItems, item],
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   removeItineraryItem(id: string): void {
@@ -222,6 +271,7 @@ export class TripStateService {
       itineraryItems: t.itineraryItems.filter((i) => i.id !== id),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
   }
 
   updateItineraryItem(updated: ItineraryItem): void {
@@ -232,6 +282,28 @@ export class TripStateService {
       ),
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
+  }
+
+  toggleItemPaid(itemId: string): void {
+    this._trip.update((t) => ({
+      ...t,
+      itineraryItems: t.itineraryItems.map((i) =>
+        i.id === itemId ? { ...i, isPaid: !i.isPaid } : i
+      ),
+      updatedAt: new Date().toISOString(),
+    }));
+    this.scheduleSyncToApi();
+  }
+
+  setItemAttachment(itemId: string, attachment: AttachmentMeta | null): void {
+    this._trip.update((t) => ({
+      ...t,
+      itineraryItems: t.itineraryItems.map((i) =>
+        i.id === itemId ? { ...i, attachment } : i
+      ),
+      updatedAt: new Date().toISOString(),
+    }));
   }
 
   // ---------------------------------------------------------------------------
@@ -239,7 +311,12 @@ export class TripStateService {
   // ---------------------------------------------------------------------------
 
   resetTrip(): void {
-    this.storage.remove(STORAGE_KEY);
+    const oldId = this._trip().id;
+
+    if (this.auth.isLoggedIn() && this._synced) {
+      this.http.delete(`${this.baseUrl}/${oldId}`).subscribe();
+    }
+
     this._trip.set({
       ...DEFAULT_TRIP,
       id: crypto.randomUUID(),

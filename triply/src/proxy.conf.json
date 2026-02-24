@@ -1,65 +1,8 @@
 {
-  "/api/amadeus": {
-    "target": "https://test.api.amadeus.com",
+  "/api": {
+    "target": "http://localhost:3000",
     "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/amadeus": ""
-    },
-    "secure": true,
-    "logLevel": "debug"
-  },
-  "/api/hotels": {
-    "target": "https://booking-com15.p.rapidapi.com",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/hotels": ""
-    },
-    "secure": true,
-    "logLevel": "debug"
-  },
-  "/api/cars": {
-    "target": "https://booking-com15.p.rapidapi.com",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/cars": ""
-    },
-    "secure": true,
-    "logLevel": "debug"
-  },
-  "/api/transport": {
-    "target": "https://api.example.com",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/transport": ""
-    },
-    "secure": true,
-    "logLevel": "debug"
-  },
-  "/api/tours": {
-    "target": "https://api.viator.com",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/tours": ""
-    },
-    "secure": true,
-    "logLevel": "debug"
-  },
-  "/api/attractions": {
-    "target": "https://api.opentripmap.com",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/attractions": ""
-    },
-    "secure": true,
-    "logLevel": "debug"
-  },
-  "/api/places": {
-    "target": "https://maps.googleapis.com",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/places": ""
-    },
-    "secure": true,
+    "secure": false,
     "logLevel": "debug"
   }
 }

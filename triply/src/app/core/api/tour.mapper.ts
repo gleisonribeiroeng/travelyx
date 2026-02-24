@@ -28,6 +28,10 @@ export interface ViatorProduct {
   duration?: {
     fixedDurationInMinutes?: number;
   };
+  reviews?: {
+    combinedAverageRating?: number;
+    totalReviews?: number;
+  };
 }
 
 /**
@@ -72,10 +76,15 @@ export class TourMapper {
       },
       city: params.destination,
       durationMinutes: raw.duration?.fixedDurationInMinutes ?? null,
+      rating: raw.reviews?.combinedAverageRating ?? null,
+      reviewCount: raw.reviews?.totalReviews ?? 0,
       price: {
         total: raw.pricing?.summary?.fromPrice || 0,
-        currency: raw.pricing?.currency || 'USD',
+        currency: 'BRL', // TODO: dynamic currency based on user locale
       },
+      images: (raw.images || [])
+        .map(img => img.variants?.[0]?.url)
+        .filter((u): u is string => !!u),
       link: {
         url: raw.bookingInfo?.bookingUrl || '#',
         provider: 'Viator',

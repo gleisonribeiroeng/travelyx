@@ -62,6 +62,12 @@ export interface Stay extends SearchResultBase {
   pricePerNight: Price;
   /** Rating on 0-5 scale; null if unavailable */
   rating: number | null;
+  /** Number of reviews; 0 if unavailable */
+  reviewCount: number;
+  /** Hotel photo URL; null if unavailable */
+  photoUrl: string | null;
+  /** Gallery image URLs */
+  images: string[];
   link: ExternalLink;
 }
 
@@ -77,6 +83,8 @@ export interface CarRental extends SearchResultBase {
   /** ISO 8601 datetime string */
   dropOffAt: string;
   price: Price;
+  /** Gallery image URLs */
+  images: string[];
   link: ExternalLink;
 }
 
@@ -106,7 +114,13 @@ export interface Activity extends SearchResultBase {
   city: string;
   /** Duration in minutes; null if variable/unknown */
   durationMinutes: number | null;
+  /** Rating on 0-5 scale; null if unavailable */
+  rating: number | null;
+  /** Number of reviews; 0 if unavailable */
+  reviewCount: number;
   price: Price;
+  /** Gallery image URLs */
+  images: string[];
   link: ExternalLink;
 }
 
@@ -119,6 +133,8 @@ export interface Attraction extends SearchResultBase {
   location: GeoLocation;
   city: string;
   category: string;
+  /** Gallery image URLs */
+  images: string[];
   /** null when the attraction has no official external page */
   link: ExternalLink | null;
 }
@@ -135,6 +151,14 @@ export type ItineraryItemType =
   | 'attraction'
   | 'custom';
 
+export interface AttachmentMeta {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
 /**
  * A single entry on the trip itinerary timeline.
  * References a domain model via refId, or stands alone for custom items.
@@ -149,8 +173,12 @@ export interface ItineraryItem {
   /** 24-hour time string (HH:MM); null for all-day items */
   timeSlot: string | null;
   label: string;
+  /** Duration in minutes; null for all-day items */
+  durationMinutes: number | null;
   /** Additional free-text notes; defaults to empty string */
   notes: string;
   /** Integer sort key within day + timeSlot group */
   order: number;
+  isPaid: boolean;
+  attachment: AttachmentMeta | null;
 }

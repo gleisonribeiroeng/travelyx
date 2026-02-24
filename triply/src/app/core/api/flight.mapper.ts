@@ -62,7 +62,7 @@ export class FlightMapper implements Mapper<AmadeusFlightOffer, Flight> {
       stops: segments.length - 1,
       price: {
         total: parseFloat(raw.price.total),
-        currency: raw.price.currency,
+        currency: 'BRL', // TODO: dynamic currency based on user locale
       },
       link: {
         url: `https://www.amadeus.com/booking/${raw.id}`,

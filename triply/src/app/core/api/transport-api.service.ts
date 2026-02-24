@@ -12,20 +12,9 @@ import { withBackoff } from './retry.utils';
 export type { TransportSearchParams } from './transport.mapper';
 
 /**
- * TransportApiService handles intercity transport API integration for bus, train, and ferry routes.
- *
- * Features:
- * - Intercity transport search with automatic mapping to Transport model
- * - Rate-limit retry with exponential backoff
- * - Standard X-API-Key authentication via apiKeyInterceptor (NOT RapidAPI)
- * - Per-source error isolation with fallback to empty results
- *
- * Extends BaseApiService('transport') for common HTTP patterns.
- *
- * NOTE: API provider is TBD. The endpoint path `/api/v1/transport/search` and parameter
- * names are HYPOTHETICAL placeholders. They MUST be updated when the actual transport
- * API provider is selected. The mapper is designed to handle response format uncertainty
- * with safe fallback chains.
+ * TransportApiService — calls NestJS backend for intercity transport (bus, train, ferry).
+ * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
+ * or raw API response in real mode (needs mapping).
  */
 @Injectable({ providedIn: 'root' })
 export class TransportApiService extends BaseApiService {
@@ -35,26 +24,19 @@ export class TransportApiService extends BaseApiService {
     super('transport');
   }
 
-  /**
-   * Search for intercity transport routes (bus, train, ferry) based on origin, destination, and date.
-   *
-   * NOTE: The endpoint path, parameter names, and response format are HYPOTHETICAL.
-   * They MUST be verified and updated when the actual transport API provider is selected.
-   * The mapper uses flexible fallback chains to accommodate different response structures.
-   *
-   * @param params Transport search criteria
-   * @returns Observable<ApiResult<Transport[]>> with mapped routes or error
-   */
   searchTransport(params: TransportSearchParams): Observable<ApiResult<Transport[]>> {
     return this.get<any>('/api/v1/transport/search', {
       origin: params.origin,
       destination: params.destination,
       date: params.departureDate,
-      currency: params.currency || 'USD',
+      currency: 'BRL',
     }).pipe(
       withBackoff(),
       map(
         (response): ApiResult<Transport[]> => {
+          if (response._mock) {
+            return { data: response.data, error: null };
+          }
           const results =
             response.data?.routes || response.data?.results || response.data || [];
           const routes = Array.isArray(results) ? results : [];

@@ -1,17 +1,17 @@
 import { Injectable, inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 
 /**
  * Safe wrapper around the browser localStorage API.
  *
  * All operations are wrapped in try/catch so that:
- * - QuotaExceededError surfaces a visible snackbar warning (the only visible failure).
+ * - QuotaExceededError surfaces a visible notification warning (the only visible failure).
  * - All other errors (e.g. SecurityError in private browsing) are swallowed silently
  *   so the app continues with in-memory state only.
  */
 @Injectable({ providedIn: 'root' })
 export class LocalStorageService {
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   /**
    * Retrieve and deserialize a stored value.
@@ -39,13 +39,9 @@ export class LocalStorageService {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (err) {
       if (this.isQuotaExceededError(err)) {
-        this.snackBar.open(
+        this.notify.warning(
           'Storage full — your trip could not be saved. Please remove some items.',
-          'Dismiss',
-          {
-            duration: 8000,
-            panelClass: 'snack-warning',
-          }
+          { duration: 8000 },
         );
       }
       // Non-quota errors are silently ignored; app continues with in-memory state.

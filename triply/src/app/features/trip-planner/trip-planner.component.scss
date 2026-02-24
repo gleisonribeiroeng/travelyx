@@ -1,0 +1,256 @@
+// Section labels inside cards
+.section-label {
+  font-size: var(--triply-font-base);
+  font-weight: 600;
+  color: var(--triply-text-primary);
+  margin: 20px 0 10px 0;
+
+  .label-hint {
+    font-weight: 400;
+    color: var(--triply-text-secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.option-row {
+  margin-bottom: var(--triply-spacing-md);
+}
+
+// Info badges (currency, language, timezone)
+.info-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--triply-surface-0);
+  box-shadow: var(--triply-shadow-xs);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--triply-text-secondary);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// Field hint (info messages)
+.field-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--triply-text-secondary);
+  margin: 4px 0 0 0;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--triply-primary);
+  }
+}
+
+// Chip row (option selectors)
+.chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  &.compact { gap: 6px; }
+}
+
+// Mobile-first: touch-friendly chip size
+.option-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 16px;
+  min-height: var(--triply-touch-min);
+  border: 1px solid var(--triply-border);
+  border-radius: 20px;
+  background: var(--triply-surface-1);
+  box-shadow: var(--triply-shadow-xs);
+  font-size: 0.85rem;
+  color: var(--triply-text-primary);
+  cursor: pointer;
+  transition: all var(--triply-transition-fast);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--triply-text-secondary);
+  }
+
+  &.active {
+    border-color: var(--triply-primary);
+    background: var(--triply-primary);
+    color: #ffffff;
+    box-shadow: var(--triply-shadow-colored);
+
+    mat-icon { color: #ffffff; }
+  }
+
+  &.small {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    min-height: 0;
+  }
+}
+
+// Stars selector
+.stars-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+// Mobile-first: touch-friendly star button
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: var(--triply-border);
+  }
+
+  &.on mat-icon { color: #ffc107; }
+}
+
+.stars-text {
+  margin-left: 10px;
+  font-size: 0.85rem;
+  color: var(--triply-text-secondary);
+}
+
+// Alert banner (season info)
+.alert-banner {
+  border-radius: var(--triply-radius-sm);
+  padding: 12px 16px;
+  margin-top: 16px;
+  background: var(--triply-primary-subtle);
+  border-left: 3px solid var(--triply-primary);
+  box-shadow: var(--triply-shadow-xs);
+
+  &.warn {
+    background: #fff8f0;
+    border-left-color: #ff9800;
+  }
+}
+
+.alert-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .warn & mat-icon { color: #e65100; }
+  :not(.warn) & mat-icon { color: var(--triply-primary); }
+}
+
+.alert-banner-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  > span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--triply-text-primary);
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--triply-text-secondary);
+    }
+
+    &.suggestion {
+      color: #e65100;
+      font-weight: 500;
+      mat-icon { color: #e65100; }
+    }
+  }
+}
+
+// Legal list
+.legal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legal-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--triply-text-primary);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &.warn mat-icon { color: #e65100; }
+  &.ok mat-icon { color: var(--triply-primary); }
+}
+
+// ── Hover — conditional ──
+@media (hover: hover) {
+  .option-chip:hover {
+    border-color: var(--triply-primary);
+    color: var(--triply-primary);
+
+    mat-icon { color: var(--triply-primary); }
+  }
+
+  .star-btn:hover {
+    transform: scale(1.1);
+  }
+}
+
+// ── Responsive — Mobile-first (min-width) ──
+@media (min-width: 600px) {
+  .option-chip {
+    padding: 8px 16px;
+    min-height: 0;
+  }
+
+  .star-btn {
+    padding: 2px;
+    min-width: 0;
+    min-height: 0;
+  }
+}

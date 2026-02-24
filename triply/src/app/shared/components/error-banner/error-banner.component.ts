@@ -20,10 +20,10 @@ import { MATERIAL_IMPORTS } from '../../../core/material.exports';
         <div class="error-content">
           <mat-icon color="warn">error</mat-icon>
           <div class="error-text">
-            <strong>{{ source() }} Error</strong>
+            <strong>Erro em {{ source() }}</strong>
             <p>{{ message() }}</p>
           </div>
-          <button mat-icon-button (click)="dismiss.emit()" aria-label="Dismiss error">
+          <button mat-icon-button (click)="dismiss.emit()" aria-label="Fechar erro">
             <mat-icon>close</mat-icon>
           </button>
         </div>
@@ -32,15 +32,17 @@ import { MATERIAL_IMPORTS } from '../../../core/material.exports';
   `,
   styles: [`
     .error-banner {
-      background-color: var(--mat-sys-error-container);
-      color: var(--mat-sys-on-error-container);
+      background-color: color-mix(in srgb, var(--triply-error) 8%, #fff);
+      color: var(--triply-text-primary);
       margin-bottom: var(--triply-spacing-md);
+      border-left: 4px solid var(--triply-error);
+      box-shadow: var(--triply-shadow-sm);
     }
 
     .error-content {
       display: flex;
       align-items: flex-start;
-      gap: var(--triply-spacing-sm);
+      gap: var(--triply-spacing-xs);
     }
 
     .error-text {
@@ -58,12 +60,12 @@ import { MATERIAL_IMPORTS } from '../../../core/material.exports';
     }
 
     mat-icon[color="warn"] {
-      color: var(--mat-sys-error);
+      color: var(--triply-error);
     }
 
-    @media (max-width: 600px) {
+    @media (min-width: 600px) {
       .error-content {
-        gap: var(--triply-spacing-xs);
+        gap: var(--triply-spacing-sm);
       }
     }
   `]

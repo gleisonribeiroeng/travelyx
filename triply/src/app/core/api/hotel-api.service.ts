@@ -14,32 +14,26 @@ import { withBackoff } from './retry.utils';
 export interface DestinationOption {
   destId: string;
   name: string;
-  label: string; // Display label (e.g. "Paris, France")
-  searchType: string; // e.g. "CITY"
+  label: string;
+  searchType: string;
 }
 
 /**
  * Hotel search parameters for Booking.com API.
  */
 export interface HotelSearchParams {
-  destId: string; // From destination search
-  searchType: string; // "CITY"
-  checkIn: string; // YYYY-MM-DD
-  checkOut: string; // YYYY-MM-DD
+  destId: string;
+  searchType: string;
+  checkIn: string;
+  checkOut: string;
   adults: number;
   rooms: number;
 }
 
 /**
- * HotelApiService handles Booking.com API integration via RapidAPI.
- *
- * Features:
- * - Hotel search with automatic mapping to Stay model
- * - Destination autocomplete for search form
- * - Rate-limit retry with exponential backoff
- * - RapidAPI authentication via apiKeyInterceptor (X-RapidAPI-Key, X-RapidAPI-Host)
- *
- * Extends BaseApiService('hotel') for common HTTP patterns.
+ * HotelApiService — calls NestJS backend which proxies Booking.com API via RapidAPI.
+ * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
+ * or raw Booking.com response in real mode (needs mapping).
  */
 @Injectable({ providedIn: 'root' })
 export class HotelApiService extends BaseApiService {
@@ -49,12 +43,6 @@ export class HotelApiService extends BaseApiService {
     super('hotel');
   }
 
-  /**
-   * Search for destinations by query string for autocomplete.
-   *
-   * @param query Search term (minimum 2 characters)
-   * @returns Observable<DestinationOption[]> with matching destinations
-   */
   searchDestinations(query: string): Observable<DestinationOption[]> {
     if (query.length < 2) {
       return of([]);
@@ -63,6 +51,9 @@ export class HotelApiService extends BaseApiService {
     return this.get<any>('/api/v1/hotels/searchDestination', { query }).pipe(
       withBackoff(),
       map((response) => {
+        if (response._mock) {
+          return response.data as DestinationOption[];
+        }
         const results = response.data || [];
         return results.map(
           (item: any): DestinationOption => ({
@@ -77,24 +68,23 @@ export class HotelApiService extends BaseApiService {
     );
   }
 
-  /**
-   * Search for hotels based on destination, dates, and occupancy.
-   *
-   * @param params Hotel search criteria
-   * @returns Observable<ApiResult<Stay[]>> with mapped hotels or error
-   */
   searchHotels(params: HotelSearchParams): Observable<ApiResult<Stay[]>> {
     return this.get<any>('/api/v1/hotels/searchHotels', {
       dest_id: params.destId,
       search_type: params.searchType,
-      checkin_date: params.checkIn,
-      checkout_date: params.checkOut,
+      arrival_date: params.checkIn,
+      departure_date: params.checkOut,
       adults: params.adults,
       room_qty: params.rooms,
+      currency_code: 'BRL',
+      locale: 'pt-br',
     }).pipe(
       withBackoff(),
       map(
         (response): ApiResult<Stay[]> => {
+          if (response._mock) {
+            return { data: response.data, error: null };
+          }
           const results =
             response.data?.result || response.data?.hotels || response.data || [];
           const hotels = Array.isArray(results) ? results : [];

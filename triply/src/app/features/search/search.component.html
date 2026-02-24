@@ -1,110 +1,277 @@
 <div class="view-header">
-  <h1>Search Flights</h1>
-  <p>Find the best flights for your trip</p>
+  <h1>Buscar Voos</h1>
+  <p>Encontre os melhores voos para sua viagem</p>
 </div>
 
-<mat-card class="search-form-card">
+@if (formCollapsed()) {
+  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+    <div class="toggle-info">
+      <mat-icon>flight</mat-icon>
+      @if (tripType() === 'multi') {
+        <span>Multi-Cidade: {{ segmentsArray.length }} trechos</span>
+      } @else {
+        <span>Busca de Voos</span>
+      }
+    </div>
+    <div class="toggle-action">
+      <span>Editar busca</span>
+      <mat-icon>expand_more</mat-icon>
+    </div>
+  </div>
+}
+
+<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
   <mat-card-content>
     <form [formGroup]="flightSearchForm" (ngSubmit)="searchFlights()">
-      <!-- Origin and Destination Row -->
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Origin</mat-label>
-          <input
-            matInput
-            [formControl]="originControl"
-            [matAutocomplete]="autoOrigin"
-            placeholder="City or airport"
-          />
-          <mat-icon matPrefix>flight_takeoff</mat-icon>
-          <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
-            @for (airport of filteredOrigins$ | async; track airport.iataCode) {
-              <mat-option [value]="airport">
-                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
-              </mat-option>
-            }
-          </mat-autocomplete>
-          @if (originControl.hasError('required')) {
-            <mat-error>Origin is required</mat-error>
-          }
-          @if (originControl.hasError('invalidAirport')) {
-            <mat-error>Please select an airport from the list</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Destination</mat-label>
-          <input
-            matInput
-            [formControl]="destinationControl"
-            [matAutocomplete]="autoDestination"
-            placeholder="City or airport"
-          />
-          <mat-icon matPrefix>flight_land</mat-icon>
-          <mat-autocomplete #autoDestination [displayWith]="displayAirport">
-            @for (airport of filteredDestinations$ | async; track airport.iataCode) {
-              <mat-option [value]="airport">
-                {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
-              </mat-option>
-            }
-          </mat-autocomplete>
-          @if (destinationControl.hasError('required')) {
-            <mat-error>Destination is required</mat-error>
-          }
-          @if (destinationControl.hasError('invalidAirport')) {
-            <mat-error>Please select an airport from the list</mat-error>
-          }
-        </mat-form-field>
+      <!-- Trip type toggle -->
+      <div class="trip-type-row">
+        <mat-button-toggle-group [value]="tripType()" (change)="onTripTypeChange($event.value)" class="trip-type-toggle">
+          <mat-button-toggle value="roundTrip">
+            <mat-icon>sync_alt</mat-icon> Ida e volta
+          </mat-button-toggle>
+          <mat-button-toggle value="oneWay">
+            <mat-icon>arrow_forward</mat-icon> Só ida
+          </mat-button-toggle>
+          <mat-button-toggle value="returnOnly">
+            <mat-icon>arrow_back</mat-icon> Só volta
+          </mat-button-toggle>
+          <mat-button-toggle value="multi">
+            <mat-icon>connecting_airports</mat-icon> Multi-cidade
+          </mat-button-toggle>
+        </mat-button-toggle-group>
       </div>
 
-      <!-- Date Range and Passengers Row -->
-      <div class="form-row" formGroupName="dateRange">
-        <mat-form-field appearance="outline">
-          <mat-label>Travel dates</mat-label>
-          <mat-date-range-input [rangePicker]="picker" [min]="minDepartureDate">
-            <input matStartDate formControlName="departure" placeholder="Departure" />
-            <input matEndDate formControlName="return" placeholder="Return (optional)" />
-          </mat-date-range-input>
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-          @if (flightSearchForm.get('dateRange.departure')?.hasError('required')) {
-            <mat-error>Departure date is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Passengers</mat-label>
-          <mat-select formControlName="passengers">
-            @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
-              <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adult' : 'Adults' }}</mat-option>
+      <!-- Standard form (non-multi) -->
+      @if (tripType() !== 'multi') {
+        <!-- Origin and Destination Row -->
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Origem</mat-label>
+            <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
+            <mat-icon matPrefix>flight_takeoff</mat-icon>
+            <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
+              @for (airport of filteredOrigins$ | async; track airport.iataCode) {
+                <mat-option [value]="airport">
+                  {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (originControl.hasError('required')) {
+              <mat-error>Origem é obrigatória</mat-error>
             }
-          </mat-select>
-          <mat-icon matPrefix>person</mat-icon>
-        </mat-form-field>
-      </div>
+            @if (originControl.hasError('invalidAirport')) {
+              <mat-error>Selecione um aeroporto da lista</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Destino</mat-label>
+            <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
+            <mat-icon matPrefix>flight_land</mat-icon>
+            <mat-autocomplete #autoDestination [displayWith]="displayAirport">
+              @for (airport of filteredDestinations$ | async; track airport.iataCode) {
+                <mat-option [value]="airport">
+                  {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (destinationControl.hasError('required')) {
+              <mat-error>Destino é obrigatório</mat-error>
+            }
+            @if (destinationControl.hasError('invalidAirport')) {
+              <mat-error>Selecione um aeroporto da lista</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Flexible dates toggle -->
+        <div class="flexible-row">
+          <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
+            Ainda não defini a data
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Date fields (fixed dates) -->
+        @if (!flexibleDates()) {
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Data de ida</mat-label>
+              <input matInput [matDatepicker]="dpDeparture"
+                     formControlName="departure"
+                     [min]="minDepartureDate">
+              <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
+              <mat-datepicker #dpDeparture></mat-datepicker>
+            </mat-form-field>
+
+            @if (tripType() === 'roundTrip') {
+              <mat-form-field appearance="outline">
+                <mat-label>Data de volta</mat-label>
+                <input matInput [matDatepicker]="dpReturn"
+                       formControlName="returnDate"
+                       [min]="minReturnDate">
+                <mat-datepicker-toggle matSuffix [for]="dpReturn"></mat-datepicker-toggle>
+                <mat-datepicker #dpReturn></mat-datepicker>
+              </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline">
+              <mat-label>Passageiros</mat-label>
+              <mat-select formControlName="passengers">
+                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                  <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
+        }
+
+        <!-- Month grid (flexible dates) -->
+        @if (flexibleDates()) {
+          <div class="month-grid">
+            @for (month of availableMonths; track month.value) {
+              <mat-checkbox [checked]="isMonthSelected(month.value)"
+                            (change)="toggleMonth(month.value)">
+                {{ month.label }}
+              </mat-checkbox>
+            }
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Passageiros</mat-label>
+              <mat-select formControlName="passengers">
+                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                  <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
+        }
+      }
+
+      <!-- Multi-city segments form -->
+      @if (tripType() === 'multi') {
+        <div class="multi-segments">
+          @for (group of segmentsArray.controls; track $index; let i = $index) {
+            <div class="segment-card">
+              <div class="segment-header">
+                <span class="segment-label">
+                  <mat-icon>flight</mat-icon>
+                  Trecho {{ i + 1 }}
+                </span>
+                @if (segmentsArray.length > 2) {
+                  <button mat-icon-button
+                          type="button"
+                          (click)="removeSegment(i)"
+                          matTooltip="Remover trecho"
+                          class="segment-remove">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+
+              <div class="form-row" [formGroup]="group">
+                <!-- Segment Origin -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Origem</mat-label>
+                  <input matInput formControlName="origin" [matAutocomplete]="segOrigin">
+                  <mat-icon matPrefix>flight_takeoff</mat-icon>
+                  <mat-autocomplete #segOrigin [displayWith]="displayAirport">
+                    @for (airport of (segmentOriginStreams()[i] | async) ?? []; track airport.iataCode) {
+                      <mat-option [value]="airport">
+                        {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                  @if (group.get('origin')?.hasError('required') && group.get('origin')?.touched) {
+                    <mat-error>Origem é obrigatória</mat-error>
+                  }
+                  @if (group.get('origin')?.hasError('invalidAirport')) {
+                    <mat-error>Selecione um aeroporto da lista</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Segment Destination -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Destino</mat-label>
+                  <input matInput formControlName="destination" [matAutocomplete]="segDest">
+                  <mat-icon matPrefix>flight_land</mat-icon>
+                  <mat-autocomplete #segDest [displayWith]="displayAirport">
+                    @for (airport of (segmentDestinationStreams()[i] | async) ?? []; track airport.iataCode) {
+                      <mat-option [value]="airport">
+                        {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                  @if (group.get('destination')?.hasError('required') && group.get('destination')?.touched) {
+                    <mat-error>Destino é obrigatório</mat-error>
+                  }
+                  @if (group.get('destination')?.hasError('invalidAirport')) {
+                    <mat-error>Selecione um aeroporto da lista</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Segment Date -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Data</mat-label>
+                  <input matInput [matDatepicker]="segDp"
+                         formControlName="date"
+                         [min]="getMinDateForSegment(i)">
+                  <mat-datepicker-toggle matSuffix [for]="segDp"></mat-datepicker-toggle>
+                  <mat-datepicker #segDp></mat-datepicker>
+                  @if (group.get('date')?.hasError('required') && group.get('date')?.touched) {
+                    <mat-error>Data é obrigatória</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              @if (segmentHasSameAirports(i)) {
+                <mat-error class="segment-error">
+                  <mat-icon>warning</mat-icon>
+                  Origem e destino devem ser diferentes
+                </mat-error>
+              }
+            </div>
+          }
+
+          <!-- Add Segment Button -->
+          @if (segmentsArray.length < 6) {
+            <button mat-stroked-button
+                    type="button"
+                    color="primary"
+                    (click)="addSegment()"
+                    class="add-segment-button">
+              <mat-icon>add</mat-icon>
+              Adicionar trecho ({{ segmentsArray.length }}/6)
+            </button>
+          }
+
+          <!-- Passengers (shared with multi-city) -->
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Passageiros</mat-label>
+              <mat-select formControlName="passengers">
+                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                  <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Adulto' : 'Adultos' }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+      }
 
       <!-- Submit Button -->
       @if (isSearching()) {
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          class="search-button"
-          [disabled]="true"
-        >
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
           <mat-spinner diameter="20"></mat-spinner>
-          <span>Searching...</span>
+          <span>Buscando...</span>
         </button>
       } @else {
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          class="search-button"
-          [disabled]="flightSearchForm.invalid"
-        >
+        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="!canSearch()">
           <mat-icon>search</mat-icon>
-          <span>Search Flights</span>
+          <span>Buscar Voos</span>
         </button>
       }
     </form>
@@ -114,112 +281,269 @@
 <!-- Error Banner -->
 @if (errorMessage()) {
   <app-error-banner
-    [source]="errorSource() ?? 'Flights'"
+    [source]="errorSource() ?? 'Voos'"
     [message]="errorMessage()!"
     (dismiss)="dismissError()"
   />
 }
 
-<!-- Results Section -->
-@if (searchResults().length > 0) {
+<!-- Standard Results Section (non-multi) -->
+@if (tripType() !== 'multi' && searchResults().length > 0) {
+  <!-- Highlight Cards -->
+  @if (categorized().cheapest || categorized().fastest || categorized().bestValue) {
+    <div class="highlights-strip">
+      @if (categorized().cheapest; as cheapest) {
+        <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
+          <div class="hl-badge"><mat-icon>savings</mat-icon> Mais Barato</div>
+          <div class="hl-route">{{ cheapest.origin }} &rarr; {{ cheapest.destination }}</div>
+          <div class="hl-info">{{ cheapest.airline }} · {{ formatDuration(cheapest.durationMinutes) }} · {{ cheapest.stops === 0 ? 'Direto' : cheapest.stops + ' parada(s)' }}</div>
+          <div class="hl-price">{{ cheapest.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
+        </div>
+      }
+      @if (categorized().fastest; as fastest) {
+        <div class="hl-card hl-fast" (click)="addToItinerary(fastest)">
+          <div class="hl-badge"><mat-icon>bolt</mat-icon> Mais Rápido</div>
+          <div class="hl-route">{{ fastest.origin }} &rarr; {{ fastest.destination }}</div>
+          <div class="hl-info">{{ fastest.airline }} · {{ formatDuration(fastest.durationMinutes) }} · {{ fastest.stops === 0 ? 'Direto' : fastest.stops + ' parada(s)' }}</div>
+          <div class="hl-price">{{ fastest.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
+        </div>
+      }
+      @if (categorized().bestValue; as best) {
+        <div class="hl-card hl-value" (click)="addToItinerary(best)">
+          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+          <div class="hl-route">{{ best.origin }} &rarr; {{ best.destination }}</div>
+          <div class="hl-info">{{ best.airline }} · {{ formatDuration(best.durationMinutes) }} · {{ best.stops === 0 ? 'Direto' : best.stops + ' parada(s)' }}</div>
+          <div class="hl-price">{{ best.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
+        </div>
+      }
+    </div>
+  }
+
   <div class="results-section">
     <div class="results-header">
-      <h2>{{ filteredFlights().length }} of {{ searchResults().length }} flights</h2>
+      <h2>{{ filteredFlights().length }} de {{ searchResults().length }} voos</h2>
     </div>
 
     <div class="results-controls">
       <!-- Filter Chips -->
       <mat-chip-listbox (change)="setFilter($any($event).value)" [value]="filterType()">
         <mat-chip-option value="all">
-          All ({{ searchResults().length }})
+          Todos ({{ searchResults().length }})
         </mat-chip-option>
         <mat-chip-option value="direct">
-          Direct ({{ countDirectFlights() }})
+          Diretos ({{ countDirectFlights() }})
         </mat-chip-option>
         <mat-chip-option value="stopovers">
-          Stopovers ({{ countStopoverFlights() }})
+          Com escalas ({{ countStopoverFlights() }})
         </mat-chip-option>
       </mat-chip-listbox>
 
       <!-- Sort Dropdown -->
       <mat-form-field appearance="outline" class="sort-field">
-        <mat-label>Sort by</mat-label>
+        <mat-label>Ordenar por</mat-label>
         <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
-          <mat-option value="price">Price (lowest)</mat-option>
-          <mat-option value="duration">Duration (shortest)</mat-option>
-          <mat-option value="stops">Stops (fewest)</mat-option>
+          <mat-option value="price">Preço (menor)</mat-option>
+          <mat-option value="duration">Duração (menor)</mat-option>
+          <mat-option value="stops">Escalas (menos)</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
 
     <!-- Flight Result Cards -->
     @for (flight of filteredFlights(); track flight.id) {
-      <mat-card class="flight-card">
-        <mat-card-content>
-          <div class="flight-header">
-            <div class="route">
-              <span class="iata">{{ flight.origin }}</span>
-              <mat-icon>arrow_forward</mat-icon>
-              <span class="iata">{{ flight.destination }}</span>
+      <div class="flight-card">
+        <div class="flight-row">
+          <!-- Tags -->
+          @if (categorized().cheapest?.id === flight.id || categorized().fastest?.id === flight.id || categorized().bestValue?.id === flight.id) {
+            <div class="flight-tags">
+              @if (categorized().bestValue?.id === flight.id) {
+                <span class="ftag ftag-value">Melhor custo-benefício</span>
+              }
+              @if (categorized().cheapest?.id === flight.id) {
+                <span class="ftag ftag-cheap">Mais barato</span>
+              }
+              @if (categorized().fastest?.id === flight.id) {
+                <span class="ftag ftag-fast">Mais rápido</span>
+              }
             </div>
-            <div class="price">
-              {{ flight.price.total | currency: flight.price.currency }}
-            </div>
-          </div>
+          }
 
-          <div class="flight-details">
-            <div class="detail">
-              <mat-icon>schedule</mat-icon>
-              <span>{{ formatDuration(flight.durationMinutes) }}</span>
-            </div>
-            <div class="detail">
+          <!-- Left: Airline + Times -->
+          <div class="flight-left">
+            <div class="airline-logo">
               <mat-icon>flight</mat-icon>
-              <span>{{ flight.airline }} {{ flight.flightNumber }}</span>
             </div>
-            <div class="detail">
-              <mat-icon>{{ flight.stops === 0 ? 'check_circle' : 'connecting_airports' }}</mat-icon>
-              <span>{{ flight.stops === 0 ? 'Direct' : flight.stops + ' stop' + (flight.stops > 1 ? 's' : '') }}</span>
+
+            <div class="flight-schedule">
+              <div class="airport-pair">
+                <div class="airport">
+                  <span class="iata">{{ flight.origin }}</span>
+                  <span class="time">{{ formatTime(flight.departureAt) }}</span>
+                </div>
+                <div class="airport">
+                  <span class="iata">{{ flight.destination }}</span>
+                  <span class="time">
+                    {{ formatTime(flight.arrivalAt) }}
+                    @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
+                      <span class="next-day">+1</span>
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Center: Stops + Duration -->
+            <div class="flight-meta">
+              @if (flight.stops === 0) {
+                <a class="stops-badge direct">Direto</a>
+              } @else {
+                <a class="stops-badge">{{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</a>
+              }
+              <span class="duration">{{ formatDuration(flight.durationMinutes) }}</span>
             </div>
           </div>
 
-          <div class="flight-times">
-            <div class="time">
-              <mat-icon>flight_takeoff</mat-icon>
-              <span>{{ flight.departureAt | date: 'short' }}</span>
+          <!-- Right: Price + Actions -->
+          <div class="flight-right">
+            <div class="price-section">
+              <span class="price-label">Final ida e volta</span>
+              <span class="price-amount">{{ flight.price.total | currency: 'BRL':'symbol':'1.0-0' }}</span>
             </div>
-            <div class="time">
-              <mat-icon>flight_land</mat-icon>
-              <span>{{ flight.arrivalAt | date: 'short' }}</span>
+
+            <div class="card-actions">
+              <button mat-icon-button (click)="addToItinerary(flight)" matTooltip="Adicionar ao roteiro">
+                <mat-icon>add_shopping_cart</mat-icon>
+              </button>
+              <a
+                mat-icon-button
+                [href]="flight.link.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                matTooltip="Ver em {{ flight.link.provider }}"
+              >
+                <mat-icon>open_in_new</mat-icon>
+              </a>
             </div>
           </div>
-        </mat-card-content>
-
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="addToItinerary(flight)">
-            <mat-icon>add</mat-icon>
-            Add to Itinerary
-          </button>
-          <a
-            mat-button
-            [href]="flight.link.url"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <mat-icon>open_in_new</mat-icon>
-            View on {{ flight.link.provider }}
-          </a>
-        </mat-card-actions>
-      </mat-card>
+        </div>
+      </div>
     }
   </div>
 }
 
+<!-- Multi-City Results Section -->
+@if (tripType() === 'multi' && multiCityHasResults()) {
+  <!-- Total Price Banner -->
+  @if (multiCityTotalPrice() !== null) {
+    <div class="multi-total-banner">
+      <mat-icon>calculate</mat-icon>
+      <span>Estimativa total (voos mais baratos por trecho):
+        <strong>{{ multiCityTotalPrice() | currency: 'BRL':'symbol':'1.0-0' }}</strong>
+      </span>
+    </div>
+  }
+
+  @for (segResults of multiCityResults(); track $index; let i = $index) {
+    <div class="segment-results-group">
+      <div class="segment-results-header">
+        <h3>
+          <mat-icon>flight</mat-icon>
+          Trecho {{ i + 1 }}:
+          {{ segmentsArray.at(i)?.get('origin')?.value?.iataCode ?? '?' }}
+          &rarr;
+          {{ segmentsArray.at(i)?.get('destination')?.value?.iataCode ?? '?' }}
+        </h3>
+        <span class="segment-count">{{ segResults.length }} voos encontrados</span>
+      </div>
+
+      @if (segResults.length === 0) {
+        <mat-card class="empty-state">
+          <mat-card-content>
+            <mat-icon>flight_takeoff</mat-icon>
+            <p>Nenhum voo encontrado para este trecho.</p>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @for (flight of segResults; track flight.id) {
+        <div class="flight-card">
+          <div class="flight-row">
+            <div class="flight-left">
+              <div class="airline-logo">
+                <mat-icon>flight</mat-icon>
+              </div>
+
+              <div class="flight-schedule">
+                <div class="airport-pair">
+                  <div class="airport">
+                    <span class="iata">{{ flight.origin }}</span>
+                    <span class="time">{{ formatTime(flight.departureAt) }}</span>
+                  </div>
+                  <div class="airport">
+                    <span class="iata">{{ flight.destination }}</span>
+                    <span class="time">
+                      {{ formatTime(flight.arrivalAt) }}
+                      @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
+                        <span class="next-day">+1</span>
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flight-meta">
+                @if (flight.stops === 0) {
+                  <a class="stops-badge direct">Direto</a>
+                } @else {
+                  <a class="stops-badge">{{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</a>
+                }
+                <span class="duration">{{ formatDuration(flight.durationMinutes) }}</span>
+              </div>
+            </div>
+
+            <div class="flight-right">
+              <div class="price-section">
+                <span class="price-label">Trecho {{ i + 1 }}</span>
+                <span class="price-amount">{{ flight.price.total | currency: 'BRL':'symbol':'1.0-0' }}</span>
+              </div>
+
+              <div class="card-actions">
+                <button mat-icon-button
+                        (click)="addSegmentFlightToItinerary(flight, i)"
+                        matTooltip="Adicionar trecho ao roteiro">
+                  <mat-icon>add_shopping_cart</mat-icon>
+                </button>
+                <a mat-icon-button
+                   [href]="flight.link.url"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   matTooltip="Ver em {{ flight.link.provider }}">
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+
 <!-- Empty State -->
-@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+@if (tripType() !== 'multi' && searchResults().length === 0 && !isSearching() && hasSearched()) {
   <mat-card class="empty-state">
     <mat-card-content>
       <mat-icon>flight_takeoff</mat-icon>
-      <p>No flights found. Try different dates or airports.</p>
+      <p>Nenhum voo encontrado. Tente outras datas ou aeroportos.</p>
+    </mat-card-content>
+  </mat-card>
+}
+
+@if (tripType() === 'multi' && !multiCityHasResults() && !isSearching() && hasSearched()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>connecting_airports</mat-icon>
+      <p>Nenhum voo encontrado para os trechos informados. Tente outras datas ou aeroportos.</p>
     </mat-card-content>
   </mat-card>
 }

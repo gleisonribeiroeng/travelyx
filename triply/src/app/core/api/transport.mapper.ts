@@ -73,7 +73,7 @@ export class TransportMapper {
       durationMinutes: this.parseDuration(raw.duration || 0),
       price: {
         total: raw.price || raw.total_price || 0,
-        currency: raw.currency || 'USD',
+        currency: 'BRL', // TODO: dynamic currency based on user locale
       },
       link: {
         url: raw.url || raw.booking_url || '#',

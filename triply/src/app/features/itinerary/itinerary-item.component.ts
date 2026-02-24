@@ -1,18 +1,30 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { NotificationService } from '../../core/services/notification.service';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { ItineraryItem, ItineraryItemType } from '../../core/models/trip.models';
+import {
+  ItineraryItem,
+  ItineraryItemType,
+  Flight,
+  Stay,
+  CarRental,
+  Transport,
+  Activity,
+  Attraction,
+} from '../../core/models/trip.models';
+import { buildTimeBlocks, detectConflicts } from '../../core/utils/schedule-conflict.util';
+import {
+  AttachmentDialogComponent,
+  AttachmentDialogData,
+  AttachmentDialogResult,
+} from '../../shared/components/attachment-dialog/attachment-dialog.component';
 
-/**
- * Custom validator for time slot (HH:MM format).
- * Returns null for empty/null values, error object for invalid format.
- */
 function timeSlotValidator(control: any) {
   const value = control.value;
-  if (!value) return null; // Empty is valid (all-day items)
-
+  if (!value) return null;
   const timePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
   return timePattern.test(value) ? null : { invalidTimeSlot: true };
 }
@@ -20,78 +32,173 @@ function timeSlotValidator(control: any) {
 @Component({
   selector: 'app-itinerary-item',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CurrencyPipe, NgTemplateOutlet],
   templateUrl: './itinerary-item.component.html',
   styleUrl: './itinerary-item.component.scss',
 })
 export class ItineraryItemComponent implements OnInit {
-  @Input({ required: true }) item!: ItineraryItem;
-  @Input() isFirst = false;
-  @Input() isLast = false;
+  readonly item = input.required<ItineraryItem>();
+  readonly isFirst = input(false);
+  readonly isLast = input(false);
 
-  @Output() moveUp = new EventEmitter<void>();
-  @Output() moveDown = new EventEmitter<void>();
-  @Output() remove = new EventEmitter<void>();
+  readonly moveUp = output<void>();
+  readonly moveDown = output<void>();
+  readonly remove = output<void>();
 
   protected readonly tripState = inject(TripStateService);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   readonly isEditing = signal(false);
   editForm!: FormGroup;
 
+  // ── Resolve source data from refId ──
+
+  readonly resolvedData = computed(() => {
+    const item = this.item();
+    if (!item.refId) return null;
+
+    switch (item.type) {
+      case 'flight':
+        return this.tripState.flights().find(f => f.id === item.refId) ?? null;
+      case 'stay':
+        return this.tripState.stays().find(s => s.id === item.refId) ?? null;
+      case 'car-rental':
+        return this.tripState.carRentals().find(c => c.id === item.refId) ?? null;
+      case 'transport':
+        return this.tripState.transports().find(t => t.id === item.refId) ?? null;
+      case 'activity':
+        return this.tripState.activities().find(a => a.id === item.refId) ?? null;
+      case 'attraction':
+        return this.tripState.attractions().find(a => a.id === item.refId) ?? null;
+      default:
+        return null;
+    }
+  });
+
+  readonly asFlight = computed(() =>
+    this.item().type === 'flight' ? (this.resolvedData() as Flight | null) : null
+  );
+  readonly asStay = computed(() =>
+    this.item().type === 'stay' ? (this.resolvedData() as Stay | null) : null
+  );
+  readonly asCarRental = computed(() =>
+    this.item().type === 'car-rental' ? (this.resolvedData() as CarRental | null) : null
+  );
+  readonly asTransport = computed(() =>
+    this.item().type === 'transport' ? (this.resolvedData() as Transport | null) : null
+  );
+  readonly asActivity = computed(() =>
+    this.item().type === 'activity' ? (this.resolvedData() as Activity | null) : null
+  );
+  readonly asAttraction = computed(() =>
+    this.item().type === 'attraction' ? (this.resolvedData() as Attraction | null) : null
+  );
+
+  // ── Lifecycle ──
+
   ngOnInit(): void {
+    const item = this.item();
     this.editForm = this.fb.group({
-      date: [this.item.date, Validators.required],
-      timeSlot: [this.item.timeSlot, timeSlotValidator],
-      label: [this.item.label, Validators.required],
-      notes: [this.item.notes],
+      date: [item.date, Validators.required],
+      timeSlot: [item.timeSlot, timeSlotValidator],
+      durationMinutes: [item.durationMinutes],
+      label: [item.label, Validators.required],
+      notes: [item.notes],
     });
   }
 
-  /**
-   * Enters edit mode and resets form to current item values.
-   */
+  // ── Edit actions ──
+
   startEdit(): void {
     this.isEditing.set(true);
+    const item = this.item();
     this.editForm.patchValue({
-      date: this.item.date,
-      timeSlot: this.item.timeSlot,
-      label: this.item.label,
-      notes: this.item.notes,
+      date: item.date,
+      timeSlot: item.timeSlot,
+      durationMinutes: item.durationMinutes,
+      label: item.label,
+      notes: item.notes,
     });
   }
 
-  /**
-   * Cancels edit mode without saving.
-   */
   cancelEdit(): void {
     this.isEditing.set(false);
   }
 
-  /**
-   * Saves edited values via TripStateService.
-   */
   saveEdit(): void {
     if (this.editForm.invalid) return;
 
     const formValue = this.editForm.value;
     const updated: ItineraryItem = {
-      ...this.item,
+      ...this.item(),
       date: formValue.date,
-      timeSlot: formValue.timeSlot || null, // Normalize empty string to null
+      timeSlot: formValue.timeSlot || null,
+      durationMinutes: formValue.durationMinutes ?? null,
       label: formValue.label,
       notes: formValue.notes,
     };
 
+    // Validate conflicts for timed items
+    if (updated.timeSlot) {
+      const trip = this.tripState.trip();
+      const blocks = buildTimeBlocks(
+        trip.flights,
+        trip.carRentals,
+        trip.transports,
+        trip.itineraryItems,
+        updated.id  // exclude the item being edited
+      );
+      const result = detectConflicts(updated.date, updated.timeSlot, updated.durationMinutes, blocks);
+      if (result.hasConflict) {
+        const conflictNames = result.conflicts.map(c => c.label).join(', ');
+        this.notify.warning(`Conflito de horário: ${conflictNames}`);
+        return;
+      }
+    }
+
     this.tripState.updateItineraryItem(updated);
     this.isEditing.set(false);
-    this.snackBar.open('Item updated', undefined, { duration: 2000 });
+    this.notify.success('Item atualizado');
   }
 
-  /**
-   * Returns Material icon name for the given item type.
-   */
+  togglePaid(): void {
+    const wasPaid = this.item().isPaid;
+    this.tripState.toggleItemPaid(this.item().id);
+    if (!wasPaid) {
+      // Just marked as paid — offer to attach a receipt
+      this.openAttachment();
+    }
+    this.notify.success(wasPaid ? 'Marcado como pendente' : 'Marcado como pago');
+  }
+
+  openAttachment(): void {
+    const item = this.item();
+    const tripId = this.tripState.trip().id;
+
+    const dialogRef = this.dialog.open(AttachmentDialogComponent, {
+      width: '440px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: {
+        tripId,
+        itemId: item.id,
+        existingAttachment: item.attachment,
+      } as AttachmentDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((result: AttachmentDialogResult | undefined) => {
+      if (!result || result.action === 'cancelled') return;
+      if (result.action === 'uploaded') {
+        this.tripState.setItemAttachment(item.id, result.attachment!);
+      } else if (result.action === 'removed') {
+        this.tripState.setItemAttachment(item.id, null);
+      }
+    });
+  }
+
+  // ── Helpers ──
+
   getTypeIcon(type: ItineraryItemType): string {
     const iconMap: Record<ItineraryItemType, string> = {
       flight: 'flight',
@@ -103,5 +210,44 @@ export class ItineraryItemComponent implements OnInit {
       custom: 'event',
     };
     return iconMap[type];
+  }
+
+  getTypeClass(type: ItineraryItemType): string {
+    const classMap: Record<ItineraryItemType, string> = {
+      flight: 'type-flight',
+      stay: 'type-stay',
+      'car-rental': 'type-car',
+      transport: 'type-transport',
+      activity: 'type-activity',
+      attraction: 'type-attraction',
+      custom: 'type-custom',
+    };
+    return classMap[type];
+  }
+
+  getTransportIcon(mode: string): string {
+    const icons: Record<string, string> = {
+      train: 'train',
+      bus: 'directions_bus',
+      ferry: 'directions_boat',
+      other: 'commute',
+    };
+    return icons[mode] || 'commute';
+  }
+
+  formatTime(isoDatetime: string): string {
+    const d = new Date(isoDatetime);
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+
+  formatDuration(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins.toString().padStart(2, '0')}m`;
+  }
+
+  formatDate(isoDate: string): string {
+    const d = new Date(isoDate + 'T00:00:00');
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
   }
 }

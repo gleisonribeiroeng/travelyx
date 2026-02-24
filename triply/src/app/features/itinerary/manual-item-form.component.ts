@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { ItineraryItem } from '../../core/models/trip.models';
@@ -27,7 +27,7 @@ function timeSlotValidator(control: any) {
 export class ManualItemFormComponent {
   private readonly tripState = inject(TripStateService);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
 
   readonly showForm = signal(false);
 
@@ -57,14 +57,17 @@ export class ManualItemFormComponent {
       refId: null,
       date: this.form.value.date!,
       timeSlot: this.form.value.timeSlot || null,
+      durationMinutes: null,
       label: this.form.value.label!,
       notes: this.form.value.notes || '',
       order: 0,
+      isPaid: false,
+      attachment: null,
     };
 
     this.tripState.addItineraryItem(newItem);
     this.form.reset();
     this.showForm.set(false);
-    this.snackBar.open('Custom item added', undefined, { duration: 2000 });
+    this.notify.success('Item personalizado adicionado');
   }
 }

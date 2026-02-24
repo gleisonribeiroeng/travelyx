@@ -6,9 +6,11 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
+import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { ScheduleDialogComponent, ScheduleDialogData } from '../../shared/components/schedule-dialog/schedule-dialog.component';
 import { AttractionApiService } from '../../core/api/attraction-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Attraction, ItineraryItem } from '../../core/models/trip.models';
@@ -24,7 +26,8 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 export class AttractionSearchComponent {
   private readonly attractionApi = inject(AttractionApiService);
   private readonly tripState = inject(TripStateService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // Form controls
   attractionSearchForm = new FormGroup({
@@ -32,6 +35,7 @@ export class AttractionSearchComponent {
   });
 
   // Search state signals
+  formCollapsed = signal(false);
   searchResults = signal<Attraction[]>([]);
   isSearching = signal(false);
   hasSearched = signal(false);
@@ -49,6 +53,7 @@ export class AttractionSearchComponent {
     this.isSearching.set(true);
     this.hasSearched.set(true);
     this.errorMessage.set(null);
+    this.formCollapsed.set(true);
 
     this.attractionApi
       .searchAttractions({ city })
@@ -74,20 +79,35 @@ export class AttractionSearchComponent {
 
   // Add to itinerary
   addToItinerary(attraction: Attraction): void {
-    this.tripState.addAttraction({ ...attraction, addedToItinerary: true });
-    const defaultDate = this.tripState.trip().dates.start || new Date().toISOString().split('T')[0];
-    this.tripState.addItineraryItem({
-      id: crypto.randomUUID(),
-      type: 'attraction',
-      refId: attraction.id,
-      date: defaultDate,
-      timeSlot: null,
-      label: `Attraction: ${attraction.name}`,
-      notes: attraction.category || '',
-      order: 0,
+    const dialogRef = this.dialog.open(ScheduleDialogComponent, {
+      width: '400px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: {
+        name: attraction.name,
+        type: 'attraction',
+        defaultDate: this.tripState.trip().dates.start || new Date().toISOString().split('T')[0],
+        tripDates: this.tripState.trip().dates,
+        durationMinutes: null,
+      } as ScheduleDialogData,
     });
-    this.snackBar.open('Attraction added to itinerary', 'Close', {
-      duration: 3000,
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+      this.tripState.addAttraction({ ...attraction, addedToItinerary: true });
+      this.tripState.addItineraryItem({
+        id: crypto.randomUUID(),
+        type: 'attraction',
+        refId: attraction.id,
+        date: result.date,
+        timeSlot: result.timeSlot,
+        durationMinutes: result.durationMinutes,
+        label: `Atração: ${attraction.name}`,
+        notes: attraction.category || '',
+        order: 0,
+        isPaid: false,
+        attachment: null,
+      });
+      this.notify.success('Atração adicionada ao roteiro');
     });
   }
 }

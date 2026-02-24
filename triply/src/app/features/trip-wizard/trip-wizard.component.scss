@@ -1,0 +1,221 @@
+// Mobile-first: shorter height on mobile
+.wizard-shell {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--triply-topbar-height) - 32px);
+}
+
+// Progress bar (Mobile-first: compact)
+.wizard-progress {
+  display: flex;
+  align-items: center;
+  padding: var(--triply-spacing-sm) 0;
+  margin-bottom: var(--triply-spacing-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 64px;
+  transition: all 0.2s ease;
+}
+
+// Mobile-first: smaller dots
+.step-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--triply-surface-1);
+  border: 2px solid var(--triply-border);
+  box-shadow: var(--triply-shadow-xs);
+  transition: all 0.3s ease;
+
+  .dot-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--triply-text-secondary);
+    transition: all 0.3s ease;
+  }
+
+  .active & {
+    background: var(--triply-primary);
+    border-color: var(--triply-primary);
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.2), var(--triply-shadow-colored);
+
+    .dot-icon {
+      color: #ffffff;
+    }
+  }
+
+  .complete & {
+    background: var(--triply-success);
+    border-color: var(--triply-success);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+    animation: dotComplete 0.3s ease;
+
+    .dot-icon {
+      color: #ffffff;
+    }
+  }
+
+  .skipped & {
+    background: var(--triply-surface-2);
+    border-color: var(--triply-border);
+
+    .dot-icon {
+      color: var(--triply-text-secondary);
+      opacity: 0.5;
+    }
+  }
+}
+
+@keyframes dotComplete {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+// Mobile-first: smaller label
+.step-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--triply-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  .active & {
+    color: var(--triply-primary);
+    font-weight: 700;
+  }
+
+  .complete & {
+    color: var(--triply-success);
+  }
+}
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  min-width: 20px;
+  background: var(--triply-border);
+  margin: 0 4px;
+  margin-bottom: 20px;
+  border-radius: 1px;
+  transition: background 0.3s ease;
+
+  &.complete {
+    background: var(--triply-success);
+  }
+}
+
+// Content area — scrolls independently so nav bar stays visible
+.wizard-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Navigation — Mobile-first: wrap, larger touch targets, safe area
+.wizard-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--triply-spacing-sm);
+  padding: var(--triply-spacing-sm) 0;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  border-top: none;
+  background: var(--triply-surface-1);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
+  border-radius: var(--triply-radius-md) var(--triply-radius-md) 0 0;
+
+  button {
+    min-height: 48px;
+  }
+
+  .skip-btn {
+    order: 3;
+    width: 100%;
+  }
+}
+
+.nav-spacer {
+  flex: 1;
+}
+
+.skip-btn {
+  color: var(--triply-text-secondary) !important;
+}
+
+// ── Hover — conditional ──
+@media (hover: hover) {
+  .progress-step:hover .step-dot {
+    transform: scale(1.1);
+  }
+}
+
+// ── Responsive — Mobile-first (min-width) ──
+@media (min-width: 600px) {
+  .wizard-shell {
+    height: calc(100vh - var(--triply-topbar-height) - 48px);
+  }
+
+  .wizard-progress {
+    padding: var(--triply-spacing-md) 0;
+    margin-bottom: var(--triply-spacing-lg);
+  }
+
+  .step-dot {
+    width: 40px;
+    height: 40px;
+
+    .dot-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .step-label {
+    font-size: 0.7rem;
+  }
+
+  .wizard-nav {
+    flex-wrap: nowrap;
+    padding: var(--triply-spacing-md) 0;
+    padding-bottom: var(--triply-spacing-md);
+
+    button {
+      min-height: 44px;
+    }
+
+    .skip-btn {
+      order: 0;
+      width: auto;
+    }
+  }
+}
