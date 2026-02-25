@@ -16,6 +16,72 @@
   min-height: var(--triply-touch-min, 48px);
 }
 
+// ── Trip context chip ──
+.trip-context {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 24px;
+  background: var(--triply-surface-0);
+  border: 1px solid var(--triply-border-subtle);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  max-width: 300px;
+
+  &:hover {
+    border-color: var(--triply-primary);
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+  }
+}
+
+.trip-context-icon {
+  color: var(--triply-primary);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.trip-context-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.trip-context-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--triply-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.trip-context-status {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+
+  &.status-planejamento { color: #1976d2; }
+  &.status-ativa { color: #388e3c; }
+  &.status-concluida { color: #616161; }
+}
+
+.trip-context-arrow {
+  color: var(--triply-text-tertiary);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.active-trip-item {
+  font-weight: 600;
+}
+
+// ── Search bar ──
 .topbar-search {
   display: flex;
   align-items: center;
@@ -76,5 +142,11 @@
 @media (min-width: 960px) {
   .hamburger-btn {
     display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .trip-context {
+    max-width: 180px;
   }
 }

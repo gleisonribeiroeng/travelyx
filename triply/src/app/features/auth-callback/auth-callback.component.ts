@@ -47,8 +47,12 @@ export class AuthCallbackComponent implements OnInit {
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) {
       this.authService.handleCallback(token);
-      this.tripState.loadFromApi().subscribe(() => {
-        this.router.navigate(['/home']);
+      this.tripState.loadFromApi().subscribe((trips) => {
+        if (trips.length === 1) {
+          this.router.navigate(['/viagem', trips[0].id, 'home']);
+        } else {
+          this.router.navigate(['/viagens']);
+        }
       });
     } else {
       this.router.navigate(['/landing']);

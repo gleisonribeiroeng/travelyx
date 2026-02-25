@@ -1,6 +1,6 @@
 <div class="dashboard">
   <!-- Hero Card -->
-  <mat-card class="hero-card" (click)="navigateTo('/planner')" tabindex="0">
+  <mat-card class="hero-card" (click)="navigateTo('planner')" tabindex="0">
     <mat-card-content>
       <div class="hero-content">
         <div class="hero-icon"><mat-icon>explore</mat-icon></div>
@@ -36,12 +36,31 @@
       @if (tripPhase() === 'active') {
         <div class="active-badge"><mat-icon>flight_takeoff</mat-icon> Em viagem!</div>
       }
+      <div class="status-actions">
+        @switch (trip().status) {
+          @case ('planejamento') {
+            <button mat-stroked-button class="status-btn" (click)="setStatus('ativa')">
+              <mat-icon>flight_takeoff</mat-icon> Iniciar Viagem
+            </button>
+          }
+          @case ('ativa') {
+            <button mat-stroked-button class="status-btn" (click)="setStatus('concluida')">
+              <mat-icon>check_circle</mat-icon> Concluir Viagem
+            </button>
+          }
+          @case ('concluida') {
+            <span class="status-badge badge-concluida">
+              <mat-icon>check_circle</mat-icon> Concluída
+            </span>
+          }
+        }
+      </div>
     </div>
 
     <!-- Metrics Grid -->
     <div class="metrics-grid">
       <!-- Score -->
-      <mat-card class="metric-card score-card" (click)="navigateTo('/checklist')">
+      <mat-card class="metric-card score-card" (click)="navigateTo('checklist')">
         <mat-card-content>
           <div class="score-circle" [style.--score-color]="score.scoreColor()">
             <svg viewBox="0 0 36 36" class="score-svg">
@@ -55,7 +74,7 @@
       </mat-card>
 
       <!-- Budget -->
-      <mat-card class="metric-card budget-card" (click)="navigateTo('/budget')">
+      <mat-card class="metric-card budget-card" (click)="navigateTo('budget')">
         <mat-card-content>
           <mat-icon class="metric-icon budget-icon">account_balance_wallet</mat-icon>
           <span class="metric-value">{{ budget.summary().totalPlanned | currency:'BRL':'symbol':'1.0-0' }}</span>
@@ -67,7 +86,7 @@
       </mat-card>
 
       <!-- Conflicts -->
-      <mat-card class="metric-card conflicts-card" (click)="navigateTo('/conflicts')"
+      <mat-card class="metric-card conflicts-card" (click)="navigateTo('conflicts')"
                 [class.has-errors]="errorCount() > 0" [class.has-warnings]="warningCount() > 0 && errorCount() === 0"
                 [class.clean]="conflicts().length === 0">
         <mat-card-content>
@@ -83,7 +102,7 @@
       </mat-card>
 
       <!-- Checklist -->
-      <mat-card class="metric-card checklist-card" (click)="navigateTo('/checklist')">
+      <mat-card class="metric-card checklist-card" (click)="navigateTo('checklist')">
         <mat-card-content>
           <mat-icon class="metric-icon checklist-icon">checklist</mat-icon>
           <span class="metric-value">{{ checklist.progress().percentage }}%</span>
@@ -112,7 +131,7 @@
         <mat-card-content>
           <div class="section-header">
             <h3><mat-icon>schedule</mat-icon> Próximos no roteiro</h3>
-            <button mat-button (click)="navigateTo('/itinerary')">Ver tudo</button>
+            <button mat-button (click)="navigateTo('itinerary')">Ver tudo</button>
           </div>
           @for (item of nextItems(); track item.id) {
             <div class="next-item">
@@ -129,10 +148,10 @@
 
     <!-- Quick Actions -->
     <div class="quick-actions">
-      <button mat-stroked-button (click)="navigateTo('/search')"><mat-icon>flight</mat-icon> Voos</button>
-      <button mat-stroked-button (click)="navigateTo('/hotels')"><mat-icon>hotel</mat-icon> Hotéis</button>
-      <button mat-stroked-button (click)="navigateTo('/tours')"><mat-icon>local_activity</mat-icon> Passeios</button>
-      <button mat-stroked-button (click)="navigateTo('/itinerary')"><mat-icon>map</mat-icon> Roteiro</button>
+      <button mat-stroked-button (click)="navigateTo('search')"><mat-icon>flight</mat-icon> Voos</button>
+      <button mat-stroked-button (click)="navigateTo('hotels')"><mat-icon>hotel</mat-icon> Hotéis</button>
+      <button mat-stroked-button (click)="navigateTo('tours')"><mat-icon>local_activity</mat-icon> Passeios</button>
+      <button mat-stroked-button (click)="navigateTo('itinerary')"><mat-icon>map</mat-icon> Roteiro</button>
     </div>
   } @else {
     <!-- Empty State -->
@@ -142,8 +161,8 @@
         <h3>Nenhuma viagem planejada ainda</h3>
         <p>Clique em "Planejar Nova Viagem" para começar.</p>
         <div class="empty-actions">
-          <button mat-stroked-button (click)="navigateTo('/search')"><mat-icon>flight</mat-icon> Buscar Voos</button>
-          <button mat-stroked-button (click)="navigateTo('/hotels')"><mat-icon>hotel</mat-icon> Buscar Hotéis</button>
+          <button mat-stroked-button (click)="navigateTo('search')"><mat-icon>flight</mat-icon> Buscar Voos</button>
+          <button mat-stroked-button (click)="navigateTo('hotels')"><mat-icon>hotel</mat-icon> Buscar Hotéis</button>
         </div>
       </mat-card-content>
     </mat-card>

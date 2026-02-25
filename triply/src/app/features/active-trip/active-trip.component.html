@@ -5,7 +5,7 @@
       <span class="day-label">Dia {{ dayNumber() }} de {{ totalDays() }}</span>
       <h1>{{ trip().destination || 'Minha Viagem' }}</h1>
     </div>
-    <button mat-icon-button (click)="navigateTo('/home')" matTooltip="Voltar ao dashboard">
+    <button mat-icon-button (click)="navigateTo('home')" matTooltip="Voltar ao dashboard">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -96,16 +96,16 @@
 
   <!-- Quick Actions -->
   <div class="quick-actions">
-    <button mat-stroked-button (click)="navigateTo('/documents')">
+    <button mat-stroked-button (click)="navigateTo('documents')">
       <mat-icon>description</mat-icon> Documentos
     </button>
-    <button mat-stroked-button (click)="navigateTo('/budget')">
+    <button mat-stroked-button (click)="navigateTo('budget')">
       <mat-icon>account_balance_wallet</mat-icon> Orçamento
     </button>
-    <button mat-stroked-button (click)="navigateTo('/checklist')">
+    <button mat-stroked-button (click)="navigateTo('checklist')">
       <mat-icon>checklist</mat-icon> Checklist
     </button>
-    <button mat-stroked-button (click)="navigateTo('/itinerary')">
+    <button mat-stroked-button (click)="navigateTo('itinerary')">
       <mat-icon>map</mat-icon> Roteiro
     </button>
   </div>

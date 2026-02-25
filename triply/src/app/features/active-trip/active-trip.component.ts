@@ -1,8 +1,8 @@
 import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
+import { TripRouterService } from '../../core/services/trip-router.service';
 import { ItineraryItem } from '../../core/models/trip.models';
 
 @Component({
@@ -13,7 +13,7 @@ import { ItineraryItem } from '../../core/models/trip.models';
   styleUrl: './active-trip.component.scss',
 })
 export class ActiveTripComponent implements OnInit, OnDestroy {
-  private readonly router = inject(Router);
+  private readonly tripRouter = inject(TripRouterService);
   protected readonly tripState = inject(TripStateService);
   private refreshTimer: any;
 
@@ -109,6 +109,6 @@ export class ActiveTripComponent implements OnInit, OnDestroy {
   }
 
   navigateTo(route: string): void {
-    this.router.navigate([route]);
+    this.tripRouter.navigate(route);
   }
 }

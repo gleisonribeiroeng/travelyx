@@ -8,7 +8,7 @@
   </div>
 
   <nav class="nav-items">
-    @for (item of navItems; track item.route) {
+    @for (item of navItems(); track item.route) {
       @if (item.section) {
         <div class="section-label">{{ item.section }}</div>
       }
@@ -16,7 +16,7 @@
         class="nav-item"
         [routerLink]="item.route"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.route === '/home' }"
+        [routerLinkActiveOptions]="{ exact: item.route === '/viagens' || item.route.endsWith('/home') }"
         (click)="closeMobile()"
       >
         <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
@@ -26,7 +26,7 @@
   </nav>
 
   <div class="sidebar-footer">
-    <button class="add-action" (click)="navigateTo('/planner')">
+    <button class="add-action" (click)="openNewTrip()">
       <mat-icon>add_circle_outline</mat-icon>
       <span>Nova Viagem</span>
     </button>

@@ -1,11 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { KeyValuePipe, DatePipe, CurrencyPipe } from '@angular/common';
-import { Router } from '@angular/router';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { NotificationService } from '../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
+import { TripRouterService } from '../../core/services/trip-router.service';
 import { ItineraryItem } from '../../core/models/trip.models';
 import { ItineraryItemComponent } from './itinerary-item.component';
 import { ManualItemFormComponent } from './manual-item-form.component';
@@ -53,7 +53,7 @@ export class ItineraryComponent {
   protected readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
+  private readonly tripRouter = inject(TripRouterService);
 
   // ── View toggle ──
   readonly activeView = signal<'calendar' | 'list'>('calendar');
@@ -242,7 +242,7 @@ export class ItineraryComponent {
   }
 
   navigateTo(route: string): void {
-    this.router.navigate([route]);
+    this.tripRouter.navigate(route);
   }
 
   // ── List view actions ──

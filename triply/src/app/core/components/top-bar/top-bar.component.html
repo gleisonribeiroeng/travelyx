@@ -3,10 +3,38 @@
     <mat-icon>menu</mat-icon>
   </button>
 
-  <div class="topbar-search">
-    <mat-icon class="search-icon">search</mat-icon>
-    <input type="text" class="search-input" placeholder="Buscar destinos, voos, hotéis...">
-  </div>
+  @if (tripState.hasActiveTrip()) {
+    <div class="trip-context" [matMenuTriggerFor]="tripMenu">
+      <mat-icon class="trip-context-icon">flight_takeoff</mat-icon>
+      <div class="trip-context-info">
+        <span class="trip-context-name">{{ tripState.trip().name || 'Viagem sem nome' }}</span>
+        <span class="trip-context-status" [class]="'status-' + tripState.trip().status">
+          {{ getStatusLabel(tripState.trip().status) }}
+        </span>
+      </div>
+      <mat-icon class="trip-context-arrow">expand_more</mat-icon>
+    </div>
+
+    <mat-menu #tripMenu="matMenu">
+      @for (trip of tripState.trips(); track trip.id) {
+        <button mat-menu-item (click)="switchTrip(trip.id)"
+                [class.active-trip-item]="trip.id === tripState.activeTripId()">
+          <mat-icon>{{ trip.id === tripState.activeTripId() ? 'check_circle' : 'circle' }}</mat-icon>
+          <span>{{ trip.name || 'Viagem sem nome' }}</span>
+        </button>
+      }
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="goToTripList()">
+        <mat-icon>list</mat-icon>
+        <span>Todas as viagens</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <div class="topbar-search">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" class="search-input" placeholder="Buscar destinos, voos, hotéis...">
+    </div>
+  }
 
   <div class="topbar-spacer"></div>
 

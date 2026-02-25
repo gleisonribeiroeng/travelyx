@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { tripGuard } from './core/guards/trip.guard';
 
 export const routes: Routes = [
+  // ── Public routes ──
   { path: '', redirectTo: 'landing', pathMatch: 'full' },
   {
     path: 'landing',
@@ -28,133 +30,155 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/tours-showcase/tours-showcase.component').then(m => m.ToursShowcaseComponent),
   },
+
+  // ── Trip list (authenticated, no trip context needed) ──
   {
-    path: 'home',
+    path: 'viagens',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/trip-dashboard/trip-dashboard.component').then(m => m.TripDashboardComponent),
+      import('./features/trip-list/trip-list.component').then(m => m.TripListComponent),
   },
+
+  // ── Trip-scoped routes ──
   {
-    path: 'planner',
-    canActivate: [authGuard],
+    path: 'viagem/:tripId',
+    canActivate: [authGuard, tripGuard],
     loadComponent: () =>
-      import('./features/trip-wizard/trip-wizard.component').then(m => m.TripWizardComponent),
+      import('./features/trip-shell/trip-shell.component').then(m => m.TripShellComponent),
     children: [
-      { path: '', redirectTo: 'flights', pathMatch: 'full' as const },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
       {
-        path: 'flights',
+        path: 'home',
         loadComponent: () =>
-          import('./features/trip-wizard/steps/wizard-flight-step.component').then(m => m.WizardFlightStepComponent),
+          import('./features/trip-dashboard/trip-dashboard.component').then(m => m.TripDashboardComponent),
+      },
+      {
+        path: 'planner',
+        loadComponent: () =>
+          import('./features/trip-wizard/trip-wizard.component').then(m => m.TripWizardComponent),
+        children: [
+          { path: '', redirectTo: 'flights', pathMatch: 'full' },
+          {
+            path: 'flights',
+            loadComponent: () =>
+              import('./features/trip-wizard/steps/wizard-flight-step.component').then(m => m.WizardFlightStepComponent),
+          },
+          {
+            path: 'hotels',
+            loadComponent: () =>
+              import('./features/trip-wizard/steps/wizard-hotel-step.component').then(m => m.WizardHotelStepComponent),
+          },
+          {
+            path: 'cars',
+            loadComponent: () =>
+              import('./features/trip-wizard/steps/wizard-car-step.component').then(m => m.WizardCarStepComponent),
+          },
+          {
+            path: 'transport',
+            loadComponent: () =>
+              import('./features/trip-wizard/steps/wizard-transport-step.component').then(m => m.WizardTransportStepComponent),
+          },
+          {
+            path: 'tours',
+            loadComponent: () =>
+              import('./features/trip-wizard/steps/wizard-tour-step.component').then(m => m.WizardTourStepComponent),
+          },
+          {
+            path: 'attractions',
+            loadComponent: () =>
+              import('./features/trip-wizard/steps/wizard-attraction-step.component').then(m => m.WizardAttractionStepComponent),
+          },
+          {
+            path: 'review',
+            loadComponent: () =>
+              import('./features/trip-wizard/steps/wizard-review-step.component').then(m => m.WizardReviewStepComponent),
+          },
+        ],
+      },
+      {
+        path: 'search',
+        loadComponent: () =>
+          import('./features/search/search.component').then(m => m.SearchComponent),
       },
       {
         path: 'hotels',
         loadComponent: () =>
-          import('./features/trip-wizard/steps/wizard-hotel-step.component').then(m => m.WizardHotelStepComponent),
+          import('./features/hotel-search/hotel-search.component').then(m => m.HotelSearchComponent),
       },
       {
         path: 'cars',
         loadComponent: () =>
-          import('./features/trip-wizard/steps/wizard-car-step.component').then(m => m.WizardCarStepComponent),
+          import('./features/car-search/car-search.component').then(m => m.CarSearchComponent),
       },
       {
         path: 'transport',
         loadComponent: () =>
-          import('./features/trip-wizard/steps/wizard-transport-step.component').then(m => m.WizardTransportStepComponent),
+          import('./features/transport-search/transport-search.component').then(m => m.TransportSearchComponent),
       },
       {
         path: 'tours',
         loadComponent: () =>
-          import('./features/trip-wizard/steps/wizard-tour-step.component').then(m => m.WizardTourStepComponent),
+          import('./features/tour-search/tour-search.component').then(m => m.TourSearchComponent),
       },
       {
         path: 'attractions',
         loadComponent: () =>
-          import('./features/trip-wizard/steps/wizard-attraction-step.component').then(m => m.WizardAttractionStepComponent),
+          import('./features/attraction-search/attraction-search.component').then(m => m.AttractionSearchComponent),
       },
       {
-        path: 'review',
+        path: 'timeline',
         loadComponent: () =>
-          import('./features/trip-wizard/steps/wizard-review-step.component').then(m => m.WizardReviewStepComponent),
+          import('./features/timeline/timeline.component').then(m => m.TimelineComponent),
+      },
+      {
+        path: 'itinerary',
+        loadComponent: () =>
+          import('./features/itinerary/itinerary.component').then(m => m.ItineraryComponent),
+      },
+      {
+        path: 'budget',
+        loadComponent: () =>
+          import('./features/budget/budget.component').then(m => m.BudgetComponent),
+      },
+      {
+        path: 'conflicts',
+        loadComponent: () =>
+          import('./features/conflicts/conflicts.component').then(m => m.ConflictsComponent),
+      },
+      {
+        path: 'checklist',
+        loadComponent: () =>
+          import('./features/checklist/checklist.component').then(m => m.ChecklistComponent),
+      },
+      {
+        path: 'documents',
+        loadComponent: () =>
+          import('./features/documents/documents.component').then(m => m.DocumentsComponent),
+      },
+      {
+        path: 'active-trip',
+        loadComponent: () =>
+          import('./features/active-trip/active-trip.component').then(m => m.ActiveTripComponent),
       },
     ],
   },
-  {
-    path: 'search',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/search/search.component').then(m => m.SearchComponent),
-  },
-  {
-    path: 'itinerary',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/itinerary/itinerary.component').then(m => m.ItineraryComponent),
-  },
-  {
-    path: 'timeline',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/timeline/timeline.component').then(m => m.TimelineComponent),
-  },
-  {
-    path: 'budget',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/budget/budget.component').then(m => m.BudgetComponent),
-  },
-  {
-    path: 'conflicts',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/conflicts/conflicts.component').then(m => m.ConflictsComponent),
-  },
-  {
-    path: 'checklist',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/checklist/checklist.component').then(m => m.ChecklistComponent),
-  },
-  {
-    path: 'documents',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/documents/documents.component').then(m => m.DocumentsComponent),
-  },
-  {
-    path: 'active-trip',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/active-trip/active-trip.component').then(m => m.ActiveTripComponent),
-  },
-  {
-    path: 'hotels',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/hotel-search/hotel-search.component').then(m => m.HotelSearchComponent),
-  },
-  {
-    path: 'cars',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/car-search/car-search.component').then(m => m.CarSearchComponent),
-  },
-  {
-    path: 'transport',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/transport-search/transport-search.component').then(m => m.TransportSearchComponent),
-  },
-  {
-    path: 'tours',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/tour-search/tour-search.component').then(m => m.TourSearchComponent),
-  },
-  {
-    path: 'attractions',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/attraction-search/attraction-search.component').then(m => m.AttractionSearchComponent),
-  },
-  { path: '**', redirectTo: 'home' },
+
+  // ── Legacy redirects ──
+  { path: 'home', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'search', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'itinerary', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'timeline', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'budget', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'conflicts', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'checklist', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'documents', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'active-trip', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'hotels', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'cars', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'transport', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'tours', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'attractions', redirectTo: 'viagens', pathMatch: 'full' },
+  { path: 'planner', redirectTo: 'viagens', pathMatch: 'full' },
+
+  { path: '**', redirectTo: 'viagens' },
 ];

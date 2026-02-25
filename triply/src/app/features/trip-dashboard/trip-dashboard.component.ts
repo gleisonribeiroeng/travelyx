@@ -1,13 +1,13 @@
 import { Component, inject, computed } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
+import { TripRouterService } from '../../core/services/trip-router.service';
 import { BudgetService } from '../../core/services/budget.service';
 import { TripScoreService } from '../../core/services/trip-score.service';
 import { ChecklistService } from '../../core/services/checklist.service';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
-import { ConflictAlert } from '../../core/models/trip.models';
+import { ConflictAlert, TripStatus } from '../../core/models/trip.models';
 
 @Component({
   selector: 'app-trip-dashboard',
@@ -17,7 +17,7 @@ import { ConflictAlert } from '../../core/models/trip.models';
   styleUrl: './trip-dashboard.component.scss',
 })
 export class TripDashboardComponent {
-  private readonly router = inject(Router);
+  private readonly tripRouter = inject(TripRouterService);
   protected readonly tripState = inject(TripStateService);
   protected readonly budget = inject(BudgetService);
   protected readonly score = inject(TripScoreService);
@@ -67,12 +67,12 @@ export class TripDashboardComponent {
   });
 
   readonly stats = computed(() => [
-    { icon: 'flight', label: 'Voos', count: this.tripState.flights().length, route: '/search', color: 'var(--triply-cat-flight)' },
-    { icon: 'hotel', label: 'Hotéis', count: this.tripState.stays().length, route: '/hotels', color: 'var(--triply-cat-stay)' },
-    { icon: 'directions_car', label: 'Carros', count: this.tripState.carRentals().length, route: '/cars', color: 'var(--triply-cat-car)' },
-    { icon: 'local_activity', label: 'Passeios', count: this.tripState.activities().length, route: '/tours', color: 'var(--triply-cat-activity)' },
-    { icon: 'directions_bus', label: 'Transportes', count: this.tripState.transports().length, route: '/transport', color: 'var(--triply-cat-transport)' },
-    { icon: 'museum', label: 'Atrações', count: this.tripState.attractions().length, route: '/attractions', color: 'var(--triply-cat-attraction)' },
+    { icon: 'flight', label: 'Voos', count: this.tripState.flights().length, route: 'search', color: 'var(--triply-cat-flight)' },
+    { icon: 'hotel', label: 'Hotéis', count: this.tripState.stays().length, route: 'hotels', color: 'var(--triply-cat-stay)' },
+    { icon: 'directions_car', label: 'Carros', count: this.tripState.carRentals().length, route: 'cars', color: 'var(--triply-cat-car)' },
+    { icon: 'local_activity', label: 'Passeios', count: this.tripState.activities().length, route: 'tours', color: 'var(--triply-cat-activity)' },
+    { icon: 'directions_bus', label: 'Transportes', count: this.tripState.transports().length, route: 'transport', color: 'var(--triply-cat-transport)' },
+    { icon: 'museum', label: 'Atrações', count: this.tripState.attractions().length, route: 'attractions', color: 'var(--triply-cat-attraction)' },
   ].filter(s => s.count > 0));
 
   getTypeIcon(type: string): string {
@@ -84,7 +84,11 @@ export class TripDashboardComponent {
     return map[type] || 'event';
   }
 
+  setStatus(status: TripStatus): void {
+    this.tripState.setTripStatus(status);
+  }
+
   navigateTo(route: string): void {
-    this.router.navigate([route]);
+    this.tripRouter.navigate(route);
   }
 }

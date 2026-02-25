@@ -1,0 +1,91 @@
+<div class="trip-list-page">
+  <div class="page-header">
+    <h1>Minhas Viagens</h1>
+    <button mat-fab extended color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Nova Viagem
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <mat-chip-listbox aria-label="Filtrar por status">
+      <mat-chip-option [selected]="statusFilter() === ''" (selectionChange)="statusFilter.set('')">
+        Todas
+      </mat-chip-option>
+      <mat-chip-option [selected]="statusFilter() === 'planejamento'" (selectionChange)="statusFilter.set('planejamento')">
+        Planejamento
+      </mat-chip-option>
+      <mat-chip-option [selected]="statusFilter() === 'ativa'" (selectionChange)="statusFilter.set('ativa')">
+        Ativas
+      </mat-chip-option>
+      <mat-chip-option [selected]="statusFilter() === 'concluida'" (selectionChange)="statusFilter.set('concluida')">
+        Concluídas
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </div>
+
+  @if (tripState.isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Carregando viagens...</p>
+    </div>
+  } @else if (filteredTrips().length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">luggage</mat-icon>
+      <h2>Nenhuma viagem encontrada</h2>
+      @if (statusFilter()) {
+        <p>Nenhuma viagem com o status selecionado.</p>
+      } @else {
+        <p>Crie sua primeira viagem para começar a planejar!</p>
+        <button mat-flat-button color="primary" (click)="openCreateDialog()">
+          <mat-icon>add</mat-icon>
+          Criar Viagem
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="trips-grid">
+      @for (trip of filteredTrips(); track trip.id) {
+        <mat-card class="trip-card" (click)="selectTrip(trip.id)">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="trip-avatar">{{ trip.destination ? 'flight_takeoff' : 'travel_explore' }}</mat-icon>
+            <mat-card-title>{{ trip.name || 'Viagem sem nome' }}</mat-card-title>
+            <mat-card-subtitle>{{ trip.destination || 'Destino não definido' }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="trip-info">
+              @if (trip.dates.start) {
+                <span class="trip-dates">
+                  <mat-icon>calendar_today</mat-icon>
+                  {{ trip.dates.start | date:'dd/MM/yyyy' }} — {{ trip.dates.end | date:'dd/MM/yyyy' }}
+                </span>
+              }
+              <span class="trip-status" [class]="'status-' + trip.status">
+                {{ getStatusLabel(trip.status) }}
+              </span>
+            </div>
+            <div class="trip-stats">
+              @if (trip.flights.length) {
+                <span><mat-icon>flight</mat-icon> {{ trip.flights.length }}</span>
+              }
+              @if (trip.stays.length) {
+                <span><mat-icon>hotel</mat-icon> {{ trip.stays.length }}</span>
+              }
+              @if (trip.activities.length) {
+                <span><mat-icon>local_activity</mat-icon> {{ trip.activities.length }}</span>
+              }
+              @if (trip.itineraryItems.length) {
+                <span><mat-icon>event</mat-icon> {{ trip.itineraryItems.length }} itens</span>
+              }
+            </div>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <button mat-icon-button color="warn" (click)="deleteTrip(trip.id); $event.stopPropagation()" matTooltip="Excluir viagem">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

@@ -6,6 +6,8 @@ import {
   SearchResultBase,
 } from './base.model';
 
+export type TripStatus = 'planejamento' | 'ativa' | 'concluida';
+
 /**
  * Top-level container for a trip plan.
  * Holds all search results and itinerary items for a single trip.
@@ -14,6 +16,8 @@ export interface Trip {
   id: string;
   name: string;
   destination: string;
+  status: TripStatus;
+  currency: string;
   dates: DateRange;
   flights: Flight[];
   stays: Stay[];

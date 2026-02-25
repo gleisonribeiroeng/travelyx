@@ -32,14 +32,14 @@
       @if (trip().dates.start) {
         <p class="cta-dates">{{ trip().dates.start }} — {{ trip().dates.end }}</p>
       }
-      <button mat-flat-button class="cta-button" (click)="navigateTo('/itinerary')">
+      <button mat-flat-button class="cta-button" (click)="navigateTo('itinerary')">
         Ver Roteiro
       </button>
     } @else {
       <mat-icon class="cta-icon">explore</mat-icon>
       <h4>Comece sua viagem</h4>
       <p>Planeje seu destino, voos e hospedagem</p>
-      <button mat-flat-button class="cta-button" (click)="navigateTo('/planner')">
+      <button mat-flat-button class="cta-button" (click)="navigateTo('planner')">
         Planejar Viagem
       </button>
     }
