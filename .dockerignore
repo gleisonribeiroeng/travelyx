@@ -1,0 +1,17 @@
+node_modules
+triply/node_modules
+backend/node_modules
+triply/dist
+backend/dist
+triply/.angular
+backend/generated
+*.db
+*.db-journal
+.env
+.git
+.gitignore
+*.md
+nixpacks.toml
+.planning
+.claude
+.vscode

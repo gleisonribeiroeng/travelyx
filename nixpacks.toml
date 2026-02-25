@@ -1,0 +1,22 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "npm-9_x"]
+
+[variables]
+NODE_ENV = "production"
+NPM_CONFIG_PRODUCTION = "false"
+NIXPACKS_NO_PRUNE = "1"
+
+[phases.install]
+cmds = [
+  "cd triply && npm install --include=dev",
+  "cd backend && npm install --include=dev"
+]
+
+[phases.build]
+cmds = [
+  "cd triply && npx ng build --configuration production",
+  "cd backend && npx prisma generate && npx nest build"
+]
+
+[start]
+cmd = "cd backend && npx prisma migrate deploy && node dist/main"
