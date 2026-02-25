@@ -39,10 +39,35 @@ export class AuthService {
   generateJwt(user: GoogleUser, dbUserId: string): string {
     const payload = {
       sub: dbUserId,
+      googleId: user.googleId,
       email: user.email,
       name: user.name,
       picture: user.picture,
     };
     return this.jwtService.sign(payload);
+  }
+
+  async ensureUserExists(payload: { sub: string; googleId?: string; email: string; name: string; picture: string }): Promise<string> {
+    // Check if user exists by ID
+    const existing = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    if (existing) return existing.id;
+
+    // User doesn't exist (DB was recreated) — recreate via googleId or email
+    if (payload.googleId) {
+      const user = await this.prisma.user.upsert({
+        where: { googleId: payload.googleId },
+        update: { email: payload.email, name: payload.name, picture: payload.picture },
+        create: { id: payload.sub, googleId: payload.googleId, email: payload.email, name: payload.name, picture: payload.picture },
+      });
+      return user.id;
+    }
+
+    // No googleId in token — create with email as fallback googleId
+    const user = await this.prisma.user.upsert({
+      where: { email: payload.email },
+      update: { name: payload.name, picture: payload.picture },
+      create: { id: payload.sub, googleId: `legacy-${payload.email}`, email: payload.email, name: payload.name, picture: payload.picture },
+    });
+    return user.id;
   }
 }
