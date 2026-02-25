@@ -1,0 +1,115 @@
+<div class="conflicts-page">
+  <div class="page-header">
+    <h1>Detector de Conflitos</h1>
+    <p>Analise automatica de problemas no seu roteiro</p>
+  </div>
+
+  <!-- Status Banner -->
+  @if (conflicts().length === 0) {
+    <mat-card class="status-card clean">
+      <mat-card-content>
+        <mat-icon>check_circle</mat-icon>
+        <div>
+          <strong>Tudo certo!</strong>
+          <p>Nenhum conflito detectado no seu roteiro.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="status-badges">
+      @if (errorCount() > 0) {
+        <div class="badge error">
+          <mat-icon>error</mat-icon>
+          <span>{{ errorCount() }} {{ errorCount() === 1 ? 'erro' : 'erros' }}</span>
+        </div>
+      }
+      @if (warningCount() > 0) {
+        <div class="badge warning">
+          <mat-icon>warning</mat-icon>
+          <span>{{ warningCount() }} {{ warningCount() === 1 ? 'alerta' : 'alertas' }}</span>
+        </div>
+      }
+      @if (infoCount() > 0) {
+        <div class="badge info">
+          <mat-icon>info</mat-icon>
+          <span>{{ infoCount() }} {{ infoCount() === 1 ? 'sugestao' : 'sugestoes' }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Errors -->
+  @if (groupedConflicts().errors.length > 0) {
+    <section class="conflict-section">
+      <h3 class="section-title error"><mat-icon>error</mat-icon> Erros criticos</h3>
+      @for (conflict of groupedConflicts().errors; track conflict.id) {
+        <mat-card class="conflict-card error">
+          <mat-card-content>
+            <div class="conflict-header">
+              <mat-icon class="type-icon">{{ getTypeIcon(conflict.type) }}</mat-icon>
+              <div class="conflict-info">
+                <span class="conflict-type">{{ getTypeLabel(conflict.type) }}</span>
+                <span class="conflict-date">{{ formatDate(conflict.date) }}</span>
+              </div>
+            </div>
+            <p class="conflict-message">{{ conflict.message }}</p>
+            <div class="conflict-suggestion">
+              <mat-icon>lightbulb</mat-icon>
+              <span>{{ conflict.suggestion }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </section>
+  }
+
+  <!-- Warnings -->
+  @if (groupedConflicts().warnings.length > 0) {
+    <section class="conflict-section">
+      <h3 class="section-title warning"><mat-icon>warning</mat-icon> Alertas</h3>
+      @for (conflict of groupedConflicts().warnings; track conflict.id) {
+        <mat-card class="conflict-card warning">
+          <mat-card-content>
+            <div class="conflict-header">
+              <mat-icon class="type-icon">{{ getTypeIcon(conflict.type) }}</mat-icon>
+              <div class="conflict-info">
+                <span class="conflict-type">{{ getTypeLabel(conflict.type) }}</span>
+                <span class="conflict-date">{{ formatDate(conflict.date) }}</span>
+              </div>
+            </div>
+            <p class="conflict-message">{{ conflict.message }}</p>
+            <div class="conflict-suggestion">
+              <mat-icon>lightbulb</mat-icon>
+              <span>{{ conflict.suggestion }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </section>
+  }
+
+  <!-- Info -->
+  @if (groupedConflicts().info.length > 0) {
+    <section class="conflict-section">
+      <h3 class="section-title info"><mat-icon>info</mat-icon> Sugestoes</h3>
+      @for (conflict of groupedConflicts().info; track conflict.id) {
+        <mat-card class="conflict-card info">
+          <mat-card-content>
+            <div class="conflict-header">
+              <mat-icon class="type-icon">{{ getTypeIcon(conflict.type) }}</mat-icon>
+              <div class="conflict-info">
+                <span class="conflict-type">{{ getTypeLabel(conflict.type) }}</span>
+                <span class="conflict-date">{{ formatDate(conflict.date) }}</span>
+              </div>
+            </div>
+            <p class="conflict-message">{{ conflict.message }}</p>
+            <div class="conflict-suggestion">
+              <mat-icon>lightbulb</mat-icon>
+              <span>{{ conflict.suggestion }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </section>
+  }
+</div>

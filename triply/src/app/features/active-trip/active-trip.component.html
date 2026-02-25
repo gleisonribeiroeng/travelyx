@@ -1,0 +1,112 @@
+<div class="active-trip">
+  <!-- Header -->
+  <div class="active-header">
+    <div class="header-info">
+      <span class="day-label">Dia {{ dayNumber() }} de {{ totalDays() }}</span>
+      <h1>{{ trip().destination || 'Minha Viagem' }}</h1>
+    </div>
+    <button mat-icon-button (click)="navigateTo('/home')" matTooltip="Voltar ao dashboard">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <mat-progress-bar mode="determinate" [value]="progressPercent()" class="trip-progress"></mat-progress-bar>
+
+  <!-- Current/Next Item -->
+  @if (currentItem(); as item) {
+    <mat-card class="now-card">
+      <mat-card-content>
+        <span class="now-label">AGORA</span>
+        <div class="now-content">
+          <mat-icon class="now-icon">{{ getTypeIcon(item.type) }}</mat-icon>
+          <div class="now-info">
+            <strong>{{ item.label }}</strong>
+            @if (item.timeSlot) {
+              <span>{{ item.timeSlot }} · {{ item.durationMinutes ?? 60 }} min</span>
+            }
+            @if (item.notes) {
+              <span class="now-notes">{{ item.notes }}</span>
+            }
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  } @else if (nextItem(); as next) {
+    <mat-card class="next-card">
+      <mat-card-content>
+        <span class="next-label">PRÓXIMO</span>
+        @if (minutesUntilNext() !== null) {
+          <span class="next-countdown">em {{ minutesUntilNext() }} min</span>
+        }
+        <div class="next-content">
+          <mat-icon class="next-icon">{{ getTypeIcon(next.type) }}</mat-icon>
+          <div class="next-info">
+            <strong>{{ next.label }}</strong>
+            @if (next.timeSlot) {
+              <span>{{ next.timeSlot }}</span>
+            }
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card class="free-card">
+      <mat-card-content>
+        <mat-icon>wb_sunny</mat-icon>
+        <strong>Dia livre!</strong>
+        <span>Nenhum compromisso agendado.</span>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Today's Schedule -->
+  @if (todayItems().length > 0) {
+    <div class="schedule-section">
+      <h3>Agenda de hoje</h3>
+      @for (item of todayItems(); track item.id) {
+        <div class="schedule-item" [class.past]="item.timeSlot && item.timeSlot < currentTime()"
+             [class.current]="item.id === currentItem()?.id">
+          <span class="schedule-time">{{ item.timeSlot || '—' }}</span>
+          <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
+          <span class="schedule-label">{{ item.label }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Tomorrow Preview -->
+  @if (tomorrowItems().length > 0) {
+    <div class="tomorrow-section">
+      <h3>Amanhã</h3>
+      @for (item of tomorrowItems(); track item.id; let i = $index) {
+        @if (i < 3) {
+          <div class="schedule-item tomorrow">
+            <span class="schedule-time">{{ item.timeSlot || '—' }}</span>
+            <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
+            <span class="schedule-label">{{ item.label }}</span>
+          </div>
+        }
+      }
+      @if (tomorrowItems().length > 3) {
+        <span class="more-items">+{{ tomorrowItems().length - 3 }} mais</span>
+      }
+    </div>
+  }
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <button mat-stroked-button (click)="navigateTo('/documents')">
+      <mat-icon>description</mat-icon> Documentos
+    </button>
+    <button mat-stroked-button (click)="navigateTo('/budget')">
+      <mat-icon>account_balance_wallet</mat-icon> Orçamento
+    </button>
+    <button mat-stroked-button (click)="navigateTo('/checklist')">
+      <mat-icon>checklist</mat-icon> Checklist
+    </button>
+    <button mat-stroked-button (click)="navigateTo('/itinerary')">
+      <mat-icon>map</mat-icon> Roteiro
+    </button>
+  </div>
+</div>

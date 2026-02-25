@@ -32,7 +32,7 @@ export const routes: Routes = [
     path: 'home',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/home/home.component').then(m => m.HomeComponent),
+      import('./features/trip-dashboard/trip-dashboard.component').then(m => m.TripDashboardComponent),
   },
   {
     path: 'planner',
@@ -89,6 +89,42 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/itinerary/itinerary.component').then(m => m.ItineraryComponent),
+  },
+  {
+    path: 'timeline',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/timeline/timeline.component').then(m => m.TimelineComponent),
+  },
+  {
+    path: 'budget',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/budget/budget.component').then(m => m.BudgetComponent),
+  },
+  {
+    path: 'conflicts',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/conflicts/conflicts.component').then(m => m.ConflictsComponent),
+  },
+  {
+    path: 'checklist',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/checklist/checklist.component').then(m => m.ChecklistComponent),
+  },
+  {
+    path: 'documents',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/documents/documents.component').then(m => m.DocumentsComponent),
+  },
+  {
+    path: 'active-trip',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/active-trip/active-trip.component').then(m => m.ActiveTripComponent),
   },
   {
     path: 'hotels',

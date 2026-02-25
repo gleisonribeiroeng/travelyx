@@ -14,6 +14,7 @@ import {
   Attraction,
   ItineraryItem,
   AttachmentMeta,
+  ManualExpense,
 } from '../models/trip.models';
 
 const DEFAULT_TRIP: Trip = {
@@ -39,8 +40,10 @@ export class TripStateService {
   private readonly baseUrl = `${environment.apiBaseUrl}/api/trips`;
 
   private readonly _trip = signal<Trip>({ ...DEFAULT_TRIP });
+  private readonly _manualExpenses = signal<ManualExpense[]>([]);
 
   readonly trip = this._trip.asReadonly();
+  readonly manualExpenses = this._manualExpenses.asReadonly();
   readonly isLoading = signal(false);
 
   readonly flights = computed(() => this._trip().flights);
@@ -304,6 +307,28 @@ export class TripStateService {
       ),
       updatedAt: new Date().toISOString(),
     }));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Manual Expenses
+  // ---------------------------------------------------------------------------
+
+  addManualExpense(expense: ManualExpense): void {
+    this._manualExpenses.update((list) => [...list, expense]);
+  }
+
+  removeManualExpense(id: string): void {
+    this._manualExpenses.update((list) => list.filter((e) => e.id !== id));
+  }
+
+  updateManualExpense(updated: ManualExpense): void {
+    this._manualExpenses.update((list) =>
+      list.map((e) => (e.id === updated.id ? updated : e))
+    );
+  }
+
+  setManualExpenses(expenses: ManualExpense[]): void {
+    this._manualExpenses.set(expenses);
   }
 
   // ---------------------------------------------------------------------------

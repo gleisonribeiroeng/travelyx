@@ -25,7 +25,7 @@ export class SidebarComponent {
   mobileOpen = signal(false);
 
   navItems: NavItem[] = [
-    { icon: 'home', label: 'Início', route: '/home' },
+    { icon: 'dashboard', label: 'Dashboard', route: '/home' },
     { icon: 'auto_fix_high', label: 'Wizard da Viagem', route: '/planner', section: 'PLANEJAMENTO' },
     { icon: 'flight', label: 'Voos', route: '/search', section: 'PESQUISAS' },
     { icon: 'hotel', label: 'Hotéis', route: '/hotels' },
@@ -33,7 +33,12 @@ export class SidebarComponent {
     { icon: 'directions_bus', label: 'Transporte', route: '/transport' },
     { icon: 'local_activity', label: 'Passeios', route: '/tours' },
     { icon: 'museum', label: 'Atrações', route: '/attractions' },
-    { icon: 'map', label: 'Roteiro', route: '/itinerary', section: 'MEU ROTEIRO' },
+    { icon: 'view_timeline', label: 'Timeline', route: '/timeline', section: 'MEU ROTEIRO' },
+    { icon: 'map', label: 'Roteiro', route: '/itinerary' },
+    { icon: 'account_balance_wallet', label: 'Orçamento', route: '/budget', section: 'GESTÃO' },
+    { icon: 'warning', label: 'Conflitos', route: '/conflicts' },
+    { icon: 'checklist', label: 'Checklist', route: '/checklist' },
+    { icon: 'folder', label: 'Documentos', route: '/documents' },
   ];
 
   toggleMobile(): void {

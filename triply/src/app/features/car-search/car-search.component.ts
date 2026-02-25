@@ -50,9 +50,11 @@ export class CarSearchComponent {
   carSearchForm = new FormGroup({
     pickupLocation: this.pickupLocationControl,
     dropoffLocation: this.dropoffLocationControl,
-    pickupDate: new FormControl<Date | null>(null, Validators.required),
+    dateRange: new FormGroup({
+      start: new FormControl<Date | null>(null, Validators.required),
+      end: new FormControl<Date | null>(null, Validators.required),
+    }),
     pickupTime: new FormControl('10:00', Validators.required),
-    dropoffDate: new FormControl<Date | null>(null, Validators.required),
     dropoffTime: new FormControl('10:00', Validators.required),
     driverAge: new FormControl(30, [
       Validators.required,
@@ -127,7 +129,7 @@ export class CarSearchComponent {
   }
 
   get minDropoffDate(): Date {
-    return this.carSearchForm.value.pickupDate || new Date();
+    return this.carSearchForm.value.dateRange?.start || new Date();
   }
 
   // Location validator - ensures a CarLocationOption was selected from autocomplete
@@ -183,9 +185,9 @@ export class CarSearchComponent {
     const formValue = this.carSearchForm.value;
     const pickupLoc = formValue.pickupLocation as CarLocationOption;
     const dropoffLoc = this.sameDropOff() ? pickupLoc : formValue.dropoffLocation as CarLocationOption;
-    const pickupDate = formValue.pickupDate;
+    const pickupDate = formValue.dateRange?.start;
     const pickupTime = formValue.pickupTime ?? '10:00';
-    const dropoffDate = formValue.dropoffDate;
+    const dropoffDate = formValue.dateRange?.end;
     const dropoffTime = formValue.dropoffTime ?? '10:00';
     const driverAge = formValue.driverAge ?? 30;
 

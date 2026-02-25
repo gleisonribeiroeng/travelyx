@@ -140,24 +140,25 @@ interface MonthOption {
 
             <!-- Date fields (fixed dates) -->
             @if (!flexibleDates()) {
-              <div class="form-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>Data de ida</mat-label>
-                  <input matInput [matDatepicker]="dpDeparture"
-                         formControlName="departure"
-                         [min]="minDate">
-                  <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
-                  <mat-datepicker #dpDeparture></mat-datepicker>
-                </mat-form-field>
-
+              <div class="form-row" formGroupName="dateRange">
                 @if (tripType() === 'roundTrip') {
                   <mat-form-field appearance="outline">
-                    <mat-label>Data de volta</mat-label>
-                    <input matInput [matDatepicker]="dpReturn"
-                           formControlName="returnDate"
-                           [min]="searchForm.get('departure')?.value || minDate">
-                    <mat-datepicker-toggle matSuffix [for]="dpReturn"></mat-datepicker-toggle>
-                    <mat-datepicker #dpReturn></mat-datepicker>
+                    <mat-label>Ida — Volta</mat-label>
+                    <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate">
+                      <input matStartDate formControlName="start" placeholder="Ida">
+                      <input matEndDate formControlName="end" placeholder="Volta">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #rangePicker></mat-date-range-picker>
+                  </mat-form-field>
+                } @else {
+                  <mat-form-field appearance="outline">
+                    <mat-label>Data de ida</mat-label>
+                    <input matInput [matDatepicker]="dpDeparture"
+                           formControlName="start"
+                           [min]="minDate">
+                    <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
+                    <mat-datepicker #dpDeparture></mat-datepicker>
                   </mat-form-field>
                 }
               </div>
@@ -569,8 +570,10 @@ export class WizardFlightStepComponent {
   searchForm = new FormGroup({
     origin: this.originControl,
     destination: this.destinationControl,
-    departure: new FormControl<Date | null>(null),
-    returnDate: new FormControl<Date | null>(null),
+    dateRange: new FormGroup({
+      start: new FormControl<Date | null>(null),
+      end: new FormControl<Date | null>(null),
+    }),
     passengers: new FormControl(1, [Validators.required, Validators.min(1), Validators.max(9)]),
   });
 
@@ -620,7 +623,7 @@ export class WizardFlightStepComponent {
     if (this.flexibleDates()) {
       return hasAirports && passengersValid && this.selectedMonths().length > 0;
     }
-    return hasAirports && passengersValid && !!this.searchForm.get('departure')?.value;
+    return hasAirports && passengersValid && !!this.searchForm.get('dateRange')?.get('start')?.value;
   }
 
   isAdded(id: string): boolean {
@@ -679,7 +682,7 @@ export class WizardFlightStepComponent {
           },
         });
     } else {
-      const departure = this.searchForm.value.departure;
+      const departure = this.searchForm.value.dateRange?.start;
       if (!departure) return;
 
       const params: any = {
@@ -689,8 +692,8 @@ export class WizardFlightStepComponent {
         adults: passengers,
       };
 
-      if (this.tripType() === 'roundTrip' && this.searchForm.value.returnDate) {
-        params.returnDate = this.searchForm.value.returnDate.toISOString().split('T')[0];
+      if (this.tripType() === 'roundTrip' && this.searchForm.value.dateRange?.end) {
+        params.returnDate = this.searchForm.value.dateRange.end.toISOString().split('T')[0];
       }
 
       this.api.searchFlights(params)
@@ -778,7 +781,7 @@ export class WizardFlightStepComponent {
   private searchReturnFlights(): void {
     const origin = this.originControl.value as AirportOption;
     const dest = this.destinationControl.value as AirportOption;
-    const returnDate = this.searchForm.value.returnDate;
+    const returnDate = this.searchForm.value.dateRange?.end;
     if (!origin || !dest || !returnDate) return;
 
     this.isSearching.set(true);

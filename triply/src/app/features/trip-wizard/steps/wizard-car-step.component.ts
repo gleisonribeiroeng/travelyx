@@ -88,24 +88,22 @@ import { CarRental } from '../../../core/models/trip.models';
               </mat-form-field>
             </div>
 
-            <div class="form-row">
+            <div class="form-row" formGroupName="dateRange">
               <mat-form-field appearance="outline">
-                <mat-label>Data retirada</mat-label>
-                <input matInput [matDatepicker]="dpPickup" formControlName="pickupDate" [min]="minDate">
-                <mat-datepicker-toggle matSuffix [for]="dpPickup"></mat-datepicker-toggle>
-                <mat-datepicker #dpPickup></mat-datepicker>
+                <mat-label>Retirada — Devolução</mat-label>
+                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate">
+                  <input matStartDate formControlName="start" placeholder="Retirada">
+                  <input matEndDate formControlName="end" placeholder="Devolução">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+                <mat-date-range-picker #rangePicker></mat-date-range-picker>
               </mat-form-field>
+            </div>
 
+            <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>Hora retirada</mat-label>
                 <input matInput type="time" formControlName="pickupTime">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Data devolução</mat-label>
-                <input matInput [matDatepicker]="dpDropoff" formControlName="dropoffDate" [min]="minDropoff">
-                <mat-datepicker-toggle matSuffix [for]="dpDropoff"></mat-datepicker-toggle>
-                <mat-datepicker #dpDropoff></mat-datepicker>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
@@ -231,7 +229,7 @@ export class WizardCarStepComponent {
   readonly minDate = new Date();
 
   get minDropoff(): Date {
-    return this.searchForm.value.pickupDate || new Date();
+    return this.searchForm.value.dateRange?.start || new Date();
   }
 
   pickupControl = new FormControl<CarLocationOption | null>(null, [
@@ -246,9 +244,11 @@ export class WizardCarStepComponent {
   searchForm = new FormGroup({
     pickup: this.pickupControl,
     dropoff: this.dropoffControl,
-    pickupDate: new FormControl<Date | null>(null, Validators.required),
+    dateRange: new FormGroup({
+      start: new FormControl<Date | null>(null, Validators.required),
+      end: new FormControl<Date | null>(null, Validators.required),
+    }),
     pickupTime: new FormControl('10:00', Validators.required),
-    dropoffDate: new FormControl<Date | null>(null, Validators.required),
     dropoffTime: new FormControl('10:00', Validators.required),
   });
 
@@ -286,8 +286,8 @@ export class WizardCarStepComponent {
     if (this.searchForm.invalid) return;
     const pickup = this.searchForm.value.pickup as CarLocationOption;
     const dropoff = this.searchForm.value.dropoff as CarLocationOption;
-    const pickupDate = this.searchForm.value.pickupDate;
-    const dropoffDate = this.searchForm.value.dropoffDate;
+    const pickupDate = this.searchForm.value.dateRange?.start;
+    const dropoffDate = this.searchForm.value.dateRange?.end;
     if (!pickup || !dropoff || !pickupDate || !dropoffDate) return;
 
     this.isSearching.set(true);
