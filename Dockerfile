@@ -15,6 +15,8 @@ RUN cd backend && npm install
 
 COPY backend/ ./backend/
 
+ENV DATABASE_URL="file:./dev.db"
+
 WORKDIR /app/backend
 RUN npx prisma generate
 RUN npm run build
@@ -24,7 +26,6 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV DATABASE_URL="file:./dev.db"
 
 EXPOSE 3000
 
