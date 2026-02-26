@@ -149,7 +149,13 @@
   margin-bottom: var(--triply-spacing-md);
   overflow: hidden;
   border-radius: var(--triply-radius-md);
+  box-shadow: var(--triply-shadow-xs);
   transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-normal);
+
+  &.added {
+    border: 2px solid var(--triply-success) !important;
+    opacity: 0.7;
+  }
 }
 
 .hotel-card-layout {
@@ -379,7 +385,7 @@
 
   .hotel-card:hover {
     box-shadow: var(--triply-shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .hotel-carousel:hover .carousel-btn {

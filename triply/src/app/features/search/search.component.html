@@ -354,8 +354,9 @@
 
     <!-- Flight Result Cards -->
     @for (flight of filteredFlights(); track flight.id) {
-      <div class="flight-card">
-        <div class="flight-row">
+      <mat-card class="flight-card" [class.added]="isAdded(flight.id)"
+                (click)="openDetail(flight)" role="button" tabindex="0">
+        <mat-card-content>
           <!-- Tags -->
           @if (categorized().cheapest?.id === flight.id || categorized().fastest?.id === flight.id || categorized().bestValue?.id === flight.id) {
             <div class="flight-tags">
@@ -371,65 +372,56 @@
             </div>
           }
 
-          <!-- Left: Airline + Times -->
-          <div class="flight-left">
-            <div class="airline-logo">
+          <div class="result-row">
+            <!-- Airline -->
+            <div class="result-airline">
               <mat-icon>flight</mat-icon>
-            </div>
-
-            <div class="flight-schedule">
-              <div class="airport-pair">
-                <div class="airport">
-                  <span class="iata">{{ flight.origin }}</span>
-                  <span class="time">{{ formatTime(flight.departureAt) }}</span>
-                </div>
-                <div class="airport">
-                  <span class="iata">{{ flight.destination }}</span>
-                  <span class="time">
-                    {{ formatTime(flight.arrivalAt) }}
-                    @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
-                      <span class="next-day">+1</span>
-                    }
-                  </span>
-                </div>
+              <div>
+                <strong>{{ flight.airline }}</strong>
+                <span class="flight-number">{{ flight.flightNumber }}</span>
               </div>
             </div>
 
-            <!-- Center: Stops + Duration -->
-            <div class="flight-meta">
-              @if (flight.stops === 0) {
-                <a class="stops-badge direct">Direto</a>
+            <!-- Departure -->
+            <div class="result-route">
+              <span class="time">{{ formatTime(flight.departureAt) }}</span>
+              <span class="code">{{ flight.origin }}</span>
+            </div>
+
+            <!-- Duration -->
+            <div class="result-duration">
+              <span>{{ formatDuration(flight.durationMinutes) }}</span>
+              <div class="duration-line"></div>
+              <span class="stops">{{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
+            </div>
+
+            <!-- Arrival -->
+            <div class="result-route">
+              <span class="time">
+                {{ formatTime(flight.arrivalAt) }}
+                @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
+                  <span class="next-day">+1</span>
+                }
+              </span>
+              <span class="code">{{ flight.destination }}</span>
+            </div>
+
+            <!-- Price + Action -->
+            <div class="result-price">
+              <span class="price-value">{{ flight.price.currency }} {{ flight.price.total | number:'1.2-2' }}</span>
+              @if (isAdded(flight.id)) {
+                <button mat-stroked-button color="warn" (click)="openDetail(flight); $event.stopPropagation()">
+                  <mat-icon>check</mat-icon> Adicionado
+                </button>
               } @else {
-                <a class="stops-badge">{{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</a>
+                <button mat-flat-button color="primary" (click)="openDetail(flight); $event.stopPropagation()">
+                  Ver detalhes
+                </button>
               }
-              <span class="duration">{{ formatDuration(flight.durationMinutes) }}</span>
             </div>
           </div>
-
-          <!-- Right: Price + Actions -->
-          <div class="flight-right">
-            <div class="price-section">
-              <span class="price-label">Final ida e volta</span>
-              <span class="price-amount">{{ flight.price.total | currency: 'BRL':'symbol':'1.0-0' }}</span>
-            </div>
-
-            <div class="card-actions">
-              <button mat-icon-button (click)="addToItinerary(flight)" matTooltip="Adicionar ao roteiro">
-                <mat-icon>add_shopping_cart</mat-icon>
-              </button>
-              <a
-                mat-icon-button
-                [href]="flight.link.url"
-                target="_blank"
-                rel="noopener noreferrer"
-                matTooltip="Ver em {{ flight.link.provider }}"
-              >
-                <mat-icon>open_in_new</mat-icon>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+        </mat-card-content>
+      </mat-card>
     }
   </div>
 }

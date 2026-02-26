@@ -29,6 +29,12 @@ import { TripStateService } from '../../core/services/trip-state.service';
 import { Flight } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import {
+  ItemDetailDialogComponent,
+  ItemDetailData,
+  ItemDetailResult,
+} from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import {
   categorizeFlights,
   CategorizedFlights,
 } from '../../core/utils/flight-categorizer.util';
@@ -51,6 +57,7 @@ export class SearchComponent {
   private readonly flightApi = inject(FlightApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // Trip type & flexible dates
   readonly tripType = signal<TripType>('roundTrip');
@@ -537,6 +544,24 @@ export class SearchComponent {
       attachment: null,
     });
     this.notify.success(`Trecho ${segmentIndex + 1} adicionado ao roteiro`);
+  }
+
+  isAdded(id: string): boolean {
+    return this.tripState.flights().some((f) => f.id === id);
+  }
+
+  openDetail(flight: Flight): void {
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'flight', item: flight, isAdded: this.isAdded(flight.id) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.addToItinerary(flight);
+      else if (result.action === 'remove') this.tripState.removeFlight(flight.id);
+    });
   }
 
   addToItinerary(flight: Flight): void {

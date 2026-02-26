@@ -129,9 +129,9 @@ html {
   // ── Sidebar (light theme) ──
   --triply-dash-sidebar-bg: var(--triply-surface-1);
   --triply-dash-sidebar-bg-dark: var(--triply-surface-2);
-  --triply-dash-sidebar-text: var(--triply-text-secondary);
-  --triply-dash-sidebar-text-muted: var(--triply-text-tertiary);
-  --triply-dash-sidebar-section: var(--triply-text-tertiary);
+  --triply-dash-sidebar-text: var(--triply-text-primary);
+  --triply-dash-sidebar-text-muted: #4B5563;
+  --triply-dash-sidebar-section: #6B7280;
   --triply-dash-sidebar-active-bg: rgba(108, 92, 231, 0.1);
   --triply-dash-sidebar-active-accent: var(--triply-primary);
   --triply-dash-sidebar-hover-bg: rgba(108, 92, 231, 0.05);

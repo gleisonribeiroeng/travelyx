@@ -29,7 +29,13 @@
   margin-bottom: var(--triply-spacing-md);
   overflow: hidden;
   border-radius: var(--triply-radius-md);
+  box-shadow: var(--triply-shadow-xs);
   transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-normal);
+
+  &.added {
+    border-left: 3px solid var(--triply-success) !important;
+    opacity: 0.7;
+  }
 }
 
 .card-layout {
@@ -191,7 +197,7 @@
 @media (hover: hover) {
   .result-card:hover {
     box-shadow: var(--triply-shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 }
 
