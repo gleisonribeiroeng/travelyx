@@ -19,21 +19,33 @@ export class AuthService {
   ) {}
 
   async validateGoogleUser(googleUser: GoogleUser) {
-    const user = await this.prisma.user.upsert({
-      where: { googleId: googleUser.googleId },
-      update: {
-        email: googleUser.email,
-        name: googleUser.name,
-        picture: googleUser.picture,
-      },
-      create: {
+    // First try to find by googleId
+    const byGoogleId = await this.prisma.user.findUnique({ where: { googleId: googleUser.googleId } });
+    if (byGoogleId) {
+      return this.prisma.user.update({
+        where: { id: byGoogleId.id },
+        data: { email: googleUser.email, name: googleUser.name, picture: googleUser.picture },
+      });
+    }
+
+    // User may exist with same email but different googleId (created by ensureUserExists fallback)
+    const byEmail = await this.prisma.user.findUnique({ where: { email: googleUser.email } });
+    if (byEmail) {
+      return this.prisma.user.update({
+        where: { id: byEmail.id },
+        data: { googleId: googleUser.googleId, name: googleUser.name, picture: googleUser.picture },
+      });
+    }
+
+    // New user — create
+    return this.prisma.user.create({
+      data: {
         googleId: googleUser.googleId,
         email: googleUser.email,
         name: googleUser.name,
         picture: googleUser.picture,
       },
     });
-    return user;
   }
 
   generateJwt(user: GoogleUser, dbUserId: string): string {
