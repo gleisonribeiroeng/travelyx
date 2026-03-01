@@ -11,15 +11,18 @@ import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../shared/components/schedule-dialog/schedule-dialog.component';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { AttractionApiService } from '../../core/api/attraction-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Attraction, ItineraryItem } from '../../core/models/trip.models';
+import { Attraction } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { attractionToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-attraction-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
   templateUrl: './attraction-search.component.html',
   styleUrl: './attraction-search.component.scss',
 })
@@ -108,6 +111,40 @@ export class AttractionSearchComponent {
         attachment: null,
       });
       this.notify.success('Atração adicionada ao roteiro');
+    });
+  }
+
+  // Check if attraction is already added to trip
+  isAttractionAdded(attraction: Attraction): boolean {
+    return this.tripState.attractions().some(a => a.id === attraction.id);
+  }
+
+  // Map attraction to ListItemConfig
+  toListItem(attraction: Attraction) {
+    return attractionToListItem(attraction, {
+      isAdded: this.isAttractionAdded(attraction),
+    });
+  }
+
+  // Select attraction by id (primary action)
+  selectById(id: string): void {
+    const attraction = this.searchResults().find(a => a.id === id);
+    if (attraction) this.addToItinerary(attraction);
+  }
+
+  // Open detail by id (secondary / card click)
+  openDetailById(id: string): void {
+    const attraction = this.searchResults().find(a => a.id === id);
+    if (!attraction) return;
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'attraction', item: attraction, isAdded: this.isAttractionAdded(attraction) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.addToItinerary(attraction);
     });
   }
 }
