@@ -10,6 +10,8 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { NotificationService } from '../../core/services/notification.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { Observable } from 'rxjs';
 import {
   debounceTime,
@@ -24,17 +26,18 @@ import {
   DestinationOption,
 } from '../../core/api/hotel-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Stay, ItineraryItem } from '../../core/models/trip.models';
+import { Stay } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { stayToListItem, HotelTagType } from '../../shared/components/list-item-base/list-item-mappers';
 import {
   categorizeHotels,
   CategorizedHotels,
 } from '../../core/utils/hotel-categorizer.util';
-
 @Component({
   selector: 'app-hotel-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
   templateUrl: './hotel-search.component.html',
   styleUrl: './hotel-search.component.scss',
 })
@@ -42,6 +45,7 @@ export class HotelSearchComponent {
   private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // Form controls with custom destination validator
   destinationControl = new FormControl<DestinationOption | null>(null, [
@@ -139,55 +143,25 @@ export class HotelSearchComponent {
     return dest ? dest.label || dest.name : '';
   }
 
-  // Format rating
-  formatRating(rating: number | null): string {
-    return rating != null ? rating.toFixed(1) + ' / 5' : 'Sem avaliação';
+  // Get category tag for a hotel
+  getHotelTag(hotel: Stay): 'cheapest' | 'bestRated' | 'bestValue' | null {
+    const cat = this.categorized();
+    if (cat.bestValue?.id === hotel.id) return 'bestValue';
+    if (cat.cheapest?.id === hotel.id) return 'cheapest';
+    if (cat.bestRated?.id === hotel.id) return 'bestRated';
+    return null;
   }
 
-  // Render star icons based on rating
-  renderStars(rating: number | null): string[] {
-    const stars: string[] = [];
-    const ratingValue = rating ?? 0;
+  // Check if hotel is already added to trip
+  isHotelAdded(hotel: Stay): boolean {
+    return this.tripState.stays().some(s => s.id === hotel.id);
+  }
 
-    for (let i = 1; i <= 5; i++) {
-      if (ratingValue >= i) {
-        stars.push('star');
-      } else if (ratingValue >= i - 0.5) {
-        stars.push('star_half');
-      } else {
-        stars.push('star_border');
-      }
+  // Open hotel detail on Booking.com
+  onViewDetail(hotel: Stay): void {
+    if (hotel.link?.url) {
+      window.open(hotel.link.url, '_blank', 'noopener,noreferrer');
     }
-
-    return stars;
-  }
-
-  // Carousel state: hotel id -> current image index
-  private carouselIndex = new Map<string, number>();
-
-  getImageIndex(hotelId: string): number {
-    return this.carouselIndex.get(hotelId) ?? 0;
-  }
-
-  getCurrentImage(hotel: Stay): string {
-    const idx = this.getImageIndex(hotel.id);
-    return hotel.images?.[idx] ?? hotel.photoUrl ?? '';
-  }
-
-  prevImage(hotel: Stay, event: Event): void {
-    event.stopPropagation();
-    const images = hotel.images ?? [];
-    if (images.length === 0) return;
-    const current = this.getImageIndex(hotel.id);
-    this.carouselIndex.set(hotel.id, current === 0 ? images.length - 1 : current - 1);
-  }
-
-  nextImage(hotel: Stay, event: Event): void {
-    event.stopPropagation();
-    const images = hotel.images ?? [];
-    if (images.length === 0) return;
-    const current = this.getImageIndex(hotel.id);
-    this.carouselIndex.set(hotel.id, (current + 1) % images.length);
   }
 
   // Dismiss error banner
@@ -267,5 +241,35 @@ export class HotelSearchComponent {
   // Set sort by
   setSortBy(value: string): void {
     this.sortBy.set(value as 'price' | 'rating');
+  }
+
+  // Map hotel to ListItemConfig
+  toListItem(hotel: Stay) {
+    return stayToListItem(hotel, {
+      isAdded: this.isHotelAdded(hotel),
+      tag: this.getHotelTag(hotel),
+    });
+  }
+
+  // Select hotel by id (primary action)
+  selectById(id: string): void {
+    const hotel = this.searchResults().find(h => h.id === id);
+    if (hotel) this.addToItinerary(hotel);
+  }
+
+  // Open detail by id (secondary / card click)
+  openDetailById(id: string): void {
+    const hotel = this.searchResults().find(h => h.id === id);
+    if (!hotel) return;
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'stay', item: hotel, isAdded: this.isHotelAdded(hotel) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.addToItinerary(hotel);
+    });
   }
 }
