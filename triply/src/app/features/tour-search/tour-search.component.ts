@@ -11,16 +11,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../shared/components/schedule-dialog/schedule-dialog.component';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { TourApiService } from '../../core/api/tour-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Activity, ItineraryItem } from '../../core/models/trip.models';
+import { Activity } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { categorizeTours, CategorizedTours } from '../../core/utils/tour-categorizer.util';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { activityToListItem, TourTagType } from '../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-tour-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
   templateUrl: './tour-search.component.html',
   styleUrl: './tour-search.component.scss',
 })
@@ -134,40 +137,52 @@ export class TourSearchComponent {
     });
   }
 
-  // Duration format helper
-  formatDuration(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
-    return `${h}h ${m}m`;
-  }
-
   // Set sort by
   setSortBy(value: string): void {
     this.sortBy.set(value as 'price' | 'rating');
   }
 
-  // Format rating
-  formatRating(rating: number | null): string {
-    return rating != null ? rating.toFixed(1) + ' / 5' : 'Sem avaliação';
+  // Get category tag for a tour
+  getTourTag(tour: Activity): TourTagType | null {
+    const cat = this.categorized();
+    if (cat.bestValue?.id === tour.id) return 'bestValue';
+    if (cat.cheapest?.id === tour.id) return 'cheapest';
+    if (cat.bestRated?.id === tour.id) return 'bestRated';
+    return null;
   }
 
-  // Render star icons based on rating
-  renderStars(rating: number | null): string[] {
-    const stars: string[] = [];
-    const ratingValue = rating ?? 0;
+  // Check if tour is already added to trip
+  isTourAdded(tour: Activity): boolean {
+    return this.tripState.activities().some(a => a.id === tour.id);
+  }
 
-    for (let i = 1; i <= 5; i++) {
-      if (ratingValue >= i) {
-        stars.push('star');
-      } else if (ratingValue >= i - 0.5) {
-        stars.push('star_half');
-      } else {
-        stars.push('star_border');
-      }
-    }
+  // Map tour to ListItemConfig
+  toListItem(tour: Activity) {
+    return activityToListItem(tour, {
+      isAdded: this.isTourAdded(tour),
+      tag: this.getTourTag(tour),
+    });
+  }
 
-    return stars;
+  // Select tour by id (primary action)
+  selectById(id: string): void {
+    const tour = this.searchResults().find(t => t.id === id);
+    if (tour) this.addToItinerary(tour);
+  }
+
+  // Open detail by id (secondary / card click)
+  openDetailById(id: string): void {
+    const tour = this.searchResults().find(t => t.id === id);
+    if (!tour) return;
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'activity', item: tour, isAdded: this.isTourAdded(tour) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.addToItinerary(tour);
+    });
   }
 }
