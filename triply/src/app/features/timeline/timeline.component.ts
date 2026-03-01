@@ -17,7 +17,32 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 export class TimelineComponent {
   protected readonly tripState = inject(TripStateService);
 
-  readonly viewMode = signal<'expanded' | 'compact'>('expanded');
+  readonly viewMode = signal<'expanded' | 'compact'>('compact');
+  readonly expandedDays = signal<Set<string>>(new Set());
+
+  toggleDay(date: string): void {
+    const current = this.expandedDays();
+    const next = new Set(current);
+    if (next.has(date)) {
+      next.delete(date);
+    } else {
+      next.add(date);
+    }
+    this.expandedDays.set(next);
+  }
+
+  isDayExpanded(date: string): boolean {
+    return this.expandedDays().has(date);
+  }
+
+  expandAll(): void {
+    const all = new Set(this.timeline().map(d => d.date));
+    this.expandedDays.set(all);
+  }
+
+  collapseAll(): void {
+    this.expandedDays.set(new Set());
+  }
 
   readonly conflicts = computed<ConflictAlert[]>(() => {
     try { return computeAllConflicts(this.tripState.trip()); } catch { return []; }

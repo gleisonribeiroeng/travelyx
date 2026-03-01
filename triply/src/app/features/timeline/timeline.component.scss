@@ -1,14 +1,31 @@
 .timeline-page {
-  display: flex; flex-direction: column; gap: var(--triply-spacing-md);
+  display: flex; flex-direction: column; gap: 4px;
 }
 
 .page-header {
   display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--triply-spacing-sm);
+  margin-bottom: 8px;
   h1 { font-size: var(--triply-font-xl); font-weight: 700; color: var(--triply-text-primary); margin: 0 0 4px; letter-spacing: var(--triply-letter-spacing-tight); }
   p { font-size: 0.9rem; color: var(--triply-text-secondary); margin: 0; }
 }
 
-// ── Day sections (vertical timeline) ──
+.header-actions {
+  display: flex; align-items: center; gap: 4px;
+}
+
+.bulk-action {
+  font-size: 0.75rem !important;
+  min-height: 32px !important;
+  line-height: 32px !important;
+  padding: 0 8px !important;
+  color: var(--triply-text-secondary) !important;
+
+  mat-icon {
+    font-size: 16px; width: 16px; height: 16px; margin-right: 2px;
+  }
+}
+
+// ── Day sections (collapsible accordion) ──
 .day-section {
   position: relative;
   padding-left: 16px;
@@ -18,10 +35,15 @@
   &:last-child { border-left-color: transparent; }
 }
 
+// ── Day header (clickable row) ──
 .day-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  user-select: none;
   position: relative;
+  transition: background 0.15s;
 
   &::before {
     content: '';
@@ -31,11 +53,51 @@
   }
 }
 
-.day-label { display: flex; align-items: baseline; gap: 8px; }
-.day-number { font-size: 0.85rem; font-weight: 700; color: var(--triply-primary); }
+.expand-icon {
+  font-size: 18px; width: 18px; height: 18px;
+  color: var(--triply-text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.day-label {
+  display: flex; align-items: baseline; gap: 8px;
+  flex-shrink: 0;
+}
+
+.day-number { font-size: 0.82rem; font-weight: 700; color: var(--triply-primary); }
 .day-date { font-size: 0.75rem; color: var(--triply-text-secondary); }
 
-.day-badges { display: flex; gap: 6px; align-items: center; }
+// ── Preview chips (shown when collapsed) ──
+.day-preview {
+  display: flex; align-items: center; gap: 4px;
+  flex: 1; min-width: 0;
+  overflow: hidden;
+}
+
+.preview-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.7rem; color: var(--triply-text-secondary);
+  background: var(--triply-surface-2, #f5f5f5);
+  padding: 1px 6px; border-radius: 3px;
+  white-space: nowrap;
+  border-left: 2px solid var(--type-color, var(--triply-primary));
+
+  mat-icon {
+    font-size: 12px; width: 12px; height: 12px;
+    color: var(--type-color, var(--triply-primary));
+  }
+}
+
+.preview-more {
+  font-size: 0.7rem; color: var(--triply-text-tertiary);
+  font-weight: 600; flex-shrink: 0;
+}
+
+.day-badges {
+  display: flex; gap: 6px; align-items: center;
+  flex-shrink: 0; margin-left: auto;
+}
 
 .conflict-badge {
   display: inline-flex; align-items: center; gap: 3px;
@@ -51,10 +113,15 @@
   border-radius: var(--triply-radius-full);
 }
 
+// ── Day body (expandable content) ──
+.day-body {
+  padding: 2px 0 6px 26px;
+}
+
 // ── Empty day ──
 .empty-day-content {
   display: flex; align-items: center; gap: 6px;
-  padding: 4px 10px; color: var(--triply-text-tertiary);
+  padding: 2px 10px; color: var(--triply-text-tertiary);
   font-size: 0.78rem; font-style: italic;
   mat-icon { font-size: 14px; width: 14px; height: 14px; color: #FFC107; }
 }
@@ -62,7 +129,7 @@
 // ── Timeline items (compact rows) ──
 .timeline-item {
   display: flex; align-items: center; gap: 8px;
-  padding: 5px 10px; margin-bottom: 2px;
+  padding: 4px 10px; margin-bottom: 1px;
   border-radius: 4px;
   background: var(--triply-surface-1);
   border: 1px solid transparent;
@@ -76,7 +143,7 @@
 }
 
 .item-indicator {
-  width: 3px; height: 20px; border-radius: 2px;
+  width: 3px; height: 18px; border-radius: 2px;
   background: var(--type-color, var(--triply-primary)); flex-shrink: 0;
 }
 
@@ -121,7 +188,7 @@
 .paid-icon { font-size: 14px; width: 14px; height: 14px; color: var(--triply-success); opacity: 1 !important; }
 .drag-handle { font-size: 16px; width: 16px; height: 16px; color: var(--triply-text-tertiary, #ccc); cursor: grab; }
 
-.timed-items { min-height: 8px; }
+.timed-items { min-height: 4px; }
 
 // ── Drag & Drop ──
 .cdk-drag-preview {
@@ -164,6 +231,10 @@
 
 // ── Hover effects ──
 @media (hover: hover) {
+  .day-header:hover {
+    background: var(--triply-surface-2, #f8f9fa);
+  }
+
   .timeline-item:hover {
     background: var(--triply-surface-2, #f8f9fa);
     border-color: var(--triply-border-subtle, #e8e8e8);
