@@ -5,13 +5,15 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { DocumentItem, ItineraryItemType } from '../../core/models/trip.models';
 import { NotificationService } from '../../core/services/notification.service';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { documentToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 
 type DocCategory = DocumentItem['category'];
 
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, ListItemBaseComponent],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss',
 })
@@ -134,5 +136,13 @@ export class DocumentsComponent {
     const limit = new Date();
     limit.setDate(limit.getDate() + 30);
     return new Date(doc.expiresAt) <= limit;
+  }
+
+  toListItem(doc: DocumentItem) {
+    return documentToListItem(doc);
+  }
+
+  deleteDoc(id: string): void {
+    this.removeDoc(id);
   }
 }

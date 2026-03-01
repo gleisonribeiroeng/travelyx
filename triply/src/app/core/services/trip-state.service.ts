@@ -256,6 +256,16 @@ export class TripStateService {
     this.scheduleSyncToApi();
   }
 
+  setTripCoverImage(tripId: string, imageUrl: string): void {
+    this._trips.update(list =>
+      list.map(t => t.id === tripId
+        ? { ...t, coverImage: imageUrl, updatedAt: new Date().toISOString() }
+        : t
+      )
+    );
+    this.scheduleSyncToApi();
+  }
+
   // ---------------------------------------------------------------------------
   // Flights
   // ---------------------------------------------------------------------------
@@ -273,6 +283,15 @@ export class TripStateService {
     this.updateActiveTrip(t => ({
       ...t,
       flights: t.flights.filter(f => f.id !== id),
+      updatedAt: new Date().toISOString(),
+    }));
+    this.scheduleSyncToApi();
+  }
+
+  updateFlight(updated: Flight): void {
+    this.updateActiveTrip(t => ({
+      ...t,
+      flights: t.flights.map(f => f.id === updated.id ? updated : f),
       updatedAt: new Date().toISOString(),
     }));
     this.scheduleSyncToApi();
@@ -300,6 +319,15 @@ export class TripStateService {
     this.scheduleSyncToApi();
   }
 
+  updateStay(updated: Stay): void {
+    this.updateActiveTrip(t => ({
+      ...t,
+      stays: t.stays.map(s => s.id === updated.id ? updated : s),
+      updatedAt: new Date().toISOString(),
+    }));
+    this.scheduleSyncToApi();
+  }
+
   // ---------------------------------------------------------------------------
   // Car Rentals
   // ---------------------------------------------------------------------------
@@ -317,6 +345,15 @@ export class TripStateService {
     this.updateActiveTrip(t => ({
       ...t,
       carRentals: t.carRentals.filter(c => c.id !== id),
+      updatedAt: new Date().toISOString(),
+    }));
+    this.scheduleSyncToApi();
+  }
+
+  updateCarRental(updated: CarRental): void {
+    this.updateActiveTrip(t => ({
+      ...t,
+      carRentals: t.carRentals.map(c => c.id === updated.id ? updated : c),
       updatedAt: new Date().toISOString(),
     }));
     this.scheduleSyncToApi();

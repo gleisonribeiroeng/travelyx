@@ -145,6 +145,15 @@ export class AttractionSearchComponent {
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (!result) return;
       if (result.action === 'add') this.addToItinerary(attraction);
+      else if (result.action === 'remove') this.removeFromItinerary(attraction.id);
     });
+  }
+
+  removeFromItinerary(id: string): void {
+    this.tripState.removeAttraction(id);
+    this.tripState.removeItineraryItem(
+      this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
+    );
+    this.notify.success('Atração removida do roteiro');
   }
 }

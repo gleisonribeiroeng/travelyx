@@ -26,6 +26,10 @@
             {{ trip().dates.start }} — {{ trip().dates.end }}
           </p>
         }
+        <button mat-stroked-button class="edit-trip-btn" (click)="editTrip()">
+          <mat-icon>edit</mat-icon>
+          Editar viagem
+        </button>
       </div>
       @if (daysUntilTrip() !== null && daysUntilTrip()! > 0) {
         <div class="countdown" [class.imminent]="tripPhase() === 'imminent'">
@@ -56,6 +60,14 @@
         }
       </div>
     </div>
+
+    @if (!trip().dates.start) {
+      <div class="missing-dates-alert" (click)="editTrip()">
+        <mat-icon>info</mat-icon>
+        <span>Defina as datas da viagem para ativar a timeline</span>
+        <mat-icon>edit</mat-icon>
+      </div>
+    }
 
     <!-- Metrics Grid -->
     <div class="metrics-grid">

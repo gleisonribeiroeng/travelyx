@@ -183,6 +183,15 @@ export class TourSearchComponent {
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (!result) return;
       if (result.action === 'add') this.addToItinerary(tour);
+      else if (result.action === 'remove') this.removeFromItinerary(tour.id);
     });
+  }
+
+  removeFromItinerary(id: string): void {
+    this.tripState.removeActivity(id);
+    this.tripState.removeItineraryItem(
+      this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
+    );
+    this.notify.success('Passeio removido do roteiro');
   }
 }

@@ -1,6 +1,14 @@
 <div class="view-header">
-  <h1>Buscar Aluguel de Carros</h1>
+  <h1>Carros</h1>
   <p>Encontre o carro perfeito para sua viagem</p>
+</div>
+
+<div class="manual-entry-section">
+  <button mat-stroked-button (click)="openManualCarDialog()">
+    <mat-icon>edit_note</mat-icon>
+    Adicionar carro manualmente
+  </button>
+  <span class="manual-hint">Ja tem uma reserva? Insira os dados do aluguel.</span>
 </div>
 
 @if (formCollapsed()) {
@@ -56,7 +64,7 @@
       <div class="form-row" formGroupName="dateRange">
         <mat-form-field appearance="outline">
           <mat-label>Retirada — Devolução</mat-label>
-          <mat-date-range-input [rangePicker]="rangePicker" [min]="minPickupDate">
+          <mat-date-range-input [rangePicker]="rangePicker" [min]="minPickupDate" (click)="rangePicker.open()">
             <input matStartDate formControlName="start" placeholder="Retirada">
             <input matEndDate formControlName="end" placeholder="Devolução">
           </mat-date-range-input>
@@ -133,42 +141,12 @@
     </div>
 
     @for (car of filteredCars(); track car.id) {
-      <mat-card class="result-card">
-        <div class="card-layout">
-          <div class="card-image">
-            @if (car.images && car.images.length > 0) {
-              <img [src]="car.images[0]" [alt]="car.vehicleType" loading="lazy" />
-            } @else {
-              <div class="image-placeholder"><mat-icon>directions_car</mat-icon></div>
-            }
-          </div>
-
-          <div class="card-info">
-            <h3 class="item-name">{{ car.vehicleType }}</h3>
-            <div class="item-detail">
-              <mat-icon>flight_takeoff</mat-icon>
-              <span>Retirada: {{ car.pickUpLocation }} - {{ car.pickUpAt }}</span>
-            </div>
-            <div class="item-detail">
-              <mat-icon>flight_land</mat-icon>
-              <span>Devolução: {{ car.dropOffLocation }} - {{ car.dropOffAt }}</span>
-            </div>
-          </div>
-
-          <div class="card-price-column">
-            <div class="price-block">
-              <span class="price-amount">{{ car.price.total | currency: 'BRL' }}</span>
-              <span class="price-label">total</span>
-            </div>
-            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(car)">
-              <mat-icon>add</mat-icon> Adicionar
-            </button>
-            <a mat-stroked-button class="action-btn detail-btn" [href]="car.link.url" target="_blank" rel="noopener noreferrer">
-              Ver detalhe
-            </a>
-          </div>
-        </div>
-      </mat-card>
+      <app-list-item-base
+        [config]="toListItem(car)"
+        (primaryClick)="selectById($event)"
+        (secondaryClick)="openDetailById($event)"
+        (cardClick)="openDetailById($event)"
+      />
     }
   </div>
 }

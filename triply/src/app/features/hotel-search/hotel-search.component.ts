@@ -29,11 +29,16 @@ import { TripStateService } from '../../core/services/trip-state.service';
 import { Stay } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
-import { stayToListItem, HotelTagType } from '../../shared/components/list-item-base/list-item-mappers';
+import { stayToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 import {
   categorizeHotels,
   CategorizedHotels,
 } from '../../core/utils/hotel-categorizer.util';
+import {
+  ManualHotelDialogComponent,
+  ManualHotelDialogData,
+  ManualHotelDialogResult,
+} from '../../shared/components/manual-hotel-dialog/manual-hotel-dialog.component';
 @Component({
   selector: 'app-hotel-search',
   standalone: true,
@@ -270,6 +275,45 @@ export class HotelSearchComponent {
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (!result) return;
       if (result.action === 'add') this.addToItinerary(hotel);
+      else if (result.action === 'remove') this.removeFromItinerary(hotel.id);
     });
+  }
+
+  openManualHotelDialog(): void {
+    const ref = this.dialog.open(ManualHotelDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        stay: null,
+        tripCurrency: this.tripState.trip().currency,
+      } as ManualHotelDialogData,
+    });
+    ref.afterClosed().subscribe((result: ManualHotelDialogResult | undefined) => {
+      if (!result || result.action !== 'save') return;
+      this.tripState.addStay({ ...result.stay, addedToItinerary: true });
+      this.tripState.addItineraryItem({
+        id: crypto.randomUUID(),
+        type: 'stay',
+        refId: result.stay.id,
+        date: result.stay.checkIn,
+        timeSlot: null,
+        durationMinutes: null,
+        label: `Hotel: ${result.stay.name}`,
+        notes: result.stay.address || '',
+        order: 0,
+        isPaid: result.isPaid,
+        attachment: null,
+      });
+      this.notify.success('Hotel manual adicionado!');
+    });
+  }
+
+  removeFromItinerary(id: string): void {
+    this.tripState.removeStay(id);
+    this.tripState.removeItineraryItem(
+      this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
+    );
+    this.notify.success('Hotel removido do roteiro');
   }
 }

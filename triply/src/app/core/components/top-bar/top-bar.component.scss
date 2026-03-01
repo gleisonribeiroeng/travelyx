@@ -138,10 +138,97 @@
   }
 }
 
-// Desktop: hide hamburger (sidebar is always visible)
+// ── User avatar chip ──
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid var(--triply-border-subtle);
+  border-radius: 24px;
+  background: var(--triply-surface-0);
+  color: var(--triply-text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin-left: 4px;
+
+  &:hover {
+    border-color: var(--triply-primary);
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+  }
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--triply-primary-light);
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--triply-text-primary);
+  display: none;
+}
+
+.dropdown-arrow {
+  color: var(--triply-text-tertiary);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-left: -2px;
+}
+
+// ── User dropdown menu ──
+.user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+
+  .menu-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--triply-primary-light);
+    flex-shrink: 0;
+  }
+
+  .menu-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    strong {
+      font-size: 0.9rem;
+      color: var(--triply-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    small {
+      font-size: 0.8rem;
+      color: var(--triply-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+// Desktop: hide hamburger, show user name
 @media (min-width: 960px) {
   .hamburger-btn {
     display: none;
+  }
+
+  .user-name {
+    display: inline;
   }
 }
 

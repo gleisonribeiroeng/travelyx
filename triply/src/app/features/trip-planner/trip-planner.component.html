@@ -1,5 +1,5 @@
 <div class="view-header">
-  <h1>Planejador de Viagem</h1>
+  <h1>Planejamento Guiado</h1>
   <p>Configure todos os detalhes para personalizar sua experiência</p>
 </div>
 
@@ -60,7 +60,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Data de ida</mat-label>
           <input matInput [matDatepicker]="depPicker" formControlName="departure"
-                 [min]="minDate" (dateChange)="onDepartureChange()" required />
+                 [min]="minDate" (dateChange)="onDepartureChange()" (focus)="depPicker.open()" required />
           <mat-datepicker-toggle matIconSuffix [for]="depPicker"></mat-datepicker-toggle>
           <mat-datepicker #depPicker></mat-datepicker>
         </mat-form-field>
@@ -69,7 +69,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Data de volta</mat-label>
             <input matInput [matDatepicker]="retPicker" formControlName="returnDate"
-                   [min]="minDate" (dateChange)="onReturnChange()" />
+                   [min]="minDate" (dateChange)="onReturnChange()" (focus)="retPicker.open()" />
             <mat-datepicker-toggle matIconSuffix [for]="retPicker"></mat-datepicker-toggle>
             <mat-datepicker #retPicker></mat-datepicker>
           </mat-form-field>

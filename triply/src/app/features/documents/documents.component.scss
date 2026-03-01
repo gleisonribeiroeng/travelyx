@@ -20,32 +20,7 @@
 
 .filter-bar { overflow-x: auto; }
 
-.docs-grid {
-  display: grid; grid-template-columns: 1fr; gap: var(--triply-spacing-sm);
-}
-
-.doc-card {
-  &.expiring { border-left: 3px solid #FF9800 !important; }
-  mat-card-content {
-    display: flex; align-items: center; gap: 12px; padding: var(--triply-spacing-md) !important;
-  }
-}
-
-.doc-icon {
-  width: 44px; height: 44px; border-radius: var(--triply-radius-md, 8px);
-  background: var(--triply-primary-light, rgba(108,92,231,0.08));
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  mat-icon { color: var(--triply-primary); }
-}
-
-.doc-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.doc-label { font-size: 0.9rem; font-weight: 600; color: var(--triply-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.doc-meta { font-size: 0.75rem; color: var(--triply-text-secondary); }
-.doc-expiry {
-  display: inline-flex; align-items: center; gap: 3px; font-size: 0.75rem; color: var(--triply-text-secondary); margin-top: 2px;
-  mat-icon { font-size: 14px; width: 14px; height: 14px; }
-  &.expiring-text { color: #FF9800; font-weight: 600; }
-}
+.docs-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
 
 .upload-card {
   h3 { font-size: 1rem; font-weight: 700; color: var(--triply-text-primary); margin: 0 0 var(--triply-spacing-md); }
@@ -78,6 +53,5 @@
 }
 
 @media (min-width: 600px) {
-  .docs-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
   .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
 }

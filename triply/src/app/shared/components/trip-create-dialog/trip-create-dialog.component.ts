@@ -1,9 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 
 export interface TripCreateDialogResult {
+  name: string;
+  destination: string;
+  dates: { start: string; end: string };
+}
+
+export interface TripEditData {
   name: string;
   destination: string;
   dates: { start: string; end: string };
@@ -14,23 +20,23 @@ export interface TripCreateDialogResult {
   standalone: true,
   imports: [MATERIAL_IMPORTS, ReactiveFormsModule],
   template: `
-    <h2 mat-dialog-title>Nova Viagem</h2>
+    <h2 mat-dialog-title>{{ isEditMode ? 'Editar Viagem' : 'Nova Viagem' }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="create-form">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Nome da viagem</mat-label>
-          <input matInput formControlName="name" placeholder="Ex: Férias em Lisboa">
+          <input matInput formControlName="name">
           <mat-error>Nome é obrigatório</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Destino</mat-label>
-          <input matInput formControlName="destination" placeholder="Ex: Lisboa, Portugal">
+          <input matInput formControlName="destination">
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Período da viagem</mat-label>
-          <mat-date-range-input [rangePicker]="picker">
+          <mat-date-range-input [rangePicker]="picker" (click)="picker.open()">
             <input matStartDate formControlName="dateStart" placeholder="Ida">
             <input matEndDate formControlName="dateEnd" placeholder="Volta">
           </mat-date-range-input>
@@ -42,7 +48,7 @@ export interface TripCreateDialogResult {
     <mat-dialog-actions align="end">
       <button mat-button (click)="cancel()">Cancelar</button>
       <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid">
-        Criar Viagem
+        {{ isEditMode ? 'Salvar' : 'Criar Viagem' }}
       </button>
     </mat-dialog-actions>
   `,
@@ -57,8 +63,13 @@ export interface TripCreateDialogResult {
     .full-width { width: 100%; }
   `],
 })
-export class TripCreateDialogComponent {
+export class TripCreateDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<TripCreateDialogComponent>);
+  private readonly data = inject<TripEditData | null>(MAT_DIALOG_DATA, { optional: true });
+
+  get isEditMode(): boolean {
+    return !!this.data;
+  }
 
   form = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -66,6 +77,17 @@ export class TripCreateDialogComponent {
     dateStart: new FormControl<Date | null>(null),
     dateEnd: new FormControl<Date | null>(null),
   });
+
+  ngOnInit(): void {
+    if (this.data) {
+      this.form.patchValue({
+        name: this.data.name,
+        destination: this.data.destination,
+        dateStart: this.data.dates.start ? new Date(this.data.dates.start + 'T00:00:00') : null,
+        dateEnd: this.data.dates.end ? new Date(this.data.dates.end + 'T00:00:00') : null,
+      });
+    }
+  }
 
   submit(): void {
     if (this.form.invalid) return;

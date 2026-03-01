@@ -10,11 +10,13 @@ import { ScheduleDialogComponent, ScheduleDialogData } from '../../../shared/com
 import { AttractionApiService } from '../../../core/api/attraction-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
 import { Attraction } from '../../../core/models/trip.models';
+import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
+import { attractionToListItem } from '../../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-wizard-attraction-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ListItemBaseComponent],
   template: `
     <div class="wizard-step">
       <div class="step-header">
@@ -83,32 +85,16 @@ import { Attraction } from '../../../core/models/trip.models';
       }
 
       @if (results().length > 0) {
-        <div class="results-grid">
+        <div class="results-list">
           <h3>{{ results().length }} atrações encontradas</h3>
-          <div class="attraction-grid">
-            @for (attr of results(); track attr.id) {
-              <mat-card class="attraction-card" [class.added]="isAdded(attr.id)" (click)="openDetail(attr)">
-                @if (attr.images.length > 0) {
-                  <img [src]="attr.images[0]" class="attraction-photo" alt="">
-                }
-                <mat-card-content>
-                  <div class="attraction-category">{{ attr.category }}</div>
-                  <h4>{{ attr.name }}</h4>
-                  <p class="attraction-desc">{{ attr.description | slice:0:100 }}{{ attr.description.length > 100 ? '...' : '' }}</p>
-                  <span class="attraction-city"><mat-icon>place</mat-icon> {{ attr.city }}</span>
-                  @if (isAdded(attr.id)) {
-                    <button mat-stroked-button color="warn" class="full-width" (click)="remove(attr.id); $event.stopPropagation()">
-                      <mat-icon>check</mat-icon> Adicionada
-                    </button>
-                  } @else {
-                    <button mat-flat-button color="primary" class="full-width" (click)="openDetail(attr); $event.stopPropagation()">
-                      Ver detalhes
-                    </button>
-                  }
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>
+          @for (attr of results(); track attr.id) {
+            <app-list-item-base
+              [config]="toListItem(attr)"
+              (primaryClick)="selectById($event)"
+              (secondaryClick)="openDetailById($event)"
+              (cardClick)="openDetailById($event)"
+            />
+          }
         </div>
       }
     </div>
@@ -136,22 +122,11 @@ import { Attraction } from '../../../core/models/trip.models';
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
-    .attraction-grid { display: grid; grid-template-columns: 1fr; gap: var(--triply-spacing-md); }
-    .attraction-card { overflow: hidden; transition: all 0.2s ease; cursor: pointer; box-shadow: var(--triply-shadow-xs); }
-    .attraction-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .attraction-card.added { border: 2px solid var(--triply-success) !important; opacity: 0.7; }
-    .attraction-photo { width: 100%; height: 150px; object-fit: cover; }
-    .attraction-category { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--triply-primary); background: rgba(124,77,255,0.1); padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; text-transform: uppercase; }
-    .attraction-card h4 { margin: 4px 0; font-size: 0.95rem; font-weight: 700; color: var(--triply-text-primary); }
-    .attraction-desc { font-size: 0.8rem; color: var(--triply-text-secondary); margin: 0 0 8px; line-height: 1.4; }
-    .attraction-city { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--triply-text-secondary); margin-bottom: 12px; }
-    .attraction-city mat-icon { font-size: 16px; width: 16px; height: 16px; }
-    .full-width { width: 100%; }
+    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
 
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
-      .attraction-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
     }
   `],
 })
@@ -172,6 +147,20 @@ export class WizardAttractionStepComponent {
 
   isAdded(id: string): boolean {
     return this.selectedAttractions().some((a) => a.id === id);
+  }
+
+  toListItem(attr: Attraction) {
+    return attractionToListItem(attr, { isAdded: this.isAdded(attr.id) });
+  }
+
+  selectById(id: string): void {
+    const attr = this.results().find(a => a.id === id);
+    if (attr) this.select(attr);
+  }
+
+  openDetailById(id: string): void {
+    const attr = this.results().find(a => a.id === id) ?? this.selectedAttractions().find(a => a.id === id);
+    if (attr) this.openDetail(attr);
   }
 
   search(): void {

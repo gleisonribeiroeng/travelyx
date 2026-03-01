@@ -1,3 +1,22 @@
+.manual-entry-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--triply-spacing-md);
+
+  button mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+  }
+}
+
+.manual-hint {
+  font-size: 0.8rem;
+  color: var(--triply-text-secondary);
+}
+
 // Wrapper for dateRange formGroupName — inherits flex sizing from .form-row > *
 .date-range-wrapper {
   flex: 1;

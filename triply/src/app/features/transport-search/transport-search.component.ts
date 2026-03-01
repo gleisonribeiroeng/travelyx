@@ -172,6 +172,15 @@ export class TransportSearchComponent {
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (!result) return;
       if (result.action === 'add') this.addToItinerary(transport);
+      else if (result.action === 'remove') this.removeFromItinerary(transport.id);
     });
+  }
+
+  removeFromItinerary(id: string): void {
+    this.tripState.removeTransport(id);
+    this.tripState.removeItineraryItem(
+      this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
+    );
+    this.notify.success('Transporte removido do roteiro');
   }
 }

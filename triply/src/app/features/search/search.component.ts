@@ -38,6 +38,11 @@ import {
   categorizeFlights,
   CategorizedFlights,
 } from '../../core/utils/flight-categorizer.util';
+import {
+  ManualFlightDialogComponent,
+  ManualFlightDialogData,
+  ManualFlightDialogResult,
+} from '../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
 
 type TripType = 'roundTrip' | 'oneWay' | 'returnOnly' | 'multi';
 
@@ -560,7 +565,12 @@ export class SearchComponent {
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (!result) return;
       if (result.action === 'add') this.addToItinerary(flight);
-      else if (result.action === 'remove') this.tripState.removeFlight(flight.id);
+      else if (result.action === 'remove') {
+        this.tripState.removeFlight(flight.id);
+        this.tripState.removeItineraryItem(
+          this.tripState.itineraryItems().find(i => i.refId === flight.id)?.id ?? ''
+        );
+      }
     });
   }
 
@@ -596,6 +606,36 @@ export class SearchComponent {
 
   countStopoverFlights(): number {
     return this.searchResults().filter((f) => f.stops > 0).length;
+  }
+
+  openManualFlightDialog(): void {
+    const ref = this.dialog.open(ManualFlightDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        flight: null,
+        tripCurrency: this.tripState.trip().currency,
+      } as ManualFlightDialogData,
+    });
+    ref.afterClosed().subscribe((result: ManualFlightDialogResult | undefined) => {
+      if (!result || result.action !== 'save') return;
+      this.tripState.addFlight(result.flight);
+      this.tripState.addItineraryItem({
+        id: crypto.randomUUID(),
+        type: 'flight',
+        refId: result.flight.id,
+        date: result.flight.departureAt.split('T')[0],
+        timeSlot: result.flight.departureAt.split('T')[1]?.substring(0, 5) || null,
+        durationMinutes: null,
+        label: `Voo: ${result.flight.origin} → ${result.flight.destination}`,
+        notes: `${result.flight.airline} ${result.flight.flightNumber}`,
+        order: 0,
+        isPaid: result.isPaid,
+        attachment: null,
+      });
+      this.notify.success('Voo manual adicionado!');
+    });
   }
 
   private buildAvailableMonths(): MonthOption[] {

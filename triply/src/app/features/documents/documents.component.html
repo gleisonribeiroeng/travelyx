@@ -1,7 +1,7 @@
 <div class="documents-page">
   <div class="page-header">
     <div class="header-text">
-      <h1>Central de Documentos</h1>
+      <h1>Documentos</h1>
       <p>Organize passaportes, reservas, seguros e ingressos</p>
     </div>
     <button mat-flat-button color="primary" (click)="showUploadForm.set(true)">
@@ -31,29 +31,14 @@
     </mat-chip-listbox>
   </div>
 
-  <!-- Documents Grid -->
+  <!-- Documents List -->
   @if (filteredDocs().length > 0) {
-    <div class="docs-grid">
+    <div class="docs-list">
       @for (doc of filteredDocs(); track doc.id) {
-        <mat-card class="doc-card" [class.expiring]="isExpiringSoon(doc)">
-          <mat-card-content>
-            <div class="doc-icon">
-              <mat-icon>{{ getCategoryIcon(doc.category) }}</mat-icon>
-            </div>
-            <div class="doc-info">
-              <span class="doc-label">{{ doc.label }}</span>
-              <span class="doc-meta">{{ getCategoryLabel(doc.category) }} · {{ formatSize(doc.sizeBytes) }}</span>
-              @if (doc.expiresAt) {
-                <span class="doc-expiry" [class.expiring-text]="isExpiringSoon(doc)">
-                  <mat-icon>event</mat-icon> Vence {{ formatDate(doc.expiresAt) }}
-                </span>
-              }
-            </div>
-            <button mat-icon-button color="warn" (click)="removeDoc(doc.id)" matTooltip="Remover">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </mat-card-content>
-        </mat-card>
+        <app-list-item-base
+          [config]="toListItem(doc)"
+          (primaryClick)="deleteDoc($event)"
+        />
       }
     </div>
   }

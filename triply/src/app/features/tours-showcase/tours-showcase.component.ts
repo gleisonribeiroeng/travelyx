@@ -16,11 +16,13 @@ import {
   ShowcaseTour,
 } from '../../core/api/tour-showcase-api.service';
 import { categorizeTours, CategorizedTours } from '../../core/utils/tour-categorizer.util';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { ListItemConfig, ListItemInfoLine, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
 
 @Component({
   selector: 'app-tours-showcase',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe],
+  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, ListItemBaseComponent],
   templateUrl: './tours-showcase.component.html',
   styleUrl: './tours-showcase.component.scss',
 })
@@ -102,17 +104,59 @@ export class ToursShowcaseComponent implements OnInit, AfterViewInit, OnDestroy 
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-    img.closest('.card-img-wrap')?.classList.add('img-fallback');
-  }
-
-  formatDuration(minutes: number): string {
+  private formatDuration(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     if (h === 0) return `${m}min`;
     if (m === 0) return `${h}h`;
     return `${h}h${m.toString().padStart(2, '0')}`;
+  }
+
+  toListItem(tour: ShowcaseTour, tag?: 'cheapest' | 'bestRated' | 'bestValue' | null): ListItemConfig {
+    const tags: ListItemTag[] = [];
+    if (tag === 'bestValue') tags.push({ label: 'Melhor custo-beneficio', variant: 'value' });
+    if (tag === 'cheapest') tags.push({ label: 'Melhor preco', variant: 'cheap' });
+    if (tag === 'bestRated') tags.push({ label: 'Mais bem avaliado', variant: 'rated' });
+
+    const images = tour.images?.length ? [...tour.images] : [];
+    if (tour.cityImage && !images.includes(tour.cityImage)) {
+      images.unshift(tour.cityImage);
+    }
+
+    const infoLines: ListItemInfoLine[] = [
+      { icon: 'location_on', text: tour.city },
+    ];
+    if (tour.durationMinutes) {
+      infoLines.push({ icon: 'schedule', text: this.formatDuration(tour.durationMinutes) });
+    }
+
+    return {
+      id: tour.id,
+      images,
+      placeholderIcon: 'tour',
+      title: tour.name,
+      infoLines,
+      rating: { value: tour.rating, reviewCount: tour.reviewCount },
+      description: tour.description?.length > 120
+        ? tour.description.substring(0, 120) + '...'
+        : tour.description,
+      price: {
+        amount: tour.price.total,
+        currency: tour.price.currency,
+        label: '/pessoa',
+      },
+      primaryAction: { type: 'view', label: 'Ver passeios', icon: 'search' },
+      tags,
+      isAdded: false,
+      isRecommended: !!tag,
+    };
+  }
+
+  onCardClick(_id: string): void {
+    this.navigateTo('/tours');
+  }
+
+  onPrimaryClick(_id: string): void {
+    this.navigateTo('/tours');
   }
 }

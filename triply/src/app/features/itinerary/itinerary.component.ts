@@ -55,8 +55,9 @@ export class ItineraryComponent {
   private readonly dialog = inject(MatDialog);
   private readonly tripRouter = inject(TripRouterService);
 
-  // ── View toggle ──
+  // ── View toggles ──
   readonly activeView = signal<'calendar' | 'list'>('calendar');
+  readonly overviewExpanded = signal(false);
 
   // ── Calendar events from itinerary items ──
   readonly calendarEvents = computed<EventInput[]>(() => {
@@ -288,6 +289,11 @@ export class ItineraryComponent {
 
   removeActivity(id: string): void {
     this.tripState.removeActivity(id);
+    this.removeItineraryItemsByRef(id);
+  }
+
+  removeAttraction(id: string): void {
+    this.tripState.removeAttraction(id);
     this.removeItineraryItemsByRef(id);
   }
 

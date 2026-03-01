@@ -1,8 +1,8 @@
 <div class="checklist-page">
   <div class="page-header">
     <div class="header-text">
-      <h1>Checklist Pre-Viagem</h1>
-      <p>Preparativos automaticos baseados no seu roteiro</p>
+      <h1>Checklist</h1>
+      <p>Preparativos automáticos baseados no seu roteiro</p>
     </div>
     <button mat-stroked-button (click)="checklist.regenerate()">
       <mat-icon>refresh</mat-icon> Atualizar
@@ -88,7 +88,7 @@
         <h3>Adicionar item manual</h3>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Descricao</mat-label>
-          <input matInput [(ngModel)]="newLabel" placeholder="Ex: Comprar adaptador de tomada">
+          <input matInput [(ngModel)]="newLabel">
         </mat-form-field>
         <div class="form-row">
           <mat-form-field appearance="outline">

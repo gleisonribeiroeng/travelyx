@@ -68,9 +68,6 @@
     box-sizing: border-box;
   }
 
-  app-right-panel {
-    display: none;
-  }
 }
 
 // Desktop: sidebar in grid flow
@@ -93,18 +90,3 @@
   }
 }
 
-// Wide: right panel visible
-@media (min-width: 1280px) {
-  .dashboard-shell {
-    grid-template-columns: var(--triply-sidebar-width) 1fr var(--triply-right-panel-width);
-    grid-template-areas:
-      "sidebar topbar    rightpanel"
-      "sidebar content   rightpanel";
-
-    app-right-panel {
-      display: block;
-      grid-area: rightpanel;
-      grid-row: 1 / -1;
-    }
-  }
-}

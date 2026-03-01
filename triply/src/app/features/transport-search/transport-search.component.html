@@ -1,5 +1,5 @@
 <div class="view-header">
-  <h1>Buscar Transporte</h1>
+  <h1>Transporte</h1>
   <p>Encontre conexões de ônibus, trem e balsa entre cidades</p>
 </div>
 
@@ -38,7 +38,7 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Data de Partida</mat-label>
-          <input matInput [matDatepicker]="departurePicker" formControlName="departureDate" [min]="minDepartureDate" />
+          <input matInput [matDatepicker]="departurePicker" formControlName="departureDate" [min]="minDepartureDate" (focus)="departurePicker.open()" />
           <mat-datepicker-toggle matIconSuffix [for]="departurePicker"></mat-datepicker-toggle>
           <mat-datepicker #departurePicker></mat-datepicker>
           @if (transportSearchForm.get('departureDate')?.hasError('required')) { <mat-error>Data de partida é obrigatória</mat-error> }

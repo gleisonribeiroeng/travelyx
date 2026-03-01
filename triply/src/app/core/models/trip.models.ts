@@ -26,6 +26,7 @@ export interface Trip {
   activities: Activity[];
   attractions: Attraction[];
   itineraryItems: ItineraryItem[];
+  coverImage?: string;
   /** ISO 8601 datetime string */
   createdAt: string;
   /** ISO 8601 datetime string */
@@ -50,6 +51,14 @@ export interface Flight extends SearchResultBase {
   stops: number;
   price: Price;
   link: ExternalLink;
+  /** Terminal at departure airport (manual entry only) */
+  terminal?: string;
+  /** Gate at departure airport (manual entry only) */
+  gate?: string;
+  /** Booking/reservation confirmation number (manual entry only) */
+  reservationNumber?: string;
+  /** Seat assignment (manual entry only) */
+  seat?: string;
 }
 
 /**
@@ -73,6 +82,12 @@ export interface Stay extends SearchResultBase {
   /** Gallery image URLs */
   images: string[];
   link: ExternalLink;
+  /** Check-in time as HH:MM (manual entry only) */
+  checkInTime?: string;
+  /** Check-out time as HH:MM (manual entry only) */
+  checkOutTime?: string;
+  /** Booking/reservation confirmation number (manual entry only) */
+  reservationNumber?: string;
 }
 
 /**
@@ -90,6 +105,8 @@ export interface CarRental extends SearchResultBase {
   /** Gallery image URLs */
   images: string[];
   link: ExternalLink;
+  /** Booking/reservation confirmation number (manual entry only) */
+  reservationNumber?: string;
 }
 
 /**

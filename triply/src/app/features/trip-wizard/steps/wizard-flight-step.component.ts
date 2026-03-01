@@ -32,6 +32,13 @@ import {
   categorizeFlights,
   CategorizedFlights,
 } from '../../../core/utils/flight-categorizer.util';
+import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
+import { flightToListItem, FlightTagType } from '../../../shared/components/list-item-base/list-item-mappers';
+import {
+  ManualFlightDialogComponent,
+  ManualFlightDialogData,
+  ManualFlightDialogResult,
+} from '../../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
 
 type TripType = 'roundTrip' | 'oneWay' | 'returnOnly';
 
@@ -43,12 +50,21 @@ interface MonthOption {
 @Component({
   selector: 'app-wizard-flight-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ListItemBaseComponent],
   template: `
     <div class="wizard-step">
       <div class="step-header">
         <h2>Escolha seu voo</h2>
         <p>Busque e selecione o voo ideal para sua viagem</p>
+      </div>
+
+      <!-- Manual entry -->
+      <div class="manual-entry-section">
+        <button mat-stroked-button (click)="openManualFlightDialog()">
+          <mat-icon>edit_note</mat-icon>
+          Adicionar voo manualmente
+        </button>
+        <span class="manual-hint">Ja tem uma reserva? Insira os dados do voo.</span>
       </div>
 
       <!-- Current selection -->
@@ -68,7 +84,15 @@ interface MonthOption {
                     </strong>
                     <span>{{ flight.airline }} {{ flight.flightNumber }} &middot; {{ formatDuration(flight.durationMinutes) }}</span>
                   </div>
+                  @if (flight.source === 'manual') {
+                    <span class="manual-badge">Manual</span>
+                  }
                   <span class="selected-price">{{ flight.price.currency }} {{ flight.price.total | number:'1.2-2' }}</span>
+                  @if (flight.source === 'manual') {
+                    <button mat-icon-button (click)="openManualFlightDialog(flight); $event.stopPropagation()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  }
                   <button mat-icon-button color="warn" (click)="remove(flight.id)">
                     <mat-icon>close</mat-icon>
                   </button>
@@ -144,7 +168,7 @@ interface MonthOption {
                 @if (tripType() === 'roundTrip') {
                   <mat-form-field appearance="outline">
                     <mat-label>Ida — Volta</mat-label>
-                    <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate">
+                    <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
                       <input matStartDate formControlName="start" placeholder="Ida">
                       <input matEndDate formControlName="end" placeholder="Volta">
                     </mat-date-range-input>
@@ -156,7 +180,8 @@ interface MonthOption {
                     <mat-label>Data de ida</mat-label>
                     <input matInput [matDatepicker]="dpDeparture"
                            formControlName="start"
-                           [min]="minDate">
+                           [min]="minDate"
+                           (focus)="dpDeparture.open()">
                     <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
                     <mat-datepicker #dpDeparture></mat-datepicker>
                   </mat-form-field>
@@ -238,106 +263,17 @@ interface MonthOption {
       }
 
       @if (results().length > 0 && !isSearching()) {
-        <!-- Recommended -->
-        @if (categorized().bestValue; as best) {
-          <div class="recommended-section">
-            <h3><mat-icon>auto_awesome</mat-icon> Recomendado para você</h3>
-            <mat-card class="recommended-card" [class.added]="isAdded(best.id)"
-                      (click)="openDetail(best)" role="button" tabindex="0">
-              <mat-card-content>
-                <span class="rec-badge">Melhor custo-benefício</span>
-                <div class="result-row">
-                  <div class="result-airline">
-                    <mat-icon>flight</mat-icon>
-                    <div>
-                      <strong>{{ best.airline }}</strong>
-                      <span class="flight-number">{{ best.flightNumber }}</span>
-                    </div>
-                  </div>
-                  <div class="result-route">
-                    <span class="time">{{ formatTime(best.departureAt) }}</span>
-                    <span class="code">{{ best.origin }}</span>
-                  </div>
-                  <div class="result-duration">
-                    <span>{{ formatDuration(best.durationMinutes) }}</span>
-                    <div class="duration-line"></div>
-                    <span class="stops">{{ best.stops === 0 ? 'Direto' : best.stops + ' parada(s)' }}</span>
-                  </div>
-                  <div class="result-route">
-                    <span class="time">{{ formatTime(best.arrivalAt) }}</span>
-                    <span class="code">{{ best.destination }}</span>
-                  </div>
-                  <div class="result-price">
-                    <span class="price-value">{{ best.price.currency }} {{ best.price.total | number:'1.2-2' }}</span>
-                    @if (isAdded(best.id)) {
-                      <button mat-stroked-button color="warn" (click)="openDetail(best); $event.stopPropagation()">
-                        <mat-icon>check</mat-icon> Adicionado
-                      </button>
-                    } @else {
-                      <button mat-flat-button color="primary" (click)="openDetail(best); $event.stopPropagation()">
-                        Ver detalhes
-                      </button>
-                    }
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        }
-
-        <!-- Other options -->
-        @if (otherFlights().length > 0) {
-          <div class="results-list">
-            <h3>Outras opções ({{ otherFlights().length }})</h3>
-            @for (flight of otherFlights(); track flight.id) {
-              <mat-card class="result-card" [class.added]="isAdded(flight.id)"
-                        (click)="openDetail(flight)" role="button" tabindex="0">
-                <mat-card-content>
-                  <div class="result-row">
-                    <div class="result-airline">
-                      <mat-icon>flight</mat-icon>
-                      <div>
-                        <strong>{{ flight.airline }}</strong>
-                        <span class="flight-number">{{ flight.flightNumber }}</span>
-                      </div>
-                      @if (categorized().cheapest?.id === flight.id) {
-                        <span class="tag tag-cheap">Mais barato</span>
-                      }
-                      @if (categorized().fastest?.id === flight.id) {
-                        <span class="tag tag-fast">Mais rápido</span>
-                      }
-                    </div>
-                    <div class="result-route">
-                      <span class="time">{{ formatTime(flight.departureAt) }}</span>
-                      <span class="code">{{ flight.origin }}</span>
-                    </div>
-                    <div class="result-duration">
-                      <span>{{ formatDuration(flight.durationMinutes) }}</span>
-                      <div class="duration-line"></div>
-                      <span class="stops">{{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
-                    </div>
-                    <div class="result-route">
-                      <span class="time">{{ formatTime(flight.arrivalAt) }}</span>
-                      <span class="code">{{ flight.destination }}</span>
-                    </div>
-                    <div class="result-price">
-                      <span class="price-value">{{ flight.price.currency }} {{ flight.price.total | number:'1.2-2' }}</span>
-                      @if (isAdded(flight.id)) {
-                        <button mat-stroked-button color="warn" (click)="openDetail(flight); $event.stopPropagation()">
-                          <mat-icon>check</mat-icon> Adicionado
-                        </button>
-                      } @else {
-                        <button mat-flat-button color="primary" (click)="openDetail(flight); $event.stopPropagation()">
-                          Ver detalhes
-                        </button>
-                      }
-                    </div>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>
-        }
+        <div class="results-list">
+          <h3>{{ results().length }} voos encontrados</h3>
+          @for (flight of sortedResults(); track flight.id) {
+            <app-list-item-base
+              [config]="toListItem(flight)"
+              (primaryClick)="selectById($event)"
+              (secondaryClick)="openDetailById($event)"
+              (cardClick)="openDetailById($event)"
+            />
+          }
+        </div>
       }
     </div>
   `,
@@ -389,71 +325,8 @@ interface MonthOption {
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    /* Recommended section */
-    .recommended-section h3 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--triply-primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .recommended-card {
-      border: 2px solid var(--triply-primary) !important;
-      background: linear-gradient(135deg, rgba(124,77,255,0.03), rgba(124,77,255,0.08)) !important;
-      cursor: pointer;
-    }
-    .recommended-card:hover { box-shadow: 0 4px 16px rgba(124, 77, 255, 0.12); }
-    .recommended-card.added { opacity: 0.7; }
-    .rec-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: linear-gradient(135deg, var(--triply-primary), #651fff);
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 12px;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Other options */
-    .results-list { display: flex; flex-direction: column; gap: 8px; }
-    .results-list h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
-    .result-card { cursor: pointer; transition: all 0.2s ease; box-shadow: var(--triply-shadow-xs); }
-    .result-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .result-card.added { border-left: 3px solid var(--triply-success) !important; opacity: 0.7; }
-    .result-row { display: flex; align-items: center; gap: var(--triply-spacing-md); flex-wrap: wrap; }
-    .result-airline { display: flex; align-items: center; gap: 8px; min-width: 100px; flex-wrap: wrap; width: 100%; margin-bottom: 8px; }
-    .result-airline mat-icon { color: var(--triply-cat-flight); }
-    .result-airline strong { font-size: 0.85rem; color: var(--triply-text-primary); }
-    .flight-number { font-size: 0.75rem; color: var(--triply-text-secondary); display: block; }
-    .result-route { text-align: center; min-width: 60px; }
-    .result-route .time { font-size: 1rem; font-weight: 700; color: var(--triply-text-primary); display: block; }
-    .result-route .code { font-size: 0.75rem; color: var(--triply-text-secondary); }
-    .result-duration { flex: 1; text-align: center; }
-    .result-duration > span { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .duration-line { height: 2px; background: var(--triply-border); margin: 4px 0; border-radius: 1px; position: relative; }
-    .stops { font-size: 0.75rem; color: var(--triply-text-secondary); }
-    .result-price { width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 4px; margin-top: 8px; }
-    .price-value { font-size: 1.05rem; font-weight: 700; color: var(--triply-primary); }
-
-    /* Tags */
-    .tag {
-      font-size: 0.65rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      white-space: nowrap;
-    }
-    .tag-cheap { background: rgba(16,185,129,0.12); color: #059669; }
-    .tag-fast { background: rgba(59,130,246,0.12); color: #2563eb; }
+    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
 
     /* Segment indicator */
     .segment-indicator {
@@ -512,12 +385,23 @@ interface MonthOption {
     .leg-badge.ida { background: rgba(124, 77, 255, 0.1); color: var(--triply-primary); }
     .leg-badge.volta { background: rgba(16, 185, 129, 0.1); color: #059669; }
 
+    /* Manual entry */
+    .manual-entry-section {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    }
+    .manual-hint {
+      font-size: 0.8rem; color: var(--triply-text-secondary);
+    }
+    .manual-badge {
+      font-size: 0.65rem; font-weight: 600; padding: 2px 8px;
+      border-radius: 10px; background: rgba(124, 77, 255, 0.1);
+      color: var(--triply-primary); text-transform: uppercase;
+      letter-spacing: 0.3px; white-space: nowrap;
+    }
+
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
       .month-grid { grid-template-columns: repeat(3, 1fr); }
-      .result-row { flex-wrap: nowrap; }
-      .result-airline { width: auto; margin-bottom: 0; }
-      .result-price { width: auto; min-width: 140px; flex-direction: column; align-items: flex-end; text-align: right; margin-top: 0; }
     }
   `],
 })
@@ -550,10 +434,11 @@ export class WizardFlightStepComponent {
   readonly hasReturn = computed(() => this.returnFlightId() !== null);
 
   readonly categorized = computed((): CategorizedFlights<Flight> => categorizeFlights(this.results()));
-  readonly otherFlights = computed(() => {
+  readonly sortedResults = computed(() => {
     const cat = this.categorized();
-    if (!cat.bestValue) return cat.all;
-    return cat.all.filter(f => f.id !== cat.bestValue!.id);
+    const all = cat.all;
+    if (!cat.bestValue) return all;
+    return [cat.bestValue, ...all.filter(f => f.id !== cat.bestValue!.id)];
   });
 
   readonly availableMonths: MonthOption[] = this.buildAvailableMonths();
@@ -630,6 +515,31 @@ export class WizardFlightStepComponent {
     return this.selectedFlights().some((f) => f.id === id);
   }
 
+  getFlightTag(flight: Flight): FlightTagType | null {
+    const cat = this.categorized();
+    if (cat.bestValue?.id === flight.id) return 'bestValue';
+    if (cat.cheapest?.id === flight.id) return 'cheapest';
+    if (cat.fastest?.id === flight.id) return 'fastest';
+    return null;
+  }
+
+  toListItem(flight: Flight) {
+    return flightToListItem(flight, {
+      isAdded: this.isAdded(flight.id),
+      tag: this.getFlightTag(flight),
+    });
+  }
+
+  selectById(id: string): void {
+    const flight = this.results().find(f => f.id === id);
+    if (flight) this.select(flight);
+  }
+
+  openDetailById(id: string): void {
+    const flight = this.results().find(f => f.id === id) ?? this.selectedFlights().find(f => f.id === id);
+    if (flight) this.openDetail(flight);
+  }
+
   isMonthSelected(value: string): boolean {
     return this.selectedMonths().includes(value);
   }
@@ -704,6 +614,55 @@ export class WizardFlightStepComponent {
           },
         });
     }
+  }
+
+  openManualFlightDialog(existingFlight?: Flight): void {
+    const ref = this.dialog.open(ManualFlightDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        flight: existingFlight ?? null,
+        tripCurrency: this.tripState.trip().currency,
+      } as ManualFlightDialogData,
+    });
+    ref.afterClosed().subscribe((result: ManualFlightDialogResult | undefined) => {
+      if (!result || result.action !== 'save') return;
+
+      if (existingFlight) {
+        // Edit mode
+        this.tripState.updateFlight(result.flight);
+        const itinItem = this.tripState.itineraryItems().find(i => i.refId === existingFlight.id);
+        if (itinItem) {
+          this.tripState.updateItineraryItem({
+            ...itinItem,
+            date: result.flight.departureAt.split('T')[0],
+            timeSlot: result.flight.departureAt.split('T')[1]?.substring(0, 5) || null,
+            label: `Voo: ${result.flight.origin} \u2192 ${result.flight.destination}`,
+            notes: `${result.flight.airline} ${result.flight.flightNumber}`,
+            isPaid: result.isPaid,
+          });
+        }
+        this.notify.success('Voo atualizado!');
+      } else {
+        // Create mode
+        this.tripState.addFlight(result.flight);
+        this.tripState.addItineraryItem({
+          id: crypto.randomUUID(),
+          type: 'flight',
+          refId: result.flight.id,
+          date: result.flight.departureAt.split('T')[0],
+          timeSlot: result.flight.departureAt.split('T')[1]?.substring(0, 5) || null,
+          durationMinutes: null,
+          label: `Voo: ${result.flight.origin} \u2192 ${result.flight.destination}`,
+          notes: `${result.flight.airline} ${result.flight.flightNumber}`,
+          order: 0,
+          isPaid: result.isPaid,
+          attachment: null,
+        });
+        this.notify.success('Voo manual adicionado!');
+      }
+    });
   }
 
   openDetail(flight: Flight): void {

@@ -6,12 +6,14 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Trip, TripStatus } from '../../core/models/trip.models';
-import { TripCreateDialogComponent, TripCreateDialogResult } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
+import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { tripToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-trip-list',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DatePipe],
+  imports: [MATERIAL_IMPORTS, CommonModule, DatePipe, ListItemBaseComponent],
   templateUrl: './trip-list.component.html',
   styleUrl: './trip-list.component.scss',
 })
@@ -61,6 +63,14 @@ export class TripListComponent {
     });
   }
 
+  toListItem(trip: Trip) {
+    return tripToListItem(trip);
+  }
+
+  openTrip(id: string): void {
+    this.selectTrip(id);
+  }
+
   getStatusLabel(status: string): string {
     const map: Record<string, string> = {
       planejamento: 'Planejamento',
@@ -77,5 +87,46 @@ export class TripListComponent {
       concluida: '',
     };
     return colors[status] || '';
+  }
+
+  handleIconAction(event: { itemId: string; actionId: string }): void {
+    if (event.actionId === 'edit') this.editTrip(event.itemId);
+    else if (event.actionId === 'cover') this.addCoverImage(event.itemId);
+  }
+
+  editTrip(id: string): void {
+    const trip = this.tripState.trips().find(t => t.id === id);
+    if (!trip) return;
+    const ref = this.dialog.open(TripCreateDialogComponent, {
+      width: '440px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: { name: trip.name, destination: trip.destination, dates: trip.dates } as TripEditData,
+    });
+    ref.afterClosed().subscribe((result: TripCreateDialogResult | undefined) => {
+      if (!result) return;
+      const prevActive = this.tripState.activeTripId();
+      this.tripState.selectTrip(id);
+      this.tripState.setTripMeta(result.name, result.destination, result.dates);
+      if (prevActive && prevActive !== id) this.tripState.selectTrip(prevActive);
+      this.notify.success('Viagem atualizada!');
+    });
+  }
+
+  addCoverImage(id: string): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        this.tripState.setTripCoverImage(id, dataUrl);
+        this.notify.success('Imagem de capa adicionada!');
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
   }
 }

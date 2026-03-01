@@ -9,11 +9,13 @@ import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TransportApiService } from '../../../core/api/transport-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
 import { Transport } from '../../../core/models/trip.models';
+import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
+import { transportToListItem } from '../../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-wizard-transport-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ListItemBaseComponent],
   template: `
     <div class="wizard-step">
       <div class="step-header">
@@ -62,7 +64,7 @@ import { Transport } from '../../../core/models/trip.models';
 
               <mat-form-field appearance="outline">
                 <mat-label>Data</mat-label>
-                <input matInput [matDatepicker]="dp" formControlName="date" [min]="minDate">
+                <input matInput [matDatepicker]="dp" formControlName="date" [min]="minDate" (focus)="dp.open()">
                 <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
                 <mat-datepicker #dp></mat-datepicker>
               </mat-form-field>
@@ -99,29 +101,12 @@ import { Transport } from '../../../core/models/trip.models';
         <div class="results-list">
           <h3>{{ results().length }} opções encontradas</h3>
           @for (t of results(); track t.id) {
-            <mat-card class="result-card" [class.added]="isAdded(t.id)" (click)="openDetail(t)">
-              <mat-card-content>
-                <div class="result-row">
-                  <mat-icon class="mode-icon">{{ getModeIcon(t.mode) }}</mat-icon>
-                  <div class="result-info">
-                    <strong>{{ t.origin }} → {{ t.destination }}</strong>
-                    <span>{{ t.mode | titlecase }} &middot; {{ formatDuration(t.durationMinutes) }}</span>
-                  </div>
-                  <div class="result-price">
-                    <span class="price-value">{{ t.price.currency }} {{ t.price.total | number:'1.2-2' }}</span>
-                    @if (isAdded(t.id)) {
-                      <button mat-stroked-button color="warn" (click)="remove(t.id); $event.stopPropagation()">
-                        <mat-icon>check</mat-icon> Adicionado
-                      </button>
-                    } @else {
-                      <button mat-flat-button color="primary" (click)="openDetail(t); $event.stopPropagation()">
-                        Ver detalhes
-                      </button>
-                    }
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
+            <app-list-item-base
+              [config]="toListItem(t)"
+              (primaryClick)="selectById($event)"
+              (secondaryClick)="openDetailById($event)"
+              (cardClick)="openDetailById($event)"
+            />
           }
         </div>
       }
@@ -151,23 +136,11 @@ import { Transport } from '../../../core/models/trip.models';
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-list { display: flex; flex-direction: column; gap: 8px; }
-    .results-list h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
-    .result-card { transition: all 0.2s ease; cursor: pointer; box-shadow: var(--triply-shadow-xs); }
-    .result-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .result-card.added { border-left: 3px solid var(--triply-success) !important; opacity: 0.7; }
-    .result-row { display: flex; align-items: center; gap: var(--triply-spacing-md); flex-wrap: wrap; }
-    .mode-icon { color: var(--triply-cat-transport); }
-    .result-info { flex: 1; display: flex; flex-direction: column; }
-    .result-info strong { font-size: 0.9rem; color: var(--triply-text-primary); }
-    .result-info span { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .result-price { width: 100%; display: flex; flex-direction: row; justify-content: space-between; gap: 4px; margin-top: 8px; }
-    .price-value { font-size: 1.05rem; font-weight: 700; color: var(--triply-primary); }
+    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
 
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
-      .result-row { flex-wrap: nowrap; }
-      .result-price { width: auto; flex-direction: column; align-items: flex-end; text-align: right; margin-top: 0; }
     }
   `],
 })
@@ -191,6 +164,20 @@ export class WizardTransportStepComponent {
 
   isAdded(id: string): boolean {
     return this.selectedTransports().some((t) => t.id === id);
+  }
+
+  toListItem(t: Transport) {
+    return transportToListItem(t, { isAdded: this.isAdded(t.id) });
+  }
+
+  selectById(id: string): void {
+    const t = this.results().find(x => x.id === id);
+    if (t) this.select(t);
+  }
+
+  openDetailById(id: string): void {
+    const t = this.results().find(x => x.id === id) ?? this.selectedTransports().find(x => x.id === id);
+    if (t) this.openDetail(t);
   }
 
   getModeIcon(mode: string): string {

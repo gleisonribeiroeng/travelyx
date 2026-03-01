@@ -1,6 +1,14 @@
 <div class="view-header">
-  <h1>Buscar Voos</h1>
+  <h1>Voos</h1>
   <p>Encontre os melhores voos para sua viagem</p>
+</div>
+
+<div class="manual-entry-section">
+  <button mat-stroked-button (click)="openManualFlightDialog()">
+    <mat-icon>edit_note</mat-icon>
+    Adicionar voo manualmente
+  </button>
+  <span class="manual-hint">Ja tem uma reserva? Insira os dados do voo.</span>
 </div>
 
 @if (formCollapsed()) {
@@ -98,7 +106,7 @@
               @if (tripType() === 'roundTrip') {
                 <mat-form-field appearance="outline">
                   <mat-label>Ida — Volta</mat-label>
-                  <mat-date-range-input [rangePicker]="rangePicker" [min]="minDepartureDate">
+                  <mat-date-range-input [rangePicker]="rangePicker" [min]="minDepartureDate" (click)="rangePicker.open()">
                     <input matStartDate formControlName="start" placeholder="Ida">
                     <input matEndDate formControlName="end" placeholder="Volta">
                   </mat-date-range-input>
@@ -110,7 +118,8 @@
                   <mat-label>Data de ida</mat-label>
                   <input matInput [matDatepicker]="dpDeparture"
                          formControlName="start"
-                         [min]="minDepartureDate">
+                         [min]="minDepartureDate"
+                         (focus)="dpDeparture.open()">
                   <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
                   <mat-datepicker #dpDeparture></mat-datepicker>
                 </mat-form-field>
@@ -220,7 +229,8 @@
                   <mat-label>Data</mat-label>
                   <input matInput [matDatepicker]="segDp"
                          formControlName="date"
-                         [min]="getMinDateForSegment(i)">
+                         [min]="getMinDateForSegment(i)"
+                         (focus)="segDp.open()">
                   <mat-datepicker-toggle matSuffix [for]="segDp"></mat-datepicker-toggle>
                   <mat-datepicker #segDp></mat-datepicker>
                   @if (group.get('date')?.hasError('required') && group.get('date')?.touched) {

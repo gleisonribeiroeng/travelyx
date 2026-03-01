@@ -1,6 +1,14 @@
 <div class="view-header">
-  <h1>Buscar Hotéis</h1>
+  <h1>Hotéis</h1>
   <p>Encontre a hospedagem perfeita para sua viagem</p>
+</div>
+
+<div class="manual-entry-section">
+  <button mat-stroked-button (click)="openManualHotelDialog()">
+    <mat-icon>edit_note</mat-icon>
+    Adicionar hotel manualmente
+  </button>
+  <span class="manual-hint">Ja tem uma reserva? Insira os dados da hospedagem.</span>
 </div>
 
 @if (formCollapsed()) {
@@ -49,7 +57,7 @@
       <div class="form-row" formGroupName="dateRange">
         <mat-form-field appearance="outline">
           <mat-label>Check-in — Check-out</mat-label>
-          <mat-date-range-input [rangePicker]="rangePicker" [min]="minCheckInDate">
+          <mat-date-range-input [rangePicker]="rangePicker" [min]="minCheckInDate" (click)="rangePicker.open()">
             <input matStartDate formControlName="start" placeholder="Check-in">
             <input matEndDate formControlName="end" placeholder="Check-out">
           </mat-date-range-input>
@@ -182,96 +190,14 @@
       </mat-form-field>
     </div>
 
-    <!-- Hotel Result Cards (Decolar-style 3-column) -->
+    <!-- Hotel Result Cards -->
     @for (hotel of sortedHotels(); track hotel.id) {
-      <mat-card class="hotel-card">
-        <!-- Tags -->
-        @if (categorized().cheapest?.id === hotel.id || categorized().bestRated?.id === hotel.id || categorized().bestValue?.id === hotel.id) {
-          <div class="hotel-tags">
-            @if (categorized().bestValue?.id === hotel.id) {
-              <span class="htag htag-value">Melhor custo-benefício</span>
-            }
-            @if (categorized().cheapest?.id === hotel.id) {
-              <span class="htag htag-cheap">Melhor preço</span>
-            }
-            @if (categorized().bestRated?.id === hotel.id) {
-              <span class="htag htag-rated">Mais bem avaliado</span>
-            }
-          </div>
-        }
-        <div class="hotel-card-layout">
-          <!-- Left: Image Carousel -->
-          <div class="hotel-carousel">
-            <img
-              [src]="getCurrentImage(hotel)"
-              [alt]="hotel.name"
-              class="carousel-image"
-              loading="lazy"
-            />
-            @if (hotel.images && hotel.images.length > 1) {
-              <button class="carousel-btn prev" (click)="prevImage(hotel, $event)">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-              <button class="carousel-btn next" (click)="nextImage(hotel, $event)">
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-              <div class="carousel-dots">
-                @for (img of hotel.images; track $index) {
-                  <span class="dot" [class.active]="$index === getImageIndex(hotel.id)"></span>
-                }
-              </div>
-            }
-          </div>
-
-          <!-- Center: Hotel Info -->
-          <div class="hotel-info">
-            <h3 class="hotel-name">{{ hotel.name }}</h3>
-
-            <div class="hotel-location">
-              <mat-icon>location_on</mat-icon>
-              <span>{{ hotel.address }}</span>
-            </div>
-
-            <div class="hotel-rating">
-              @for (star of renderStars(hotel.rating); track $index) {
-                <mat-icon class="star-icon">{{ star }}</mat-icon>
-              }
-              <span class="rating-text">{{ formatRating(hotel.rating) }}</span>
-              @if (hotel.reviewCount > 0) {
-                <span class="review-count-text">({{ hotel.reviewCount }} avaliações)</span>
-              }
-            </div>
-
-            <div class="hotel-dates">
-              <mat-icon>date_range</mat-icon>
-              <span>{{ hotel.checkIn }} — {{ hotel.checkOut }}</span>
-            </div>
-          </div>
-
-          <!-- Right: Price + Actions -->
-          <div class="hotel-price-column">
-            <div class="price-block">
-              <span class="price-amount">{{ hotel.pricePerNight.total | currency: 'BRL' }}</span>
-              <span class="price-label">/noite</span>
-            </div>
-
-            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(hotel)">
-              <mat-icon>add</mat-icon>
-              Adicionar
-            </button>
-
-            <a
-              mat-stroked-button
-              class="action-btn detail-btn"
-              [href]="hotel.link.url"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Ver detalhe
-            </a>
-          </div>
-        </div>
-      </mat-card>
+      <app-list-item-base
+        [config]="toListItem(hotel)"
+        (primaryClick)="selectById($event)"
+        (secondaryClick)="openDetailById($event)"
+        (cardClick)="openDetailById($event)"
+      />
     }
   </div>
 }

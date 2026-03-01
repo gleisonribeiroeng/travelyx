@@ -121,66 +121,15 @@
           <h2>Passeios selecionados para voce</h2>
           <p>Por preco, avaliacao e custo-beneficio</p>
         </div>
-        <div class="highlights-grid">
+        <div class="highlights-list">
           @if (highlights().cheapest; as cheapest) {
-            <div class="highlight-card highlight-cheap">
-              <div class="highlight-badge"><mat-icon>savings</mat-icon> Melhor Preco</div>
-              <div class="highlight-route"><span class="hl-name">{{ cheapest.name }}</span></div>
-              <div class="highlight-city">{{ cheapest.city }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatDuration(cheapest.durationMinutes) }}</span>
-                <span>.</span>
-                <span>{{ cheapest.rating }}</span>
-                <span>({{ cheapest.reviewCount }})</span>
-              </div>
-              <div class="highlight-price">
-                {{ cheapest.price.total | currency: 'BRL' }}
-                <span class="price-suffix">/pessoa</span>
-              </div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/tours')">
-                <mat-icon>search</mat-icon> Ver passeios
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(cheapest, 'cheapest')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
           @if (highlights().bestRated; as rated) {
-            <div class="highlight-card highlight-rated">
-              <div class="highlight-badge"><mat-icon>star</mat-icon> Mais Bem Avaliado</div>
-              <div class="highlight-route"><span class="hl-name">{{ rated.name }}</span></div>
-              <div class="highlight-city">{{ rated.city }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatDuration(rated.durationMinutes) }}</span>
-                <span>.</span>
-                <span>{{ rated.rating }}</span>
-                <span>({{ rated.reviewCount }} avaliacoes)</span>
-              </div>
-              <div class="highlight-price">
-                {{ rated.price.total | currency: 'BRL' }}
-                <span class="price-suffix">/pessoa</span>
-              </div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/tours')">
-                <mat-icon>search</mat-icon> Ver passeios
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(rated, 'bestRated')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
           @if (highlights().bestValue; as best) {
-            <div class="highlight-card highlight-value">
-              <div class="highlight-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Beneficio</div>
-              <div class="highlight-route"><span class="hl-name">{{ best.name }}</span></div>
-              <div class="highlight-city">{{ best.city }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatDuration(best.durationMinutes) }}</span>
-                <span>.</span>
-                <span>{{ best.rating }}</span>
-                <span>({{ best.reviewCount }})</span>
-              </div>
-              <div class="highlight-price">
-                {{ best.price.total | currency: 'BRL' }}
-                <span class="price-suffix">/pessoa</span>
-              </div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/tours')">
-                <mat-icon>search</mat-icon> Ver passeios
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(best, 'bestValue')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
         </div>
       </section>
@@ -193,45 +142,9 @@
         <h2>Os favoritos dos viajantes</h2>
         <p>Passeios que todo mundo esta fazendo</p>
       </div>
-      <div class="tours-grid">
+      <div class="items-list">
         @for (tour of mostBooked(); track tour.id) {
-          <div class="tour-card">
-            <div class="card-img-wrap">
-              @if (tour.cityImage || tour.images[0]) {
-                <img [src]="tour.cityImage || tour.images[0]" [alt]="tour.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ tour.city }}</span>
-            </div>
-            <div class="tour-info">
-              <h3 class="tour-name">{{ tour.name }}</h3>
-              <p class="tour-description">{{ tour.description }}</p>
-              <div class="tour-meta">
-                <div class="meta-item">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ formatDuration(tour.durationMinutes) }}</span>
-                </div>
-                <div class="meta-item">
-                  <mat-icon>location_on</mat-icon>
-                  <span>{{ tour.city }}</span>
-                </div>
-              </div>
-              <div class="tour-rating">
-                <mat-icon class="star-icon">star</mat-icon>
-                <span class="rating-value">{{ tour.rating }}</span>
-                <span class="review-count">({{ tour.reviewCount }} avaliacoes)</span>
-              </div>
-            </div>
-            <div class="tour-footer">
-              <div class="tour-price">
-                <span class="price-label">a partir de</span>
-                <span class="price-value">{{ tour.price.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/tours')">
-                <mat-icon>search</mat-icon> Ver passeios
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>
@@ -243,45 +156,9 @@
         <h2>Experiencias que definem o destino</h2>
         <p>Se for para esse lugar, faca isso</p>
       </div>
-      <div class="tours-grid">
+      <div class="items-list">
         @for (tour of mustDo(); track tour.id) {
-          <div class="tour-card">
-            <div class="card-img-wrap">
-              @if (tour.cityImage || tour.images[0]) {
-                <img [src]="tour.cityImage || tour.images[0]" [alt]="tour.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ tour.city }}</span>
-            </div>
-            <div class="tour-info">
-              <h3 class="tour-name">{{ tour.name }}</h3>
-              <p class="tour-description">{{ tour.description }}</p>
-              <div class="tour-meta">
-                <div class="meta-item">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ formatDuration(tour.durationMinutes) }}</span>
-                </div>
-                <div class="meta-item">
-                  <mat-icon>location_on</mat-icon>
-                  <span>{{ tour.city }}</span>
-                </div>
-              </div>
-              <div class="tour-rating">
-                <mat-icon class="star-icon">star</mat-icon>
-                <span class="rating-value">{{ tour.rating }}</span>
-                <span class="review-count">({{ tour.reviewCount }} avaliacoes)</span>
-              </div>
-            </div>
-            <div class="tour-footer">
-              <div class="tour-price">
-                <span class="price-label">a partir de</span>
-                <span class="price-value">{{ tour.price.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/tours')">
-                <mat-icon>search</mat-icon> Ver passeios
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>
@@ -293,45 +170,9 @@
         <h2>Memorias unicas</h2>
         <p>Gastronomia, fotografia, trilhas e atividades especiais</p>
       </div>
-      <div class="tours-grid">
+      <div class="items-list">
         @for (tour of unique(); track tour.id) {
-          <div class="tour-card">
-            <div class="card-img-wrap">
-              @if (tour.cityImage || tour.images[0]) {
-                <img [src]="tour.cityImage || tour.images[0]" [alt]="tour.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ tour.city }}</span>
-            </div>
-            <div class="tour-info">
-              <h3 class="tour-name">{{ tour.name }}</h3>
-              <p class="tour-description">{{ tour.description }}</p>
-              <div class="tour-meta">
-                <div class="meta-item">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ formatDuration(tour.durationMinutes) }}</span>
-                </div>
-                <div class="meta-item">
-                  <mat-icon>location_on</mat-icon>
-                  <span>{{ tour.city }}</span>
-                </div>
-              </div>
-              <div class="tour-rating">
-                <mat-icon class="star-icon">star</mat-icon>
-                <span class="rating-value">{{ tour.rating }}</span>
-                <span class="review-count">({{ tour.reviewCount }} avaliacoes)</span>
-              </div>
-            </div>
-            <div class="tour-footer">
-              <div class="tour-price">
-                <span class="price-label">a partir de</span>
-                <span class="price-value">{{ tour.price.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/tours')">
-                <mat-icon>search</mat-icon> Ver passeios
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>

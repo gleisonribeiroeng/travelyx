@@ -20,6 +20,7 @@ export type ItemDetailData =
 export type ItemDetailResult =
   | { action: 'add' }
   | { action: 'remove' }
+  | { action: 'edit' }
   | undefined;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -68,6 +69,9 @@ function formatDate(iso: string): string {
         <div>
           <span class="type-label">{{ typeLabel() }}</span>
           <h2>{{ title() }}</h2>
+          @if (isManual()) {
+            <span class="manual-badge"><mat-icon>edit_note</mat-icon> Entrada manual</span>
+          }
         </div>
       </div>
       <button mat-icon-button (click)="onClose()" aria-label="Fechar">
@@ -143,6 +147,30 @@ function formatDate(iso: string): string {
                 <mat-icon>connecting_airports</mat-icon>
                 <div><span class="label">Paradas</span><span class="value">{{ asF().stops === 0 ? 'Direto' : asF().stops + ' parada(s)' }}</span></div>
               </div>
+              @if (asF().terminal) {
+                <div class="info-item">
+                  <mat-icon>door_front</mat-icon>
+                  <div><span class="label">Terminal</span><span class="value">{{ asF().terminal }}</span></div>
+                </div>
+              }
+              @if (asF().gate) {
+                <div class="info-item">
+                  <mat-icon>meeting_room</mat-icon>
+                  <div><span class="label">Portao</span><span class="value">{{ asF().gate }}</span></div>
+                </div>
+              }
+              @if (asF().seat) {
+                <div class="info-item">
+                  <mat-icon>airline_seat_recline_normal</mat-icon>
+                  <div><span class="label">Assento</span><span class="value">{{ asF().seat }}</span></div>
+                </div>
+              }
+              @if (asF().reservationNumber) {
+                <div class="info-item">
+                  <mat-icon>bookmark</mat-icon>
+                  <div><span class="label">Reserva</span><span class="value">{{ asF().reservationNumber }}</span></div>
+                </div>
+              }
             </div>
             <div class="price-section">
               <span class="price-value">{{ asF().price.currency }} {{ asF().price.total | number:'1.2-2' }}</span>
@@ -171,6 +199,24 @@ function formatDate(iso: string): string {
                     <span class="label">Avaliação</span>
                     <span class="value">{{ asH().rating!.toFixed(1) }} ({{ asH().reviewCount }} avaliações)</span>
                   </div>
+                </div>
+              }
+              @if (asH().checkInTime) {
+                <div class="info-item">
+                  <mat-icon>schedule</mat-icon>
+                  <div><span class="label">Hora check-in</span><span class="value">{{ asH().checkInTime }}</span></div>
+                </div>
+              }
+              @if (asH().checkOutTime) {
+                <div class="info-item">
+                  <mat-icon>schedule</mat-icon>
+                  <div><span class="label">Hora check-out</span><span class="value">{{ asH().checkOutTime }}</span></div>
+                </div>
+              }
+              @if (asH().reservationNumber) {
+                <div class="info-item">
+                  <mat-icon>bookmark</mat-icon>
+                  <div><span class="label">Reserva</span><span class="value">{{ asH().reservationNumber }}</span></div>
                 </div>
               }
             </div>
@@ -279,10 +325,12 @@ function formatDate(iso: string): string {
 
         <!-- External link -->
         @if (externalLink(); as link) {
-          <a class="external-link" [href]="link.url" target="_blank" rel="noopener noreferrer">
-            <mat-icon>open_in_new</mat-icon>
-            Ver em {{ link.provider }}
-          </a>
+          @if (link.url && link.provider !== 'manual') {
+            <a class="external-link" [href]="link.url" target="_blank" rel="noopener noreferrer">
+              <mat-icon>open_in_new</mat-icon>
+              Ver em {{ link.provider }}
+            </a>
+          }
         }
       </div>
     </mat-dialog-content>
@@ -291,6 +339,12 @@ function formatDate(iso: string): string {
     <mat-dialog-actions class="detail-actions">
       <button mat-button (click)="onClose()">Fechar</button>
       <div class="action-spacer"></div>
+      @if (isManual() && data.isAdded) {
+        <button mat-stroked-button (click)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+      }
       @if (data.isAdded) {
         <button mat-stroked-button color="warn" (click)="onRemove()">
           <mat-icon>delete_outline</mat-icon>
@@ -600,6 +654,28 @@ function formatDate(iso: string): string {
       }
     }
 
+    /* ─── Manual badge ────────────────────────────────────────────── */
+    .manual-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: rgba(124, 77, 255, 0.08);
+      color: var(--triply-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+
     /* ─── Actions ────────────────────────────────────────────────── */
     .detail-actions {
       display: flex;
@@ -670,6 +746,7 @@ export class ItemDetailDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<ItemDetailDialogComponent>);
 
   readonly selectedImage = signal(0);
+  readonly isManual = computed(() => this.data.item.source === 'manual');
 
   readonly title = computed(() => {
     switch (this.data.type) {
@@ -738,5 +815,9 @@ export class ItemDetailDialogComponent {
 
   onRemove(): void {
     this.dialogRef.close({ action: 'remove' } as ItemDetailResult);
+  }
+
+  onEdit(): void {
+    this.dialogRef.close({ action: 'edit' } as ItemDetailResult);
   }
 }

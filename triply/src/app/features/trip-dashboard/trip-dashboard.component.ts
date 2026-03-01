@@ -1,13 +1,16 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TripRouterService } from '../../core/services/trip-router.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { BudgetService } from '../../core/services/budget.service';
 import { TripScoreService } from '../../core/services/trip-score.service';
 import { ChecklistService } from '../../core/services/checklist.service';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 import { ConflictAlert, TripStatus } from '../../core/models/trip.models';
+import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
 
 @Component({
   selector: 'app-trip-dashboard',
@@ -18,6 +21,8 @@ import { ConflictAlert, TripStatus } from '../../core/models/trip.models';
 })
 export class TripDashboardComponent {
   private readonly tripRouter = inject(TripRouterService);
+  private readonly dialog = inject(MatDialog);
+  private readonly notify = inject(NotificationService);
   protected readonly tripState = inject(TripStateService);
   protected readonly budget = inject(BudgetService);
   protected readonly score = inject(TripScoreService);
@@ -82,6 +87,20 @@ export class TripDashboardComponent {
       attraction: 'museum', custom: 'event',
     };
     return map[type] || 'event';
+  }
+
+  editTrip(): void {
+    const t = this.trip();
+    const ref = this.dialog.open(TripCreateDialogComponent, {
+      width: '440px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: { name: t.name, destination: t.destination, dates: t.dates } as TripEditData,
+    });
+    ref.afterClosed().subscribe((result: TripCreateDialogResult | undefined) => {
+      if (!result) return;
+      this.tripState.setTripMeta(result.name, result.destination, result.dates);
+      this.notify.success('Viagem atualizada!');
+    });
   }
 
   setStatus(status: TripStatus): void {

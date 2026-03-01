@@ -42,8 +42,37 @@
     <button mat-icon-button aria-label="Notificações">
       <mat-icon>notifications_none</mat-icon>
     </button>
-    <button mat-icon-button aria-label="Configurações">
-      <mat-icon>settings</mat-icon>
-    </button>
+
+    @if (auth.user(); as user) {
+      <button class="user-chip" [matMenuTriggerFor]="userMenu">
+        <img [src]="user.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+        <span class="user-name">{{ firstName() }}</span>
+        <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <div class="user-menu-header">
+          <img [src]="user.picture" alt="" class="menu-avatar" referrerpolicy="no-referrer">
+          <div class="menu-user-info">
+            <strong>{{ user.name }}</strong>
+            <small>{{ user.email }}</small>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item>
+          <mat-icon>person</mat-icon>
+          <span>Minha Conta</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>settings</mat-icon>
+          <span>Configurações</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Sair</span>
+        </button>
+      </mat-menu>
+    }
   </div>
 </div>

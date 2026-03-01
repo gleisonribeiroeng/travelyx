@@ -31,16 +31,32 @@ import {
   categorizeHotels,
   CategorizedHotels,
 } from '../../../core/utils/hotel-categorizer.util';
+import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
+import { stayToListItem, HotelTagType } from '../../../shared/components/list-item-base/list-item-mappers';
+import {
+  ManualHotelDialogComponent,
+  ManualHotelDialogData,
+  ManualHotelDialogResult,
+} from '../../../shared/components/manual-hotel-dialog/manual-hotel-dialog.component';
 
 @Component({
   selector: 'app-wizard-hotel-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ListItemBaseComponent],
   template: `
     <div class="wizard-step">
       <div class="step-header">
         <h2>Escolha seu hotel</h2>
         <p>Encontre a hospedagem perfeita para sua viagem</p>
+      </div>
+
+      <!-- Manual entry -->
+      <div class="manual-entry-section">
+        <button mat-stroked-button (click)="openManualHotelDialog()">
+          <mat-icon>edit_note</mat-icon>
+          Adicionar hotel manualmente
+        </button>
+        <span class="manual-hint">Ja tem uma reserva? Insira os dados da hospedagem.</span>
       </div>
 
       @if (selectedHotels().length > 0) {
@@ -59,7 +75,15 @@ import {
                     <strong>{{ hotel.name }}</strong>
                     <span>{{ hotel.address }} &middot; {{ hotel.checkIn }} a {{ hotel.checkOut }}</span>
                   </div>
+                  @if (hotel.source === 'manual') {
+                    <span class="manual-badge">Manual</span>
+                  }
                   <span class="selected-price">{{ hotel.pricePerNight.currency }} {{ hotel.pricePerNight.total | number:'1.2-2' }}/noite</span>
+                  @if (hotel.source === 'manual') {
+                    <button mat-icon-button (click)="openManualHotelDialog(hotel); $event.stopPropagation()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  }
                   <button mat-icon-button color="warn" (click)="remove(hotel.id)">
                     <mat-icon>close</mat-icon>
                   </button>
@@ -91,7 +115,7 @@ import {
             <div class="form-row" formGroupName="dateRange">
               <mat-form-field appearance="outline">
                 <mat-label>Check-in — Check-out</mat-label>
-                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate">
+                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
                   <input matStartDate formControlName="start" placeholder="Check-in">
                   <input matEndDate formControlName="end" placeholder="Check-out">
                 </mat-date-range-input>
@@ -135,114 +159,18 @@ import {
         </div>
       }
 
-      <!-- Categorized Results -->
-      @if (results().length > 0) {
-        <!-- Section 1: Recommended -->
-        @if (categorized().bestValue; as best) {
-          <div class="recommended-section">
-            <h3>Recomendado para você</h3>
-            <mat-card class="recommended-card" [class.added]="isAdded(best.id)"
-                      (click)="openDetail(best)" role="button" tabindex="0">
-              <div class="rec-layout">
-                @if (best.photoUrl) {
-                  <img [src]="best.photoUrl" class="rec-photo" alt="">
-                }
-                <div class="rec-content">
-                  <div class="rec-badge">
-                    <mat-icon>auto_awesome</mat-icon>
-                    Melhor custo-benefício
-                  </div>
-                  <h4>{{ best.name }}</h4>
-                  <p class="rec-address">{{ best.address }}</p>
-                  <div class="rec-rating">
-                    @if (best.rating) {
-                      <mat-icon class="star-icon">star</mat-icon>
-                      <span class="rating-num">{{ best.rating.toFixed(1) }}</span>
-                    }
-                    @if (best.reviewCount > 0) {
-                      <span class="review-count">({{ best.reviewCount }} avaliações)</span>
-                    }
-                  </div>
-                  <div class="rec-footer">
-                    <div class="rec-price">
-                      <span class="price-value">{{ best.pricePerNight.currency }} {{ best.pricePerNight.total | number:'1.2-2' }}</span>
-                      <span class="price-label">/noite</span>
-                    </div>
-                    <div class="rec-actions">
-                      @if (isAdded(best.id)) {
-                        <button mat-stroked-button color="warn" (click)="openDetail(best); $event.stopPropagation()">
-                          <mat-icon>check</mat-icon> Adicionado
-                        </button>
-                      } @else {
-                        <button mat-flat-button color="primary" (click)="openDetail(best); $event.stopPropagation()">
-                          Ver detalhes
-                        </button>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </mat-card>
-          </div>
-        }
-
-        <!-- Section 2: Other options -->
-        @if (otherHotels().length > 0) {
-          <div class="results-grid">
-            <h3>Outras opções ({{ otherHotels().length }})</h3>
-            <div class="hotel-grid">
-              @for (hotel of otherHotels(); track hotel.id) {
-                <mat-card class="hotel-card" [class.added]="isAdded(hotel.id)"
-                          (click)="openDetail(hotel)" role="button" tabindex="0">
-                  <!-- Tags -->
-                  @if (categorized().cheapest?.id === hotel.id || categorized().bestRated?.id === hotel.id) {
-                    <div class="hotel-tags">
-                      @if (categorized().cheapest?.id === hotel.id) {
-                        <span class="htag htag-cheap">Melhor preço</span>
-                      }
-                      @if (categorized().bestRated?.id === hotel.id) {
-                        <span class="htag htag-rated">Mais bem avaliado</span>
-                      }
-                    </div>
-                  }
-                  @if (hotel.photoUrl) {
-                    <img [src]="hotel.photoUrl" class="hotel-photo" alt="">
-                  }
-                  <mat-card-content>
-                    <h4>{{ hotel.name }}</h4>
-                    <p class="hotel-address">{{ hotel.address }}</p>
-                    <div class="hotel-rating">
-                      @if (hotel.rating) {
-                        <mat-icon>star</mat-icon>
-                        <span>{{ hotel.rating.toFixed(1) }}</span>
-                      }
-                      @if (hotel.reviewCount > 0) {
-                        <span class="review-count">({{ hotel.reviewCount }})</span>
-                      }
-                    </div>
-                    <div class="hotel-price">
-                      <span class="price-value">{{ hotel.pricePerNight.currency }} {{ hotel.pricePerNight.total | number:'1.2-2' }}</span>
-                      <span class="price-label">/noite</span>
-                    </div>
-                    <div class="card-buttons">
-                      @if (isAdded(hotel.id)) {
-                        <button mat-stroked-button color="warn" class="full-width"
-                                (click)="openDetail(hotel); $event.stopPropagation()">
-                          <mat-icon>check</mat-icon> Adicionado
-                        </button>
-                      } @else {
-                        <button mat-flat-button color="primary" class="full-width"
-                                (click)="openDetail(hotel); $event.stopPropagation()">
-                          Ver detalhes
-                        </button>
-                      }
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              }
-            </div>
-          </div>
-        }
+      @if (results().length > 0 && !isSearching()) {
+        <div class="results-list">
+          <h3>{{ results().length }} hotéis encontrados</h3>
+          @for (hotel of sortedResults(); track hotel.id) {
+            <app-list-item-base
+              [config]="toListItem(hotel)"
+              (primaryClick)="selectById($event)"
+              (secondaryClick)="openDetailById($event)"
+              (cardClick)="openDetailById($event)"
+            />
+          }
+        </div>
       }
     </div>
   `,
@@ -271,79 +199,25 @@ import {
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    /* Recommended section */
-    .recommended-section h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 1rem; font-weight: 700; color: var(--triply-text-primary); }
-    .recommended-card {
-      border-left: 4px solid var(--triply-primary) !important;
-      background: linear-gradient(135deg, rgba(124, 77, 255, 0.03) 0%, var(--triply-surface-1) 60%) !important;
-      transition: all 0.2s ease;
-      box-shadow: var(--triply-shadow-sm);
+    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+
+    /* Manual entry */
+    .manual-entry-section {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
     }
-    .recommended-card { cursor: pointer; }
-    .recommended-card:hover { box-shadow: 0 4px 16px rgba(124, 77, 255, 0.12); }
-    .recommended-card.added { border-left-color: var(--triply-success) !important; opacity: 0.7; }
-
-    .rec-layout { display: flex; flex-direction: column; gap: 16px; }
-    .rec-photo { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-    .rec-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-
-    .rec-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-      color: var(--triply-primary);
+    .manual-hint {
+      font-size: 0.8rem; color: var(--triply-text-secondary);
     }
-    .rec-badge mat-icon { font-size: 14px; width: 14px; height: 14px; }
-    .rec-content h4 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--triply-text-primary); }
-    .rec-address { margin: 0; font-size: 0.85rem; color: var(--triply-text-secondary); }
-
-    .rec-rating { display: flex; align-items: center; gap: 4px; }
-    .rec-rating .star-icon { font-size: 16px; width: 16px; height: 16px; color: var(--triply-cat-flight); }
-    .rec-rating .rating-num { font-size: 0.9rem; font-weight: 600; color: var(--triply-text-primary); }
-    .rec-rating .review-count { font-size: 0.8rem; color: var(--triply-text-secondary); }
-
-    .rec-footer { display: flex; flex-direction: column; gap: 12px; align-items: stretch; margin-top: auto; }
-    .rec-price .price-value { font-size: 1.2rem; font-weight: 700; color: var(--triply-primary); }
-    .rec-price .price-label { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .rec-actions { display: flex; flex-direction: column; gap: 8px; }
-    .rec-actions a { text-decoration: none; }
-
-    /* Other options */
-    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
-    .hotel-grid { display: grid; grid-template-columns: 1fr; gap: var(--triply-spacing-md); }
-    .hotel-card { overflow: hidden; transition: all 0.2s ease; cursor: pointer; }
-    @media (hover: hover) { .hotel-card:hover { transform: translateY(-2px); box-shadow: var(--triply-shadow-md); } }
-    .hotel-card.added { border: 2px solid var(--triply-success) !important; opacity: 0.7; }
-    .hotel-photo { width: 100%; height: 160px; object-fit: cover; }
-    .hotel-card h4 { margin: 8px 0 4px; font-size: 0.95rem; font-weight: 700; color: var(--triply-text-primary); }
-    .hotel-address { font-size: 0.8rem; color: var(--triply-text-secondary); margin: 0 0 8px; }
-    .hotel-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
-    .hotel-rating mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--triply-cat-flight); }
-    .hotel-rating span { font-size: 0.85rem; font-weight: 600; color: var(--triply-text-primary); }
-    .hotel-rating .review-count { font-weight: 400; color: var(--triply-text-secondary); font-size: 0.8rem; }
-    .hotel-price { margin-bottom: 12px; }
-    .price-value { font-size: 1.1rem; font-weight: 700; color: var(--triply-primary); }
-    .price-label { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .full-width { width: 100%; }
-    .card-buttons { display: flex; flex-direction: column; gap: 6px; }
-    .detail-link { text-decoration: none; text-align: center; }
-
-    /* Tags */
-    .hotel-tags { display: flex; gap: 6px; padding: 8px 16px 0; }
-    .htag {
-      font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 10px;
-      text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
+    .manual-badge {
+      font-size: 0.65rem; font-weight: 600; padding: 2px 8px;
+      border-radius: 10px; background: rgba(124, 77, 255, 0.1);
+      color: var(--triply-primary); text-transform: uppercase;
+      letter-spacing: 0.3px; white-space: nowrap;
     }
-    .htag-cheap { background: rgba(16, 185, 129, 0.1); color: #059669; }
-    .htag-rated { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-    .htag-value { background: rgba(124, 77, 255, 0.1); color: var(--triply-primary); }
 
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
-      .hotel-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-      .rec-layout { flex-direction: row; }
-      .rec-photo { width: 200px; height: 160px; }
-      .rec-footer { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; }
-      .rec-actions { flex-direction: row; }
     }
   `],
 })
@@ -389,10 +263,12 @@ export class WizardHotelStepComponent {
     categorizeHotels(this.results())
   );
 
-  readonly otherHotels = computed(() => {
+  // Sorted results: bestValue first, then rest
+  readonly sortedResults = computed(() => {
     const cat = this.categorized();
-    if (!cat.bestValue) return cat.all;
-    return cat.all.filter(h => h.id !== cat.bestValue!.id);
+    const all = cat.all;
+    if (!cat.bestValue) return all;
+    return [cat.bestValue, ...all.filter(h => h.id !== cat.bestValue!.id)];
   });
 
   private destinationValidator(): ValidatorFn {
@@ -411,6 +287,79 @@ export class WizardHotelStepComponent {
 
   isAdded(id: string): boolean {
     return this.selectedHotels().some((h) => h.id === id);
+  }
+
+  getHotelTag(hotel: Stay): HotelTagType | null {
+    const cat = this.categorized();
+    if (cat.bestValue?.id === hotel.id) return 'bestValue';
+    if (cat.cheapest?.id === hotel.id) return 'cheapest';
+    if (cat.bestRated?.id === hotel.id) return 'bestRated';
+    return null;
+  }
+
+  toListItem(hotel: Stay) {
+    return stayToListItem(hotel, {
+      isAdded: this.isAdded(hotel.id),
+      tag: this.getHotelTag(hotel),
+    });
+  }
+
+  selectById(id: string): void {
+    const hotel = this.results().find(h => h.id === id);
+    if (hotel) this.select(hotel);
+  }
+
+  openDetailById(id: string): void {
+    const hotel = this.results().find(h => h.id === id) ?? this.selectedHotels().find(h => h.id === id);
+    if (hotel) this.openDetail(hotel);
+  }
+
+  openManualHotelDialog(existingStay?: Stay): void {
+    const ref = this.dialog.open(ManualHotelDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        stay: existingStay ?? null,
+        tripCurrency: this.tripState.trip().currency,
+      } as ManualHotelDialogData,
+    });
+    ref.afterClosed().subscribe((result: ManualHotelDialogResult | undefined) => {
+      if (!result || result.action !== 'save') return;
+
+      if (existingStay) {
+        // Edit mode
+        this.tripState.updateStay(result.stay);
+        const itinItem = this.tripState.itineraryItems().find(i => i.refId === existingStay.id);
+        if (itinItem) {
+          this.tripState.updateItineraryItem({
+            ...itinItem,
+            date: result.stay.checkIn,
+            label: `Hotel: ${result.stay.name}`,
+            notes: result.stay.address || '',
+            isPaid: result.isPaid,
+          });
+        }
+        this.notify.success('Hotel atualizado!');
+      } else {
+        // Create mode
+        this.tripState.addStay(result.stay);
+        this.tripState.addItineraryItem({
+          id: crypto.randomUUID(),
+          type: 'stay',
+          refId: result.stay.id,
+          date: result.stay.checkIn,
+          timeSlot: null,
+          durationMinutes: null,
+          label: `Hotel: ${result.stay.name}`,
+          notes: result.stay.address || '',
+          order: 0,
+          isPaid: result.isPaid,
+          attachment: null,
+        });
+        this.notify.success('Hotel manual adicionado!');
+      }
+    });
   }
 
   openDetail(hotel: Stay): void {

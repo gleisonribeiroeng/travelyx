@@ -40,6 +40,32 @@
   mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
+.trip-info {
+  display: flex; align-items: center; gap: var(--triply-spacing-sm); flex-wrap: wrap;
+}
+
+.edit-trip-btn {
+  font-size: 0.8rem;
+  color: var(--triply-text-secondary);
+  border-color: var(--triply-border-subtle);
+  transition: all 0.2s;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+  &:hover { color: var(--triply-primary); border-color: var(--triply-primary); }
+}
+
+.missing-dates-alert {
+  display: flex; align-items: center; gap: var(--triply-spacing-sm);
+  padding: var(--triply-spacing-sm) var(--triply-spacing-md);
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+  border-radius: var(--triply-radius-md);
+  cursor: pointer; transition: all 0.2s;
+  color: var(--triply-text-secondary); font-size: 0.85rem;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: #FF9800; }
+  span { flex: 1; }
+  &:hover { background: rgba(255, 152, 0, 0.14); }
+}
+
 .countdown {
   text-align: center; padding: 8px 16px;
   background: var(--triply-primary-light); border-radius: var(--triply-radius-lg);

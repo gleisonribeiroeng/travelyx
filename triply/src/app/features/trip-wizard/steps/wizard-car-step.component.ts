@@ -24,16 +24,32 @@ import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { CarApiService, CarLocationOption } from '../../../core/api/car-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
 import { CarRental } from '../../../core/models/trip.models';
+import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
+import { carToListItem } from '../../../shared/components/list-item-base/list-item-mappers';
+import {
+  ManualCarDialogComponent,
+  ManualCarDialogData,
+  ManualCarDialogResult,
+} from '../../../shared/components/manual-car-dialog/manual-car-dialog.component';
 
 @Component({
   selector: 'app-wizard-car-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ListItemBaseComponent],
   template: `
     <div class="wizard-step">
       <div class="step-header">
         <h2>Aluguel de carro</h2>
         <p>Encontre o carro ideal para se locomover no destino</p>
+      </div>
+
+      <!-- Manual entry -->
+      <div class="manual-entry-section">
+        <button mat-stroked-button (click)="openManualCarDialog()">
+          <mat-icon>edit_note</mat-icon>
+          Adicionar carro manualmente
+        </button>
+        <span class="manual-hint">Ja tem uma reserva? Insira os dados do aluguel.</span>
       </div>
 
       @if (selectedCars().length > 0) {
@@ -49,6 +65,11 @@ import { CarRental } from '../../../core/models/trip.models';
                     <span>{{ car.pickUpLocation }} &middot; {{ car.pickUpAt.split('T')[0] }} a {{ car.dropOffAt.split('T')[0] }}</span>
                   </div>
                   <span class="selected-price">{{ car.price.currency }} {{ car.price.total | number:'1.2-2' }}</span>
+                  @if (car.source === 'manual') {
+                    <button mat-icon-button (click)="openManualCarDialog(car); $event.stopPropagation()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  }
                   <button mat-icon-button color="warn" (click)="remove(car.id)">
                     <mat-icon>close</mat-icon>
                   </button>
@@ -74,24 +95,34 @@ import { CarRental } from '../../../core/models/trip.models';
                   }
                 </mat-autocomplete>
               </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Local de devolução</mat-label>
-                <input matInput [formControl]="dropoffControl"
-                       [matAutocomplete]="autoDropoff">
-                <mat-icon matPrefix>location_on</mat-icon>
-                <mat-autocomplete #autoDropoff="matAutocomplete" [displayWith]="displayLocation">
-                  @for (option of filteredDropoff$ | async; track option.cityId) {
-                    <mat-option [value]="option">{{ option.label || option.name }}</mat-option>
-                  }
-                </mat-autocomplete>
-              </mat-form-field>
             </div>
+
+            <div class="same-location-row">
+              <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">
+                Devolver no mesmo local
+              </mat-checkbox>
+            </div>
+
+            @if (!sameDropOff()) {
+              <div class="form-row dropoff-field">
+                <mat-form-field appearance="outline">
+                  <mat-label>Local de devolução</mat-label>
+                  <input matInput [formControl]="dropoffControl"
+                         [matAutocomplete]="autoDropoff">
+                  <mat-icon matPrefix>location_on</mat-icon>
+                  <mat-autocomplete #autoDropoff="matAutocomplete" [displayWith]="displayLocation">
+                    @for (option of filteredDropoff$ | async; track option.cityId) {
+                      <mat-option [value]="option">{{ option.label || option.name }}</mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+            }
 
             <div class="form-row" formGroupName="dateRange">
               <mat-form-field appearance="outline">
                 <mat-label>Retirada — Devolução</mat-label>
-                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate">
+                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
                   <input matStartDate formControlName="start" placeholder="Retirada">
                   <input matEndDate formControlName="end" placeholder="Devolução">
                 </mat-date-range-input>
@@ -140,35 +171,16 @@ import { CarRental } from '../../../core/models/trip.models';
       }
 
       @if (results().length > 0) {
-        <div class="results-grid">
+        <div class="results-list">
           <h3>{{ results().length }} carros encontrados</h3>
-          <div class="car-grid">
-            @for (car of results(); track car.id) {
-              <mat-card class="car-card" [class.added]="isAdded(car.id)"
-                        (click)="openDetail(car)" role="button" tabindex="0">
-                @if (car.images.length > 0) {
-                  <img [src]="car.images[0]" class="car-photo" alt="">
-                }
-                <mat-card-content>
-                  <h4>{{ car.vehicleType }}</h4>
-                  <p class="car-location">{{ car.pickUpLocation }}</p>
-                  <div class="car-price">
-                    <span class="price-value">{{ car.price.currency }} {{ car.price.total | number:'1.2-2' }}</span>
-                    <span class="price-label">/total</span>
-                  </div>
-                  @if (isAdded(car.id)) {
-                    <button mat-stroked-button color="warn" class="full-width" (click)="openDetail(car); $event.stopPropagation()">
-                      <mat-icon>check</mat-icon> Adicionado
-                    </button>
-                  } @else {
-                    <button mat-flat-button color="primary" class="full-width" (click)="openDetail(car); $event.stopPropagation()">
-                      Ver detalhes
-                    </button>
-                  }
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>
+          @for (car of results(); track car.id) {
+            <app-list-item-base
+              [config]="toListItem(car)"
+              (primaryClick)="selectById($event)"
+              (secondaryClick)="openDetailById($event)"
+              (cardClick)="openDetailById($event)"
+            />
+          }
         </div>
       }
     </div>
@@ -188,31 +200,44 @@ import { CarRental } from '../../../core/models/trip.models';
     .selected-details span { font-size: 0.8rem; color: var(--triply-text-secondary); }
     .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.95rem; }
 
+    .manual-entry-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      button mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        margin-right: 4px;
+      }
+    }
+
+    .manual-hint {
+      font-size: 0.8rem;
+      color: var(--triply-text-secondary);
+    }
+
     .search-form-card { margin-top: 8px; }
     .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
     .form-row mat-form-field { flex: 1; }
+    .same-location-row { margin-bottom: var(--triply-spacing-md); margin-top: -8px; }
+    .dropoff-field { animation: slideDown 0.2s ease-out; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     form button[type="submit"] { width: 100%; height: 44px; }
 
     .loading-state, .empty-results { text-align: center; padding: var(--triply-spacing-xl); }
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
-    .car-grid { display: grid; grid-template-columns: 1fr; gap: var(--triply-spacing-md); }
-    .car-card { overflow: hidden; transition: all 0.2s ease; cursor: pointer; box-shadow: var(--triply-shadow-xs); }
-    .car-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .car-card.added { border: 2px solid var(--triply-success) !important; opacity: 0.7; }
-    .car-photo { width: 100%; height: 140px; object-fit: cover; }
-    .car-card h4 { margin: 8px 0 4px; font-size: 0.95rem; font-weight: 700; color: var(--triply-text-primary); }
-    .car-location { font-size: 0.8rem; color: var(--triply-text-secondary); margin: 0 0 8px; }
-    .car-price { margin-bottom: 12px; }
-    .price-value { font-size: 1.1rem; font-weight: 700; color: var(--triply-primary); }
-    .price-label { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .full-width { width: 100%; }
+    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
 
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
-      .car-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
     }
   `],
 })
@@ -226,6 +251,7 @@ export class WizardCarStepComponent {
   readonly results = signal<CarRental[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly sameDropOff = signal(true);
   readonly minDate = new Date();
 
   get minDropoff(): Date {
@@ -236,10 +262,7 @@ export class WizardCarStepComponent {
     Validators.required,
     this.locationValidator(),
   ]);
-  dropoffControl = new FormControl<CarLocationOption | null>(null, [
-    Validators.required,
-    this.locationValidator(),
-  ]);
+  dropoffControl = new FormControl<CarLocationOption | null>(null);
 
   searchForm = new FormGroup({
     pickup: this.pickupControl,
@@ -274,6 +297,17 @@ export class WizardCarStepComponent {
     };
   }
 
+  toggleSameDropOff(checked: boolean): void {
+    this.sameDropOff.set(checked);
+    if (checked) {
+      this.dropoffControl.setValue(this.pickupControl.value);
+      this.dropoffControl.clearValidators();
+    } else {
+      this.dropoffControl.setValidators([Validators.required, this.locationValidator()]);
+    }
+    this.dropoffControl.updateValueAndValidity();
+  }
+
   displayLocation(loc: CarLocationOption | null): string {
     return loc ? loc.label || loc.name : '';
   }
@@ -282,10 +316,27 @@ export class WizardCarStepComponent {
     return this.selectedCars().some((c) => c.id === id);
   }
 
+  toListItem(car: CarRental) {
+    return carToListItem(car, { isAdded: this.isAdded(car.id) });
+  }
+
+  selectById(id: string): void {
+    const car = this.results().find(c => c.id === id);
+    if (car) this.select(car);
+  }
+
+  openDetailById(id: string): void {
+    const car = this.results().find(c => c.id === id) ?? this.selectedCars().find(c => c.id === id);
+    if (car) this.openDetail(car);
+  }
+
   search(): void {
     if (this.searchForm.invalid) return;
     const pickup = this.searchForm.value.pickup as CarLocationOption;
-    const dropoff = this.searchForm.value.dropoff as CarLocationOption;
+    if (this.sameDropOff()) {
+      this.dropoffControl.setValue(this.pickupControl.value);
+    }
+    const dropoff = this.sameDropOff() ? pickup : (this.searchForm.value.dropoff as CarLocationOption);
     const pickupDate = this.searchForm.value.dateRange?.start;
     const dropoffDate = this.searchForm.value.dateRange?.end;
     if (!pickup || !dropoff || !pickupDate || !dropoffDate) return;
@@ -347,6 +398,53 @@ export class WizardCarStepComponent {
       attachment: null,
     });
     this.notify.success('Carro adicionado!');
+  }
+
+  openManualCarDialog(existingCar?: CarRental): void {
+    const ref = this.dialog.open(ManualCarDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        car: existingCar ?? null,
+        tripCurrency: this.tripState.trip().currency,
+      } as ManualCarDialogData,
+    });
+    ref.afterClosed().subscribe((result: ManualCarDialogResult | undefined) => {
+      if (!result || result.action !== 'save') return;
+
+      if (existingCar) {
+        this.tripState.updateCarRental(result.car);
+        const itinItem = this.tripState.itineraryItems().find(i => i.refId === existingCar.id);
+        if (itinItem) {
+          this.tripState.updateItineraryItem({
+            ...itinItem,
+            date: result.car.pickUpAt.split('T')[0],
+            timeSlot: result.car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
+            label: `Carro: ${result.car.vehicleType}`,
+            notes: `Retirada: ${result.car.pickUpLocation}`,
+            isPaid: result.isPaid,
+          });
+        }
+        this.notify.success('Carro atualizado!');
+      } else {
+        this.tripState.addCarRental(result.car);
+        this.tripState.addItineraryItem({
+          id: crypto.randomUUID(),
+          type: 'car-rental',
+          refId: result.car.id,
+          date: result.car.pickUpAt.split('T')[0],
+          timeSlot: result.car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
+          durationMinutes: null,
+          label: `Carro: ${result.car.vehicleType}`,
+          notes: `Retirada: ${result.car.pickUpLocation}`,
+          order: 0,
+          isPaid: result.isPaid,
+          attachment: null,
+        });
+        this.notify.success('Carro manual adicionado!');
+      }
+    });
   }
 
   remove(id: string): void {
