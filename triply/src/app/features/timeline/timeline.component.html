@@ -1,7 +1,7 @@
 <div class="timeline-page">
   <div class="page-header">
     <div class="header-text">
-      <h1>Timeline da Viagem</h1>
+      <h1>Linha do Tempo</h1>
       <p>Visão dia a dia do seu roteiro</p>
     </div>
     <mat-button-toggle-group [value]="viewMode()" (change)="viewMode.set($event.value)">
@@ -44,7 +44,7 @@
         } @else {
           <!-- All-day items -->
           @for (item of day.allDayItems; track item.id) {
-            <div class="timeline-item all-day" [style.--type-color]="getTypeColor(item.type)">
+            <div class="timeline-item all-day" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''">
               <div class="item-indicator"></div>
               <mat-icon class="item-type-icon">{{ getTypeIcon(item.type) }}</mat-icon>
               <div class="item-content">
@@ -62,19 +62,17 @@
           <!-- Timed items with drag-drop -->
           <div class="timed-items" cdkDropList [cdkDropListData]="day.timedItems" (cdkDropListDropped)="onDrop($event, day.date)">
             @for (item of day.timedItems; track item.id) {
-              <div class="timeline-item timed" cdkDrag [cdkDragData]="item" [style.--type-color]="getTypeColor(item.type)">
+              <div class="timeline-item timed" cdkDrag [cdkDragData]="item" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''">
                 <div class="item-time">{{ item.timeSlot }}</div>
                 <div class="item-indicator"></div>
                 <mat-icon class="item-type-icon">{{ getTypeIcon(item.type) }}</mat-icon>
                 <div class="item-content">
                   <span class="item-label">{{ item.label }}</span>
-                  @if (viewMode() === 'expanded') {
-                    @if (item.durationMinutes) {
-                      <span class="item-duration">{{ item.durationMinutes }} min</span>
-                    }
-                    @if (item.notes) {
-                      <span class="item-notes">{{ item.notes }}</span>
-                    }
+                  @if (item.durationMinutes) {
+                    <span class="item-duration">{{ item.durationMinutes }} min</span>
+                  }
+                  @if (item.notes && viewMode() === 'expanded') {
+                    <span class="item-notes">{{ item.notes }}</span>
                   }
                 </div>
                 <div class="item-actions">
