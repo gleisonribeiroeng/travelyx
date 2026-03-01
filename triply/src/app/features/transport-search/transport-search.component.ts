@@ -7,17 +7,21 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { NotificationService } from '../../core/services/notification.service';
+import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
-import { TransportApiService, TransportSearchParams } from '../../core/api/transport-api.service';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
+import { TransportApiService } from '../../core/api/transport-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Transport, ItineraryItem } from '../../core/models/trip.models';
+import { Transport } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { transportToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-transport-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
   templateUrl: './transport-search.component.html',
   styleUrl: './transport-search.component.scss',
 })
@@ -25,6 +29,7 @@ export class TransportSearchComponent {
   private readonly transportApi = inject(TransportApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // Form controls
   transportSearchForm = new FormGroup({
@@ -136,23 +141,37 @@ export class TransportSearchComponent {
     this.modeFilter.set(mode);
   }
 
-  // Mode icon helper
-  getModeIcon(mode: string): string {
-    const icons: Record<string, string> = {
-      bus: 'directions_bus',
-      train: 'train',
-      ferry: 'directions_boat',
-      other: 'commute',
-    };
-    return icons[mode] || 'commute';
+  // Check if transport is already added to trip
+  isTransportAdded(transport: Transport): boolean {
+    return this.tripState.transports().some(t => t.id === transport.id);
   }
 
-  // Duration format helper
-  formatDuration(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
-    return `${h}h ${m}m`;
+  // Map transport to ListItemConfig
+  toListItem(transport: Transport) {
+    return transportToListItem(transport, {
+      isAdded: this.isTransportAdded(transport),
+    });
+  }
+
+  // Select transport by id (primary action)
+  selectById(id: string): void {
+    const transport = this.searchResults().find(t => t.id === id);
+    if (transport) this.addToItinerary(transport);
+  }
+
+  // Open detail by id (secondary / card click)
+  openDetailById(id: string): void {
+    const transport = this.searchResults().find(t => t.id === id);
+    if (!transport) return;
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'transport', item: transport, isAdded: this.isTransportAdded(transport) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.addToItinerary(transport);
+    });
   }
 }
