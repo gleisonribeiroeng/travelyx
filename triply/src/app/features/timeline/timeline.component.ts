@@ -1,11 +1,14 @@
 import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { MatDialog } from '@angular/material/dialog';
 import { TripStateService } from '../../core/services/trip-state.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 import { buildTimeline, TimelineDay } from '../../core/utils/timeline-builder.util';
 import { ItineraryItem, ConflictAlert } from '../../core/models/trip.models';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { AddItemDialogComponent } from './add-item-dialog.component';
 
 @Component({
   selector: 'app-timeline',
@@ -16,9 +19,23 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 })
 export class TimelineComponent {
   protected readonly tripState = inject(TripStateService);
+  private readonly dialog = inject(MatDialog);
+  private readonly notify = inject(NotificationService);
 
   readonly viewMode = signal<'expanded' | 'compact'>('compact');
   readonly expandedDays = signal<Set<string>>(new Set());
+
+  openAddDialog(): void {
+    const ref = this.dialog.open(AddItemDialogComponent, { width: '480px' });
+    ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
+      if (!item) return;
+      this.tripState.addItineraryItem(item);
+      this.notify.success('Item adicionado ao roteiro');
+      const next = new Set(this.expandedDays());
+      next.add(item.date);
+      this.expandedDays.set(next);
+    });
+  }
 
   toggleDay(date: string): void {
     const current = this.expandedDays();

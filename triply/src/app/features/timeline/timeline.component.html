@@ -11,6 +11,9 @@
       <button mat-button (click)="collapseAll()" class="bulk-action">
         <mat-icon>unfold_less</mat-icon> Colapsar
       </button>
+      <button mat-flat-button color="primary" (click)="openAddDialog()" class="add-btn">
+        <mat-icon>add</mat-icon> Novo Item
+      </button>
       <mat-button-toggle-group [value]="viewMode()" (change)="viewMode.set($event.value)">
         <mat-button-toggle value="expanded"><mat-icon>view_agenda</mat-icon></mat-button-toggle>
         <mat-button-toggle value="compact"><mat-icon>view_list</mat-icon></mat-button-toggle>

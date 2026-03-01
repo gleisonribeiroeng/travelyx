@@ -25,6 +25,17 @@
   }
 }
 
+.add-btn {
+  font-size: 0.8rem !important;
+  min-height: 32px !important;
+  line-height: 32px !important;
+  padding: 0 12px !important;
+
+  mat-icon {
+    font-size: 16px; width: 16px; height: 16px; margin-right: 2px;
+  }
+}
+
 // ── Day sections (collapsible accordion) ──
 .day-section {
   position: relative;
