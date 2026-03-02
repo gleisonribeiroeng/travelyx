@@ -80,7 +80,20 @@ import {
         </div>
       }
 
-      <mat-card class="search-form-card">
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>directions_car</mat-icon>
+            <span>Busca de Carros</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <div class="form-row">
@@ -251,6 +264,7 @@ export class WizardCarStepComponent {
   readonly results = signal<CarRental[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
   readonly sameDropOff = signal(true);
   readonly minDate = new Date();
 
@@ -343,6 +357,7 @@ export class WizardCarStepComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     const fmt = (d: Date) => {
       const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -390,7 +405,7 @@ export class WizardCarStepComponent {
       refId: car.id,
       date: car.pickUpAt.split('T')[0],
       timeSlot: car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
-      durationMinutes: null,
+      durationMinutes: 30,
       label: `Carro: ${car.vehicleType}`,
       notes: `Retirada: ${car.pickUpLocation}`,
       order: 0,
@@ -435,7 +450,7 @@ export class WizardCarStepComponent {
           refId: result.car.id,
           date: result.car.pickUpAt.split('T')[0],
           timeSlot: result.car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
-          durationMinutes: null,
+          durationMinutes: 30,
           label: `Carro: ${result.car.vehicleType}`,
           notes: `Retirada: ${result.car.pickUpLocation}`,
           order: 0,

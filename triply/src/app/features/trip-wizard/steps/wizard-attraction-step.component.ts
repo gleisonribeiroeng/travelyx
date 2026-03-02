@@ -1,13 +1,15 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 import { NotificationService } from '../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
-import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../../shared/components/schedule-dialog/schedule-dialog.component';
 import { AttractionApiService } from '../../../core/api/attraction-api.service';
+import { HotelApiService, DestinationOption } from '../../../core/api/hotel-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
 import { Attraction } from '../../../core/models/trip.models';
 import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
@@ -46,7 +48,20 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
         </div>
       }
 
-      <mat-card class="search-form-card">
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>museum</mat-icon>
+            <span>Busca de Atrações</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <div class="form-row">
@@ -140,6 +155,7 @@ export class WizardAttractionStepComponent {
   readonly results = signal<Attraction[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
 
   searchForm = new FormGroup({
     city: new FormControl('', Validators.required),
@@ -167,6 +183,7 @@ export class WizardAttractionStepComponent {
     if (this.searchForm.invalid) return;
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     this.api.searchAttractions({ city: this.searchForm.value.city ?? '' })
       .pipe(finalize(() => this.isSearching.set(false)))

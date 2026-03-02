@@ -51,7 +51,20 @@ import { activityToListItem, TourTagType } from '../../../shared/components/list
         </div>
       }
 
-      <mat-card class="search-form-card">
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>explore</mat-icon>
+            <span>Busca de Passeios</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <div class="form-row">
@@ -146,6 +159,7 @@ export class WizardTourStepComponent {
   readonly results = signal<Activity[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
 
   searchForm = new FormGroup({
     destination: new FormControl('', Validators.required),
@@ -205,6 +219,7 @@ export class WizardTourStepComponent {
     if (this.searchForm.invalid) return;
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     this.api.searchTours({ destination: this.searchForm.value.destination ?? '' })
       .pipe(finalize(() => this.isSearching.set(false)))

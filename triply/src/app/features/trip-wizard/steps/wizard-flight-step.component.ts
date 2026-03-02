@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
+  FormArray,
   Validators,
   ValidatorFn,
   AbstractControl,
@@ -12,7 +13,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
-import { Observable, of, forkJoin } from 'rxjs';
+import { Observable, of, forkJoin, Subscription } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -40,7 +41,7 @@ import {
   ManualFlightDialogResult,
 } from '../../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
 
-type TripType = 'roundTrip' | 'oneWay' | 'returnOnly';
+type TripType = 'roundTrip' | 'oneWay' | 'returnOnly' | 'multi';
 
 interface MonthOption {
   value: string;
@@ -103,13 +104,27 @@ interface MonthOption {
         </div>
       }
 
+      <!-- Search toggle bar (collapsed) -->
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>flight</mat-icon>
+            <span>Busca de Voos</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
       <!-- Search form -->
-      <mat-card class="search-form-card">
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <!-- Trip type toggle -->
             <div class="trip-type-row">
-              <mat-button-toggle-group [value]="tripType()" (change)="tripType.set($event.value)" class="trip-type-toggle">
+              <mat-button-toggle-group [value]="tripType()" (change)="onTripTypeChange($event.value)" class="trip-type-toggle">
                 <mat-button-toggle value="roundTrip">
                   <mat-icon>sync_alt</mat-icon> Ida e volta
                 </mat-button-toggle>
@@ -119,84 +134,143 @@ interface MonthOption {
                 <mat-button-toggle value="returnOnly">
                   <mat-icon>arrow_back</mat-icon> Só volta
                 </mat-button-toggle>
+                <mat-button-toggle value="multi">
+                  <mat-icon>account_tree</mat-icon> Multi
+                </mat-button-toggle>
               </mat-button-toggle-group>
             </div>
 
-            <!-- Origin / Destination -->
-            <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Origem</mat-label>
-                <input matInput [formControl]="originControl"
-                       [matAutocomplete]="autoOrigin">
-                <mat-icon matPrefix>flight_takeoff</mat-icon>
-                <mat-autocomplete #autoOrigin="matAutocomplete"
-                                  [displayWith]="displayAirport">
-                  @for (option of filteredOrigins$ | async; track option.iataCode) {
-                    <mat-option [value]="option">
-                      {{ option.iataCode }} - {{ option.cityName }}
-                    </mat-option>
-                  }
-                </mat-autocomplete>
-              </mat-form-field>
+            <!-- Origin / Destination (non-multi) -->
+            @if (tripType() !== 'multi') {
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Origem</mat-label>
+                  <input matInput [formControl]="originControl"
+                         [matAutocomplete]="autoOrigin">
+                  <mat-icon matPrefix>flight_takeoff</mat-icon>
+                  <mat-autocomplete #autoOrigin="matAutocomplete"
+                                    [displayWith]="displayAirport">
+                    @for (option of filteredOrigins$ | async; track option.iataCode) {
+                      <mat-option [value]="option">
+                        {{ option.iataCode }} - {{ option.cityName }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
 
-              <mat-form-field appearance="outline">
-                <mat-label>Destino</mat-label>
-                <input matInput [formControl]="destinationControl"
-                       [matAutocomplete]="autoDest">
-                <mat-icon matPrefix>flight_land</mat-icon>
-                <mat-autocomplete #autoDest="matAutocomplete"
-                                  [displayWith]="displayAirport">
-                  @for (option of filteredDestinations$ | async; track option.iataCode) {
-                    <mat-option [value]="option">
-                      {{ option.iataCode }} - {{ option.cityName }}
-                    </mat-option>
-                  }
-                </mat-autocomplete>
-              </mat-form-field>
-            </div>
-
-            <!-- Flexible dates toggle -->
-            <div class="flexible-row">
-              <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
-                Ainda não defini a data
-              </mat-slide-toggle>
-            </div>
-
-            <!-- Date fields (fixed dates) -->
-            @if (!flexibleDates()) {
-              <div class="form-row" formGroupName="dateRange">
-                @if (tripType() === 'roundTrip') {
-                  <mat-form-field appearance="outline">
-                    <mat-label>Ida — Volta</mat-label>
-                    <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
-                      <input matStartDate formControlName="start" placeholder="Ida">
-                      <input matEndDate formControlName="end" placeholder="Volta">
-                    </mat-date-range-input>
-                    <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
-                    <mat-date-range-picker #rangePicker></mat-date-range-picker>
-                  </mat-form-field>
-                } @else {
-                  <mat-form-field appearance="outline">
-                    <mat-label>Data de ida</mat-label>
-                    <input matInput [matDatepicker]="dpDeparture"
-                           formControlName="start"
-                           [min]="minDate"
-                           (focus)="dpDeparture.open()">
-                    <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
-                    <mat-datepicker #dpDeparture></mat-datepicker>
-                  </mat-form-field>
-                }
+                <mat-form-field appearance="outline">
+                  <mat-label>Destino</mat-label>
+                  <input matInput [formControl]="destinationControl"
+                         [matAutocomplete]="autoDest">
+                  <mat-icon matPrefix>flight_land</mat-icon>
+                  <mat-autocomplete #autoDest="matAutocomplete"
+                                    [displayWith]="displayAirport">
+                    @for (option of filteredDestinations$ | async; track option.iataCode) {
+                      <mat-option [value]="option">
+                        {{ option.iataCode }} - {{ option.cityName }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
               </div>
+
+              <!-- Flexible dates toggle -->
+              <div class="flexible-row">
+                <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
+                  Ainda não defini a data
+                </mat-slide-toggle>
+              </div>
+
+              <!-- Date fields (fixed dates) -->
+              @if (!flexibleDates()) {
+                <div class="form-row" formGroupName="dateRange">
+                  @if (tripType() === 'roundTrip') {
+                    <mat-form-field appearance="outline">
+                      <mat-label>Ida — Volta</mat-label>
+                      <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
+                        <input matStartDate formControlName="start" placeholder="Ida">
+                        <input matEndDate formControlName="end" placeholder="Volta">
+                      </mat-date-range-input>
+                      <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+                      <mat-date-range-picker #rangePicker></mat-date-range-picker>
+                    </mat-form-field>
+                  } @else {
+                    <mat-form-field appearance="outline">
+                      <mat-label>Data de ida</mat-label>
+                      <input matInput [matDatepicker]="dpDeparture"
+                             formControlName="start"
+                             [min]="minDate"
+                             (focus)="dpDeparture.open()">
+                      <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
+                      <mat-datepicker #dpDeparture></mat-datepicker>
+                    </mat-form-field>
+                  }
+                </div>
+              }
+
+              <!-- Month grid (flexible dates) -->
+              @if (flexibleDates()) {
+                <div class="month-grid">
+                  @for (month of availableMonths; track month.value) {
+                    <mat-checkbox [checked]="isMonthSelected(month.value)"
+                                  (change)="toggleMonth(month.value)">
+                      {{ month.label }}
+                    </mat-checkbox>
+                  }
+                </div>
+              }
             }
 
-            <!-- Month grid (flexible dates) -->
-            @if (flexibleDates()) {
-              <div class="month-grid">
-                @for (month of availableMonths; track month.value) {
-                  <mat-checkbox [checked]="isMonthSelected(month.value)"
-                                (change)="toggleMonth(month.value)">
-                    {{ month.label }}
-                  </mat-checkbox>
+            <!-- Multi-city segments -->
+            @if (tripType() === 'multi') {
+              <div class="multi-segments">
+                @for (segment of segmentsArray.controls; track $index; let i = $index) {
+                  <div class="segment-card">
+                    <div class="segment-header">
+                      <span class="seg-label">Trecho {{ i + 1 }}</span>
+                      @if (segmentsArray.length > MIN_SEGMENTS) {
+                        <button mat-icon-button type="button" (click)="removeSegment(i)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
+                    </div>
+                    <div class="form-row">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Origem</mat-label>
+                        <input matInput [formControl]="getSegmentControl(i, 'origin')" [matAutocomplete]="segAutoOrigin">
+                        <mat-icon matPrefix>flight_takeoff</mat-icon>
+                        <mat-autocomplete #segAutoOrigin="matAutocomplete" [displayWith]="displayAirport">
+                          @for (opt of (segmentOriginStreams()[i] | async); track opt.iataCode) {
+                            <mat-option [value]="opt">{{ opt.iataCode }} - {{ opt.cityName }}</mat-option>
+                          }
+                        </mat-autocomplete>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Destino</mat-label>
+                        <input matInput [formControl]="getSegmentControl(i, 'destination')" [matAutocomplete]="segAutoDest">
+                        <mat-icon matPrefix>flight_land</mat-icon>
+                        <mat-autocomplete #segAutoDest="matAutocomplete" [displayWith]="displayAirport">
+                          @for (opt of (segmentDestinationStreams()[i] | async); track opt.iataCode) {
+                            <mat-option [value]="opt">{{ opt.iataCode }} - {{ opt.cityName }}</mat-option>
+                          }
+                        </mat-autocomplete>
+                      </mat-form-field>
+                    </div>
+                    <mat-form-field appearance="outline" style="width:100%">
+                      <mat-label>Data</mat-label>
+                      <input matInput [matDatepicker]="segDp" [formControl]="getSegmentControl(i, 'date')" [min]="getMinDateForSegment(i)" (focus)="segDp.open()">
+                      <mat-datepicker-toggle matSuffix [for]="segDp"></mat-datepicker-toggle>
+                      <mat-datepicker #segDp></mat-datepicker>
+                    </mat-form-field>
+                    @if (segmentHasSameAirports(i)) {
+                      <p class="seg-error">Origem e destino não podem ser iguais</p>
+                    }
+                  </div>
+                }
+                @if (segmentsArray.length < MAX_SEGMENTS) {
+                  <button mat-stroked-button type="button" class="add-segment-btn" (click)="addSegment()">
+                    <mat-icon>add</mat-icon> Adicionar trecho
+                  </button>
                 }
               </div>
             }
@@ -274,6 +348,26 @@ interface MonthOption {
             />
           }
         </div>
+      }
+
+      <!-- Multi-city results -->
+      @if (tripType() === 'multi' && multiCityHasResults() && !isSearching()) {
+        @for (segResults of multiCityResults(); track $index; let si = $index) {
+          <div class="multi-segment-results">
+            <h3>Trecho {{ si + 1 }}</h3>
+            @if (segResults.length === 0) {
+              <p class="no-results-seg">Nenhum voo encontrado para este trecho.</p>
+            }
+            @for (flight of segResults; track flight.id) {
+              <app-list-item-base
+                [config]="toListItemForSegment(flight, si)"
+                (primaryClick)="selectSegmentById($event, si)"
+                (secondaryClick)="openDetailById($event)"
+                (cardClick)="openDetailById($event)"
+              />
+            }
+          </div>
+        }
       }
     </div>
   `,
@@ -399,6 +493,17 @@ interface MonthOption {
       letter-spacing: 0.3px; white-space: nowrap;
     }
 
+    /* Multi-city */
+    .multi-segments { display: flex; flex-direction: column; gap: var(--triply-spacing-md); margin-bottom: var(--triply-spacing-md); }
+    .segment-card { padding: 12px; background: var(--triply-surface-1); border-radius: 8px; border: 1px solid var(--triply-border); }
+    .segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .seg-label { font-size: 0.85rem; font-weight: 600; color: var(--triply-primary); }
+    .seg-error { font-size: 0.75rem; color: #f44336; margin: 4px 0 0; }
+    .add-segment-btn { width: 100%; }
+    .multi-segment-results { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .multi-segment-results h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.9rem; font-weight: 700; color: var(--triply-text-primary); padding: 10px 0 8px; border-bottom: 1px solid var(--triply-border); }
+    .no-results-seg { color: var(--triply-text-secondary); font-size: 0.85rem; text-align: center; padding: 8px; margin: 0; }
+
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
       .month-grid { grid-template-columns: repeat(3, 1fr); }
@@ -415,6 +520,7 @@ export class WizardFlightStepComponent {
   readonly results = signal<Flight[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
   readonly minDate = new Date();
 
   readonly tripType = signal<TripType>('roundTrip');
@@ -442,6 +548,17 @@ export class WizardFlightStepComponent {
   });
 
   readonly availableMonths: MonthOption[] = this.buildAvailableMonths();
+
+  // ── Multi-city state ──
+  readonly MIN_SEGMENTS = 2;
+  readonly MAX_SEGMENTS = 6;
+  segmentsArray = new FormArray<FormGroup>([]);
+  segmentOriginStreams = signal<Observable<AirportOption[]>[]>([]);
+  segmentDestinationStreams = signal<Observable<AirportOption[]>[]>([]);
+  multiCityResults = signal<Flight[][]>([]);
+  private smartFillSubs: Subscription[] = [];
+
+  multiCityHasResults = computed(() => this.multiCityResults().some(s => s.length > 0));
 
   originControl = new FormControl<AirportOption | null>(null, [
     Validators.required,
@@ -477,6 +594,15 @@ export class WizardFlightStepComponent {
   );
 
   constructor() {
+    // Pre-fill dates from trip
+    const dates = this.tripState.trip().dates;
+    if (dates.start && dates.end) {
+      this.searchForm.get('dateRange')!.patchValue({
+        start: new Date(dates.start + 'T00:00:00'),
+        end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+
     // Reset segment state when tripType changes
     effect(() => {
       this.tripType();
@@ -486,6 +612,186 @@ export class WizardFlightStepComponent {
         this.returnFlightId.set(null);
       });
     });
+  }
+
+  onTripTypeChange(value: string): void {
+    this.tripType.set(value as TripType);
+    if (value === 'multi') {
+      this.initMultiSegments();
+      this.flexibleDates.set(false);
+    } else {
+      this.segmentsArray.clear();
+      this.multiCityResults.set([]);
+      this.smartFillSubs.forEach(s => s.unsubscribe());
+      this.smartFillSubs = [];
+    }
+  }
+
+  private createSegmentGroup(): FormGroup {
+    return new FormGroup({
+      origin: new FormControl<AirportOption | null>(null, [Validators.required, this.airportValidator()]),
+      destination: new FormControl<AirportOption | null>(null, [Validators.required, this.airportValidator()]),
+      date: new FormControl<Date | null>(null, Validators.required),
+    });
+  }
+
+  initMultiSegments(): void {
+    this.segmentsArray.clear();
+    for (let i = 0; i < this.MIN_SEGMENTS; i++) {
+      this.segmentsArray.push(this.createSegmentGroup());
+    }
+    this.rebuildSegmentAutocomplete();
+    this.multiCityResults.set([]);
+  }
+
+  addSegment(): void {
+    if (this.segmentsArray.length >= this.MAX_SEGMENTS) return;
+    const newGroup = this.createSegmentGroup();
+    const prevIndex = this.segmentsArray.length - 1;
+    if (prevIndex >= 0) {
+      const prevDest = this.segmentsArray.at(prevIndex).get('destination')?.value;
+      if (prevDest && typeof prevDest === 'object' && prevDest.iataCode) {
+        newGroup.get('origin')?.setValue(prevDest);
+      }
+    }
+    this.segmentsArray.push(newGroup);
+    this.rebuildSegmentAutocomplete();
+  }
+
+  removeSegment(index: number): void {
+    if (this.segmentsArray.length <= this.MIN_SEGMENTS) return;
+    this.segmentsArray.removeAt(index);
+    this.rebuildSegmentAutocomplete();
+  }
+
+  private rebuildSegmentAutocomplete(): void {
+    this.smartFillSubs.forEach(s => s.unsubscribe());
+    this.smartFillSubs = [];
+    const originStreams: Observable<AirportOption[]>[] = [];
+    const destStreams: Observable<AirportOption[]>[] = [];
+    for (let i = 0; i < this.segmentsArray.length; i++) {
+      const group = this.segmentsArray.at(i);
+      const originCtrl = group.get('origin') as FormControl;
+      const destCtrl = group.get('destination') as FormControl;
+      originStreams.push(originCtrl.valueChanges.pipe(
+        debounceTime(300), distinctUntilChanged(),
+        filter((v) => typeof v === 'string' && (v as string).length >= 2),
+        switchMap((keyword) => this.api.searchAirports(keyword as string))
+      ));
+      destStreams.push(destCtrl.valueChanges.pipe(
+        debounceTime(300), distinctUntilChanged(),
+        filter((v) => typeof v === 'string' && (v as string).length >= 2),
+        switchMap((keyword) => this.api.searchAirports(keyword as string))
+      ));
+      if (i < this.segmentsArray.length - 1) {
+        const nextOriginCtrl = this.segmentsArray.at(i + 1).get('origin') as FormControl;
+        this.smartFillSubs.push(
+          destCtrl.valueChanges.pipe(
+            filter(val => val && typeof val === 'object' && val.iataCode),
+          ).subscribe(val => {
+            if (!nextOriginCtrl.value || !nextOriginCtrl.value.iataCode) {
+              nextOriginCtrl.setValue(val);
+            }
+          })
+        );
+      }
+    }
+    this.segmentOriginStreams.set(originStreams);
+    this.segmentDestinationStreams.set(destStreams);
+  }
+
+  getMinDateForSegment(index: number): Date {
+    if (index === 0) return new Date();
+    const prevDate = this.segmentsArray.at(index - 1)?.get('date')?.value;
+    return prevDate instanceof Date ? prevDate : new Date();
+  }
+
+  segmentHasSameAirports(index: number): boolean {
+    const group = this.segmentsArray.at(index);
+    const origin = group.get('origin')?.value;
+    const dest = group.get('destination')?.value;
+    if (!origin || !dest) return false;
+    if (typeof origin === 'string' || typeof dest === 'string') return false;
+    return origin.iataCode === dest.iataCode;
+  }
+
+  getSegmentControl(index: number, field: string): FormControl {
+    return this.segmentsArray.at(index).get(field) as FormControl;
+  }
+
+  private canSearchMulti(): boolean {
+    const passengersValid = this.searchForm.get('passengers')?.valid ?? false;
+    if (!passengersValid) return false;
+    if (this.segmentsArray.length < this.MIN_SEGMENTS) return false;
+    for (let i = 0; i < this.segmentsArray.length; i++) {
+      const group = this.segmentsArray.at(i);
+      if (!group.valid) return false;
+      if (this.segmentHasSameAirports(i)) return false;
+      if (i > 0) {
+        const prevDate = this.segmentsArray.at(i - 1).get('date')?.value;
+        const currDate = group.get('date')?.value;
+        if (prevDate && currDate && currDate < prevDate) return false;
+      }
+    }
+    return true;
+  }
+
+  private searchMultiCity(): void {
+    const passengers = this.searchForm.value.passengers ?? 1;
+    this.isSearching.set(true);
+    this.hasSearched.set(true);
+    this.formCollapsed.set(true);
+    this.results.set([]);
+    this.multiCityResults.set([]);
+    const segmentSearches = [];
+    for (let i = 0; i < this.segmentsArray.length; i++) {
+      const group = this.segmentsArray.at(i);
+      const origin = group.get('origin')?.value as AirportOption;
+      const dest = group.get('destination')?.value as AirportOption;
+      const date = group.get('date')?.value as Date;
+      segmentSearches.push(
+        this.api.searchFlights({
+          origin: origin.iataCode,
+          destination: dest.iataCode,
+          departureDate: date.toISOString().split('T')[0],
+          adults: passengers,
+        })
+      );
+    }
+    forkJoin(segmentSearches)
+      .pipe(finalize(() => this.isSearching.set(false)))
+      .subscribe({
+        next: (results) => {
+          this.multiCityResults.set(results.map(r => r.data ?? []));
+        },
+      });
+  }
+
+  addSegmentFlight(flight: Flight, segmentIndex: number): void {
+    this.tripState.addFlight(flight);
+    this.tripState.addItineraryItem({
+      id: crypto.randomUUID(),
+      type: 'flight',
+      refId: flight.id,
+      date: flight.departureAt.split('T')[0],
+      timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
+      durationMinutes: flight.durationMinutes,
+      label: `Voo Trecho ${segmentIndex + 1}: ${flight.origin} \u2192 ${flight.destination}`,
+      notes: `${flight.airline} ${flight.flightNumber}`,
+      order: segmentIndex,
+      isPaid: false,
+      attachment: null,
+    });
+    this.notify.success(`Trecho ${segmentIndex + 1} adicionado!`);
+  }
+
+  selectSegmentById(id: string, segmentIndex: number): void {
+    const flight = this.multiCityResults()[segmentIndex]?.find(f => f.id === id);
+    if (flight) this.addSegmentFlight(flight, segmentIndex);
+  }
+
+  toListItemForSegment(flight: Flight, segmentIndex: number) {
+    return flightToListItem(flight, { isAdded: this.isAdded(flight.id), tag: null });
   }
 
   private airportValidator(): ValidatorFn {
@@ -503,6 +809,7 @@ export class WizardFlightStepComponent {
   }
 
   canSearch(): boolean {
+    if (this.tripType() === 'multi') return this.canSearchMulti();
     const hasAirports = this.originControl.valid && this.destinationControl.valid;
     const passengersValid = this.searchForm.get('passengers')?.valid ?? false;
     if (this.flexibleDates()) {
@@ -555,6 +862,7 @@ export class WizardFlightStepComponent {
 
   search(): void {
     if (!this.canSearch()) return;
+    if (this.tripType() === 'multi') { this.searchMultiCity(); return; }
 
     const origin = this.originControl.value as AirportOption;
     const dest = this.destinationControl.value as AirportOption;
@@ -565,6 +873,7 @@ export class WizardFlightStepComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     if (this.flexibleDates()) {
       const searches = this.selectedMonths().map(monthStr => {
@@ -653,7 +962,7 @@ export class WizardFlightStepComponent {
           refId: result.flight.id,
           date: result.flight.departureAt.split('T')[0],
           timeSlot: result.flight.departureAt.split('T')[1]?.substring(0, 5) || null,
-          durationMinutes: null,
+          durationMinutes: result.flight.durationMinutes,
           label: `Voo: ${result.flight.origin} \u2192 ${result.flight.destination}`,
           notes: `${result.flight.airline} ${result.flight.flightNumber}`,
           order: 0,
@@ -695,7 +1004,7 @@ export class WizardFlightStepComponent {
       refId: flight.id,
       date: flight.departureAt.split('T')[0],
       timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
-      durationMinutes: null,
+      durationMinutes: flight.durationMinutes,
       label,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: 0,

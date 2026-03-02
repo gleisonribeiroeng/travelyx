@@ -94,7 +94,20 @@ import {
         </div>
       }
 
-      <mat-card class="search-form-card">
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>hotel</mat-icon>
+            <span>Busca de Hotéis</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <div class="form-row">
@@ -231,6 +244,7 @@ export class WizardHotelStepComponent {
   readonly results = signal<Stay[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
   readonly minDate = new Date();
 
   get minCheckOut(): Date {
@@ -250,6 +264,16 @@ export class WizardHotelStepComponent {
     }),
     guests: new FormControl(2, [Validators.required, Validators.min(1), Validators.max(30)]),
   });
+
+  constructor() {
+    const dates = this.tripState.trip().dates;
+    if (dates.start && dates.end) {
+      this.searchForm.get('dateRange')!.patchValue({
+        start: new Date(dates.start + 'T00:00:00'),
+        end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+  }
 
   filteredDestinations$: Observable<DestinationOption[]> = this.destinationControl.valueChanges.pipe(
     debounceTime(300),
@@ -385,6 +409,7 @@ export class WizardHotelStepComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     this.api.searchHotels({
       destId: dest.destId,

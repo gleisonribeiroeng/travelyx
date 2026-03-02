@@ -46,7 +46,20 @@ import { transportToListItem } from '../../../shared/components/list-item-base/l
         </div>
       }
 
-      <mat-card class="search-form-card">
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>directions_bus</mat-icon>
+            <span>Busca de Transporte</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <div class="form-row">
@@ -154,6 +167,7 @@ export class WizardTransportStepComponent {
   readonly results = signal<Transport[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
   readonly minDate = new Date();
 
   searchForm = new FormGroup({
@@ -200,6 +214,7 @@ export class WizardTransportStepComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
     this.api.searchTransport({
       origin: this.searchForm.value.origin ?? '',
