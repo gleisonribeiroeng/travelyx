@@ -125,6 +125,40 @@
   font-size: 1.1rem; font-weight: 700; color: var(--triply-text-primary);
 }
 
+// ── Paid progress card ──
+.paid-progress-card {
+  cursor: pointer; transition: all var(--triply-transition-normal);
+  mat-card-content { padding: var(--triply-spacing-md) var(--triply-spacing-lg) !important; }
+}
+
+.paid-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+
+.paid-card-icon {
+  font-size: 24px; width: 24px; height: 24px; color: var(--triply-success, #4CAF50);
+}
+
+.paid-info { flex: 1; display: flex; flex-direction: column; }
+.paid-title { font-size: 0.9rem; font-weight: 700; color: var(--triply-text-primary); }
+.paid-detail { font-size: 0.75rem; color: var(--triply-text-secondary); }
+
+.paid-percentage {
+  font-size: 1.2rem; font-weight: 700; color: var(--triply-success, #4CAF50);
+}
+
+.paid-bar-track {
+  width: 100%; height: 6px; border-radius: 3px;
+  background: var(--triply-surface-2, #eee);
+  overflow: hidden;
+}
+
+.paid-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--triply-success, #4CAF50), #66BB6A);
+  transition: width 0.4s ease;
+}
+
 .stats-row {
   display: flex; gap: var(--triply-spacing-sm); flex-wrap: wrap;
 }
@@ -183,6 +217,7 @@
 @media (hover: hover) {
   .hero-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(108, 92, 231, 0.4) !important; }
   .metric-card:hover { transform: translateY(-2px); box-shadow: var(--triply-shadow-md); }
+  .paid-progress-card:hover { transform: translateY(-2px); box-shadow: var(--triply-shadow-md); }
   .stat-chip:hover { background: var(--triply-card-hover, var(--triply-surface-2)); }
   .next-item:hover { background: var(--triply-primary-subtle, rgba(108,92,231,0.04)); }
 }

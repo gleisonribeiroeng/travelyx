@@ -9,6 +9,7 @@ import { buildTimeline, TimelineDay } from '../../core/utils/timeline-builder.ut
 import { ItineraryItem, ConflictAlert } from '../../core/models/trip.models';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { AddItemDialogComponent } from './add-item-dialog.component';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 
 @Component({
   selector: 'app-timeline',
@@ -110,5 +111,74 @@ export class TimelineComponent {
 
   togglePaid(item: ItineraryItem): void {
     this.tripState.toggleItemPaid(item.id);
+  }
+
+  openItemDetail(item: ItineraryItem): void {
+    if (!item.refId || item.type === 'custom') return;
+
+    const trip = this.tripState.trip();
+    let data: ItemDetailData | null = null;
+
+    switch (item.type) {
+      case 'flight': {
+        const found = trip.flights.find(f => f.id === item.refId);
+        if (found) data = { type: 'flight', item: found, isAdded: true, isPaid: item.isPaid };
+        break;
+      }
+      case 'stay': {
+        const found = trip.stays.find(s => s.id === item.refId);
+        if (found) data = { type: 'stay', item: found, isAdded: true, isPaid: item.isPaid };
+        break;
+      }
+      case 'car-rental': {
+        const found = trip.carRentals.find(c => c.id === item.refId);
+        if (found) data = { type: 'car-rental', item: found, isAdded: true, isPaid: item.isPaid };
+        break;
+      }
+      case 'transport': {
+        const found = trip.transports.find(t => t.id === item.refId);
+        if (found) data = { type: 'transport', item: found, isAdded: true, isPaid: item.isPaid };
+        break;
+      }
+      case 'activity': {
+        const found = trip.activities.find(a => a.id === item.refId);
+        if (found) data = { type: 'activity', item: found, isAdded: true, isPaid: item.isPaid };
+        break;
+      }
+      case 'attraction': {
+        const found = trip.attractions.find(a => a.id === item.refId);
+        if (found) data = { type: 'attraction', item: found, isAdded: true, isPaid: item.isPaid };
+        break;
+      }
+    }
+
+    if (!data) return;
+
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data,
+    });
+
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (result?.action === 'remove') {
+        this.removeItem(item.id);
+        this.removeDomainItem(item.type, item.refId!);
+      } else if (result?.action === 'togglePaid') {
+        this.togglePaid(item);
+      }
+    });
+  }
+
+  private removeDomainItem(type: string, refId: string): void {
+    switch (type) {
+      case 'flight':     this.tripState.removeFlight(refId);     break;
+      case 'stay':       this.tripState.removeStay(refId);       break;
+      case 'car-rental': this.tripState.removeCarRental(refId);  break;
+      case 'transport':  this.tripState.removeTransport(refId);  break;
+      case 'activity':   this.tripState.removeActivity(refId);   break;
+      case 'attraction': this.tripState.removeAttraction(refId); break;
+    }
   }
 }

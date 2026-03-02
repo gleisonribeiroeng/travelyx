@@ -63,6 +63,14 @@ export class TripDashboardComponent {
   readonly errorCount = computed(() => this.conflicts().filter(c => c.severity === 'error').length);
   readonly warningCount = computed(() => this.conflicts().filter(c => c.severity === 'warning').length);
 
+  readonly paidProgress = computed(() => {
+    const items = this.tripState.itineraryItems();
+    const total = items.length;
+    const paid = items.filter(i => i.isPaid).length;
+    const percentage = total > 0 ? Math.round((paid / total) * 100) : 0;
+    return { paid, total, percentage };
+  });
+
   readonly nextItems = computed(() => {
     const today = new Date().toISOString().split('T')[0];
     return this.tripState.itineraryItems()

@@ -10,17 +10,18 @@ import { ExternalLink } from '../../../core/models/base.model';
 // ─── Public API ────────────────────────────────────────────────────────────────
 
 export type ItemDetailData =
-  | { type: 'flight'; item: Flight; isAdded: boolean }
-  | { type: 'stay'; item: Stay; isAdded: boolean }
-  | { type: 'car-rental'; item: CarRental; isAdded: boolean }
-  | { type: 'transport'; item: Transport; isAdded: boolean }
-  | { type: 'activity'; item: Activity; isAdded: boolean }
-  | { type: 'attraction'; item: Attraction; isAdded: boolean };
+  | { type: 'flight'; item: Flight; isAdded: boolean; isPaid?: boolean }
+  | { type: 'stay'; item: Stay; isAdded: boolean; isPaid?: boolean }
+  | { type: 'car-rental'; item: CarRental; isAdded: boolean; isPaid?: boolean }
+  | { type: 'transport'; item: Transport; isAdded: boolean; isPaid?: boolean }
+  | { type: 'activity'; item: Activity; isAdded: boolean; isPaid?: boolean }
+  | { type: 'attraction'; item: Attraction; isAdded: boolean; isPaid?: boolean };
 
 export type ItemDetailResult =
   | { action: 'add' }
   | { action: 'remove' }
   | { action: 'edit' }
+  | { action: 'togglePaid' }
   | undefined;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -339,6 +340,12 @@ function formatDate(iso: string): string {
     <mat-dialog-actions class="detail-actions">
       <button mat-button (click)="onClose()">Fechar</button>
       <div class="action-spacer"></div>
+      @if (data.isAdded) {
+        <button mat-stroked-button (click)="onTogglePaid()" [class.paid-active]="isPaid()">
+          <mat-icon>{{ isPaid() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          {{ isPaid() ? 'Pago' : 'Marcar como pago' }}
+        </button>
+      }
       @if (isManual() && data.isAdded) {
         <button mat-stroked-button (click)="onEdit()">
           <mat-icon>edit</mat-icon>
@@ -698,6 +705,11 @@ function formatDate(iso: string): string {
         height: 18px;
         margin-right: 4px;
       }
+
+      button.paid-active {
+        color: var(--triply-success, #4CAF50) !important;
+        border-color: var(--triply-success, #4CAF50) !important;
+      }
     }
 
     /* ─── Desktop enhancements ──────────────────────────────────── */
@@ -746,6 +758,7 @@ export class ItemDetailDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<ItemDetailDialogComponent>);
 
   readonly selectedImage = signal(0);
+  readonly isPaid = signal(this.data.isPaid ?? false);
   readonly isManual = computed(() => this.data.item.source === 'manual');
 
   readonly title = computed(() => {
@@ -819,5 +832,10 @@ export class ItemDetailDialogComponent {
 
   onEdit(): void {
     this.dialogRef.close({ action: 'edit' } as ItemDetailResult);
+  }
+
+  onTogglePaid(): void {
+    this.isPaid.update(v => !v);
+    this.dialogRef.close({ action: 'togglePaid' } as ItemDetailResult);
   }
 }

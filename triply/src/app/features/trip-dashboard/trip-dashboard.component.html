@@ -124,6 +124,25 @@
       </mat-card>
     </div>
 
+    <!-- Paid Progress -->
+    @if (paidProgress().total > 0) {
+      <mat-card class="paid-progress-card" (click)="navigateTo('timeline')">
+        <mat-card-content>
+          <div class="paid-header">
+            <mat-icon class="paid-card-icon">payments</mat-icon>
+            <div class="paid-info">
+              <span class="paid-title">Pagamentos</span>
+              <span class="paid-detail">{{ paidProgress().paid }} de {{ paidProgress().total }} itens pagos</span>
+            </div>
+            <span class="paid-percentage">{{ paidProgress().percentage }}%</span>
+          </div>
+          <div class="paid-bar-track">
+            <div class="paid-bar-fill" [style.width.%]="paidProgress().percentage"></div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
     <!-- Stats -->
     @if (stats().length > 0) {
       <div class="stats-row">

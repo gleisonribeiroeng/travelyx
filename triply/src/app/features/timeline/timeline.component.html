@@ -74,7 +74,8 @@
             } @else {
               <!-- All-day items -->
               @for (item of day.allDayItems; track item.id) {
-                <div class="timeline-item all-day" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''">
+                <div class="timeline-item all-day" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''"
+                     (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
                   <div class="item-indicator"></div>
                   <mat-icon class="item-type-icon">{{ getTypeIcon(item.type) }}</mat-icon>
                   <div class="item-content">
@@ -83,16 +84,19 @@
                       <span class="item-notes">{{ item.notes }}</span>
                     }
                   </div>
-                  @if (item.isPaid) {
-                    <mat-icon class="paid-icon" matTooltip="Pago">check_circle</mat-icon>
-                  }
+                  <mat-icon class="paid-toggle" [class.is-paid]="item.isPaid"
+                            [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
+                            (click)="$event.stopPropagation(); togglePaid(item)">
+                    {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
+                  </mat-icon>
                 </div>
               }
 
               <!-- Timed items with drag-drop -->
               <div class="timed-items" cdkDropList [cdkDropListData]="day.timedItems" (cdkDropListDropped)="onDrop($event, day.date)">
                 @for (item of day.timedItems; track item.id) {
-                  <div class="timeline-item timed" cdkDrag [cdkDragData]="item" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''">
+                  <div class="timeline-item timed" cdkDrag [cdkDragData]="item" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''"
+                       (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
                     <div class="item-time">{{ item.timeSlot }}</div>
                     <div class="item-indicator"></div>
                     <mat-icon class="item-type-icon">{{ getTypeIcon(item.type) }}</mat-icon>
@@ -106,9 +110,11 @@
                       }
                     </div>
                     <div class="item-actions">
-                      @if (item.isPaid) {
-                        <mat-icon class="paid-icon" matTooltip="Pago">check_circle</mat-icon>
-                      }
+                      <mat-icon class="paid-toggle" [class.is-paid]="item.isPaid"
+                                [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
+                                (click)="$event.stopPropagation(); togglePaid(item)">
+                        {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
+                      </mat-icon>
                       <mat-icon class="drag-handle" cdkDragHandle>drag_indicator</mat-icon>
                     </div>
                   </div>

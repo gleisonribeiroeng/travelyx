@@ -151,6 +151,15 @@
     background: rgba(108, 92, 231, 0.04);
     border-left: none;
   }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: var(--triply-surface-2);
+      border-color: var(--triply-border-subtle);
+    }
+  }
 }
 
 .item-indicator {
@@ -196,7 +205,15 @@
   transition: opacity 0.15s;
 }
 
-.paid-icon { font-size: 14px; width: 14px; height: 14px; color: var(--triply-success); opacity: 1 !important; }
+.paid-toggle {
+  font-size: 16px; width: 16px; height: 16px;
+  color: var(--triply-text-tertiary, #ccc);
+  cursor: pointer; transition: color 0.15s;
+  flex-shrink: 0;
+
+  &:hover { color: var(--triply-success, #4CAF50); }
+  &.is-paid { color: var(--triply-success, #4CAF50); opacity: 1 !important; }
+}
 .drag-handle { font-size: 16px; width: 16px; height: 16px; color: var(--triply-text-tertiary, #ccc); cursor: grab; }
 
 .timed-items { min-height: 4px; }
