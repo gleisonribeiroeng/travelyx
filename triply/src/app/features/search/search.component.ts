@@ -94,6 +94,16 @@ export class SearchComponent {
     ]),
   });
 
+  constructor() {
+    const dates = this.tripState.trip().dates;
+    if (dates.start && dates.end) {
+      this.flightSearchForm.get('dateRange')!.patchValue({
+        start: new Date(dates.start + 'T00:00:00'),
+        end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+  }
+
   // Autocomplete observables
   filteredOrigins$: Observable<AirportOption[]> =
     this.originControl.valueChanges.pipe(
@@ -199,7 +209,7 @@ export class SearchComponent {
 
   // Display function for autocomplete
   displayAirport(airport: AirportOption | null): string {
-    return airport ? `${airport.iataCode} - ${airport.cityName}` : '';
+    return airport ? `${airport.cityName} (${airport.iataCode})` : '';
   }
 
   formatDuration(minutes: number): string {
@@ -541,7 +551,7 @@ export class SearchComponent {
       refId: flight.id,
       date: flight.departureAt.split('T')[0],
       timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
-      durationMinutes: null,
+      durationMinutes: flight.durationMinutes,
       label: `Voo Trecho ${segmentIndex + 1}: ${flight.origin} → ${flight.destination}`,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: segmentIndex,
@@ -582,7 +592,7 @@ export class SearchComponent {
       refId: flight.id,
       date: flight.departureAt.split('T')[0],
       timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
-      durationMinutes: null,
+      durationMinutes: flight.durationMinutes,
       label: `Voo: ${flight.origin} \u2192 ${flight.destination}`,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: 0,
@@ -627,7 +637,7 @@ export class SearchComponent {
         refId: result.flight.id,
         date: result.flight.departureAt.split('T')[0],
         timeSlot: result.flight.departureAt.split('T')[1]?.substring(0, 5) || null,
-        durationMinutes: null,
+        durationMinutes: result.flight.durationMinutes,
         label: `Voo: ${result.flight.origin} → ${result.flight.destination}`,
         notes: `${result.flight.airline} ${result.flight.flightNumber}`,
         order: 0,

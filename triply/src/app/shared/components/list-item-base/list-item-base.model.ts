@@ -40,6 +40,8 @@ export interface ListItemIconAction {
 export interface ListItemConfig {
   id: string;
   images?: string[];
+  /** When true, renders image with object-fit: contain (ideal for logos) */
+  logoImage?: boolean;
   placeholderIcon: string;
   title: string;
   infoLines: ListItemInfoLine[];

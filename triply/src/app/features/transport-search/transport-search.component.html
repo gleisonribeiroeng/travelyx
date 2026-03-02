@@ -22,16 +22,26 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Cidade de Origem</mat-label>
-          <input matInput formControlName="origin" />
+          <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin" />
           <mat-icon matPrefix>trip_origin</mat-icon>
-          @if (transportSearchForm.get('origin')?.hasError('required')) { <mat-error>Cidade de origem é obrigatória</mat-error> }
+          <mat-autocomplete #autoOrigin [displayWith]="displayLocation">
+            @for (dest of filteredOrigins$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (originControl.hasError('required')) { <mat-error>Cidade de origem é obrigatória</mat-error> }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Cidade de Destino</mat-label>
-          <input matInput formControlName="destination" />
+          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" />
           <mat-icon matPrefix>place</mat-icon>
-          @if (transportSearchForm.get('destination')?.hasError('required')) { <mat-error>Cidade de destino é obrigatória</mat-error> }
+          <mat-autocomplete #autoDestination [displayWith]="displayLocation">
+            @for (dest of filteredDestinations$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (destinationControl.hasError('required')) { <mat-error>Cidade de destino é obrigatória</mat-error> }
         </mat-form-field>
       </div>
 

@@ -99,6 +99,8 @@ export function flightToListItem(
 
   return {
     id: flight.id,
+    images: flight.airlineLogo ? [flight.airlineLogo] : [],
+    logoImage: !!flight.airlineLogo,
     placeholderIcon: 'flight',
     title: `${flight.origin} → ${flight.destination}`,
     infoLines: [

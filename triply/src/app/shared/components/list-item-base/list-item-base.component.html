@@ -15,7 +15,8 @@
     <!-- LEFT: Image or Icon -->
     <div class="item-media">
       @if (currentImage()) {
-        <img [src]="currentImage()" [alt]="config().title" class="media-image" loading="lazy" />
+        <img [src]="currentImage()" [alt]="config().title"
+             [class]="config().logoImage ? 'media-logo' : 'media-image'" loading="lazy" />
       } @else {
         <div class="media-placeholder">
           <mat-icon>{{ config().placeholderIcon }}</mat-icon>

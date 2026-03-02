@@ -1,10 +1,12 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 import { NotificationService } from '../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
-import { finalize } from 'rxjs/operators';
+import { HotelApiService, DestinationOption } from '../../../core/api/hotel-api.service';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../../shared/components/schedule-dialog/schedule-dialog.component';
 import { TourApiService } from '../../../core/api/tour-api.service';
@@ -70,8 +72,13 @@ import { activityToListItem, TourTagType } from '../../../shared/components/list
             <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>Destino</mat-label>
-                <input matInput formControlName="destination">
+                <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
                 <mat-icon matPrefix>explore</mat-icon>
+                <mat-autocomplete #autoDestination [displayWith]="displayDestination">
+                  @for (dest of filteredDestinations$ | async; track dest.destId) {
+                    <mat-option [value]="dest">{{ dest.label }}</mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
             </div>
 
@@ -151,6 +158,7 @@ import { activityToListItem, TourTagType } from '../../../shared/components/list
 })
 export class WizardTourStepComponent {
   private readonly api = inject(TourApiService);
+  private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
@@ -161,9 +169,24 @@ export class WizardTourStepComponent {
   readonly hasSearched = signal(false);
   readonly formCollapsed = signal(false);
 
+  readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
+
   searchForm = new FormGroup({
-    destination: new FormControl('', Validators.required),
+    destination: this.destinationControl,
   });
+
+  filteredDestinations$: Observable<DestinationOption[]> = this.destinationControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  displayDestination(opt: DestinationOption | string | null): string {
+    if (!opt) return '';
+    if (typeof opt === 'string') return opt;
+    return opt.label || opt.name;
+  }
 
   // Categorization
   readonly categorized = computed((): CategorizedTours<Activity> =>
@@ -221,7 +244,9 @@ export class WizardTourStepComponent {
     this.hasSearched.set(true);
     this.formCollapsed.set(true);
 
-    this.api.searchTours({ destination: this.searchForm.value.destination ?? '' })
+    const destVal = this.destinationControl.value;
+    const destination = typeof destVal === 'string' ? destVal : (destVal as DestinationOption)?.label ?? '';
+    this.api.searchTours({ destination })
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {

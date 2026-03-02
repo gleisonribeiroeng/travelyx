@@ -67,8 +67,13 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
             <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>Cidade</mat-label>
-                <input matInput formControlName="city">
+                <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity">
                 <mat-icon matPrefix>location_city</mat-icon>
+                <mat-autocomplete #autoCity [displayWith]="displayCity">
+                  @for (dest of filteredCities$ | async; track dest.destId) {
+                    <mat-option [value]="dest">{{ dest.label }}</mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
             </div>
 
@@ -147,6 +152,7 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
 })
 export class WizardAttractionStepComponent {
   private readonly api = inject(AttractionApiService);
+  private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
@@ -157,9 +163,24 @@ export class WizardAttractionStepComponent {
   readonly hasSearched = signal(false);
   readonly formCollapsed = signal(false);
 
+  readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
+
   searchForm = new FormGroup({
-    city: new FormControl('', Validators.required),
+    city: this.cityControl,
   });
+
+  filteredCities$: Observable<DestinationOption[]> = this.cityControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  displayCity(opt: DestinationOption | string | null): string {
+    if (!opt) return '';
+    if (typeof opt === 'string') return opt;
+    return opt.label || opt.name;
+  }
 
   isAdded(id: string): boolean {
     return this.selectedAttractions().some((a) => a.id === id);
@@ -185,7 +206,9 @@ export class WizardAttractionStepComponent {
     this.hasSearched.set(true);
     this.formCollapsed.set(true);
 
-    this.api.searchAttractions({ city: this.searchForm.value.city ?? '' })
+    const cityVal = this.cityControl.value;
+    const city = typeof cityVal === 'string' ? cityVal : (cityVal as DestinationOption)?.label ?? '';
+    this.api.searchAttractions({ city })
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {

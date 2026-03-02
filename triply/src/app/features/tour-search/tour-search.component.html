@@ -22,9 +22,14 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Destino</mat-label>
-          <input matInput formControlName="destination" />
+          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" />
           <mat-icon matPrefix>place</mat-icon>
-          @if (tourSearchForm.get('destination')?.hasError('required')) {
+          <mat-autocomplete #autoDestination [displayWith]="displayDestination">
+            @for (dest of filteredDestinations$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (destinationControl.hasError('required')) {
             <mat-error>Destino é obrigatório</mat-error>
           }
         </mat-form-field>

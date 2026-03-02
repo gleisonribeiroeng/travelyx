@@ -34,9 +34,9 @@ export interface TripEditData {
           <input matInput formControlName="destination">
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" (click)="picker.open()">
           <mat-label>Período da viagem</mat-label>
-          <mat-date-range-input [rangePicker]="picker" (click)="picker.open()">
+          <mat-date-range-input [rangePicker]="picker">
             <input matStartDate formControlName="dateStart" placeholder="Ida">
             <input matEndDate formControlName="dateEnd" placeholder="Volta">
           </mat-date-range-input>

@@ -46,6 +46,10 @@ export interface Flight extends SearchResultBase {
   /** ISO 8601 datetime string */
   arrivalAt: string;
   airline: string;
+  /** IATA carrier code (e.g. 'LA', 'AF') used to build airline logo URL */
+  airlineCode?: string;
+  /** URL to the airline logo image */
+  airlineLogo?: string;
   flightNumber: string;
   durationMinutes: number;
   stops: number;

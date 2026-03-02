@@ -76,6 +76,16 @@ export class HotelSearchComponent {
     ]),
   });
 
+  constructor() {
+    const dates = this.tripState.trip().dates;
+    if (dates.start && dates.end) {
+      this.hotelSearchForm.get('dateRange')!.patchValue({
+        start: new Date(dates.start + 'T00:00:00'),
+        end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+  }
+
   // Autocomplete observable
   filteredDestinations$: Observable<DestinationOption[]> =
     this.destinationControl.valueChanges.pipe(

@@ -1,10 +1,12 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
-import { finalize } from 'rxjs/operators';
+import { HotelApiService, DestinationOption } from '../../../core/api/hotel-api.service';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TransportApiService } from '../../../core/api/transport-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
@@ -65,14 +67,24 @@ import { transportToListItem } from '../../../shared/components/list-item-base/l
             <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>Origem</mat-label>
-                <input matInput formControlName="origin">
+                <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
                 <mat-icon matPrefix>trip_origin</mat-icon>
+                <mat-autocomplete #autoOrigin [displayWith]="displayLocation">
+                  @for (dest of filteredOrigins$ | async; track dest.destId) {
+                    <mat-option [value]="dest">{{ dest.label }}</mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Destino</mat-label>
-                <input matInput formControlName="destination">
+                <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
                 <mat-icon matPrefix>place</mat-icon>
+                <mat-autocomplete #autoDestination [displayWith]="displayLocation">
+                  @for (dest of filteredDestinations$ | async; track dest.destId) {
+                    <mat-option [value]="dest">{{ dest.label }}</mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
@@ -159,6 +171,7 @@ import { transportToListItem } from '../../../shared/components/list-item-base/l
 })
 export class WizardTransportStepComponent {
   private readonly api = inject(TransportApiService);
+  private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
@@ -170,11 +183,34 @@ export class WizardTransportStepComponent {
   readonly formCollapsed = signal(false);
   readonly minDate = new Date();
 
+  readonly originControl = new FormControl<string | DestinationOption>('', Validators.required);
+  readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
+
   searchForm = new FormGroup({
-    origin: new FormControl('', Validators.required),
-    destination: new FormControl('', Validators.required),
+    origin: this.originControl,
+    destination: this.destinationControl,
     date: new FormControl<Date | null>(null, Validators.required),
   });
+
+  filteredOrigins$: Observable<DestinationOption[]> = this.originControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  filteredDestinations$: Observable<DestinationOption[]> = this.destinationControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  displayLocation(opt: DestinationOption | string | null): string {
+    if (!opt) return '';
+    if (typeof opt === 'string') return opt;
+    return opt.label || opt.name;
+  }
 
   isAdded(id: string): boolean {
     return this.selectedTransports().some((t) => t.id === id);

@@ -152,7 +152,7 @@ interface MonthOption {
                                     [displayWith]="displayAirport">
                     @for (option of filteredOrigins$ | async; track option.iataCode) {
                       <mat-option [value]="option">
-                        {{ option.iataCode }} - {{ option.cityName }}
+                        {{ option.cityName }} — {{ option.name }} ({{ option.iataCode }})
                       </mat-option>
                     }
                   </mat-autocomplete>
@@ -167,7 +167,7 @@ interface MonthOption {
                                     [displayWith]="displayAirport">
                     @for (option of filteredDestinations$ | async; track option.iataCode) {
                       <mat-option [value]="option">
-                        {{ option.iataCode }} - {{ option.cityName }}
+                        {{ option.cityName }} — {{ option.name }} ({{ option.iataCode }})
                       </mat-option>
                     }
                   </mat-autocomplete>
@@ -241,7 +241,7 @@ interface MonthOption {
                         <mat-icon matPrefix>flight_takeoff</mat-icon>
                         <mat-autocomplete #segAutoOrigin="matAutocomplete" [displayWith]="displayAirport">
                           @for (opt of (segmentOriginStreams()[i] | async); track opt.iataCode) {
-                            <mat-option [value]="opt">{{ opt.iataCode }} - {{ opt.cityName }}</mat-option>
+                            <mat-option [value]="opt">{{ opt.cityName }} — {{ opt.name }} ({{ opt.iataCode }})</mat-option>
                           }
                         </mat-autocomplete>
                       </mat-form-field>
@@ -251,7 +251,7 @@ interface MonthOption {
                         <mat-icon matPrefix>flight_land</mat-icon>
                         <mat-autocomplete #segAutoDest="matAutocomplete" [displayWith]="displayAirport">
                           @for (opt of (segmentDestinationStreams()[i] | async); track opt.iataCode) {
-                            <mat-option [value]="opt">{{ opt.iataCode }} - {{ opt.cityName }}</mat-option>
+                            <mat-option [value]="opt">{{ opt.cityName }} — {{ opt.name }} ({{ opt.iataCode }})</mat-option>
                           }
                         </mat-autocomplete>
                       </mat-form-field>
@@ -805,7 +805,7 @@ export class WizardFlightStepComponent {
   }
 
   displayAirport(airport: AirportOption | null): string {
-    return airport ? `${airport.iataCode} - ${airport.cityName}` : '';
+    return airport ? `${airport.cityName} (${airport.iataCode})` : '';
   }
 
   canSearch(): boolean {

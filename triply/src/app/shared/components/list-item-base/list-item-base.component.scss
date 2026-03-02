@@ -64,6 +64,16 @@
     display: block;
   }
 
+  .media-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    padding: 16px;
+    background: var(--triply-surface-2);
+    box-sizing: border-box;
+  }
+
   .media-placeholder {
     width: 100%;
     height: 100%;

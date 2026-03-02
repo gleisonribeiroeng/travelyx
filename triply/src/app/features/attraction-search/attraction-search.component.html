@@ -22,9 +22,14 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Cidade</mat-label>
-          <input matInput formControlName="city" />
+          <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" />
           <mat-icon matPrefix>place</mat-icon>
-          @if (attractionSearchForm.get('city')?.hasError('required')) { <mat-error>Cidade é obrigatória</mat-error> }
+          <mat-autocomplete #autoCity [displayWith]="displayCity">
+            @for (dest of filteredCities$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (cityControl.hasError('required')) { <mat-error>Cidade é obrigatória</mat-error> }
         </mat-form-field>
       </div>
 

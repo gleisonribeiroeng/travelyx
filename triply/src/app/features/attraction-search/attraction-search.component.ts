@@ -6,13 +6,15 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 import { NotificationService } from '../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../shared/components/schedule-dialog/schedule-dialog.component';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { AttractionApiService } from '../../core/api/attraction-api.service';
+import { HotelApiService, DestinationOption } from '../../core/api/hotel-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Attraction } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
@@ -28,14 +30,32 @@ import { attractionToListItem } from '../../shared/components/list-item-base/lis
 })
 export class AttractionSearchComponent {
   private readonly attractionApi = inject(AttractionApiService);
+  private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
+  // Autocomplete city control
+  readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
+
   // Form controls
   attractionSearchForm = new FormGroup({
-    city: new FormControl('', Validators.required),
+    city: this.cityControl,
   });
+
+  // Autocomplete observable
+  filteredCities$: Observable<DestinationOption[]> = this.cityControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  displayCity(opt: DestinationOption | string | null): string {
+    if (!opt) return '';
+    if (typeof opt === 'string') return opt;
+    return opt.label || opt.name;
+  }
 
   // Search state signals
   formCollapsed = signal(false);
@@ -51,7 +71,8 @@ export class AttractionSearchComponent {
       return;
     }
 
-    const city = this.attractionSearchForm.value.city ?? '';
+    const cityValue = this.cityControl.value;
+    const city = typeof cityValue === 'string' ? cityValue : (cityValue as DestinationOption)?.label ?? '';
 
     this.isSearching.set(true);
     this.hasSearched.set(true);

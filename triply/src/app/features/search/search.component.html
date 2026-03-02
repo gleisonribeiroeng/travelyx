@@ -60,7 +60,7 @@
             <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
               @for (airport of filteredOrigins$ | async; track airport.iataCode) {
                 <mat-option [value]="airport">
-                  {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                  {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
                 </mat-option>
               }
             </mat-autocomplete>
@@ -79,7 +79,7 @@
             <mat-autocomplete #autoDestination [displayWith]="displayAirport">
               @for (airport of filteredDestinations$ | async; track airport.iataCode) {
                 <mat-option [value]="airport">
-                  {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                  {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
                 </mat-option>
               }
             </mat-autocomplete>
@@ -192,7 +192,7 @@
                   <mat-autocomplete #segOrigin [displayWith]="displayAirport">
                     @for (airport of (segmentOriginStreams()[i] | async) ?? []; track airport.iataCode) {
                       <mat-option [value]="airport">
-                        {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                        {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
                       </mat-option>
                     }
                   </mat-autocomplete>
@@ -212,7 +212,7 @@
                   <mat-autocomplete #segDest [displayWith]="displayAirport">
                     @for (airport of (segmentDestinationStreams()[i] | async) ?? []; track airport.iataCode) {
                       <mat-option [value]="airport">
-                        {{ airport.iataCode }} - {{ airport.name }}, {{ airport.cityName }}
+                        {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
                       </mat-option>
                     }
                   </mat-autocomplete>
