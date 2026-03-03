@@ -6,6 +6,6 @@ async function bootstrap() {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
   app.enableCors({ origin: frontendUrl });
   app.setGlobalPrefix('api');
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
