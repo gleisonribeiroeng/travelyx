@@ -1,38 +1,58 @@
 <div class="dashboard">
-  <!-- Hero Card -->
-  <mat-card class="hero-card" (click)="navigateTo('planner')" tabindex="0">
-    <mat-card-content>
-      <div class="hero-content">
-        <div class="hero-icon"><mat-icon>explore</mat-icon></div>
-        <div class="hero-text">
-          <h2>Planejar Nova Viagem</h2>
-          <p>Configure destino, datas e comece a explorar</p>
-        </div>
-        <mat-icon class="hero-arrow">arrow_forward</mat-icon>
+  <!-- Hero CTA Banner -->
+  <div class="hero-banner" (click)="navigateTo('planner')" tabindex="0" role="button">
+    <div class="hero-content">
+      <div class="hero-icon"><mat-icon>explore</mat-icon></div>
+      <div class="hero-text">
+        <h2>Planejamento Guiado</h2>
+        <p>Monte seu roteiro passo a passo com nosso assistente</p>
       </div>
-    </mat-card-content>
-  </mat-card>
+      <button mat-flat-button class="hero-cta">
+        Começar <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  </div>
 
   @if (hasTrip()) {
-    <!-- Trip Header -->
-    <div class="trip-header">
-      <div class="trip-info">
-        @if (trip().destination) {
-          <h1>{{ trip().destination }}</h1>
-        }
-        @if (trip().dates.start) {
-          <p class="trip-dates">
-            <mat-icon>date_range</mat-icon>
-            {{ trip().dates.start }} — {{ trip().dates.end }}
-          </p>
-        }
-        <button mat-stroked-button class="edit-trip-btn" (click)="editTrip()">
-          <mat-icon>edit</mat-icon>
-          Editar viagem
-        </button>
+    <!-- ═══ SECTION 1: Trip Header ═══ -->
+    <div class="trip-header-section">
+      <div class="trip-main">
+        <div class="trip-identity">
+          @if (trip().destination) {
+            <h1>{{ trip().destination }}</h1>
+          }
+          @if (trip().dates.start) {
+            <p class="trip-dates">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ formatDateRange(trip().dates.start!, trip().dates.end!) }}</span>
+            </p>
+          }
+        </div>
+        <div class="trip-actions">
+          <button mat-stroked-button class="edit-trip-btn" (click)="editTrip()">
+            <mat-icon>edit</mat-icon> Editar
+          </button>
+          @switch (trip().status) {
+            @case ('planejamento') {
+              <button mat-flat-button color="primary" class="status-btn" (click)="setStatus('ativa')">
+                <mat-icon>flight_takeoff</mat-icon> Iniciar Viagem
+              </button>
+            }
+            @case ('ativa') {
+              <button mat-flat-button color="primary" class="status-btn" (click)="setStatus('concluida')">
+                <mat-icon>check_circle</mat-icon> Concluir
+              </button>
+            }
+            @case ('concluida') {
+              <span class="status-badge badge-concluida">
+                <mat-icon>check_circle</mat-icon> Concluída
+              </span>
+            }
+          }
+        </div>
       </div>
       @if (daysUntilTrip() !== null && daysUntilTrip()! > 0) {
-        <div class="countdown" [class.imminent]="tripPhase() === 'imminent'">
+        <div class="countdown-chip" [class.imminent]="tripPhase() === 'imminent'">
           <span class="countdown-number">{{ daysUntilTrip() }}</span>
           <span class="countdown-label">{{ daysUntilTrip() === 1 ? 'dia' : 'dias' }}</span>
         </div>
@@ -40,25 +60,6 @@
       @if (tripPhase() === 'active') {
         <div class="active-badge"><mat-icon>flight_takeoff</mat-icon> Em viagem!</div>
       }
-      <div class="status-actions">
-        @switch (trip().status) {
-          @case ('planejamento') {
-            <button mat-stroked-button class="status-btn" (click)="setStatus('ativa')">
-              <mat-icon>flight_takeoff</mat-icon> Iniciar Viagem
-            </button>
-          }
-          @case ('ativa') {
-            <button mat-stroked-button class="status-btn" (click)="setStatus('concluida')">
-              <mat-icon>check_circle</mat-icon> Concluir Viagem
-            </button>
-          }
-          @case ('concluida') {
-            <span class="status-badge badge-concluida">
-              <mat-icon>check_circle</mat-icon> Concluída
-            </span>
-          }
-        }
-      </div>
     </div>
 
     @if (!trip().dates.start) {
@@ -69,7 +70,7 @@
       </div>
     }
 
-    <!-- Metrics Grid -->
+    <!-- ═══ SECTION 2: Metrics ═══ -->
     <div class="metrics-grid">
       <!-- Score -->
       <mat-card class="metric-card score-card" (click)="navigateTo('checklist')">
@@ -124,9 +125,9 @@
       </mat-card>
     </div>
 
-    <!-- Paid Progress -->
+    <!-- ═══ SECTION 3: Progress & Stats ═══ -->
     @if (paidProgress().total > 0) {
-      <mat-card class="paid-progress-card" (click)="navigateTo('timeline')">
+      <mat-card class="paid-progress-card" (click)="navigateTo('budget')">
         <mat-card-content>
           <div class="paid-header">
             <mat-icon class="paid-card-icon">payments</mat-icon>
@@ -143,7 +144,6 @@
       </mat-card>
     }
 
-    <!-- Stats -->
     @if (stats().length > 0) {
       <div class="stats-row">
         @for (stat of stats(); track stat.icon) {
@@ -156,33 +156,61 @@
       </div>
     }
 
-    <!-- Next Items -->
+    <!-- ═══ SECTION 4: Next Items (Mini Timeline) ═══ -->
     @if (nextItems().length > 0) {
       <mat-card class="next-items-card">
         <mat-card-content>
           <div class="section-header">
             <h3><mat-icon>schedule</mat-icon> Próximos no roteiro</h3>
-            <button mat-button (click)="navigateTo('itinerary')">Ver tudo</button>
+            <button mat-button class="view-all-btn" (click)="navigateTo('itinerary')">
+              Ver tudo <mat-icon>arrow_forward</mat-icon>
+            </button>
           </div>
-          @for (item of nextItems(); track item.id) {
-            <div class="next-item">
-              <mat-icon class="item-icon">{{ getTypeIcon(item.type) }}</mat-icon>
-              <div class="item-info">
-                <span class="item-label">{{ item.label }}</span>
-                <span class="item-date">{{ item.date }} {{ item.timeSlot ? '· ' + item.timeSlot : '' }}</span>
+          <div class="next-items-list">
+            @for (item of nextItems(); track item.id; let i = $index) {
+              <div class="next-item" [class.next-item-first]="i === 0" (click)="navigateTo('timeline')">
+                <div class="next-item-indicator" [style.--type-color]="getTypeColor(item.type)"></div>
+                <div class="next-item-time">
+                  @if (item.timeSlot) {
+                    <span class="time-value">{{ item.timeSlot }}</span>
+                  } @else {
+                    <span class="time-value all-day">Dia todo</span>
+                  }
+                  <span class="time-date">{{ formatShortDate(item.date) }}</span>
+                </div>
+                <mat-icon class="next-item-icon" [style.color]="getTypeColor(item.type)">{{ getTypeIcon(item.type) }}</mat-icon>
+                <div class="next-item-info">
+                  <span class="next-item-label">{{ item.label }}</span>
+                  <span class="next-item-type">{{ getTypeLabel(item.type) }}</span>
+                </div>
+                @if (i === 0) {
+                  <span class="next-badge">Próximo</span>
+                }
               </div>
-            </div>
-          }
+            }
+          </div>
         </mat-card-content>
       </mat-card>
     }
 
-    <!-- Quick Actions -->
+    <!-- ═══ SECTION 5: Quick Actions ═══ -->
     <div class="quick-actions">
-      <button mat-stroked-button (click)="navigateTo('search')"><mat-icon>flight</mat-icon> Voos</button>
-      <button mat-stroked-button (click)="navigateTo('hotels')"><mat-icon>hotel</mat-icon> Hotéis</button>
-      <button mat-stroked-button (click)="navigateTo('tours')"><mat-icon>local_activity</mat-icon> Passeios</button>
-      <button mat-stroked-button (click)="navigateTo('itinerary')"><mat-icon>map</mat-icon> Roteiro</button>
+      <div class="quick-action-card" (click)="navigateTo('search')">
+        <mat-icon>flight</mat-icon>
+        <span>Voos</span>
+      </div>
+      <div class="quick-action-card" (click)="navigateTo('hotels')">
+        <mat-icon>hotel</mat-icon>
+        <span>Hotéis</span>
+      </div>
+      <div class="quick-action-card" (click)="navigateTo('tours')">
+        <mat-icon>local_activity</mat-icon>
+        <span>Passeios</span>
+      </div>
+      <div class="quick-action-card" (click)="navigateTo('itinerary')">
+        <mat-icon>map</mat-icon>
+        <span>Roteiro</span>
+      </div>
     </div>
   } @else {
     <!-- Empty State -->
@@ -190,7 +218,7 @@
       <mat-card-content>
         <mat-icon>luggage</mat-icon>
         <h3>Nenhuma viagem planejada ainda</h3>
-        <p>Clique em "Planejar Nova Viagem" para começar.</p>
+        <p>Clique acima para começar a planejar sua viagem.</p>
         <div class="empty-actions">
           <button mat-stroked-button (click)="navigateTo('search')"><mat-icon>flight</mat-icon> Buscar Voos</button>
           <button mat-stroked-button (click)="navigateTo('hotels')"><mat-icon>hotel</mat-icon> Buscar Hotéis</button>

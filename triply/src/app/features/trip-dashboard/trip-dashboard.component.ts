@@ -97,6 +97,38 @@ export class TripDashboardComponent {
     return map[type] || 'event';
   }
 
+  getTypeLabel(type: string): string {
+    const map: Record<string, string> = {
+      flight: 'Voo', stay: 'Hotel', 'car-rental': 'Carro',
+      transport: 'Transporte', activity: 'Passeio',
+      attraction: 'Atração', custom: 'Evento',
+    };
+    return map[type] || 'Item';
+  }
+
+  getTypeColor(type: string): string {
+    const map: Record<string, string> = {
+      flight: 'var(--triply-cat-flight)', stay: 'var(--triply-cat-stay)',
+      'car-rental': 'var(--triply-cat-car)', transport: 'var(--triply-cat-transport)',
+      activity: 'var(--triply-cat-activity)', attraction: 'var(--triply-cat-attraction)',
+      custom: 'var(--triply-primary)',
+    };
+    return map[type] || 'var(--triply-primary)';
+  }
+
+  formatDateRange(start: string, end: string): string {
+    const fmt = (d: string) => {
+      const date = new Date(d + 'T00:00:00');
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    };
+    return `${fmt(start)} — ${fmt(end)}`;
+  }
+
+  formatShortDate(dateStr: string): string {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  }
+
   editTrip(): void {
     const t = this.trip();
     const ref = this.dialog.open(TripCreateDialogComponent, {
