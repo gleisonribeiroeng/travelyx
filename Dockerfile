@@ -27,4 +27,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "echo DB_CHECK=${DATABASE_URL:+SET} && printenv | grep -c '' && cd backend && npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "echo '=== RAILWAY ENV ===' && printenv | sort | cut -d= -f1 && echo '=== END ===' && cd backend && npx prisma migrate deploy && node dist/main"]
