@@ -118,56 +118,10 @@
     </div>
   }
 
-  <!-- Add Expense Form -->
-  @if (showExpenseForm()) {
-    <mat-card class="expense-form-card">
-      <mat-card-content>
-        <h3>Adicionar gasto manual</h3>
-        <div class="expense-form">
-          <mat-form-field appearance="outline">
-            <mat-label>Descricao</mat-label>
-            <input matInput [(ngModel)]="expenseLabel">
-          </mat-form-field>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Valor (R$)</mat-label>
-              <input matInput type="number" [(ngModel)]="expenseAmount" min="0">
-              <mat-icon matPrefix>attach_money</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Categoria</mat-label>
-              <mat-select [(ngModel)]="expenseCategory">
-                @for (cat of categories; track cat.value) {
-                  <mat-option [value]="cat.value">{{ cat.label }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Data</mat-label>
-            <input matInput type="date" [(ngModel)]="expenseDate">
-          </mat-form-field>
-
-          <div class="form-actions">
-            <button mat-button (click)="showExpenseForm.set(false)">Cancelar</button>
-            <button mat-flat-button color="primary" (click)="addExpense()" [disabled]="!expenseLabel || !expenseAmount">
-              <mat-icon>add</mat-icon> Adicionar
-            </button>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
   <!-- FAB -->
-  @if (!showExpenseForm()) {
-    <button mat-fab color="primary" class="add-fab" (click)="showExpenseForm.set(true)" matTooltip="Adicionar gasto manual">
-      <mat-icon>add</mat-icon>
-    </button>
-  }
+  <button mat-fab color="primary" class="add-fab" (click)="openAddExpense()" matTooltip="Adicionar gasto manual">
+    <mat-icon>add</mat-icon>
+  </button>
 
   <!-- Empty State -->
   @if (budget.summary().totalPlanned === 0 && tripState.manualExpenses().length === 0) {
