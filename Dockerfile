@@ -27,4 +27,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "echo \"DB_URL_SET=${DATABASE_URL:+yes}\" && echo \"DB_URL_START=$(echo $DATABASE_URL | cut -c1-25)\" && cd backend && npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "echo '=== ALL ENV VARS ===' && env | sort | cut -d= -f1 && echo '=== END ===' && cd backend && npx prisma migrate deploy && node dist/main"]
