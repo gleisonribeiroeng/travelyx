@@ -93,9 +93,23 @@ export function flightToListItem(
   if (opts.tag === 'cheapest') tags.push({ label: 'Mais barato', variant: 'cheap' });
   if (opts.tag === 'fastest') tags.push({ label: 'Mais rápido', variant: 'fast' });
 
-  const depTime = flight.departureAt.split('T')[1]?.substring(0, 5) ?? '';
-  const arrTime = flight.arrivalAt.split('T')[1]?.substring(0, 5) ?? '';
+  const depTime = flight.departureAt?.split('T')[1]?.substring(0, 5) ?? '';
+  const arrTime = flight.arrivalAt?.split('T')[1]?.substring(0, 5) ?? '';
   const stopsText = flight.stops === 0 ? 'Direto' : `${flight.stops} parada${flight.stops > 1 ? 's' : ''}`;
+  const duration = formatDuration(flight.durationMinutes);
+
+  let scheduleText: string;
+  if (depTime && arrTime && duration) {
+    scheduleText = `${depTime} — ${arrTime} (${duration})`;
+  } else if (depTime && arrTime) {
+    scheduleText = `${depTime} — ${arrTime}`;
+  } else if (depTime && duration) {
+    scheduleText = `${depTime} (${duration})`;
+  } else if (depTime) {
+    scheduleText = `Partida: ${depTime}`;
+  } else {
+    scheduleText = formatDateTime(flight.departureAt) || 'Ver horários no provedor';
+  }
 
   return {
     id: flight.id,
@@ -105,7 +119,7 @@ export function flightToListItem(
     title: `${flight.origin} → ${flight.destination}`,
     infoLines: [
       { icon: 'airlines', text: `${flight.airline} ${flight.flightNumber}` },
-      { icon: 'schedule', text: `${depTime} — ${arrTime} (${formatDuration(flight.durationMinutes)})` },
+      { icon: 'schedule', text: scheduleText },
       { icon: 'connecting_airports', text: stopsText },
     ],
     price: {
