@@ -2,27 +2,34 @@
 set -e
 
 echo "=== Startup Debug ==="
-echo "DATABASE_URL set: ${DATABASE_URL:+yes}"
-echo "PGHOST set: ${PGHOST:+yes}"
-echo "RAILWAY_ENVIRONMENT set: ${RAILWAY_ENVIRONMENT:+yes}"
+echo "DATABASE_URL length: ${#DATABASE_URL}"
+echo "DATABASE_URL value: $(echo "$DATABASE_URL" | head -c 40)"
+echo "RAILWAY_SERVICE_NAME: $RAILWAY_SERVICE_NAME"
 
-# If DATABASE_URL is not set, try to build it from PG* variables
+# If DATABASE_URL is empty, try RAILWAY reference variables
 if [ -z "$DATABASE_URL" ]; then
-  echo "DATABASE_URL not found, checking PG* variables..."
-  if [ -n "$PGHOST" ] && [ -n "$PGUSER" ] && [ -n "$PGPASSWORD" ] && [ -n "$PGDATABASE" ]; then
+  echo "DATABASE_URL is empty!"
+
+  # Check for DATABASE_PRIVATE_URL or DATABASE_PUBLIC_URL
+  if [ -n "$DATABASE_PRIVATE_URL" ]; then
+    export DATABASE_URL="$DATABASE_PRIVATE_URL"
+    echo "Using DATABASE_PRIVATE_URL"
+  elif [ -n "$DATABASE_PUBLIC_URL" ]; then
+    export DATABASE_URL="$DATABASE_PUBLIC_URL"
+    echo "Using DATABASE_PUBLIC_URL"
+  elif [ -n "$PGHOST" ]; then
     export DATABASE_URL="postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT:-5432}/${PGDATABASE}"
-    echo "DATABASE_URL built from PG* variables"
+    echo "Built from PG* variables"
   else
-    echo "ERROR: Neither DATABASE_URL nor PG* variables are available!"
-    echo "Available env vars:"
-    printenv | sort | cut -d= -f1
+    echo "No database URL found. Listing all vars with values:"
+    printenv | grep -iE "^(DATABASE|PG|POSTGRES)" || echo "(none)"
     exit 1
   fi
 fi
 
-echo "DATABASE_URL starts with: $(echo $DATABASE_URL | cut -c1-30)..."
+echo "Final DATABASE_URL starts with: $(echo "$DATABASE_URL" | head -c 35)..."
 echo "=== Starting app ==="
 
 cd /app/backend
 npx prisma migrate deploy
-node dist/main
+exec node dist/main
