@@ -7,6 +7,7 @@ triply/.angular
 backend/generated
 *.db
 *.db-journal
+**/.env
 .env
 .git
 .gitignore
