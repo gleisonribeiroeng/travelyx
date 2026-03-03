@@ -15,7 +15,7 @@ RUN cd backend && npm install
 
 COPY backend/ ./backend/
 
-ENV DATABASE_URL="file:./dev.db"
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
 
 WORKDIR /app/backend
 RUN npx prisma generate
