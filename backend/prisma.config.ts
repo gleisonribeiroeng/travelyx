@@ -1,7 +1,11 @@
 import { defineConfig } from "prisma/config";
 
-const url = process.env["DATABASE_URL"];
-console.log("[prisma.config] DATABASE_URL is", url ? "SET (" + url.substring(0, 30) + "...)" : "NOT SET");
+// Load .env for local development
+try {
+  require("dotenv/config");
+} catch {
+  // dotenv not available
+}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -9,6 +13,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url,
+    url: process.env["DATABASE_URL"],
   },
 });

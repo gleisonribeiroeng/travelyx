@@ -14,6 +14,7 @@ COPY backend/package.json backend/package-lock.json ./backend/
 RUN cd backend && npm install
 
 COPY backend/ ./backend/
+RUN chmod +x /app/backend/start.sh
 
 WORKDIR /app/backend
 RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
@@ -27,4 +28,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "echo '=== RAILWAY ENV ===' && printenv | sort | cut -d= -f1 && echo '=== END ===' && cd backend && npx prisma migrate deploy && node dist/main"]
+CMD ["/app/backend/start.sh"]
