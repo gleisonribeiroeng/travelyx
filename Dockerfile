@@ -15,10 +15,8 @@ RUN cd backend && npm install
 
 COPY backend/ ./backend/
 
-ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
-
 WORKDIR /app/backend
-RUN npx prisma generate
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
 RUN npm run build
 RUN test -f dist/main.js && echo "BUILD OK: dist/main.js exists" || (echo "BUILD FAILED: dist/main.js missing" && ls -laR dist/ && exit 1)
 
