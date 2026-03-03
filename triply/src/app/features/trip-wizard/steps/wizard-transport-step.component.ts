@@ -252,9 +252,11 @@ export class WizardTransportStepComponent {
     this.hasSearched.set(true);
     this.formCollapsed.set(true);
 
+    const originVal = this.originControl.value;
+    const destVal = this.destinationControl.value;
     this.api.searchTransport({
-      origin: this.searchForm.value.origin ?? '',
-      destination: this.searchForm.value.destination ?? '',
+      origin: typeof originVal === 'string' ? originVal : (originVal as DestinationOption)?.label ?? '',
+      destination: typeof destVal === 'string' ? destVal : (destVal as DestinationOption)?.label ?? '',
       departureDate: date.toISOString().split('T')[0],
     }).pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
