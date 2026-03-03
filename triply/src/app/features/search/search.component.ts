@@ -44,7 +44,7 @@ import {
   ManualFlightDialogResult,
 } from '../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
 
-type TripType = 'roundTrip' | 'oneWay' | 'returnOnly' | 'multi';
+type TripType = 'roundTrip' | 'oneWay' | 'multi';
 
 interface MonthOption {
   value: string;
@@ -409,8 +409,8 @@ export class SearchComponent {
     const destination = this.destinationControl.value as AirportOption;
     const passengers = this.flightSearchForm.value.passengers ?? 1;
 
-    const effectiveOrigin = this.tripType() === 'returnOnly' ? destination.iataCode : origin.iataCode;
-    const effectiveDest = this.tripType() === 'returnOnly' ? origin.iataCode : destination.iataCode;
+    const effectiveOrigin = origin.iataCode;
+    const effectiveDest = destination.iataCode;
 
     this.errorMessage.set(null);
     this.isSearching.set(true);

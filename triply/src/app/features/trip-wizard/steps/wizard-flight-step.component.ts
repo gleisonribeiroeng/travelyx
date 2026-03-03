@@ -41,7 +41,7 @@ import {
   ManualFlightDialogResult,
 } from '../../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
 
-type TripType = 'roundTrip' | 'oneWay' | 'returnOnly' | 'multi';
+type TripType = 'roundTrip' | 'oneWay' | 'multi';
 
 interface MonthOption {
   value: string;
@@ -130,9 +130,6 @@ interface MonthOption {
                 </mat-button-toggle>
                 <mat-button-toggle value="oneWay">
                   <mat-icon>arrow_forward</mat-icon> Só ida
-                </mat-button-toggle>
-                <mat-button-toggle value="returnOnly">
-                  <mat-icon>arrow_back</mat-icon> Só volta
                 </mat-button-toggle>
                 <mat-button-toggle value="multi">
                   <mat-icon>account_tree</mat-icon> Multi
@@ -868,8 +865,8 @@ export class WizardFlightStepComponent {
     const dest = this.destinationControl.value as AirportOption;
     const passengers = this.searchForm.value.passengers ?? 1;
 
-    const effectiveOrigin = this.tripType() === 'returnOnly' ? dest.iataCode : origin.iataCode;
-    const effectiveDest = this.tripType() === 'returnOnly' ? origin.iataCode : dest.iataCode;
+    const effectiveOrigin = origin.iataCode;
+    const effectiveDest = dest.iataCode;
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
