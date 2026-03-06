@@ -27,4 +27,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "cd backend && npx prisma db push --skip-generate && node dist/main"]
+CMD ["sh", "-c", "cd backend && npx prisma db push && node dist/main"]
