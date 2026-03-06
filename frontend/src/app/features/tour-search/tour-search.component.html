@@ -1,5 +1,5 @@
 <div class="view-header">
-  <h1>Buscar Passeios e Experiências</h1>
+  <h1>Passeios</h1>
   <p>Encontre passeios, atividades e experiências no seu destino</p>
 </div>
 
@@ -22,9 +22,14 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Destino</mat-label>
-          <input matInput formControlName="destination" />
+          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" />
           <mat-icon matPrefix>place</mat-icon>
-          @if (tourSearchForm.get('destination')?.hasError('required')) {
+          <mat-autocomplete #autoDestination [displayWith]="displayDestination">
+            @for (dest of filteredDestinations$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (destinationControl.hasError('required')) {
             <mat-error>Destino é obrigatório</mat-error>
           }
         </mat-form-field>
@@ -113,75 +118,12 @@
     </div>
 
     @for (tour of sortedResults(); track tour.id) {
-      <mat-card class="result-card">
-        <!-- Tags -->
-        @if (categorized().cheapest?.id === tour.id || categorized().bestRated?.id === tour.id || categorized().bestValue?.id === tour.id) {
-          <div class="tour-tags">
-            @if (categorized().bestValue?.id === tour.id) {
-              <span class="htag htag-value">Melhor custo-benefício</span>
-            }
-            @if (categorized().cheapest?.id === tour.id) {
-              <span class="htag htag-cheap">Melhor preço</span>
-            }
-            @if (categorized().bestRated?.id === tour.id) {
-              <span class="htag htag-rated">Mais bem avaliado</span>
-            }
-          </div>
-        }
-        <div class="card-layout">
-          <div class="card-image">
-            @if (tour.images && tour.images.length > 0) {
-              <img [src]="tour.images[0]" [alt]="tour.name" loading="lazy" />
-            } @else {
-              <div class="image-placeholder"><mat-icon>local_activity</mat-icon></div>
-            }
-          </div>
-
-          <div class="card-info">
-            <h3 class="item-name">{{ tour.name }}</h3>
-            <div class="item-detail">
-              <mat-icon>place</mat-icon>
-              <span>{{ tour.city }}</span>
-            </div>
-            <div class="item-detail">
-              <mat-icon>schedule</mat-icon>
-              @if (tour.durationMinutes !== null) {
-                <span>{{ formatDuration(tour.durationMinutes) }}</span>
-              } @else {
-                <span>Duração flexível</span>
-              }
-            </div>
-
-            <div class="tour-rating">
-              @for (star of renderStars(tour.rating); track $index) {
-                <mat-icon class="star-icon">{{ star }}</mat-icon>
-              }
-              <span class="rating-text">{{ formatRating(tour.rating) }}</span>
-              @if (tour.reviewCount > 0) {
-                <span class="review-count-text">({{ tour.reviewCount }} avaliações)</span>
-              }
-            </div>
-
-            @if (tour.description) {
-              <p class="item-description">{{ tour.description }}</p>
-            }
-          </div>
-
-          <div class="card-price-column">
-            <div class="price-block">
-              <span class="price-label">a partir de</span>
-              <span class="price-amount">{{ tour.price.total | currency: 'BRL' }}</span>
-              <span class="price-label">por pessoa</span>
-            </div>
-            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(tour)">
-              <mat-icon>add</mat-icon> Adicionar
-            </button>
-            <a mat-stroked-button class="action-btn detail-btn" [href]="tour.link.url" target="_blank" rel="noopener noreferrer">
-              Ver detalhe
-            </a>
-          </div>
-        </div>
-      </mat-card>
+      <app-list-item-base
+        [config]="toListItem(tour)"
+        (primaryClick)="selectById($event)"
+        (secondaryClick)="openDetailById($event)"
+        (cardClick)="openDetailById($event)"
+      />
     }
   </div>
 }

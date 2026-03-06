@@ -119,59 +119,17 @@
         <div class="section-header-new">
           <span class="section-tag">Destaques</span>
           <h2>Selecionamos as melhores hospedagens</h2>
-          <p>Por preço, avaliação e custo-benefício</p>
+          <p>Por preco, avaliacao e custo-beneficio</p>
         </div>
-        <div class="highlights-grid">
+        <div class="highlights-list">
           @if (highlights().cheapest; as cheapest) {
-            <div class="highlight-card highlight-cheap">
-              <div class="highlight-badge"><mat-icon>savings</mat-icon> Melhor Preço</div>
-              <div class="highlight-route">
-                <span class="hl-name">{{ cheapest.name }}</span>
-              </div>
-              <div class="highlight-city">{{ cheapest.city }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatStars(cheapest.rating) }} {{ cheapest.rating }}</span>
-                <span>({{ cheapest.reviewCount }} avaliações)</span>
-              </div>
-              <div class="highlight-price">{{ cheapest.pricePerNight.total | currency: 'BRL' }}<span class="price-suffix">/noite</span></div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/hotels')">
-                <mat-icon>search</mat-icon> Ver hotéis
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(cheapest, 'cheapest')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
           @if (highlights().bestRated; as rated) {
-            <div class="highlight-card highlight-rated">
-              <div class="highlight-badge"><mat-icon>star</mat-icon> Mais Bem Avaliado</div>
-              <div class="highlight-route">
-                <span class="hl-name">{{ rated.name }}</span>
-              </div>
-              <div class="highlight-city">{{ rated.city }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatStars(rated.rating) }} {{ rated.rating }}</span>
-                <span>({{ rated.reviewCount }} avaliações)</span>
-              </div>
-              <div class="highlight-price">{{ rated.pricePerNight.total | currency: 'BRL' }}<span class="price-suffix">/noite</span></div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/hotels')">
-                <mat-icon>search</mat-icon> Ver hotéis
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(rated, 'bestRated')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
           @if (highlights().bestValue; as best) {
-            <div class="highlight-card highlight-value">
-              <div class="highlight-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
-              <div class="highlight-route">
-                <span class="hl-name">{{ best.name }}</span>
-              </div>
-              <div class="highlight-city">{{ best.city }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatStars(best.rating) }} {{ best.rating }}</span>
-                <span>({{ best.reviewCount }} avaliações)</span>
-              </div>
-              <div class="highlight-price">{{ best.pricePerNight.total | currency: 'BRL' }}<span class="price-suffix">/noite</span></div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/hotels')">
-                <mat-icon>search</mat-icon> Ver hotéis
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(best, 'bestValue')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
         </div>
       </section>
@@ -180,43 +138,13 @@
     <!-- SECTION 1: BEST PRICES -->
     <section class="showcase-section reveal" id="deals-section">
       <div class="section-header-new">
-        <span class="section-tag">Melhores preços</span>
-        <h2>Hotéis com diárias incríveis</h2>
-        <p>Bem avaliados e com menores preços para economizar</p>
+        <span class="section-tag">Melhores precos</span>
+        <h2>Hoteis com diarias incriveis</h2>
+        <p>Bem avaliados e com menores precos para economizar</p>
       </div>
-      <div class="hotels-grid">
+      <div class="items-list">
         @for (hotel of bestPrices(); track hotel.id) {
-          <div class="hotel-card">
-            <div class="card-img-wrap">
-              @if (hotel.cityImage || hotel.photoUrl) {
-                <img [src]="hotel.cityImage || hotel.photoUrl" [alt]="hotel.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ hotel.city }}</span>
-              <span class="card-type-badge">{{ hotel.type }}</span>
-            </div>
-            <div class="hotel-info">
-              <h3 class="hotel-name">{{ hotel.name }}</h3>
-              <div class="hotel-location">
-                <mat-icon>location_on</mat-icon>
-                <span>{{ hotel.city }}</span>
-              </div>
-              <div class="hotel-rating">
-                <span class="stars">{{ formatStars(hotel.rating) }}</span>
-                <span class="rating-value">{{ hotel.rating }}</span>
-                <span class="review-count">({{ hotel.reviewCount }} avaliações)</span>
-              </div>
-            </div>
-            <div class="hotel-footer">
-              <div class="hotel-price">
-                <span class="price-label">diária a partir de</span>
-                <span class="price-value">{{ hotel.pricePerNight.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/hotels')">
-                <mat-icon>search</mat-icon> Ver hotéis
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>
@@ -225,42 +153,12 @@
     <section class="showcase-section section-surface reveal">
       <div class="section-header-new">
         <span class="section-tag">Mais bem avaliados</span>
-        <h2>Aprovados pelos hóspedes</h2>
-        <p>Notas altas e centenas de avaliações positivas</p>
+        <h2>Aprovados pelos hospedes</h2>
+        <p>Notas altas e centenas de avaliacoes positivas</p>
       </div>
-      <div class="hotels-grid">
+      <div class="items-list">
         @for (hotel of topRated(); track hotel.id) {
-          <div class="hotel-card">
-            <div class="card-img-wrap">
-              @if (hotel.cityImage || hotel.photoUrl) {
-                <img [src]="hotel.cityImage || hotel.photoUrl" [alt]="hotel.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ hotel.city }}</span>
-              <span class="card-type-badge">{{ hotel.type }}</span>
-            </div>
-            <div class="hotel-info">
-              <h3 class="hotel-name">{{ hotel.name }}</h3>
-              <div class="hotel-location">
-                <mat-icon>location_on</mat-icon>
-                <span>{{ hotel.city }}</span>
-              </div>
-              <div class="hotel-rating">
-                <span class="stars">{{ formatStars(hotel.rating) }}</span>
-                <span class="rating-value">{{ hotel.rating }}</span>
-                <span class="review-count">({{ hotel.reviewCount }} avaliações)</span>
-              </div>
-            </div>
-            <div class="hotel-footer">
-              <div class="hotel-price">
-                <span class="price-label">diária a partir de</span>
-                <span class="price-value">{{ hotel.pricePerNight.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/hotels')">
-                <mat-icon>search</mat-icon> Ver hotéis
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>
@@ -268,43 +166,13 @@
     <!-- SECTION 3: UNIQUE -->
     <section class="showcase-section reveal">
       <div class="section-header-new">
-        <span class="section-tag">Experiências únicas</span>
-        <h2>Estadias inesquecíveis</h2>
-        <p>Resorts, pousadas de charme e hotéis boutique</p>
+        <span class="section-tag">Experiencias unicas</span>
+        <h2>Estadias inesqueciveis</h2>
+        <p>Resorts, pousadas de charme e hoteis boutique</p>
       </div>
-      <div class="hotels-grid">
+      <div class="items-list">
         @for (hotel of unique(); track hotel.id) {
-          <div class="hotel-card">
-            <div class="card-img-wrap">
-              @if (hotel.cityImage || hotel.photoUrl) {
-                <img [src]="hotel.cityImage || hotel.photoUrl" [alt]="hotel.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ hotel.city }}</span>
-              <span class="card-type-badge">{{ hotel.type }}</span>
-            </div>
-            <div class="hotel-info">
-              <h3 class="hotel-name">{{ hotel.name }}</h3>
-              <div class="hotel-location">
-                <mat-icon>location_on</mat-icon>
-                <span>{{ hotel.city }}</span>
-              </div>
-              <div class="hotel-rating">
-                <span class="stars">{{ formatStars(hotel.rating) }}</span>
-                <span class="rating-value">{{ hotel.rating }}</span>
-                <span class="review-count">({{ hotel.reviewCount }} avaliações)</span>
-              </div>
-            </div>
-            <div class="hotel-footer">
-              <div class="hotel-price">
-                <span class="price-label">diária a partir de</span>
-                <span class="price-value">{{ hotel.pricePerNight.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/hotels')">
-                <mat-icon>search</mat-icon> Ver hotéis
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>

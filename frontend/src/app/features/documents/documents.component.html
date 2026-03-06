@@ -1,0 +1,101 @@
+<div class="documents-page">
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Documentos</h1>
+      <p>Organize passaportes, reservas, seguros e ingressos</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="showUploadForm.set(true)">
+      <mat-icon>upload_file</mat-icon> Enviar documento
+    </button>
+  </div>
+
+  @if (expiringDocs().length > 0) {
+    <mat-card class="expiring-card">
+      <mat-card-content>
+        <mat-icon>warning</mat-icon>
+        <span>{{ expiringDocs().length }} documento{{ expiringDocs().length > 1 ? 's' : '' }} próximo{{ expiringDocs().length > 1 ? 's' : '' }} de vencer</span>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <mat-chip-listbox (change)="filterCategory.set($event.value || '')">
+      <mat-chip-option value="">Todos</mat-chip-option>
+      @for (cat of categories; track cat.value) {
+        <mat-chip-option [value]="cat.value">
+          <mat-icon matChipAvatar>{{ cat.icon }}</mat-icon>
+          {{ cat.label }}
+        </mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </div>
+
+  <!-- Documents List -->
+  @if (filteredDocs().length > 0) {
+    <div class="docs-list">
+      @for (doc of filteredDocs(); track doc.id) {
+        <app-list-item-base
+          [config]="toListItem(doc)"
+          (primaryClick)="deleteDoc($event)"
+        />
+      }
+    </div>
+  }
+
+  <!-- Upload Form -->
+  @if (showUploadForm()) {
+    <mat-card class="upload-card">
+      <mat-card-content>
+        <h3>Enviar documento</h3>
+        <div class="upload-zone" (click)="fileInput.click()">
+          <mat-icon>cloud_upload</mat-icon>
+          <span>{{ uploadFile ? uploadFile.name : 'Clique para selecionar arquivo' }}</span>
+          <small>PDF, JPG, PNG, WEBP — máx. 10MB</small>
+          <input #fileInput type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.webp" (change)="onFileSelected($event)">
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome do documento</mat-label>
+          <input matInput [(ngModel)]="uploadLabel">
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Categoria</mat-label>
+            <mat-select [(ngModel)]="uploadCategory">
+              @for (cat of categories; track cat.value) {
+                <mat-option [value]="cat.value">{{ cat.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Data de validade (opcional)</mat-label>
+            <input matInput type="date" [(ngModel)]="uploadExpiresAt">
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button (click)="showUploadForm.set(false)">Cancelar</button>
+          <button mat-flat-button color="primary" (click)="upload()" [disabled]="!uploadFile || !uploadLabel">
+            <mat-icon>upload</mat-icon> Enviar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Empty State -->
+  @if (documents().length === 0 && !showUploadForm()) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon>folder_open</mat-icon>
+        <h3>Nenhum documento enviado</h3>
+        <p>Envie passaportes, reservas, seguros e outros documentos importantes para sua viagem.</p>
+        <button mat-flat-button color="primary" (click)="showUploadForm.set(true)">
+          <mat-icon>upload_file</mat-icon> Enviar primeiro documento
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

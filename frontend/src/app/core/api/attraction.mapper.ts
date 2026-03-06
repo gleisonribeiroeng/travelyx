@@ -2,153 +2,76 @@ import { Injectable } from '@angular/core';
 import { Attraction } from '../models/trip.models';
 
 /**
- * External geoname response from OpenTripMap API.
- * Used to resolve a city name to geographic coordinates.
+ * Viator product response shape (same as tours).
  */
-export interface GeonameResponse {
-  name?: string;
-  country?: string;
-  lat?: number;
-  lon?: number;
-  population?: number;
-  timezone?: string;
-}
-
-/**
- * External radius feature response from OpenTripMap API.
- * Represents a single point of interest within a search radius.
- */
-export interface RadiusFeature {
-  name?: string;
-  xid?: string;
-  osm?: string;
-  wikidata?: string;
-  kinds?: string;
-  point?: {
-    lon?: number;
-    lat?: number;
+export interface ViatorAttractionProduct {
+  productCode?: string;
+  title?: string;
+  description?: string;
+  images?: Array<{ variants: Array<{ url: string }> }>;
+  pricing?: {
+    summary?: {
+      fromPrice?: number;
+    };
+    currency?: string;
   };
-}
-
-/**
- * External place details response from OpenTripMap API.
- * Contains enriched information for a specific attraction.
- */
-export interface PlaceDetails {
-  xid?: string;
-  name?: string;
-  address?: {
-    city?: string;
-    road?: string;
-    house_number?: string;
+  bookingInfo?: {
+    bookingUrl?: string;
   };
-  kinds?: string;
-  wikipedia?: string;
-  url?: string;
-  image?: string;
-  preview?: {
-    source?: string;
-    width?: number;
-    height?: number;
+  location?: {
+    address?: string;
+    latitude?: number;
+    longitude?: number;
   };
-  point?: {
-    lon?: number;
-    lat?: number;
+  duration?: {
+    fixedDurationInMinutes?: number;
   };
+  reviews?: {
+    combinedAverageRating?: number;
+    totalReviews?: number;
+  };
+  tags?: Array<{ tagId: number; allNamesByLocale?: Record<string, string> }>;
 }
 
 /**
  * Attraction search parameters.
- * Used by AttractionApiService and AttractionMapper to structure search requests.
  */
 export interface AttractionSearchParams {
-  city: string; // Free text city name
+  city: string;
 }
 
 /**
- * AttractionMapper transforms external OpenTripMap API responses into canonical Attraction models.
- *
- * Features:
- * - Maps OpenTripMap radius features to Attraction model
- * - Enriches attractions with detail data (wikipedia link, official URL)
- * - Handles nullable link field (link is null when no official URL available)
- * - Does NOT implement Mapper interface (signature differs - takes two params)
- *
- * OpenTripMap uses a three-step search flow:
- * 1. Geoname lookup (city name -> coordinates)
- * 2. Radius search (coordinates -> list of attractions)
- * 3. Details enrichment (xid -> full attraction data with links)
+ * AttractionMapper transforms Viator API responses into canonical Attraction models.
  */
 @Injectable({ providedIn: 'root' })
 export class AttractionMapper {
-  /**
-   * Transform an external OpenTripMap radius feature into a canonical Attraction model.
-   * Initial mapping contains only data from radius search response.
-   * Use enrichWithDetails() to merge additional detail data.
-   *
-   * @param raw The external OpenTripMap radius feature object
-   * @param params Search parameters containing city name
-   * @returns Canonical Attraction model
-   */
-  mapResponse(raw: RadiusFeature, params: AttractionSearchParams): Attraction {
+  mapResponse(raw: ViatorAttractionProduct, params: AttractionSearchParams): Attraction {
+    const category = this.extractCategory(raw.tags);
+
     return {
-      id: raw.xid || crypto.randomUUID(),
+      id: String(raw.productCode || crypto.randomUUID()),
       source: 'attractions',
       addedToItinerary: false,
-      name: raw.name || 'Unnamed Attraction',
-      description: '', // Not available in radius response; enriched later
+      name: raw.title || 'Atração sem nome',
+      description: raw.description || '',
       location: {
-        latitude: raw.point?.lat || 0,
-        longitude: raw.point?.lon || 0,
+        latitude: raw.location?.latitude || 0,
+        longitude: raw.location?.longitude || 0,
       },
       city: params.city,
-      category: this.extractPrimaryCategory(raw.kinds),
-      images: [],
-      link: null, // Not available in radius response; enriched later
+      category,
+      images: (raw.images || [])
+        .map(img => img.variants?.[0]?.url)
+        .filter((u): u is string => !!u),
+      link: raw.bookingInfo?.bookingUrl
+        ? { url: raw.bookingInfo.bookingUrl, provider: 'Viator' }
+        : null,
     };
   }
 
-  /**
-   * Enrich an attraction with detailed information from OpenTripMap details endpoint.
-   * Merges description and link fields from the details response.
-   *
-   * @param attraction The base attraction from mapResponse
-   * @param details The external OpenTripMap place details object
-   * @returns Enriched Attraction model with description and nullable link
-   */
-  enrichWithDetails(attraction: Attraction, details: PlaceDetails): Attraction {
-    return {
-      ...attraction,
-      description: details.wikipedia
-        ? `Learn more: ${details.wikipedia}`
-        : details.url
-          ? 'Official site available.'
-          : '',
-      images: [details.image, details.preview?.source].filter((u): u is string => !!u),
-      link: details.url ? { url: details.url, provider: 'Official' } : null,
-    };
-  }
-
-  /**
-   * Extract primary category from OpenTripMap kinds string.
-   * Kinds are comma-separated (e.g. "architecture,historic,museums").
-   * Takes the first kind, replaces underscores with spaces, and capitalizes.
-   *
-   * @param kindString Comma-separated kinds string from OpenTripMap
-   * @returns Human-readable category name
-   */
-  private extractPrimaryCategory(kindString: string | undefined): string {
-    if (!kindString || kindString.trim() === '') {
-      return 'Attraction';
-    }
-
-    const firstKind = kindString.split(',')[0].trim();
-    if (!firstKind) {
-      return 'Attraction';
-    }
-
-    // Replace underscores with spaces and capitalize first letter
-    const normalized = firstKind.replace(/_/g, ' ');
-    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  private extractCategory(tags?: ViatorAttractionProduct['tags']): string {
+    if (!tags || tags.length === 0) return 'Atração';
+    const name = tags[0]?.allNamesByLocale?.['pt'] || tags[0]?.allNamesByLocale?.['en'];
+    return name || 'Atração';
   }
 }

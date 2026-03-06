@@ -7,26 +7,45 @@
     <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="brand-logo">
   </div>
 
-  <nav class="nav-items">
-    @for (item of navItems; track item.route) {
-      @if (item.section) {
-        <div class="section-label">{{ item.section }}</div>
-      }
-      <a
-        class="nav-item"
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.route === '/home' }"
-        (click)="closeMobile()"
-      >
-        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-        <span class="nav-label">{{ item.label }}</span>
-      </a>
+  <nav class="nav-groups">
+    @for (group of navGroups(); track group.label) {
+      <div class="nav-group">
+        @if (group.label) {
+          <span class="group-label">{{ group.label }}</span>
+        }
+        @for (item of group.items; track item.route) {
+          <a
+            class="nav-item"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/viagens' || item.route.endsWith('/home') }"
+            (click)="closeMobile()"
+          >
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            <span class="nav-label">{{ item.label }}</span>
+          </a>
+        }
+      </div>
     }
   </nav>
 
+  @if (auth.isAdmin()) {
+    <div class="nav-group admin-group">
+      <span class="group-label">Administração</span>
+      <a
+        class="nav-item"
+        routerLink="/admin/usuarios"
+        routerLinkActive="active"
+        (click)="closeMobile()"
+      >
+        <mat-icon class="nav-icon">group</mat-icon>
+        <span class="nav-label">Usuários</span>
+      </a>
+    </div>
+  }
+
   <div class="sidebar-footer">
-    <button class="add-action" (click)="navigateTo('/planner')">
+    <button class="add-action" (click)="openNewTrip()">
       <mat-icon>add_circle_outline</mat-icon>
       <span>Nova Viagem</span>
     </button>

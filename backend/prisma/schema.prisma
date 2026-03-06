@@ -3,7 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model User {
@@ -12,9 +17,12 @@ model User {
   email     String   @unique
   name      String
   picture   String
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   trips     Trip[]
+  supportConversations SupportConversation[]
 }
 
 model Trip {
@@ -23,6 +31,8 @@ model Trip {
   destination String   @default("")
   dateStart   String   @default("")
   dateEnd     String   @default("")
+  status      String   @default("planejamento")
+  currency    String   @default("BRL")
   // Search results stored as JSON strings (complex nested objects)
   flights     String   @default("[]")
   stays       String   @default("[]")
@@ -38,15 +48,47 @@ model Trip {
 }
 
 model ItineraryItem {
-  id       String  @id @default(uuid())
-  type     String
-  refId    String?
-  date     String
-  timeSlot String?
-  label    String
+  id              String      @id @default(uuid())
+  type            String
+  refId           String?
+  date            String
+  timeSlot        String?
+  label           String
   durationMinutes Int?
-  notes    String  @default("")
-  order    Int     @default(0)
-  tripId   String
-  trip     Trip    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  notes           String      @default("")
+  order           Int         @default(0)
+  isPaid          Boolean     @default(false)
+  tripId          String
+  trip            Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  attachment      Attachment?
+}
+
+model Attachment {
+  id              String        @id @default(uuid())
+  fileName        String
+  mimeType        String
+  sizeBytes       Int
+  data            String
+  createdAt       DateTime      @default(now())
+  itineraryItemId String        @unique
+  itineraryItem   ItineraryItem @relation(fields: [itineraryItemId], references: [id], onDelete: Cascade)
+}
+
+model SupportConversation {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  discordThreadId String?  @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  messages        SupportMessage[]
+}
+
+model SupportMessage {
+  id             String              @id @default(uuid())
+  conversationId String
+  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  content        String
+  fromUser       Boolean             @default(true)
+  createdAt      DateTime            @default(now())
 }

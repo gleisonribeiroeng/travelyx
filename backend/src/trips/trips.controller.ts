@@ -8,7 +8,11 @@ import {
   Param,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TripsService } from './trips.service';
 
@@ -66,5 +70,47 @@ export class TripsController {
     @Req() req: any,
   ) {
     return this.tripsService.removeItineraryItem(tripId, itemId, req.user.sub);
+  }
+
+  // --- Attachments ---
+
+  @Post(':tripId/items/:itemId/attachment')
+  @UseInterceptors(FileInterceptor('file', {
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_req: any, file: any, cb: any) => {
+      const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(file.mimetype)) {
+        cb(new BadRequestException('Tipo de arquivo não suportado. Use PDF, JPG, PNG ou WEBP.'), false);
+      } else {
+        cb(null, true);
+      }
+    },
+  }))
+  uploadAttachment(
+    @Param('tripId') tripId: string,
+    @Param('itemId') itemId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: any,
+  ) {
+    if (!file) throw new BadRequestException('Nenhum arquivo enviado');
+    return this.tripsService.uploadAttachment(tripId, itemId, req.user.sub, file);
+  }
+
+  @Get(':tripId/items/:itemId/attachment')
+  getAttachment(
+    @Param('tripId') tripId: string,
+    @Param('itemId') itemId: string,
+    @Req() req: any,
+  ) {
+    return this.tripsService.getAttachment(tripId, itemId, req.user.sub);
+  }
+
+  @Delete(':tripId/items/:itemId/attachment')
+  removeAttachment(
+    @Param('tripId') tripId: string,
+    @Param('itemId') itemId: string,
+    @Req() req: any,
+  ) {
+    return this.tripsService.removeAttachment(tripId, itemId, req.user.sub);
   }
 }

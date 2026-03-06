@@ -51,6 +51,13 @@ export function buildTimeBlocks(
     const depDate = extractDate(f.departureAt);
     const arrDate = extractDate(f.arrivalAt);
 
+    // Skip time-block creation for manual flights without specific times
+    const depTime = extractTime(f.departureAt);
+    const arrTime = extractTime(f.arrivalAt);
+    if (f.source === 'manual' && depTime === '00:00' && arrTime === '00:00') {
+      continue;
+    }
+
     blocks.push({
       date: depDate,
       startTime: extractTime(f.departureAt),

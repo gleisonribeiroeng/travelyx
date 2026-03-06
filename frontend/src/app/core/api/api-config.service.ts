@@ -21,6 +21,7 @@ export class ApiConfigService {
     tours: `${environment.apiBaseUrl}/api/tours`,
     attractions: `${environment.apiBaseUrl}/api/attractions`,
     googlePlaces: `${environment.apiBaseUrl}/api/places`,
+    support: `${environment.apiBaseUrl}/api/support`,
   };
 
   /** Returns the API key for a given source name, or null if not configured. */

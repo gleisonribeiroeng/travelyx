@@ -1,0 +1,136 @@
+<div class="budget-page">
+  <div class="page-header">
+    <h1>Orçamento</h1>
+    <p>Controle financeiro completo do seu roteiro</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <mat-card class="summary-card total">
+      <mat-card-content>
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span class="summary-value">{{ budget.summary().totalPlanned | currency:'BRL':'symbol':'1.0-0' }}</span>
+        <span class="summary-label">Total planejado</span>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card paid">
+      <mat-card-content>
+        <mat-icon>check_circle</mat-icon>
+        <span class="summary-value">{{ budget.summary().totalPaid | currency:'BRL':'symbol':'1.0-0' }}</span>
+        <span class="summary-label">Pago</span>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card pending">
+      <mat-card-content>
+        <mat-icon>schedule</mat-icon>
+        <span class="summary-value">{{ budget.summary().totalPending | currency:'BRL':'symbol':'1.0-0' }}</span>
+        <span class="summary-label">Pendente</span>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span>Progresso de pagamento</span>
+      <span class="progress-value">{{ paidPercentage() }}%</span>
+    </div>
+    <mat-progress-bar mode="determinate" [value]="paidPercentage()"></mat-progress-bar>
+  </div>
+
+  <!-- View Toggle -->
+  <mat-button-toggle-group [value]="viewMode()" (change)="viewMode.set($event.value)" class="view-toggle">
+    <mat-button-toggle value="category">
+      <mat-icon>category</mat-icon> Por categoria
+    </mat-button-toggle>
+    <mat-button-toggle value="day">
+      <mat-icon>calendar_today</mat-icon> Por dia
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <!-- Category View -->
+  @if (viewMode() === 'category') {
+    <div class="category-list">
+      @for (cat of budget.categoryBreakdown(); track cat.category) {
+        <mat-card class="category-card">
+          <mat-card-content>
+            <div class="category-header">
+              <div class="category-info">
+                <mat-icon>{{ budget.getCategoryIcon(cat.category) }}</mat-icon>
+                <span class="category-name">{{ budget.getCategoryLabel(cat.category) }}</span>
+              </div>
+              <div class="category-amounts">
+                <span class="category-total">{{ cat.planned | currency:'BRL':'symbol':'1.0-0' }}</span>
+                @if (cat.paid > 0) {
+                  <span class="category-paid">{{ cat.paid | currency:'BRL':'symbol':'1.0-0' }} pago</span>
+                }
+              </div>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="cat.planned > 0 ? (cat.paid / cat.planned) * 100 : 0" class="category-progress"></mat-progress-bar>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- Day View -->
+  @if (viewMode() === 'day') {
+    <div class="day-list">
+      @for (day of dayBreakdown(); track day.date) {
+        <mat-card class="day-card">
+          <mat-card-content>
+            <div class="day-header">
+              <span class="day-date">{{ formatDate(day.date) }}</span>
+              <div class="day-amounts">
+                <span class="day-planned">{{ day.planned | currency:'BRL':'symbol':'1.0-0' }}</span>
+                @if (day.paid > 0) {
+                  <mat-icon class="day-paid-icon">check_circle</mat-icon>
+                  <span class="day-paid">{{ day.paid | currency:'BRL':'symbol':'1.0-0' }}</span>
+                }
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- Manual Expenses Section -->
+  @if (tripState.manualExpenses().length > 0) {
+    <div class="manual-section">
+      <h3><mat-icon>receipt_long</mat-icon> Gastos manuais</h3>
+      @for (exp of tripState.manualExpenses(); track exp.id) {
+        <div class="manual-item" [class.paid]="exp.isPaid">
+          <mat-icon>{{ budget.getCategoryIcon(exp.category) }}</mat-icon>
+          <div class="manual-info">
+            <span class="manual-label">{{ exp.label }}</span>
+            <span class="manual-meta">{{ budget.getCategoryLabel(exp.category) }} &middot; {{ formatDate(exp.date) }}</span>
+          </div>
+          <span class="manual-amount">{{ exp.amount | currency:'BRL':'symbol':'1.2-2' }}</span>
+          <button mat-icon-button (click)="toggleExpensePaid(exp)" [matTooltip]="exp.isPaid ? 'Marcar como pendente' : 'Marcar como pago'">
+            <mat-icon>{{ exp.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="removeExpense(exp.id)" matTooltip="Remover">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- FAB -->
+  <button mat-fab color="primary" class="add-fab" (click)="openAddExpense()" matTooltip="Adicionar gasto manual">
+    <mat-icon>add</mat-icon>
+  </button>
+
+  <!-- Empty State -->
+  @if (budget.summary().totalPlanned === 0 && tripState.manualExpenses().length === 0) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon>account_balance_wallet</mat-icon>
+        <h3>Sem dados de orcamento</h3>
+        <p>Adicione itens ao roteiro ou gastos manuais para ver o orcamento consolidado.</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

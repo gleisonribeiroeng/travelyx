@@ -14,13 +14,15 @@ import { TransportModule } from './transport/transport.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TripsModule } from './trips/trips.module';
+import { AdminModule } from './admin/admin.module';
+import { SupportModule } from './support/support.module';
 import { HomeShowcaseController } from './common/home-showcase.controller';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'frontend', 'dist', 'triply', 'browser'),
+      rootPath: join(__dirname, '..', '..', 'triply', 'dist', 'triply', 'browser'),
       exclude: ['/api/{*path}'],
     }),
     PrismaModule,
@@ -32,6 +34,8 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
     ToursModule,
     AttractionsModule,
     TransportModule,
+    AdminModule,
+    SupportModule,
   ],
   controllers: [HomeShowcaseController],
   providers: [

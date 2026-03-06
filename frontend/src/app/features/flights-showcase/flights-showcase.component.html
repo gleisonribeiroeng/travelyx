@@ -118,66 +118,18 @@
       <section class="highlights-section reveal">
         <div class="section-header-new">
           <span class="section-tag">Destaques</span>
-          <h2>Analisamos os melhores voos para você</h2>
-          <p>Seleções inteligentes por preço, duração e custo-benefício</p>
+          <h2>Analisamos os melhores voos para voce</h2>
+          <p>Selecoes inteligentes por preco, duracao e custo-beneficio</p>
         </div>
-        <div class="highlights-grid">
+        <div class="highlights-list">
           @if (highlights().cheapest; as cheapest) {
-            <div class="highlight-card highlight-cheap">
-              <div class="highlight-badge"><mat-icon>savings</mat-icon> Mais Barato</div>
-              <div class="highlight-route">
-                <span class="hl-iata">{{ cheapest.origin }}</span>
-                <mat-icon>arrow_forward</mat-icon>
-                <span class="hl-iata">{{ cheapest.destination }}</span>
-              </div>
-              <div class="highlight-airline">{{ cheapest.airline }} · {{ cheapest.flightNumber }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatDuration(cheapest.durationMinutes) }}</span>
-                <span>{{ cheapest.stops === 0 ? 'Direto' : cheapest.stops + ' parada(s)' }}</span>
-              </div>
-              <div class="highlight-price">{{ cheapest.price.total | currency: 'BRL' }}</div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/search')">
-                <mat-icon>search</mat-icon> Ver voos
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(cheapest, 'cheapest')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
           @if (highlights().fastest; as fastest) {
-            <div class="highlight-card highlight-fast">
-              <div class="highlight-badge"><mat-icon>bolt</mat-icon> Mais Rápido</div>
-              <div class="highlight-route">
-                <span class="hl-iata">{{ fastest.origin }}</span>
-                <mat-icon>arrow_forward</mat-icon>
-                <span class="hl-iata">{{ fastest.destination }}</span>
-              </div>
-              <div class="highlight-airline">{{ fastest.airline }} · {{ fastest.flightNumber }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatDuration(fastest.durationMinutes) }}</span>
-                <span>{{ fastest.stops === 0 ? 'Direto' : fastest.stops + ' parada(s)' }}</span>
-              </div>
-              <div class="highlight-price">{{ fastest.price.total | currency: 'BRL' }}</div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/search')">
-                <mat-icon>search</mat-icon> Ver voos
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(fastest, 'fastest')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
           @if (highlights().bestValue; as best) {
-            <div class="highlight-card highlight-value">
-              <div class="highlight-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
-              <div class="highlight-route">
-                <span class="hl-iata">{{ best.origin }}</span>
-                <mat-icon>arrow_forward</mat-icon>
-                <span class="hl-iata">{{ best.destination }}</span>
-              </div>
-              <div class="highlight-airline">{{ best.airline }} · {{ best.flightNumber }}</div>
-              <div class="highlight-meta">
-                <span>{{ formatDuration(best.durationMinutes) }}</span>
-                <span>{{ best.stops === 0 ? 'Direto' : best.stops + ' parada(s)' }}</span>
-              </div>
-              <div class="highlight-price">{{ best.price.total | currency: 'BRL' }}</div>
-              <button mat-flat-button class="highlight-cta" (click)="navigateTo('/search')">
-                <mat-icon>search</mat-icon> Ver voos
-              </button>
-            </div>
+            <app-list-item-base [config]="toListItem(best, 'bestValue')" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
           }
         </div>
       </section>
@@ -187,62 +139,12 @@
     <section class="showcase-section reveal" id="deals-section">
       <div class="section-header-new">
         <span class="section-tag">Melhores ofertas</span>
-        <h2>Voos com preços imperdíveis</h2>
-        <p>Os menores preços para você viajar gastando menos</p>
+        <h2>Voos com precos imperdiveis</h2>
+        <p>Os menores precos para voce viajar gastando menos</p>
       </div>
-      <div class="flights-grid">
+      <div class="items-list">
         @for (flight of deals(); track flight.id) {
-          <div class="flight-card">
-            <div class="card-img-wrap">
-              @if (flight.destinationImage) {
-                <img [src]="flight.destinationImage" [alt]="flight.destinationCity" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ flight.destinationCity }}</span>
-            </div>
-            <div class="flight-route">
-              <div class="route-endpoint">
-                <span class="iata">{{ flight.origin }}</span>
-                <span class="city">{{ flight.originCity }}</span>
-              </div>
-              <div class="route-line">
-                <mat-icon>flight_takeoff</mat-icon>
-                <div class="dashed-line"></div>
-                <mat-icon>flight_land</mat-icon>
-              </div>
-              <div class="route-endpoint">
-                <span class="iata">{{ flight.destination }}</span>
-                <span class="city">{{ flight.destinationCity }}</span>
-              </div>
-            </div>
-            <div class="flight-details">
-              <div class="detail-row">
-                <mat-icon>calendar_today</mat-icon>
-                <span>{{ flight.departureAt | date: "d 'de' MMM" }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>schedule</mat-icon>
-                <span>{{ formatTime(flight.departureAt) }} - {{ formatTime(flight.arrivalAt) }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>airlines</mat-icon>
-                <span>{{ flight.airline }} · {{ flight.flightNumber }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>timer</mat-icon>
-                <span>{{ formatDuration(flight.durationMinutes) }} · {{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
-              </div>
-            </div>
-            <div class="flight-footer">
-              <div class="flight-price">
-                <span class="price-label">a partir de</span>
-                <span class="price-value">{{ flight.price.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/search')">
-                <mat-icon>search</mat-icon> Ver voos
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>
@@ -254,59 +156,9 @@
         <h2>Destinos favoritos dos brasileiros</h2>
         <p>As rotas mais buscadas pelos viajantes</p>
       </div>
-      <div class="flights-grid">
+      <div class="items-list">
         @for (flight of popular(); track flight.id) {
-          <div class="flight-card">
-            <div class="card-img-wrap">
-              @if (flight.destinationImage) {
-                <img [src]="flight.destinationImage" [alt]="flight.destinationCity" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ flight.destinationCity }}</span>
-            </div>
-            <div class="flight-route">
-              <div class="route-endpoint">
-                <span class="iata">{{ flight.origin }}</span>
-                <span class="city">{{ flight.originCity }}</span>
-              </div>
-              <div class="route-line">
-                <mat-icon>flight_takeoff</mat-icon>
-                <div class="dashed-line"></div>
-                <mat-icon>flight_land</mat-icon>
-              </div>
-              <div class="route-endpoint">
-                <span class="iata">{{ flight.destination }}</span>
-                <span class="city">{{ flight.destinationCity }}</span>
-              </div>
-            </div>
-            <div class="flight-details">
-              <div class="detail-row">
-                <mat-icon>calendar_today</mat-icon>
-                <span>{{ flight.departureAt | date: "d 'de' MMM" }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>schedule</mat-icon>
-                <span>{{ formatTime(flight.departureAt) }} - {{ formatTime(flight.arrivalAt) }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>airlines</mat-icon>
-                <span>{{ flight.airline }} · {{ flight.flightNumber }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>timer</mat-icon>
-                <span>{{ formatDuration(flight.durationMinutes) }} · {{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
-              </div>
-            </div>
-            <div class="flight-footer">
-              <div class="flight-price">
-                <span class="price-label">a partir de</span>
-                <span class="price-value">{{ flight.price.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/search')">
-                <mat-icon>search</mat-icon> Ver voos
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>
@@ -315,62 +167,12 @@
     <section class="showcase-section reveal">
       <div class="section-header-new">
         <span class="section-tag">Recomendados</span>
-        <h2>Viagens curadas para você</h2>
-        <p>Sugestões para quem busca lazer e turismo</p>
+        <h2>Viagens curadas para voce</h2>
+        <p>Sugestoes para quem busca lazer e turismo</p>
       </div>
-      <div class="flights-grid">
+      <div class="items-list">
         @for (flight of recommended(); track flight.id) {
-          <div class="flight-card">
-            <div class="card-img-wrap">
-              @if (flight.destinationImage) {
-                <img [src]="flight.destinationImage" [alt]="flight.destinationCity" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="card-img-overlay"></div>
-              <span class="card-image-label">{{ flight.destinationCity }}</span>
-            </div>
-            <div class="flight-route">
-              <div class="route-endpoint">
-                <span class="iata">{{ flight.origin }}</span>
-                <span class="city">{{ flight.originCity }}</span>
-              </div>
-              <div class="route-line">
-                <mat-icon>flight_takeoff</mat-icon>
-                <div class="dashed-line"></div>
-                <mat-icon>flight_land</mat-icon>
-              </div>
-              <div class="route-endpoint">
-                <span class="iata">{{ flight.destination }}</span>
-                <span class="city">{{ flight.destinationCity }}</span>
-              </div>
-            </div>
-            <div class="flight-details">
-              <div class="detail-row">
-                <mat-icon>calendar_today</mat-icon>
-                <span>{{ flight.departureAt | date: "d 'de' MMM" }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>schedule</mat-icon>
-                <span>{{ formatTime(flight.departureAt) }} - {{ formatTime(flight.arrivalAt) }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>airlines</mat-icon>
-                <span>{{ flight.airline }} · {{ flight.flightNumber }}</span>
-              </div>
-              <div class="detail-row">
-                <mat-icon>timer</mat-icon>
-                <span>{{ formatDuration(flight.durationMinutes) }} · {{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
-              </div>
-            </div>
-            <div class="flight-footer">
-              <div class="flight-price">
-                <span class="price-label">a partir de</span>
-                <span class="price-value">{{ flight.price.total | currency: 'BRL' }}</span>
-              </div>
-              <button mat-raised-button color="primary" class="add-btn" (click)="navigateTo('/search')">
-                <mat-icon>search</mat-icon> Ver voos
-              </button>
-            </div>
-          </div>
+          <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
         }
       </div>
     </section>

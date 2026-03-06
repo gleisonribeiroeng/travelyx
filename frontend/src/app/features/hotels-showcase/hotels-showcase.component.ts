@@ -19,11 +19,13 @@ import {
   categorizeHotels,
   CategorizedHotels,
 } from '../../core/utils/hotel-categorizer.util';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { ListItemConfig, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
 
 @Component({
   selector: 'app-hotels-showcase',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe],
+  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, ListItemBaseComponent],
   templateUrl: './hotels-showcase.component.html',
   styleUrl: './hotels-showcase.component.scss',
 })
@@ -105,13 +107,44 @@ export class HotelsShowcaseComponent implements OnInit, AfterViewInit, OnDestroy
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-    img.closest('.card-img-wrap')?.classList.add('img-fallback');
+  toListItem(hotel: ShowcaseHotel, tag?: 'cheapest' | 'bestRated' | 'bestValue' | null): ListItemConfig {
+    const tags: ListItemTag[] = [];
+    if (tag === 'bestValue') tags.push({ label: 'Melhor custo-beneficio', variant: 'value' });
+    if (tag === 'cheapest') tags.push({ label: 'Melhor preco', variant: 'cheap' });
+    if (tag === 'bestRated') tags.push({ label: 'Mais bem avaliado', variant: 'rated' });
+
+    const images = hotel.photoUrl ? [hotel.photoUrl] : [];
+    if (hotel.cityImage && !images.includes(hotel.cityImage)) {
+      images.unshift(hotel.cityImage);
+    }
+
+    return {
+      id: hotel.id,
+      images,
+      placeholderIcon: 'hotel',
+      title: hotel.name,
+      infoLines: [
+        { icon: 'location_on', text: hotel.city },
+        { icon: 'apartment', text: hotel.type },
+      ],
+      rating: { value: hotel.rating, reviewCount: hotel.reviewCount },
+      price: {
+        amount: hotel.pricePerNight.total,
+        currency: hotel.pricePerNight.currency,
+        label: '/noite',
+      },
+      primaryAction: { type: 'view', label: 'Ver hoteis', icon: 'search' },
+      tags,
+      isAdded: false,
+      isRecommended: !!tag,
+    };
   }
 
-  formatStars(rating: number): string {
-    return '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
+  onCardClick(_id: string): void {
+    this.navigateTo('/hotels');
+  }
+
+  onPrimaryClick(_id: string): void {
+    this.navigateTo('/hotels');
   }
 }

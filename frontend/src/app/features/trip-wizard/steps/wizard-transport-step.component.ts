@@ -1,19 +1,23 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
-import { finalize } from 'rxjs/operators';
+import { HotelApiService, DestinationOption } from '../../../core/api/hotel-api.service';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TransportApiService } from '../../../core/api/transport-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
 import { Transport } from '../../../core/models/trip.models';
+import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
+import { transportToListItem } from '../../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-wizard-transport-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ListItemBaseComponent],
   template: `
     <div class="wizard-step">
       <div class="step-header">
@@ -44,25 +48,48 @@ import { Transport } from '../../../core/models/trip.models';
         </div>
       }
 
-      <mat-card class="search-form-card">
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>directions_bus</mat-icon>
+            <span>Busca de Transporte</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>Origem</mat-label>
-                <input matInput formControlName="origin">
+                <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
                 <mat-icon matPrefix>trip_origin</mat-icon>
+                <mat-autocomplete #autoOrigin [displayWith]="displayLocation">
+                  @for (dest of filteredOrigins$ | async; track dest.destId) {
+                    <mat-option [value]="dest">{{ dest.label }}</mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Destino</mat-label>
-                <input matInput formControlName="destination">
+                <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
                 <mat-icon matPrefix>place</mat-icon>
+                <mat-autocomplete #autoDestination [displayWith]="displayLocation">
+                  @for (dest of filteredDestinations$ | async; track dest.destId) {
+                    <mat-option [value]="dest">{{ dest.label }}</mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Data</mat-label>
-                <input matInput [matDatepicker]="dp" formControlName="date" [min]="minDate">
+                <input matInput [matDatepicker]="dp" formControlName="date" [min]="minDate" (focus)="dp.open()">
                 <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
                 <mat-datepicker #dp></mat-datepicker>
               </mat-form-field>
@@ -99,29 +126,12 @@ import { Transport } from '../../../core/models/trip.models';
         <div class="results-list">
           <h3>{{ results().length }} opções encontradas</h3>
           @for (t of results(); track t.id) {
-            <mat-card class="result-card" [class.added]="isAdded(t.id)" (click)="openDetail(t)">
-              <mat-card-content>
-                <div class="result-row">
-                  <mat-icon class="mode-icon">{{ getModeIcon(t.mode) }}</mat-icon>
-                  <div class="result-info">
-                    <strong>{{ t.origin }} → {{ t.destination }}</strong>
-                    <span>{{ t.mode | titlecase }} &middot; {{ formatDuration(t.durationMinutes) }}</span>
-                  </div>
-                  <div class="result-price">
-                    <span class="price-value">{{ t.price.currency }} {{ t.price.total | number:'1.2-2' }}</span>
-                    @if (isAdded(t.id)) {
-                      <button mat-stroked-button color="warn" (click)="remove(t.id); $event.stopPropagation()">
-                        <mat-icon>check</mat-icon> Adicionado
-                      </button>
-                    } @else {
-                      <button mat-flat-button color="primary" (click)="openDetail(t); $event.stopPropagation()">
-                        Ver detalhes
-                      </button>
-                    }
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
+            <app-list-item-base
+              [config]="toListItem(t)"
+              (primaryClick)="selectById($event)"
+              (secondaryClick)="openDetailById($event)"
+              (cardClick)="openDetailById($event)"
+            />
           }
         </div>
       }
@@ -151,28 +161,17 @@ import { Transport } from '../../../core/models/trip.models';
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-list { display: flex; flex-direction: column; gap: 8px; }
-    .results-list h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
-    .result-card { transition: all 0.2s ease; cursor: pointer; box-shadow: var(--triply-shadow-xs); }
-    .result-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .result-card.added { border-left: 3px solid var(--triply-success) !important; opacity: 0.7; }
-    .result-row { display: flex; align-items: center; gap: var(--triply-spacing-md); flex-wrap: wrap; }
-    .mode-icon { color: var(--triply-cat-transport); }
-    .result-info { flex: 1; display: flex; flex-direction: column; }
-    .result-info strong { font-size: 0.9rem; color: var(--triply-text-primary); }
-    .result-info span { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .result-price { width: 100%; display: flex; flex-direction: row; justify-content: space-between; gap: 4px; margin-top: 8px; }
-    .price-value { font-size: 1.05rem; font-weight: 700; color: var(--triply-primary); }
+    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
 
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
-      .result-row { flex-wrap: nowrap; }
-      .result-price { width: auto; flex-direction: column; align-items: flex-end; text-align: right; margin-top: 0; }
     }
   `],
 })
 export class WizardTransportStepComponent {
   private readonly api = inject(TransportApiService);
+  private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
@@ -181,16 +180,54 @@ export class WizardTransportStepComponent {
   readonly results = signal<Transport[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
   readonly minDate = new Date();
 
+  readonly originControl = new FormControl<string | DestinationOption>('', Validators.required);
+  readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
+
   searchForm = new FormGroup({
-    origin: new FormControl('', Validators.required),
-    destination: new FormControl('', Validators.required),
+    origin: this.originControl,
+    destination: this.destinationControl,
     date: new FormControl<Date | null>(null, Validators.required),
   });
 
+  filteredOrigins$: Observable<DestinationOption[]> = this.originControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  filteredDestinations$: Observable<DestinationOption[]> = this.destinationControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  displayLocation(opt: DestinationOption | string | null): string {
+    if (!opt) return '';
+    if (typeof opt === 'string') return opt;
+    return opt.label || opt.name;
+  }
+
   isAdded(id: string): boolean {
     return this.selectedTransports().some((t) => t.id === id);
+  }
+
+  toListItem(t: Transport) {
+    return transportToListItem(t, { isAdded: this.isAdded(t.id) });
+  }
+
+  selectById(id: string): void {
+    const t = this.results().find(x => x.id === id);
+    if (t) this.select(t);
+  }
+
+  openDetailById(id: string): void {
+    const t = this.results().find(x => x.id === id) ?? this.selectedTransports().find(x => x.id === id);
+    if (t) this.openDetail(t);
   }
 
   getModeIcon(mode: string): string {
@@ -213,10 +250,13 @@ export class WizardTransportStepComponent {
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
+    const originVal = this.originControl.value;
+    const destVal = this.destinationControl.value;
     this.api.searchTransport({
-      origin: this.searchForm.value.origin ?? '',
-      destination: this.searchForm.value.destination ?? '',
+      origin: typeof originVal === 'string' ? originVal : (originVal as DestinationOption)?.label ?? '',
+      destination: typeof destVal === 'string' ? destVal : (destVal as DestinationOption)?.label ?? '',
       departureDate: date.toISOString().split('T')[0],
     }).pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({

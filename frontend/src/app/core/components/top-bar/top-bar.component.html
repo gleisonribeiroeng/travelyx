@@ -3,10 +3,38 @@
     <mat-icon>menu</mat-icon>
   </button>
 
-  <div class="topbar-search">
-    <mat-icon class="search-icon">search</mat-icon>
-    <input type="text" class="search-input" placeholder="Buscar destinos, voos, hotéis...">
-  </div>
+  @if (tripState.hasActiveTrip()) {
+    <div class="trip-context" [matMenuTriggerFor]="tripMenu">
+      <mat-icon class="trip-context-icon">flight_takeoff</mat-icon>
+      <div class="trip-context-info">
+        <span class="trip-context-name">{{ tripState.trip().name || 'Viagem sem nome' }}</span>
+        <span class="trip-context-status" [class]="'status-' + tripState.trip().status">
+          {{ getStatusLabel(tripState.trip().status) }}
+        </span>
+      </div>
+      <mat-icon class="trip-context-arrow">expand_more</mat-icon>
+    </div>
+
+    <mat-menu #tripMenu="matMenu">
+      @for (trip of tripState.trips(); track trip.id) {
+        <button mat-menu-item (click)="switchTrip(trip.id)"
+                [class.active-trip-item]="trip.id === tripState.activeTripId()">
+          <mat-icon>{{ trip.id === tripState.activeTripId() ? 'check_circle' : 'circle' }}</mat-icon>
+          <span>{{ trip.name || 'Viagem sem nome' }}</span>
+        </button>
+      }
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="goToTripList()">
+        <mat-icon>list</mat-icon>
+        <span>Todas as viagens</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <div class="topbar-search">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" class="search-input" placeholder="Buscar destinos, voos, hotéis...">
+    </div>
+  }
 
   <div class="topbar-spacer"></div>
 
@@ -14,8 +42,37 @@
     <button mat-icon-button aria-label="Notificações">
       <mat-icon>notifications_none</mat-icon>
     </button>
-    <button mat-icon-button aria-label="Configurações">
-      <mat-icon>settings</mat-icon>
-    </button>
+
+    @if (auth.user(); as user) {
+      <button class="user-chip" [matMenuTriggerFor]="userMenu">
+        <img [src]="user.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+        <span class="user-name">{{ firstName() }}</span>
+        <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <div class="user-menu-header">
+          <img [src]="user.picture" alt="" class="menu-avatar" referrerpolicy="no-referrer">
+          <div class="menu-user-info">
+            <strong>{{ user.name }}</strong>
+            <small>{{ user.email }}</small>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item>
+          <mat-icon>person</mat-icon>
+          <span>Minha Conta</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>settings</mat-icon>
+          <span>Configurações</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Sair</span>
+        </button>
+      </mat-menu>
+    }
   </div>
 </div>

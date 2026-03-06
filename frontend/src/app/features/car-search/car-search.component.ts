@@ -23,11 +23,19 @@ import { CarApiService, CarLocationOption, CarSearchParams } from '../../core/ap
 import { TripStateService } from '../../core/services/trip-state.service';
 import { CarRental } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { carToListItem } from '../../shared/components/list-item-base/list-item-mappers';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  ManualCarDialogComponent,
+  ManualCarDialogData,
+  ManualCarDialogResult,
+} from '../../shared/components/manual-car-dialog/manual-car-dialog.component';
 
 @Component({
   selector: 'app-car-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
   templateUrl: './car-search.component.html',
   styleUrl: './car-search.component.scss',
 })
@@ -35,6 +43,7 @@ export class CarSearchComponent {
   private readonly carApi = inject(CarApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // Same drop-off location toggle (default: true)
   sameDropOff = signal(true);
@@ -239,7 +248,7 @@ export class CarSearchComponent {
       refId: car.id,
       date: car.pickUpAt.split('T')[0],
       timeSlot: car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
-      durationMinutes: null,
+      durationMinutes: 30,
       label: `Carro: ${car.vehicleType}`,
       notes: `Retirada: ${car.pickUpLocation}`,
       order: 0,
@@ -255,6 +264,60 @@ export class CarSearchComponent {
     const d = String(date.getDate()).padStart(2, '0');
     const y = date.getFullYear();
     return `${m}/${d}/${y}`;
+  }
+
+  // Check if a car is already added to the itinerary
+  isAdded(id: string): boolean {
+    return this.tripState.carRentals().some((c) => c.id === id);
+  }
+
+  // Map a CarRental to a ListItemConfig for the shared card component
+  toListItem(car: CarRental) {
+    return carToListItem(car, { isAdded: this.isAdded(car.id) });
+  }
+
+  // Handle primary action (add to itinerary) by id
+  selectById(id: string): void {
+    const car = this.filteredCars().find((c) => c.id === id);
+    if (car) this.addToItinerary(car);
+  }
+
+  // Handle secondary/card click (open external detail link) by id
+  openDetailById(id: string): void {
+    const car = this.filteredCars().find((c) => c.id === id);
+    if (car?.link?.url) {
+      window.open(car.link.url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  openManualCarDialog(): void {
+    const ref = this.dialog.open(ManualCarDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        car: null,
+        tripCurrency: this.tripState.trip().currency,
+      } as ManualCarDialogData,
+    });
+    ref.afterClosed().subscribe((result: ManualCarDialogResult | undefined) => {
+      if (!result || result.action !== 'save') return;
+      this.tripState.addCarRental(result.car);
+      this.tripState.addItineraryItem({
+        id: crypto.randomUUID(),
+        type: 'car-rental',
+        refId: result.car.id,
+        date: result.car.pickUpAt.split('T')[0],
+        timeSlot: result.car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
+        durationMinutes: 30,
+        label: `Carro: ${result.car.vehicleType}`,
+        notes: `Retirada: ${result.car.pickUpLocation}`,
+        order: 0,
+        isPaid: result.isPaid,
+        attachment: null,
+      });
+      this.notify.success('Carro manual adicionado!');
+    });
   }
 
   // Set vehicle type filter

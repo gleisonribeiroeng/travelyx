@@ -8,7 +8,16 @@ export class TripsService {
   async findAllByUser(userId: string) {
     const trips = await this.prisma.trip.findMany({
       where: { userId },
-      include: { itineraryItems: { orderBy: [{ date: 'asc' }, { order: 'asc' }] } },
+      include: {
+        itineraryItems: {
+          orderBy: [{ date: 'asc' }, { order: 'asc' }],
+          include: {
+            attachment: {
+              select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true },
+            },
+          },
+        },
+      },
       orderBy: { updatedAt: 'desc' },
     });
     return trips.map((t) => this.serialize(t));
@@ -17,7 +26,16 @@ export class TripsService {
   async findOne(id: string, userId: string) {
     const trip = await this.prisma.trip.findFirst({
       where: { id, userId },
-      include: { itineraryItems: { orderBy: [{ date: 'asc' }, { order: 'asc' }] } },
+      include: {
+        itineraryItems: {
+          orderBy: [{ date: 'asc' }, { order: 'asc' }],
+          include: {
+            attachment: {
+              select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true },
+            },
+          },
+        },
+      },
     });
     if (!trip) throw new NotFoundException('Trip not found');
     return this.serialize(trip);
@@ -31,6 +49,8 @@ export class TripsService {
         destination: data.destination ?? '',
         dateStart: data.dates?.start ?? '',
         dateEnd: data.dates?.end ?? '',
+        status: data.status ?? 'planejamento',
+        currency: data.currency ?? 'BRL',
         flights: JSON.stringify(data.flights ?? []),
         stays: JSON.stringify(data.stays ?? []),
         carRentals: JSON.stringify(data.carRentals ?? []),
@@ -51,12 +71,22 @@ export class TripsService {
                   label: item.label,
                   notes: item.notes ?? '',
                   order: item.order ?? 0,
+                  isPaid: item.isPaid ?? false,
                 })),
               },
             }
           : undefined,
       },
-      include: { itineraryItems: { orderBy: [{ date: 'asc' }, { order: 'asc' }] } },
+      include: {
+        itineraryItems: {
+          orderBy: [{ date: 'asc' }, { order: 'asc' }],
+          include: {
+            attachment: {
+              select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true },
+            },
+          },
+        },
+      },
     });
     return this.serialize(trip);
   }
@@ -68,6 +98,8 @@ export class TripsService {
     const updateData: any = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.destination !== undefined) updateData.destination = data.destination;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.currency !== undefined) updateData.currency = data.currency;
     if (data.dates) {
       if (data.dates.start !== undefined) updateData.dateStart = data.dates.start;
       if (data.dates.end !== undefined) updateData.dateEnd = data.dates.end;
@@ -84,12 +116,35 @@ export class TripsService {
       data: updateData,
     });
 
-    // Replace-all strategy for itinerary items
     if (data.itineraryItems !== undefined) {
-      await this.prisma.itineraryItem.deleteMany({ where: { tripId: id } });
-      if (data.itineraryItems.length > 0) {
-        await this.prisma.itineraryItem.createMany({
-          data: data.itineraryItems.map((item: any) => ({
+      const existingItems = await this.prisma.itineraryItem.findMany({
+        where: { tripId: id },
+      });
+      const incomingIds = new Set(data.itineraryItems.map((i: any) => i.id));
+
+      // Delete items that are no longer present
+      for (const existing of existingItems) {
+        if (!incomingIds.has(existing.id)) {
+          await this.prisma.itineraryItem.delete({ where: { id: existing.id } });
+        }
+      }
+
+      // Upsert remaining items
+      for (const item of data.itineraryItems) {
+        await this.prisma.itineraryItem.upsert({
+          where: { id: item.id },
+          update: {
+            type: item.type,
+            refId: item.refId ?? null,
+            date: item.date,
+            timeSlot: item.timeSlot ?? null,
+            durationMinutes: item.durationMinutes ?? null,
+            label: item.label,
+            notes: item.notes ?? '',
+            order: item.order ?? 0,
+            isPaid: item.isPaid ?? false,
+          },
+          create: {
             id: item.id,
             type: item.type,
             refId: item.refId ?? null,
@@ -99,15 +154,25 @@ export class TripsService {
             label: item.label,
             notes: item.notes ?? '',
             order: item.order ?? 0,
+            isPaid: item.isPaid ?? false,
             tripId: id,
-          })),
+          },
         });
       }
     }
 
     const trip = await this.prisma.trip.findFirst({
       where: { id },
-      include: { itineraryItems: { orderBy: [{ date: 'asc' }, { order: 'asc' }] } },
+      include: {
+        itineraryItems: {
+          orderBy: [{ date: 'asc' }, { order: 'asc' }],
+          include: {
+            attachment: {
+              select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true },
+            },
+          },
+        },
+      },
     });
     return this.serialize(trip!);
   }
@@ -136,6 +201,7 @@ export class TripsService {
         label: data.label,
         notes: data.notes ?? '',
         order: data.order ?? 0,
+        isPaid: data.isPaid ?? false,
         tripId,
       },
     });
@@ -162,6 +228,7 @@ export class TripsService {
         label: data.label ?? existing.label,
         notes: data.notes ?? existing.notes,
         order: data.order ?? existing.order,
+        isPaid: data.isPaid !== undefined ? data.isPaid : existing.isPaid,
       },
     });
 
@@ -181,11 +248,76 @@ export class TripsService {
     return { deleted: true };
   }
 
+  // --- Attachments ---
+
+  async uploadAttachment(tripId: string, itemId: string, userId: string, file: Express.Multer.File) {
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    if (!trip) throw new NotFoundException('Trip not found');
+
+    const item = await this.prisma.itineraryItem.findFirst({ where: { id: itemId, tripId } });
+    if (!item) throw new NotFoundException('Itinerary item not found');
+
+    // Delete existing attachment if any (replace)
+    await this.prisma.attachment.deleteMany({ where: { itineraryItemId: itemId } });
+
+    const attachment = await this.prisma.attachment.create({
+      data: {
+        fileName: file.originalname,
+        mimeType: file.mimetype,
+        sizeBytes: file.size,
+        data: file.buffer.toString('base64'),
+        itineraryItemId: itemId,
+      },
+    });
+
+    return {
+      id: attachment.id,
+      fileName: attachment.fileName,
+      mimeType: attachment.mimeType,
+      sizeBytes: attachment.sizeBytes,
+      createdAt: attachment.createdAt.toISOString(),
+    };
+  }
+
+  async getAttachment(tripId: string, itemId: string, userId: string) {
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    if (!trip) throw new NotFoundException('Trip not found');
+
+    const attachment = await this.prisma.attachment.findFirst({
+      where: { itineraryItemId: itemId },
+    });
+    if (!attachment) throw new NotFoundException('Attachment not found');
+
+    return {
+      id: attachment.id,
+      fileName: attachment.fileName,
+      mimeType: attachment.mimeType,
+      sizeBytes: attachment.sizeBytes,
+      data: attachment.data,
+      createdAt: attachment.createdAt.toISOString(),
+    };
+  }
+
+  async removeAttachment(tripId: string, itemId: string, userId: string) {
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    if (!trip) throw new NotFoundException('Trip not found');
+
+    const attachment = await this.prisma.attachment.findFirst({
+      where: { itineraryItemId: itemId },
+    });
+    if (!attachment) throw new NotFoundException('Attachment not found');
+
+    await this.prisma.attachment.delete({ where: { id: attachment.id } });
+    return { deleted: true };
+  }
+
   private serialize(trip: any) {
     return {
       id: trip.id,
       name: trip.name,
       destination: trip.destination,
+      status: trip.status,
+      currency: trip.currency,
       dates: { start: trip.dateStart, end: trip.dateEnd },
       flights: JSON.parse(trip.flights),
       stays: JSON.parse(trip.stays),
@@ -193,7 +325,27 @@ export class TripsService {
       transports: JSON.parse(trip.transports),
       activities: JSON.parse(trip.activities),
       attractions: JSON.parse(trip.attractions),
-      itineraryItems: trip.itineraryItems ?? [],
+      itineraryItems: (trip.itineraryItems ?? []).map((item: any) => ({
+        id: item.id,
+        type: item.type,
+        refId: item.refId,
+        date: item.date,
+        timeSlot: item.timeSlot,
+        label: item.label,
+        durationMinutes: item.durationMinutes,
+        notes: item.notes,
+        order: item.order,
+        isPaid: item.isPaid,
+        attachment: item.attachment
+          ? {
+              id: item.attachment.id,
+              fileName: item.attachment.fileName,
+              mimeType: item.attachment.mimeType,
+              sizeBytes: item.attachment.sizeBytes,
+              createdAt: item.attachment.createdAt?.toISOString?.() ?? item.attachment.createdAt,
+            }
+          : null,
+      })),
       createdAt: trip.createdAt.toISOString(),
       updatedAt: trip.updatedAt.toISOString(),
     };

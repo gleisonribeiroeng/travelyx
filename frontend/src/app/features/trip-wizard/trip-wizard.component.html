@@ -1,7 +1,7 @@
 <div class="wizard-shell">
   <!-- Progress bar -->
   <div class="wizard-progress">
-    @for (step of steps; track step.key; let i = $index) {
+    @for (step of steps(); track step.key; let i = $index) {
       <div class="progress-step"
            [class.active]="isStepActive(i)"
            [class.complete]="isStepComplete(step.key)"
@@ -18,7 +18,7 @@
         </div>
         <span class="step-label">{{ step.label }}</span>
       </div>
-      @if (i < steps.length - 1) {
+      @if (i < steps().length - 1) {
         <div class="step-connector"
              [class.complete]="isStepComplete(step.key)">
         </div>

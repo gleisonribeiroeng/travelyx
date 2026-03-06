@@ -1,3 +1,22 @@
+.manual-entry-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--triply-spacing-md);
+
+  button mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+  }
+}
+
+.manual-hint {
+  font-size: 0.8rem;
+  color: var(--triply-text-secondary);
+}
+
 .results-section {
   margin-top: var(--triply-spacing-xl);
 }
@@ -115,233 +134,6 @@
   color: var(--triply-text-secondary);
 }
 
-// ── Hotel Tags ──
-
-.hotel-tags {
-  display: flex;
-  gap: 6px;
-  padding: 8px 20px 0;
-}
-
-.htag {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-
-.htag-value { background: rgba(124, 77, 255, 0.1); color: var(--triply-primary); }
-.htag-cheap { background: rgba(16, 185, 129, 0.1); color: #059669; }
-.htag-rated { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-
-.review-count-text {
-  font-size: 0.8rem;
-  color: var(--triply-text-secondary);
-  margin-left: 4px;
-}
-
-// ── Decolar-style Hotel Card (Mobile-first: stacked) ──
-
-.hotel-card {
-  margin-bottom: var(--triply-spacing-md);
-  overflow: hidden;
-  border-radius: var(--triply-radius-md);
-  transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-normal);
-}
-
-.hotel-card-layout {
-  display: flex;
-  flex-direction: column;
-}
-
-// Left: Image Carousel (Mobile-first: full width)
-.hotel-carousel {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  flex-shrink: 0;
-
-  .carousel-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.45);
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 1;
-    transition: opacity 0.2s;
-    padding: 0;
-
-    mat-icon {
-      font-size: 20px;
-      height: 20px;
-      width: 20px;
-    }
-
-    &.prev {
-      left: 8px;
-    }
-
-    &.next {
-      right: 8px;
-    }
-  }
-
-  .carousel-dots {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 5px;
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      transition: background 0.2s;
-
-      &.active {
-        background: #fff;
-      }
-    }
-  }
-}
-
-// Center: Hotel Info
-.hotel-info {
-  flex: 1;
-  padding: var(--triply-spacing-md) var(--triply-spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-
-  .hotel-name {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--triply-text-primary);
-    letter-spacing: var(--triply-letter-spacing-tight);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .hotel-location {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--triply-text-secondary);
-    font-size: 0.9rem;
-
-    mat-icon {
-      font-size: 18px;
-      height: 18px;
-      width: 18px;
-      flex-shrink: 0;
-    }
-
-    span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  .hotel-dates {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--triply-text-secondary);
-    font-size: 0.85rem;
-
-    mat-icon {
-      font-size: 18px;
-      height: 18px;
-      width: 18px;
-      flex-shrink: 0;
-    }
-  }
-}
-
-.hotel-rating {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-
-  .star-icon {
-    color: var(--triply-cat-flight);
-    font-size: 18px;
-    height: 18px;
-    width: 18px;
-  }
-
-  .rating-text {
-    font-size: 0.85rem;
-    color: var(--triply-text-secondary);
-    margin-left: 6px;
-  }
-}
-
-// Right: Price + Actions (Mobile-first: full width, stacked)
-.hotel-price-column {
-  width: 100%;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--triply-spacing-sm) var(--triply-spacing-md);
-  gap: 12px;
-  border-top: 1px solid var(--triply-border-subtle);
-
-  .price-block {
-    text-align: center;
-  }
-
-  .price-amount {
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: var(--triply-primary);
-    display: block;
-  }
-
-  .price-label {
-    font-size: 0.8rem;
-    color: var(--triply-text-secondary);
-  }
-
-  .action-btn {
-    width: 100%;
-    font-size: 0.85rem;
-  }
-
-  .detail-btn {
-    text-decoration: none;
-    text-align: center;
-  }
-}
-
 // ── Empty state ──
 
 .empty-state {
@@ -376,15 +168,6 @@
     transform: translateY(-2px);
     box-shadow: var(--triply-shadow-md);
   }
-
-  .hotel-card:hover {
-    box-shadow: var(--triply-shadow-md);
-    transform: translateY(-2px);
-  }
-
-  .hotel-carousel:hover .carousel-btn {
-    opacity: 1;
-  }
 }
 
 // ── Responsive — Mobile-first (min-width) ──
@@ -402,57 +185,6 @@
     .sort-field {
       min-width: 200px;
       width: auto;
-    }
-  }
-
-  .hotel-price-column {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-
-    .price-block {
-      text-align: left;
-    }
-
-    .action-btn {
-      width: auto;
-    }
-  }
-}
-
-@media (min-width: 960px) {
-  .hotel-card-layout {
-    flex-direction: row;
-    min-height: 220px;
-  }
-
-  .hotel-carousel {
-    width: 300px;
-    min-width: 300px;
-    height: auto;
-
-    .carousel-btn {
-      width: 32px;
-      height: 32px;
-      opacity: 0;
-    }
-  }
-
-  .hotel-price-column {
-    width: 200px;
-    min-width: 200px;
-    flex-direction: column;
-    border-top: none;
-    border-left: 1px solid var(--triply-border);
-    padding: var(--triply-spacing-md);
-
-    .price-block {
-      text-align: center;
-    }
-
-    .action-btn {
-      width: 100%;
     }
   }
 }

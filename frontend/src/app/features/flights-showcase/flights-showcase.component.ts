@@ -19,11 +19,13 @@ import {
   categorizeFlights,
   CategorizedFlights,
 } from '../../core/utils/flight-categorizer.util';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { ListItemConfig, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
 
 @Component({
   selector: 'app-flights-showcase',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, DatePipe],
+  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, DatePipe, ListItemBaseComponent],
   templateUrl: './flights-showcase.component.html',
   styleUrl: './flights-showcase.component.scss',
 })
@@ -105,12 +107,6 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-    img.closest('.card-img-wrap')?.classList.add('img-fallback');
-  }
-
   formatDuration(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
@@ -124,5 +120,46 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
       minute: '2-digit',
       hour12: false,
     });
+  }
+
+  toListItem(flight: ShowcaseFlight, tag?: 'cheapest' | 'fastest' | 'bestValue' | null): ListItemConfig {
+    const tags: ListItemTag[] = [];
+    if (tag === 'bestValue') tags.push({ label: 'Melhor custo-beneficio', variant: 'value' });
+    if (tag === 'cheapest') tags.push({ label: 'Mais barato', variant: 'cheap' });
+    if (tag === 'fastest') tags.push({ label: 'Mais rapido', variant: 'fast' });
+
+    const depTime = flight.departureAt.split('T')[1]?.substring(0, 5) ?? '';
+    const arrTime = flight.arrivalAt.split('T')[1]?.substring(0, 5) ?? '';
+    const stopsText = flight.stops === 0 ? 'Direto' : `${flight.stops} parada${flight.stops > 1 ? 's' : ''}`;
+
+    const images = flight.destinationImage ? [flight.destinationImage] : [];
+
+    return {
+      id: flight.id,
+      images,
+      placeholderIcon: 'flight',
+      title: `${flight.origin} → ${flight.destination}`,
+      infoLines: [
+        { icon: 'airlines', text: `${flight.airline} ${flight.flightNumber}` },
+        { icon: 'schedule', text: `${depTime} — ${arrTime} (${this.formatDuration(flight.durationMinutes)})` },
+        { icon: 'connecting_airports', text: stopsText },
+      ],
+      price: {
+        amount: flight.price.total,
+        currency: flight.price.currency,
+      },
+      primaryAction: { type: 'view', label: 'Ver voos', icon: 'search' },
+      tags,
+      isAdded: false,
+      isRecommended: !!tag,
+    };
+  }
+
+  onCardClick(_id: string): void {
+    this.navigateTo('/search');
+  }
+
+  onPrimaryClick(_id: string): void {
+    this.navigateTo('/search');
   }
 }

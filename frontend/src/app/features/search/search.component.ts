@@ -29,11 +29,22 @@ import { TripStateService } from '../../core/services/trip-state.service';
 import { Flight } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import {
+  ItemDetailDialogComponent,
+  ItemDetailData,
+  ItemDetailResult,
+} from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import {
   categorizeFlights,
   CategorizedFlights,
 } from '../../core/utils/flight-categorizer.util';
+import {
+  ManualFlightDialogComponent,
+  ManualFlightDialogData,
+  ManualFlightDialogResult,
+} from '../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
 
-type TripType = 'roundTrip' | 'oneWay' | 'returnOnly' | 'multi';
+type TripType = 'roundTrip' | 'oneWay' | 'multi';
 
 interface MonthOption {
   value: string;
@@ -51,6 +62,7 @@ export class SearchComponent {
   private readonly flightApi = inject(FlightApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // Trip type & flexible dates
   readonly tripType = signal<TripType>('roundTrip');
@@ -81,6 +93,16 @@ export class SearchComponent {
       Validators.max(9),
     ]),
   });
+
+  constructor() {
+    const dates = this.tripState.trip().dates;
+    if (dates.start && dates.end) {
+      this.flightSearchForm.get('dateRange')!.patchValue({
+        start: new Date(dates.start + 'T00:00:00'),
+        end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+  }
 
   // Autocomplete observables
   filteredOrigins$: Observable<AirportOption[]> =
@@ -187,7 +209,7 @@ export class SearchComponent {
 
   // Display function for autocomplete
   displayAirport(airport: AirportOption | null): string {
-    return airport ? `${airport.iataCode} - ${airport.cityName}` : '';
+    return airport ? `${airport.cityName} (${airport.iataCode})` : '';
   }
 
   formatDuration(minutes: number): string {
@@ -387,8 +409,8 @@ export class SearchComponent {
     const destination = this.destinationControl.value as AirportOption;
     const passengers = this.flightSearchForm.value.passengers ?? 1;
 
-    const effectiveOrigin = this.tripType() === 'returnOnly' ? destination.iataCode : origin.iataCode;
-    const effectiveDest = this.tripType() === 'returnOnly' ? origin.iataCode : destination.iataCode;
+    const effectiveOrigin = origin.iataCode;
+    const effectiveDest = destination.iataCode;
 
     this.errorMessage.set(null);
     this.isSearching.set(true);
@@ -529,7 +551,7 @@ export class SearchComponent {
       refId: flight.id,
       date: flight.departureAt.split('T')[0],
       timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
-      durationMinutes: null,
+      durationMinutes: flight.durationMinutes,
       label: `Voo Trecho ${segmentIndex + 1}: ${flight.origin} → ${flight.destination}`,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: segmentIndex,
@@ -537,6 +559,29 @@ export class SearchComponent {
       attachment: null,
     });
     this.notify.success(`Trecho ${segmentIndex + 1} adicionado ao roteiro`);
+  }
+
+  isAdded(id: string): boolean {
+    return this.tripState.flights().some((f) => f.id === id);
+  }
+
+  openDetail(flight: Flight): void {
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'flight', item: flight, isAdded: this.isAdded(flight.id) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.addToItinerary(flight);
+      else if (result.action === 'remove') {
+        this.tripState.removeFlight(flight.id);
+        this.tripState.removeItineraryItem(
+          this.tripState.itineraryItems().find(i => i.refId === flight.id)?.id ?? ''
+        );
+      }
+    });
   }
 
   addToItinerary(flight: Flight): void {
@@ -547,7 +592,7 @@ export class SearchComponent {
       refId: flight.id,
       date: flight.departureAt.split('T')[0],
       timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
-      durationMinutes: null,
+      durationMinutes: flight.durationMinutes,
       label: `Voo: ${flight.origin} \u2192 ${flight.destination}`,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: 0,
@@ -571,6 +616,36 @@ export class SearchComponent {
 
   countStopoverFlights(): number {
     return this.searchResults().filter((f) => f.stops > 0).length;
+  }
+
+  openManualFlightDialog(): void {
+    const ref = this.dialog.open(ManualFlightDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        flight: null,
+        tripCurrency: this.tripState.trip().currency,
+      } as ManualFlightDialogData,
+    });
+    ref.afterClosed().subscribe((result: ManualFlightDialogResult | undefined) => {
+      if (!result || result.action !== 'save') return;
+      this.tripState.addFlight(result.flight);
+      this.tripState.addItineraryItem({
+        id: crypto.randomUUID(),
+        type: 'flight',
+        refId: result.flight.id,
+        date: result.flight.departureAt.split('T')[0],
+        timeSlot: result.flight.departureAt.split('T')[1]?.substring(0, 5) || null,
+        durationMinutes: result.flight.durationMinutes,
+        label: `Voo: ${result.flight.origin} → ${result.flight.destination}`,
+        notes: `${result.flight.airline} ${result.flight.flightNumber}`,
+        order: 0,
+        isPaid: result.isPaid,
+        attachment: null,
+      });
+      this.notify.success('Voo manual adicionado!');
+    });
   }
 
   private buildAvailableMonths(): MonthOption[] {

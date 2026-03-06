@@ -48,6 +48,8 @@ export class FlightMapper implements Mapper<AmadeusFlightOffer, Flight> {
     const firstSegment = segments[0];
     const lastSegment = segments[segments.length - 1];
 
+    const carrierCode = firstSegment.carrierCode || raw.validatingAirlineCodes[0];
+
     return {
       id: raw.id,
       source: 'amadeus',
@@ -57,6 +59,8 @@ export class FlightMapper implements Mapper<AmadeusFlightOffer, Flight> {
       departureAt: firstSegment.departure.at,
       arrivalAt: lastSegment.arrival.at,
       airline: raw.validatingAirlineCodes[0],
+      airlineCode: carrierCode,
+      airlineLogo: `https://pics.avs.io/60/60/${carrierCode}.png`,
       flightNumber: `${firstSegment.carrierCode}${firstSegment.number}`,
       durationMinutes: this.parseDuration(itinerary.duration),
       stops: segments.length - 1,

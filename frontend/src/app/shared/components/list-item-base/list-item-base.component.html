@@ -1,0 +1,143 @@
+<mat-card class="list-item-card"
+          [class.added]="config().isAdded"
+          [class.recommended]="config().isRecommended"
+          (click)="onCardClick()">
+
+  @if (config().tags?.length) {
+    <div class="item-tags">
+      @for (tag of config().tags; track tag.label) {
+        <span class="tag" [class]="'tag-' + tag.variant">{{ tag.label }}</span>
+      }
+    </div>
+  }
+
+  <div class="item-layout">
+    <!-- LEFT: Image or Icon -->
+    <div class="item-media">
+      @if (currentImage()) {
+        <img [src]="currentImage()" [alt]="config().title"
+             [class]="config().logoImage ? 'media-logo' : 'media-image'" loading="lazy" />
+      } @else {
+        <div class="media-placeholder">
+          <mat-icon>{{ config().placeholderIcon }}</mat-icon>
+        </div>
+      }
+      @if (hasMultipleImages()) {
+        <button class="carousel-btn prev" (click)="prevImage($event)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button class="carousel-btn next" (click)="nextImage($event)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <div class="carousel-dots">
+          @for (img of allImages(); track $index) {
+            <span class="dot" [class.active]="$index === imageIndex()"></span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- CENTER: Info -->
+    <div class="item-info">
+      <h3 class="item-title">{{ config().title }}</h3>
+
+      @for (line of config().infoLines; track $index) {
+        <div class="info-line">
+          @if (line.chip) {
+            <span class="info-chip">{{ line.text }}</span>
+          } @else {
+            @if (line.icon) {
+              <mat-icon class="info-icon">{{ line.icon }}</mat-icon>
+            }
+            <span>{{ line.text }}</span>
+          }
+        </div>
+      }
+
+      @if (config().rating; as rating) {
+        <div class="item-rating">
+          @for (star of renderStars(rating.value); track $index) {
+            <mat-icon class="star-icon">{{ star }}</mat-icon>
+          }
+          <span class="rating-text">{{ formatRating(rating.value) }}</span>
+          @if (rating.reviewCount > 0) {
+            <span class="review-count">({{ rating.reviewCount }} avaliações)</span>
+          }
+        </div>
+      }
+
+      @if (config().description) {
+        <p class="item-description">{{ config().description }}</p>
+      }
+    </div>
+
+    <!-- RIGHT: Price + Actions -->
+    <div class="item-actions-column">
+      @if (config().price; as price) {
+        <div class="price-block">
+          @if (price.prefix) {
+            <span class="price-prefix">{{ price.prefix }}</span>
+          }
+          <span class="price-amount">{{ price.amount | currency: price.currency }}</span>
+          @if (price.label) {
+            <span class="price-label">{{ price.label }}</span>
+          }
+        </div>
+      }
+
+      @if (config().iconActions?.length) {
+        <div class="icon-actions-row">
+          @for (action of config().iconActions; track action.id) {
+            <button mat-icon-button class="icon-action-btn"
+                    [attr.aria-label]="action.tooltip"
+                    (click)="onIconAction($event, action.id)">
+              <mat-icon>{{ action.icon }}</mat-icon>
+            </button>
+          }
+        </div>
+      }
+
+      @switch (config().primaryAction.type) {
+        @case ('added') {
+          <button mat-stroked-button class="action-btn added-btn" disabled>
+            <mat-icon>check</mat-icon>
+            {{ config().primaryAction.label }}
+          </button>
+        }
+        @case ('loading') {
+          <button mat-raised-button color="primary" class="action-btn" disabled>
+            <mat-spinner diameter="20"></mat-spinner>
+          </button>
+        }
+        @case ('remove') {
+          <button mat-stroked-button color="warn" class="action-btn remove-btn"
+                  (click)="onPrimaryClick($event)">
+            @if (config().primaryAction.icon) {
+              <mat-icon>{{ config().primaryAction.icon }}</mat-icon>
+            }
+            {{ config().primaryAction.label }}
+          </button>
+        }
+        @default {
+          <button mat-raised-button color="primary" class="action-btn"
+                  (click)="onPrimaryClick($event)">
+            @if (config().primaryAction.icon) {
+              <mat-icon>{{ config().primaryAction.icon }}</mat-icon>
+            }
+            {{ config().primaryAction.label }}
+          </button>
+        }
+      }
+
+      @if (config().secondaryAction; as secondary) {
+        <button mat-stroked-button class="action-btn detail-btn"
+                (click)="onSecondaryClick($event)">
+          @if (secondary.icon) {
+            <mat-icon>{{ secondary.icon }}</mat-icon>
+          }
+          {{ secondary.label }}
+        </button>
+      }
+    </div>
+  </div>
+</mat-card>

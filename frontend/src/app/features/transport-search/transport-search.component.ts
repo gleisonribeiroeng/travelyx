@@ -6,32 +6,65 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 import { NotificationService } from '../../core/services/notification.service';
-import { finalize } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { HotelApiService, DestinationOption } from '../../core/api/hotel-api.service';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
-import { TransportApiService, TransportSearchParams } from '../../core/api/transport-api.service';
+import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
+import { TransportApiService } from '../../core/api/transport-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
-import { Transport, ItineraryItem } from '../../core/models/trip.models';
+import { Transport } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { transportToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-transport-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
   templateUrl: './transport-search.component.html',
   styleUrl: './transport-search.component.scss',
 })
 export class TransportSearchComponent {
   private readonly transportApi = inject(TransportApiService);
+  private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
+
+  // Autocomplete controls
+  readonly originControl = new FormControl<string | DestinationOption>('', Validators.required);
+  readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
 
   // Form controls
   transportSearchForm = new FormGroup({
-    origin: new FormControl('', Validators.required),
-    destination: new FormControl('', Validators.required),
+    origin: this.originControl,
+    destination: this.destinationControl,
     departureDate: new FormControl<Date | null>(null, Validators.required),
   });
+
+  // Autocomplete observables
+  filteredOrigins$: Observable<DestinationOption[]> = this.originControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  filteredDestinations$: Observable<DestinationOption[]> = this.destinationControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  displayLocation(opt: DestinationOption | string | null): string {
+    if (!opt) return '';
+    if (typeof opt === 'string') return opt;
+    return opt.label || opt.name;
+  }
 
   // Search state signals
   formCollapsed = signal(false);
@@ -65,8 +98,10 @@ export class TransportSearchComponent {
     }
 
     const formValue = this.transportSearchForm.value;
-    const origin = formValue.origin ?? '';
-    const destination = formValue.destination ?? '';
+    const originVal = this.originControl.value;
+    const destVal = this.destinationControl.value;
+    const origin = typeof originVal === 'string' ? originVal : (originVal as DestinationOption)?.label ?? '';
+    const destination = typeof destVal === 'string' ? destVal : (destVal as DestinationOption)?.label ?? '';
     const departureDate = formValue.departureDate;
 
     if (!departureDate) {
@@ -136,23 +171,46 @@ export class TransportSearchComponent {
     this.modeFilter.set(mode);
   }
 
-  // Mode icon helper
-  getModeIcon(mode: string): string {
-    const icons: Record<string, string> = {
-      bus: 'directions_bus',
-      train: 'train',
-      ferry: 'directions_boat',
-      other: 'commute',
-    };
-    return icons[mode] || 'commute';
+  // Check if transport is already added to trip
+  isTransportAdded(transport: Transport): boolean {
+    return this.tripState.transports().some(t => t.id === transport.id);
   }
 
-  // Duration format helper
-  formatDuration(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
-    return `${h}h ${m}m`;
+  // Map transport to ListItemConfig
+  toListItem(transport: Transport) {
+    return transportToListItem(transport, {
+      isAdded: this.isTransportAdded(transport),
+    });
+  }
+
+  // Select transport by id (primary action)
+  selectById(id: string): void {
+    const transport = this.searchResults().find(t => t.id === id);
+    if (transport) this.addToItinerary(transport);
+  }
+
+  // Open detail by id (secondary / card click)
+  openDetailById(id: string): void {
+    const transport = this.searchResults().find(t => t.id === id);
+    if (!transport) return;
+    const ref = this.dialog.open(ItemDetailDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'transport', item: transport, isAdded: this.isTransportAdded(transport) } as ItemDetailData,
+    });
+    ref.afterClosed().subscribe((result: ItemDetailResult) => {
+      if (!result) return;
+      if (result.action === 'add') this.addToItinerary(transport);
+      else if (result.action === 'remove') this.removeFromItinerary(transport.id);
+    });
+  }
+
+  removeFromItinerary(id: string): void {
+    this.tripState.removeTransport(id);
+    this.tripState.removeItineraryItem(
+      this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
+    );
+    this.notify.success('Transporte removido do roteiro');
   }
 }

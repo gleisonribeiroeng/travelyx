@@ -1,5 +1,5 @@
 <div class="view-header">
-  <h1>Buscar Transporte</h1>
+  <h1>Transporte</h1>
   <p>Encontre conexões de ônibus, trem e balsa entre cidades</p>
 </div>
 
@@ -22,23 +22,33 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Cidade de Origem</mat-label>
-          <input matInput formControlName="origin" />
+          <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin" />
           <mat-icon matPrefix>trip_origin</mat-icon>
-          @if (transportSearchForm.get('origin')?.hasError('required')) { <mat-error>Cidade de origem é obrigatória</mat-error> }
+          <mat-autocomplete #autoOrigin [displayWith]="displayLocation">
+            @for (dest of filteredOrigins$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (originControl.hasError('required')) { <mat-error>Cidade de origem é obrigatória</mat-error> }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Cidade de Destino</mat-label>
-          <input matInput formControlName="destination" />
+          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" />
           <mat-icon matPrefix>place</mat-icon>
-          @if (transportSearchForm.get('destination')?.hasError('required')) { <mat-error>Cidade de destino é obrigatória</mat-error> }
+          <mat-autocomplete #autoDestination [displayWith]="displayLocation">
+            @for (dest of filteredDestinations$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (destinationControl.hasError('required')) { <mat-error>Cidade de destino é obrigatória</mat-error> }
         </mat-form-field>
       </div>
 
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Data de Partida</mat-label>
-          <input matInput [matDatepicker]="departurePicker" formControlName="departureDate" [min]="minDepartureDate" />
+          <input matInput [matDatepicker]="departurePicker" formControlName="departureDate" [min]="minDepartureDate" (focus)="departurePicker.open()" />
           <mat-datepicker-toggle matIconSuffix [for]="departurePicker"></mat-datepicker-toggle>
           <mat-datepicker #departurePicker></mat-datepicker>
           @if (transportSearchForm.get('departureDate')?.hasError('required')) { <mat-error>Data de partida é obrigatória</mat-error> }
@@ -86,47 +96,12 @@
     </div>
 
     @for (route of filteredResults(); track route.id) {
-      <mat-card class="result-card">
-        <div class="card-layout">
-          <div class="card-image mode-icon-block">
-            <mat-icon class="mode-big-icon">{{ getModeIcon(route.mode) }}</mat-icon>
-            <span class="mode-label">{{ route.mode | titlecase }}</span>
-          </div>
-
-          <div class="card-info">
-            <div class="route-cities">
-              <span class="city">{{ route.origin }}</span>
-              <mat-icon class="arrow-icon">arrow_forward</mat-icon>
-              <span class="city">{{ route.destination }}</span>
-            </div>
-            <div class="item-detail">
-              <mat-icon>schedule</mat-icon>
-              <span>{{ formatDuration(route.durationMinutes) }}</span>
-            </div>
-            <div class="item-detail">
-              <mat-icon>login</mat-icon>
-              <span>Partida: {{ route.departureAt }}</span>
-            </div>
-            <div class="item-detail">
-              <mat-icon>logout</mat-icon>
-              <span>Chegada: {{ route.arrivalAt }}</span>
-            </div>
-          </div>
-
-          <div class="card-price-column">
-            <div class="price-block">
-              <span class="price-amount">{{ route.price.total | currency: 'BRL' }}</span>
-              <span class="price-label">por pessoa</span>
-            </div>
-            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(route)">
-              <mat-icon>add</mat-icon> Adicionar
-            </button>
-            <a mat-stroked-button class="action-btn detail-btn" [href]="route.link.url" target="_blank" rel="noopener noreferrer">
-              Ver detalhe
-            </a>
-          </div>
-        </div>
-      </mat-card>
+      <app-list-item-base
+        [config]="toListItem(route)"
+        (primaryClick)="selectById($event)"
+        (secondaryClick)="openDetailById($event)"
+        (cardClick)="openDetailById($event)"
+      />
     }
   </div>
 }

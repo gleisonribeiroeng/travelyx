@@ -1,14 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth.service';
+import { TripStateService } from '../../services/trip-state.service';
+import { TripRouterService } from '../../services/trip-router.service';
 
 interface NavItem {
   icon: string;
   label: string;
   route: string;
-  section?: string;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
 }
 
 @Component({
@@ -19,22 +25,53 @@ interface NavItem {
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
-  private readonly auth = inject(AuthService);
+  protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  protected readonly tripState = inject(TripStateService);
+  private readonly tripRouter = inject(TripRouterService);
 
   mobileOpen = signal(false);
 
-  navItems: NavItem[] = [
-    { icon: 'home', label: 'Início', route: '/home' },
-    { icon: 'auto_fix_high', label: 'Wizard da Viagem', route: '/planner', section: 'PLANEJAMENTO' },
-    { icon: 'flight', label: 'Voos', route: '/search', section: 'PESQUISAS' },
-    { icon: 'hotel', label: 'Hotéis', route: '/hotels' },
-    { icon: 'directions_car', label: 'Carros', route: '/cars' },
-    { icon: 'directions_bus', label: 'Transporte', route: '/transport' },
-    { icon: 'local_activity', label: 'Passeios', route: '/tours' },
-    { icon: 'museum', label: 'Atrações', route: '/attractions' },
-    { icon: 'map', label: 'Roteiro', route: '/itinerary', section: 'MEU ROTEIRO' },
-  ];
+  readonly navGroups = computed<NavGroup[]>(() => {
+    const id = this.tripState.activeTripId();
+    const base = id ? `/viagem/${id}` : '';
+
+    if (!id) {
+      return [
+        { label: '', items: [
+          { icon: 'luggage', label: 'Minhas Viagens', route: '/viagens' },
+        ]},
+      ];
+    }
+
+    return [
+      { label: '', items: [
+        { icon: 'luggage', label: 'Minhas Viagens', route: '/viagens' },
+        { icon: 'space_dashboard', label: 'Visão Geral', route: `${base}/home` },
+      ]},
+      { label: 'Planejamento', items: [
+        { icon: 'route', label: 'Planejamento Guiado', route: `${base}/planner` },
+      ]},
+      { label: 'Explorar', items: [
+        { icon: 'flight', label: 'Voos', route: `${base}/search` },
+        { icon: 'hotel', label: 'Hotéis', route: `${base}/hotels` },
+        { icon: 'directions_car', label: 'Carros', route: `${base}/cars` },
+        { icon: 'directions_bus', label: 'Transporte', route: `${base}/transport` },
+        { icon: 'local_activity', label: 'Passeios', route: `${base}/tours` },
+        { icon: 'museum', label: 'Atrações', route: `${base}/attractions` },
+      ]},
+      { label: 'Roteiro', items: [
+        { icon: 'event_note', label: 'Agenda', route: `${base}/itinerary` },
+        { icon: 'timeline', label: 'Linha do Tempo', route: `${base}/timeline` },
+      ]},
+      { label: 'Organização', items: [
+        { icon: 'account_balance_wallet', label: 'Orçamento', route: `${base}/budget` },
+        { icon: 'notification_important', label: 'Alertas', route: `${base}/conflicts` },
+        { icon: 'checklist', label: 'Checklist', route: `${base}/checklist` },
+        { icon: 'description', label: 'Documentos', route: `${base}/documents` },
+      ]},
+    ];
+  });
 
   toggleMobile(): void {
     this.mobileOpen.update(v => !v);
@@ -46,6 +83,11 @@ export class SidebarComponent {
 
   navigateTo(route: string): void {
     this.router.navigate([route]);
+    this.closeMobile();
+  }
+
+  openNewTrip(): void {
+    this.router.navigate(['/viagens']);
     this.closeMobile();
   }
 

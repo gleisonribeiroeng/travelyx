@@ -1,297 +1,167 @@
 <div class="view-header">
-  <h1>Roteiro</h1>
+  <h1>Agenda</h1>
   <p>Seu roteiro de viagem organizado dia a dia</p>
 </div>
 
 <app-manual-item-form />
 
-<!-- ===== TRIP OVERVIEW ===== -->
+<!-- ===== TRIP OVERVIEW (compact) ===== -->
 <div class="trip-overview">
-  <div class="overview-header">
-    <mat-icon>summarize</mat-icon>
-    Resumo da Viagem
+  <div class="overview-header" (click)="overviewExpanded.set(!overviewExpanded())">
+    <div class="overview-title">
+      <mat-icon>summarize</mat-icon>
+      Resumo da Viagem
+    </div>
+    <div class="overview-chips">
+      @if (summaryFlights().length > 0) {
+        <span class="ov-chip type-flight-bg"><mat-icon>flight</mat-icon> {{ summaryFlights().length }}</span>
+      }
+      @if (summaryStays().length > 0) {
+        <span class="ov-chip type-stay-bg"><mat-icon>hotel</mat-icon> {{ summaryStays().length }}</span>
+      }
+      @if (summaryCarRentals().length > 0) {
+        <span class="ov-chip type-car-bg"><mat-icon>directions_car</mat-icon> {{ summaryCarRentals().length }}</span>
+      }
+      @if (summaryActivities().length > 0) {
+        <span class="ov-chip type-activity-bg"><mat-icon>local_activity</mat-icon> {{ summaryActivities().length }}</span>
+      }
+      @if (summaryAttractions().length > 0) {
+        <span class="ov-chip type-attraction-bg"><mat-icon>museum</mat-icon> {{ summaryAttractions().length }}</span>
+      }
+    </div>
+    <mat-icon class="expand-icon" [class.expanded]="overviewExpanded()">expand_more</mat-icon>
   </div>
 
-<div class="itinerary-sections">
+  @if (overviewExpanded()) {
+    <div class="overview-body">
 
-  <!-- ══════ VOOS ══════ -->
-  <section class="type-section">
-    <div class="section-header">
-      <mat-icon class="section-icon type-flight-color">flight</mat-icon>
-      <h2>Voos</h2>
+      <!-- VOOS -->
       @if (summaryFlights().length > 0) {
-        <span class="section-count">{{ summaryFlights().length }}</span>
-      }
-    </div>
-
-    @if (summaryFlights().length > 0) {
-      <div class="section-cards">
-        @for (flight of summaryFlights(); track flight.id) {
-          <div class="detail-card type-flight">
-            <div class="detail-accent"></div>
-            <div class="detail-body">
-              <div class="detail-main-row">
-                <div class="route-display">
-                  <span class="airport-code">{{ flight.origin }}</span>
-                  <div class="route-arrow">
-                    <mat-icon>east</mat-icon>
-                    @if (flight.stops > 0) {
-                      <span class="stops-badge">{{ stopsLabel(flight.stops) }}</span>
-                    } @else {
-                      <span class="direct-badge">Direto</span>
-                    }
-                  </div>
-                  <span class="airport-code">{{ flight.destination }}</span>
-                </div>
-                <span class="detail-price">{{ flight.price.total | currency: 'BRL' }}</span>
-              </div>
-
-              <div class="detail-info-grid">
-                <div class="info-item">
-                  <mat-icon>airlines</mat-icon>
-                  <span>{{ flight.airline }} {{ flight.flightNumber }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ formatTime(flight.departureAt) }} — {{ formatTime(flight.arrivalAt) }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>calendar_today</mat-icon>
-                  <span>{{ formatDate(flight.departureAt) }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>timelapse</mat-icon>
-                  <span>{{ formatDuration(flight.durationMinutes) }}</span>
-                </div>
-              </div>
-
-              <div class="detail-actions-row">
-                @if (flight.link) {
-                  <a mat-button [href]="flight.link.url" target="_blank" class="provider-link">
-                    <mat-icon>open_in_new</mat-icon> {{ flight.link.provider }}
+        <div class="compact-group">
+          <div class="compact-group-label"><mat-icon class="type-flight-color">flight</mat-icon> Voos</div>
+          @for (flight of summaryFlights(); track flight.id) {
+            <div class="compact-row">
+              <div class="compact-accent accent-flight"></div>
+              <span class="compact-title">{{ flight.origin }} → {{ flight.destination }}</span>
+              <span class="compact-meta">{{ flight.airline }} {{ flight.flightNumber }} · {{ formatDate(flight.departureAt) }}</span>
+              <span class="compact-price">{{ flight.price.total | currency: 'BRL' }}</span>
+              <div class="compact-actions">
+                @if (flight.link?.url) {
+                  <a mat-icon-button [href]="flight.link.url" target="_blank" matTooltip="{{ flight.link.provider }}">
+                    <mat-icon>open_in_new</mat-icon>
                   </a>
                 }
-                <button mat-icon-button color="warn" (click)="removeFlight(flight.id)" matTooltip="Remover voo">
+                <button mat-icon-button (click)="removeFlight(flight.id)" matTooltip="Remover">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               </div>
             </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="empty-section-card">
-        <mat-icon>flight</mat-icon>
-        <p>Nenhuma passagem adicionada</p>
-        <button mat-stroked-button (click)="navigateTo('/search')">
-          <mat-icon>add</mat-icon> Buscar Voos
-        </button>
-      </div>
-    }
-  </section>
+          }
+        </div>
+      }
 
-  <!-- ══════ HOTEIS ══════ -->
-  <section class="type-section">
-    <div class="section-header">
-      <mat-icon class="section-icon type-stay-color">hotel</mat-icon>
-      <h2>Hoteis</h2>
+      <!-- HOTEIS -->
       @if (summaryStays().length > 0) {
-        <span class="section-count">{{ summaryStays().length }}</span>
-      }
-    </div>
-
-    @if (summaryStays().length > 0) {
-      <div class="section-cards">
-        @for (hotel of summaryStays(); track hotel.id) {
-          <div class="detail-card type-stay">
-            <div class="detail-accent"></div>
-            <div class="detail-body">
-              <div class="detail-main-row">
-                <div class="card-title">{{ hotel.name }}</div>
-                <span class="detail-price">{{ hotel.pricePerNight.total | currency: 'BRL' }}/noite</span>
-              </div>
-              <div class="detail-info-grid">
-                <div class="info-item">
-                  <mat-icon>login</mat-icon>
-                  <span>Check-in: {{ formatDate(hotel.checkIn + 'T00:00:00') }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>logout</mat-icon>
-                  <span>Check-out: {{ formatDate(hotel.checkOut + 'T00:00:00') }}</span>
-                </div>
-                @if (hotel.address) {
-                  <div class="info-item">
-                    <mat-icon>place</mat-icon>
-                    <span>{{ hotel.address }}</span>
-                  </div>
-                }
-                @if (hotel.rating) {
-                  <div class="info-item">
-                    <mat-icon>star</mat-icon>
-                    <span>{{ hotel.rating }}/5 ({{ hotel.reviewCount }} avaliações)</span>
-                  </div>
-                }
-              </div>
-              <div class="detail-actions-row">
-                @if (hotel.link) {
-                  <a mat-button [href]="hotel.link.url" target="_blank" class="provider-link">
-                    <mat-icon>open_in_new</mat-icon> {{ hotel.link.provider }}
+        <div class="compact-group">
+          <div class="compact-group-label"><mat-icon class="type-stay-color">hotel</mat-icon> Hoteis</div>
+          @for (hotel of summaryStays(); track hotel.id) {
+            <div class="compact-row">
+              <div class="compact-accent accent-stay"></div>
+              <span class="compact-title">{{ hotel.name }}</span>
+              <span class="compact-meta">{{ formatDate(hotel.checkIn + 'T00:00:00') }} — {{ formatDate(hotel.checkOut + 'T00:00:00') }}</span>
+              <span class="compact-price">{{ hotel.pricePerNight.total | currency: 'BRL' }}/n</span>
+              <div class="compact-actions">
+                @if (hotel.link?.url) {
+                  <a mat-icon-button [href]="hotel.link.url" target="_blank" matTooltip="{{ hotel.link.provider }}">
+                    <mat-icon>open_in_new</mat-icon>
                   </a>
                 }
-                <button mat-icon-button color="warn" (click)="removeStay(hotel.id)" matTooltip="Remover hotel">
+                <button mat-icon-button (click)="removeStay(hotel.id)" matTooltip="Remover">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               </div>
             </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="empty-section-card">
-        <mat-icon>hotel</mat-icon>
-        <p>Nenhum hotel reservado</p>
-        <button mat-stroked-button (click)="navigateTo('/hotels')">
-          <mat-icon>add</mat-icon> Buscar Hoteis
-        </button>
-      </div>
-    }
-  </section>
+          }
+        </div>
+      }
 
-  <!-- ══════ CARROS ══════ -->
-  <section class="type-section">
-    <div class="section-header">
-      <mat-icon class="section-icon type-car-color">directions_car</mat-icon>
-      <h2>Carro</h2>
+      <!-- CARROS -->
       @if (summaryCarRentals().length > 0) {
-        <span class="section-count">{{ summaryCarRentals().length }}</span>
-      }
-    </div>
-
-    @if (summaryCarRentals().length > 0) {
-      <div class="section-cards">
-        @for (car of summaryCarRentals(); track car.id) {
-          <div class="detail-card type-car">
-            <div class="detail-accent"></div>
-            <div class="detail-body">
-              <div class="detail-main-row">
-                <div class="card-title">{{ car.vehicleType }}</div>
-                <span class="detail-price">{{ car.price.total | currency: 'BRL' }}</span>
-              </div>
-              <div class="detail-info-grid">
-                <div class="info-item">
-                  <mat-icon>login</mat-icon>
-                  <span>Retirada: {{ formatDate(car.pickUpAt) }} às {{ formatTime(car.pickUpAt) }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>place</mat-icon>
-                  <span>{{ car.pickUpLocation }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>logout</mat-icon>
-                  <span>Devolução: {{ formatDate(car.dropOffAt) }} às {{ formatTime(car.dropOffAt) }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>place</mat-icon>
-                  <span>{{ car.dropOffLocation }}</span>
-                </div>
-                @if (car.link?.provider) {
-                  <div class="info-item">
-                    <mat-icon>business</mat-icon>
-                    <span>{{ car.link.provider }}</span>
-                  </div>
-                }
-              </div>
-              <div class="detail-actions-row">
-                @if (car.link) {
-                  <a mat-button [href]="car.link.url" target="_blank" class="provider-link">
-                    <mat-icon>open_in_new</mat-icon> {{ car.link.provider }}
+        <div class="compact-group">
+          <div class="compact-group-label"><mat-icon class="type-car-color">directions_car</mat-icon> Carro</div>
+          @for (car of summaryCarRentals(); track car.id) {
+            <div class="compact-row">
+              <div class="compact-accent accent-car"></div>
+              <span class="compact-title">{{ car.vehicleType }}</span>
+              <span class="compact-meta">{{ car.pickUpLocation }} · {{ formatDate(car.pickUpAt) }} — {{ formatDate(car.dropOffAt) }}</span>
+              <span class="compact-price">{{ car.price.total | currency: 'BRL' }}</span>
+              <div class="compact-actions">
+                @if (car.link?.url) {
+                  <a mat-icon-button [href]="car.link.url" target="_blank" matTooltip="{{ car.link.provider }}">
+                    <mat-icon>open_in_new</mat-icon>
                   </a>
                 }
-                <button mat-icon-button color="warn" (click)="removeCarRental(car.id)" matTooltip="Remover carro">
+                <button mat-icon-button (click)="removeCarRental(car.id)" matTooltip="Remover">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               </div>
             </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="empty-section-card">
-        <mat-icon>directions_car</mat-icon>
-        <p>Nenhum carro alugado</p>
-        <button mat-stroked-button (click)="navigateTo('/cars')">
-          <mat-icon>add</mat-icon> Buscar Carros
-        </button>
-      </div>
-    }
-  </section>
+          }
+        </div>
+      }
 
-  <!-- ══════ PASSEIOS ══════ -->
-  <section class="type-section">
-    <div class="section-header">
-      <mat-icon class="section-icon type-activity-color">local_activity</mat-icon>
-      <h2>Passeios</h2>
+      <!-- PASSEIOS -->
       @if (summaryActivities().length > 0) {
-        <span class="section-count">{{ summaryActivities().length }}</span>
-      }
-    </div>
-
-    @if (summaryActivities().length > 0) {
-      <div class="section-cards">
-        @for (tour of summaryActivities(); track tour.id) {
-          <div class="detail-card type-activity">
-            <div class="detail-accent"></div>
-            <div class="detail-body">
-              <div class="detail-main-row">
-                <div class="card-title">{{ tour.name }}</div>
-                <span class="detail-price">{{ tour.price.total | currency: 'BRL' }}</span>
-              </div>
-              <div class="detail-info-grid">
-                @if (tour.city) {
-                  <div class="info-item">
-                    <mat-icon>place</mat-icon>
-                    <span>{{ tour.city }}</span>
-                  </div>
-                }
-                @if (tour.durationMinutes) {
-                  <div class="info-item">
-                    <mat-icon>timelapse</mat-icon>
-                    <span>{{ formatDuration(tour.durationMinutes) }}</span>
-                  </div>
-                }
-                @if (tour.rating) {
-                  <div class="info-item">
-                    <mat-icon>star</mat-icon>
-                    <span>{{ tour.rating }}/5</span>
-                  </div>
-                }
-              </div>
-              <div class="detail-actions-row">
-                @if (tour.link) {
-                  <a mat-button [href]="tour.link.url" target="_blank" class="provider-link">
-                    <mat-icon>open_in_new</mat-icon> {{ tour.link.provider }}
+        <div class="compact-group">
+          <div class="compact-group-label"><mat-icon class="type-activity-color">local_activity</mat-icon> Passeios</div>
+          @for (tour of summaryActivities(); track tour.id) {
+            <div class="compact-row">
+              <div class="compact-accent accent-activity"></div>
+              <span class="compact-title">{{ tour.name }}</span>
+              <span class="compact-meta">{{ tour.city }}@if (tour.durationMinutes) { · {{ formatDuration(tour.durationMinutes) }} }</span>
+              <span class="compact-price">{{ tour.price.total | currency: 'BRL' }}</span>
+              <div class="compact-actions">
+                @if (tour.link?.url) {
+                  <a mat-icon-button [href]="tour.link.url" target="_blank" matTooltip="{{ tour.link.provider }}">
+                    <mat-icon>open_in_new</mat-icon>
                   </a>
                 }
-                <button mat-icon-button color="warn" (click)="removeActivity(tour.id)" matTooltip="Remover passeio">
+                <button mat-icon-button (click)="removeActivity(tour.id)" matTooltip="Remover">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               </div>
             </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="empty-section-card">
-        <mat-icon>local_activity</mat-icon>
-        <p>Nenhum passeio adicionado</p>
-        <button mat-stroked-button (click)="navigateTo('/tours')">
-          <mat-icon>add</mat-icon> Buscar Passeios
-        </button>
-      </div>
-    }
-  </section>
+          }
+        </div>
+      }
 
-</div>
+      <!-- ATRAÇÕES -->
+      @if (summaryAttractions().length > 0) {
+        <div class="compact-group">
+          <div class="compact-group-label"><mat-icon class="type-attraction-color">museum</mat-icon> Atrações</div>
+          @for (attraction of summaryAttractions(); track attraction.id) {
+            <div class="compact-row">
+              <div class="compact-accent accent-attraction"></div>
+              <span class="compact-title">{{ attraction.name }}</span>
+              <span class="compact-meta">{{ attraction.city }}@if (attraction.category) { · {{ attraction.category }} }</span>
+              <span class="compact-price"></span>
+              <div class="compact-actions">
+                @if (attraction.link?.url) {
+                  <a mat-icon-button [href]="attraction.link!.url" target="_blank">
+                    <mat-icon>open_in_new</mat-icon>
+                  </a>
+                }
+                <button mat-icon-button (click)="removeAttraction(attraction.id)" matTooltip="Remover">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  }
 </div>
 
 <!-- ===== DAILY PLANNING ===== -->

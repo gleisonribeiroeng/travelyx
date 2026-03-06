@@ -1,0 +1,57 @@
+.documents-page {
+  display: flex; flex-direction: column; gap: var(--triply-spacing-lg);
+}
+
+.page-header {
+  display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--triply-spacing-sm);
+  h1 { font-size: var(--triply-font-xl); font-weight: 700; color: var(--triply-text-primary); margin: 0 0 4px; letter-spacing: var(--triply-letter-spacing-tight); }
+  p { font-size: 0.9rem; color: var(--triply-text-secondary); margin: 0; }
+}
+
+.expiring-card {
+  background: rgba(255, 152, 0, 0.08) !important;
+  border-left: 4px solid #FF9800 !important;
+  mat-card-content {
+    display: flex; align-items: center; gap: 10px;
+    mat-icon { color: #FF9800; }
+    span { font-size: 0.9rem; font-weight: 500; color: var(--triply-text-primary); }
+  }
+}
+
+.filter-bar { overflow-x: auto; }
+
+.docs-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+
+.upload-card {
+  h3 { font-size: 1rem; font-weight: 700; color: var(--triply-text-primary); margin: 0 0 var(--triply-spacing-md); }
+}
+
+.upload-zone {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: var(--triply-spacing-xl); margin-bottom: var(--triply-spacing-md);
+  border: 2px dashed var(--triply-border-subtle, #ddd); border-radius: var(--triply-radius-lg);
+  cursor: pointer; transition: all 0.2s; text-align: center;
+  mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--triply-primary); opacity: 0.6; }
+  span { font-size: 0.9rem; color: var(--triply-text-primary); }
+  small { font-size: 0.75rem; color: var(--triply-text-secondary); }
+  &:hover { border-color: var(--triply-primary); background: rgba(108,92,231,0.02); }
+}
+
+.full-width { width: 100%; }
+.form-row { display: flex; flex-direction: column; gap: 0; mat-form-field { flex: 1; } }
+.form-actions { display: flex; justify-content: flex-end; gap: var(--triply-spacing-sm); }
+
+.empty-state {
+  text-align: center;
+  mat-card-content {
+    padding: var(--triply-spacing-xl) !important;
+    display: flex; flex-direction: column; align-items: center; gap: var(--triply-spacing-sm);
+  }
+  mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-primary); opacity: 0.5; }
+  h3 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+  p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); max-width: 360px; }
+}
+
+@media (min-width: 600px) {
+  .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
+}

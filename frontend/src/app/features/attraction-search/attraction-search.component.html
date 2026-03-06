@@ -1,5 +1,5 @@
 <div class="view-header">
-  <h1>Buscar Atrações</h1>
+  <h1>Atrações</h1>
   <p>Descubra atrações turísticas e pontos de interesse em qualquer cidade</p>
 </div>
 
@@ -22,9 +22,14 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Cidade</mat-label>
-          <input matInput formControlName="city" />
+          <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" />
           <mat-icon matPrefix>place</mat-icon>
-          @if (attractionSearchForm.get('city')?.hasError('required')) { <mat-error>Cidade é obrigatória</mat-error> }
+          <mat-autocomplete #autoCity [displayWith]="displayCity">
+            @for (dest of filteredCities$ | async; track dest.destId) {
+              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (cityControl.hasError('required')) { <mat-error>Cidade é obrigatória</mat-error> }
         </mat-form-field>
       </div>
 
@@ -54,42 +59,12 @@
     </div>
 
     @for (attraction of searchResults(); track attraction.id) {
-      <mat-card class="result-card">
-        <div class="card-layout">
-          <div class="card-image">
-            @if (attraction.images && attraction.images.length > 0) {
-              <img [src]="attraction.images[0]" [alt]="attraction.name" loading="lazy" />
-            } @else {
-              <div class="image-placeholder"><mat-icon>museum</mat-icon></div>
-            }
-          </div>
-
-          <div class="card-info">
-            <h3 class="item-name">{{ attraction.name }}</h3>
-            <div class="item-detail">
-              <mat-chip>{{ attraction.category }}</mat-chip>
-            </div>
-            <div class="item-detail">
-              <mat-icon>place</mat-icon>
-              <span>{{ attraction.city }}</span>
-            </div>
-            @if (attraction.description) {
-              <p class="item-description">{{ attraction.description }}</p>
-            }
-          </div>
-
-          <div class="card-price-column">
-            <button mat-raised-button color="primary" class="action-btn" (click)="addToItinerary(attraction)">
-              <mat-icon>add</mat-icon> Adicionar
-            </button>
-            @if (attraction.link !== null) {
-              <a mat-stroked-button class="action-btn detail-btn" [href]="attraction.link.url" target="_blank" rel="noopener noreferrer">
-                Ver detalhe
-              </a>
-            }
-          </div>
-        </div>
-      </mat-card>
+      <app-list-item-base
+        [config]="toListItem(attraction)"
+        (primaryClick)="selectById($event)"
+        (secondaryClick)="openDetailById($event)"
+        (cardClick)="openDetailById($event)"
+      />
     }
   </div>
 }

@@ -72,8 +72,8 @@ export class CarMapper {
       },
       images: [car.imageURL, car.images?.SIZE335X180].filter((u): u is string => !!u),
       link: {
-        url: 'https://www.priceline.com',
-        provider: partner,
+        url: (params as any).qeeqAffiliateLink || 'https://www.qeeq.com/car-rental',
+        provider: 'QEEQ',
       },
     };
   }

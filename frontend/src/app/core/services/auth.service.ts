@@ -7,6 +7,7 @@ export interface AuthUser {
   email: string;
   name: string;
   picture: string;
+  role: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,7 @@ export class AuthService {
 
   readonly user = this._user.asReadonly();
   readonly isLoggedIn = computed(() => !!this._user());
+  readonly isAdmin = computed(() => this._user()?.role === 'ADMIN');
 
   constructor(private readonly http: HttpClient) {}
 
@@ -38,6 +40,7 @@ export class AuthService {
         email: payload.email,
         name: payload.name,
         picture: payload.picture,
+        role: payload.role || 'USER',
       };
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
       this._user.set(user);

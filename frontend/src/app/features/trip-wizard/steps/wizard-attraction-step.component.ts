@@ -1,20 +1,24 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 import { NotificationService } from '../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../../shared/components/item-detail-dialog/item-detail-dialog.component';
-import { finalize } from 'rxjs/operators';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../../shared/components/schedule-dialog/schedule-dialog.component';
 import { AttractionApiService } from '../../../core/api/attraction-api.service';
+import { HotelApiService, DestinationOption } from '../../../core/api/hotel-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
 import { Attraction } from '../../../core/models/trip.models';
+import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
+import { attractionToListItem } from '../../../shared/components/list-item-base/list-item-mappers';
 
 @Component({
   selector: 'app-wizard-attraction-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ListItemBaseComponent],
   template: `
     <div class="wizard-step">
       <div class="step-header">
@@ -44,14 +48,32 @@ import { Attraction } from '../../../core/models/trip.models';
         </div>
       }
 
-      <mat-card class="search-form-card">
+      @if (formCollapsed()) {
+        <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
+          <div class="toggle-info">
+            <mat-icon>museum</mat-icon>
+            <span>Busca de Atrações</span>
+          </div>
+          <div class="toggle-action">
+            <span>Editar busca</span>
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </div>
+      }
+
+      <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
             <div class="form-row">
               <mat-form-field appearance="outline">
                 <mat-label>Cidade</mat-label>
-                <input matInput formControlName="city">
+                <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity">
                 <mat-icon matPrefix>location_city</mat-icon>
+                <mat-autocomplete #autoCity [displayWith]="displayCity">
+                  @for (dest of filteredCities$ | async; track dest.destId) {
+                    <mat-option [value]="dest">{{ dest.label }}</mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
             </div>
 
@@ -83,32 +105,16 @@ import { Attraction } from '../../../core/models/trip.models';
       }
 
       @if (results().length > 0) {
-        <div class="results-grid">
+        <div class="results-list">
           <h3>{{ results().length }} atrações encontradas</h3>
-          <div class="attraction-grid">
-            @for (attr of results(); track attr.id) {
-              <mat-card class="attraction-card" [class.added]="isAdded(attr.id)" (click)="openDetail(attr)">
-                @if (attr.images.length > 0) {
-                  <img [src]="attr.images[0]" class="attraction-photo" alt="">
-                }
-                <mat-card-content>
-                  <div class="attraction-category">{{ attr.category }}</div>
-                  <h4>{{ attr.name }}</h4>
-                  <p class="attraction-desc">{{ attr.description | slice:0:100 }}{{ attr.description.length > 100 ? '...' : '' }}</p>
-                  <span class="attraction-city"><mat-icon>place</mat-icon> {{ attr.city }}</span>
-                  @if (isAdded(attr.id)) {
-                    <button mat-stroked-button color="warn" class="full-width" (click)="remove(attr.id); $event.stopPropagation()">
-                      <mat-icon>check</mat-icon> Adicionada
-                    </button>
-                  } @else {
-                    <button mat-flat-button color="primary" class="full-width" (click)="openDetail(attr); $event.stopPropagation()">
-                      Ver detalhes
-                    </button>
-                  }
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>
+          @for (attr of results(); track attr.id) {
+            <app-list-item-base
+              [config]="toListItem(attr)"
+              (primaryClick)="selectById($event)"
+              (secondaryClick)="openDetailById($event)"
+              (cardClick)="openDetailById($event)"
+            />
+          }
         </div>
       }
     </div>
@@ -136,27 +142,17 @@ import { Attraction } from '../../../core/models/trip.models';
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-grid h3 { margin: 0 0 var(--triply-spacing-md); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
-    .attraction-grid { display: grid; grid-template-columns: 1fr; gap: var(--triply-spacing-md); }
-    .attraction-card { overflow: hidden; transition: all 0.2s ease; cursor: pointer; box-shadow: var(--triply-shadow-xs); }
-    .attraction-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .attraction-card.added { border: 2px solid var(--triply-success) !important; opacity: 0.7; }
-    .attraction-photo { width: 100%; height: 150px; object-fit: cover; }
-    .attraction-category { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--triply-primary); background: rgba(124,77,255,0.1); padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; text-transform: uppercase; }
-    .attraction-card h4 { margin: 4px 0; font-size: 0.95rem; font-weight: 700; color: var(--triply-text-primary); }
-    .attraction-desc { font-size: 0.8rem; color: var(--triply-text-secondary); margin: 0 0 8px; line-height: 1.4; }
-    .attraction-city { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--triply-text-secondary); margin-bottom: 12px; }
-    .attraction-city mat-icon { font-size: 16px; width: 16px; height: 16px; }
-    .full-width { width: 100%; }
+    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
 
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
-      .attraction-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
     }
   `],
 })
 export class WizardAttractionStepComponent {
   private readonly api = inject(AttractionApiService);
+  private readonly hotelApi = inject(HotelApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
@@ -165,21 +161,54 @@ export class WizardAttractionStepComponent {
   readonly results = signal<Attraction[]>([]);
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
+  readonly formCollapsed = signal(false);
+
+  readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
 
   searchForm = new FormGroup({
-    city: new FormControl('', Validators.required),
+    city: this.cityControl,
   });
+
+  filteredCities$: Observable<DestinationOption[]> = this.cityControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    filter((v) => typeof v === 'string' && v.length >= 2),
+    switchMap((keyword) => this.hotelApi.searchDestinations(keyword as string))
+  );
+
+  displayCity(opt: DestinationOption | string | null): string {
+    if (!opt) return '';
+    if (typeof opt === 'string') return opt;
+    return opt.label || opt.name;
+  }
 
   isAdded(id: string): boolean {
     return this.selectedAttractions().some((a) => a.id === id);
+  }
+
+  toListItem(attr: Attraction) {
+    return attractionToListItem(attr, { isAdded: this.isAdded(attr.id) });
+  }
+
+  selectById(id: string): void {
+    const attr = this.results().find(a => a.id === id);
+    if (attr) this.select(attr);
+  }
+
+  openDetailById(id: string): void {
+    const attr = this.results().find(a => a.id === id) ?? this.selectedAttractions().find(a => a.id === id);
+    if (attr) this.openDetail(attr);
   }
 
   search(): void {
     if (this.searchForm.invalid) return;
     this.isSearching.set(true);
     this.hasSearched.set(true);
+    this.formCollapsed.set(true);
 
-    this.api.searchAttractions({ city: this.searchForm.value.city ?? '' })
+    const cityVal = this.cityControl.value;
+    const city = typeof cityVal === 'string' ? cityVal : (cityVal as DestinationOption)?.label ?? '';
+    this.api.searchAttractions({ city })
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {
