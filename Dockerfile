@@ -18,7 +18,7 @@ COPY backend/ ./backend/
 WORKDIR /app/backend
 RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
 RUN npm run build
-RUN test -f dist/src/main.js && echo "BUILD OK: dist/src/main.js exists" || (echo "BUILD FAILED: dist/src/main.js missing" && ls -laR dist/ && exit 1)
+RUN test -f dist/main.js && echo "BUILD OK: dist/main.js exists" || (echo "BUILD FAILED: dist/main.js missing" && ls -laR dist/ && exit 1)
 
 WORKDIR /app
 
@@ -27,4 +27,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "cd backend && npx prisma db push --skip-generate && node dist/src/main"]
+CMD ["sh", "-c", "cd backend && npx prisma db push --skip-generate && node dist/main"]
