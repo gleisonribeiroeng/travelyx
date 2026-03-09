@@ -22,7 +22,7 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'triply', 'dist', 'triply', 'browser'),
+      rootPath: join(__dirname, '..', '..', 'frontend', 'dist', 'triply', 'browser'),
       exclude: ['/api/{*path}'],
     }),
     PrismaModule,

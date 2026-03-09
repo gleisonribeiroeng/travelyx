@@ -3,11 +3,11 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install frontend dependencies and build
-COPY triply/package.json triply/package-lock.json ./triply/
-RUN cd triply && npm install --include=dev
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN cd frontend && npm install --include=dev
 
-COPY triply/ ./triply/
-RUN cd triply && npx ng build --configuration production && \
+COPY frontend/ ./frontend/
+RUN cd frontend && npx ng build --configuration production && \
     test -f dist/triply/browser/index.html && echo "FRONTEND BUILD OK" || \
     (echo "FRONTEND BUILD FAILED" && ls -laR dist/ && exit 1)
 
