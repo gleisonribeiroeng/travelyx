@@ -140,21 +140,39 @@ export function carToListItem(
   opts: { isAdded: boolean; isLoading?: boolean },
 ): ListItemConfig {
   const images = car.images?.length ? car.images : [];
+  const details = (car as any).details;
+  const partner = (car as any).partner;
+
+  const infoLines: { icon: string; text: string }[] = [];
+
+  if (partner?.name) {
+    infoLines.push({ icon: 'business', text: partner.name });
+  }
+  infoLines.push({ icon: 'location_on', text: car.pickUpLocation });
+  infoLines.push({ icon: 'login', text: `Retirada: ${formatDateTime(car.pickUpAt)}` });
+  infoLines.push({ icon: 'logout', text: `Devolução: ${formatDateTime(car.dropOffAt)}` });
+
+  if (details) {
+    const extras: string[] = [];
+    if (details.transmission) extras.push(details.transmission);
+    if (details.passengers) extras.push(`${details.passengers} passageiros`);
+    if (details.mileage) extras.push(`Km ${details.mileage === 'Unlimited' ? 'Livre' : details.mileage}`);
+    if (details.freeCancellation) extras.push('Cancelamento grátis');
+    if (extras.length) {
+      infoLines.push({ icon: 'info', text: extras.join(' · ') });
+    }
+  }
 
   return {
     id: car.id,
     images,
     placeholderIcon: 'directions_car',
     title: car.vehicleType,
-    infoLines: [
-      { icon: 'location_on', text: car.pickUpLocation },
-      { icon: 'login', text: `Retirada: ${formatDateTime(car.pickUpAt)}` },
-      { icon: 'logout', text: `Devolução: ${formatDateTime(car.dropOffAt)}` },
-    ],
+    infoLines,
     price: {
       amount: car.price.total,
       currency: car.price.currency,
-      label: '/total',
+      label: details?.rentalDays ? `/${details.rentalDays} dias` : '/total',
     },
     primaryAction: addAction(opts.isAdded, opts.isLoading),
     secondaryAction: viewDetailAction(),

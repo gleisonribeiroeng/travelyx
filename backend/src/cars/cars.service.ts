@@ -49,25 +49,6 @@ export class CarsService {
     return `https://tp.media/r?marker=${marker}&p=5765&u=${encodeURIComponent(qeeqUrl)}`;
   }
 
-  private enrichWithQeeqLinks(
-    cars: any[],
-    pickupLocation?: string,
-    pickupDate?: string,
-    dropoffDate?: string,
-  ): any[] {
-    return cars.map((car) => ({
-      ...car,
-      link: {
-        url: this.buildQeeqAffiliateLink(
-          pickupLocation || car.pickUpLocation,
-          pickupDate || car.pickUpAt?.split('T')[0],
-          dropoffDate || car.dropOffAt?.split('T')[0],
-        ),
-        provider: 'QEEQ',
-      },
-    }));
-  }
-
   async autoComplete(query: Record<string, string>): Promise<any> {
     if (this.isMockMode()) {
       const kw = (query['string'] || '').toLowerCase();
@@ -86,16 +67,32 @@ export class CarsService {
           headers: this.getHeaders(),
         }),
       );
-      return data;
+
+      const cityData =
+        data?.getCarAutoComplete?.results?.city_data || {};
+      const cities = Object.values(cityData);
+
+      if (cities.length === 0) {
+        this.logger.warn(`Priceline autoComplete: no results for "${query['string']}"`);
+        return { _mock: true, data: [] };
+      }
+
+      const mapped = cities.map((city: any) => ({
+        id: city.ppn_car_cityid || '',
+        name: city.city || '',
+        label: city.city
+          ? `${city.city}, ${city.state_code ? city.state_code + ', ' : ''}${city.country || city.country_code || ''}`
+          : '',
+        cityId: city.ppn_car_cityid || '',
+        latitude: parseFloat(city.latitude) || 0,
+        longitude: parseFloat(city.longitude) || 0,
+      }));
+
+      this.logger.log(`Priceline autoComplete: ${mapped.length} results for "${query['string']}"`);
+      return { _mock: true, data: mapped };
     } catch (error: any) {
       this.logger.error(`Car autoComplete error: ${error?.message}`);
-      const kw = (query['string'] || '').toLowerCase();
-      const filtered = MOCK_CAR_LOCATIONS.filter(
-        (l) =>
-          l.name.toLowerCase().includes(kw) ||
-          l.label.toLowerCase().includes(kw),
-      );
-      return { _mock: true, data: filtered };
+      throw error;
     }
   }
 
@@ -105,15 +102,14 @@ export class CarsService {
     const dropoffDate = query['dropoff_date'];
 
     if (this.isMockMode()) {
-      return {
-        _mock: true,
-        data: this.enrichWithQeeqLinks(
-          MOCK_CAR_RENTALS,
-          pickupLocation,
-          pickupDate,
-          dropoffDate,
-        ),
-      };
+      const enriched = MOCK_CAR_RENTALS.map((car) => ({
+        ...car,
+        link: {
+          url: this.buildQeeqAffiliateLink(pickupLocation, pickupDate, dropoffDate),
+          provider: 'QEEQ',
+        },
+      }));
+      return { _mock: true, data: enriched };
     }
 
     try {
@@ -126,42 +122,99 @@ export class CarsService {
 
       const resultsList =
         data?.getCarResultsRequest?.results?.results_list || {};
-      const cars = Object.values(resultsList);
+      const rawCars = Object.values(resultsList) as any[];
 
-      if (cars.length === 0) {
-        this.logger.log(
-          'Priceline: 0 car results, falling back to mock with QEEQ links',
-        );
-        return {
-          _mock: true,
-          data: this.enrichWithQeeqLinks(
-            MOCK_CAR_RENTALS,
-            pickupLocation,
-            pickupDate,
-            dropoffDate,
-          ),
-        };
+      if (rawCars.length === 0) {
+        const errorMsg = data?.getCarResultsRequest?.error?.status || '';
+        this.logger.warn(`Priceline car search: 0 results. ${errorMsg}`);
+        return { _mock: true, data: [] };
       }
 
-      this.logger.log(`Priceline: ${cars.length} car results`);
-      // Attach QEEQ affiliate base link for the frontend mapper
-      data._qeeqAffiliateBase = this.buildQeeqAffiliateLink(
+      const qeeqLink = this.buildQeeqAffiliateLink(
         pickupLocation,
         pickupDate,
         dropoffDate,
       );
-      return data;
+
+      const mapped = rawCars
+        .map((raw: any, index: number) => this.mapPricelineCar(raw, index, query, qeeqLink))
+        .filter(Boolean);
+
+      this.logger.log(`Priceline car search: ${mapped.length} results`);
+      return { _mock: true, data: mapped };
     } catch (error: any) {
       this.logger.error(`Priceline car search error: ${error?.message}`);
-      return {
-        _mock: true,
-        data: this.enrichWithQeeqLinks(
-          MOCK_CAR_RENTALS,
-          pickupLocation,
-          pickupDate,
-          dropoffDate,
-        ),
-      };
+      throw error;
     }
+  }
+
+  /**
+   * Map a Priceline car result to our canonical CarRental model (server-side mapping).
+   */
+  private mapPricelineCar(
+    raw: any,
+    index: number,
+    query: Record<string, string>,
+    qeeqLink: string,
+  ): any {
+    const car = raw.car || {};
+    const price = raw.price_details?.display || {};
+    const partner = raw.partner || {};
+    const pickup = raw.pickup || {};
+    const dropoff = raw.dropoff || {};
+
+    const totalPrice = parseFloat(price.total_price || price.price || '0');
+    const currency = price.currency || 'USD';
+
+    const pickupDate = query['pickup_date'] || '';
+    const dropoffDate = query['dropoff_date'] || '';
+    const pickupTime = query['pickup_time'] || '10:00';
+    const dropoffTime = query['dropoff_time'] || '10:00';
+
+    return {
+      id: `pcl-${Date.now()}-${index}`,
+      source: 'carRental',
+      addedToItinerary: false,
+      vehicleType: car.description || car.type_name || car.example || 'Unknown',
+      pickUpLocation: pickup.location || '',
+      dropOffLocation: dropoff.location || pickup.location || '',
+      pickUpAt: this.toIsoDateTime(pickupDate, pickupTime),
+      dropOffAt: this.toIsoDateTime(dropoffDate, dropoffTime),
+      price: {
+        total: Math.round(totalPrice * 100) / 100,
+        currency,
+      },
+      images: [car.imageURL, car.images?.SIZE335X180].filter(
+        (u: any): u is string => !!u,
+      ),
+      link: {
+        url: qeeqLink,
+        provider: 'QEEQ',
+      },
+      partner: {
+        name: partner.name || 'Priceline',
+        logo: partner.logo || null,
+      },
+      details: {
+        passengers: car.passengers || null,
+        doors: car.doors || null,
+        bags: car.bags || null,
+        transmission: car.transmission || null,
+        airConditioning: car.air_conditioning === 'true',
+        freeCancellation: car.free_cancellation === true,
+        mileage: car.mileage === true ? 'Unlimited' : null,
+        rentalDays: raw.num_rental_days || null,
+      },
+    };
+  }
+
+  /**
+   * Convert MM/DD/YYYY + HH:MM to ISO 8601 datetime string.
+   */
+  private toIsoDateTime(date: string, time: string): string {
+    const parts = date.split('/');
+    if (parts.length !== 3) return '';
+    const [month, day, year] = parts;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${time}:00`;
   }
 }

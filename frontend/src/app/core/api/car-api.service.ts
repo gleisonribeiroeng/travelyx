@@ -1,8 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
-import { CarMapper, PricelineCar, CarSearchParams } from './car.mapper';
 import { CarRental } from '../models/trip.models';
 import { ApiResult } from './api-error.utils';
 import { AppError } from './models/app-error.model';
@@ -25,13 +24,10 @@ export interface CarLocationOption {
 
 /**
  * CarApiService — calls NestJS backend which proxies Priceline API via RapidAPI.
- * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
- * or raw Priceline response in real mode (needs mapping).
+ * Backend maps Priceline responses server-side and returns { _mock: true, data: [...] }.
  */
 @Injectable({ providedIn: 'root' })
 export class CarApiService extends BaseApiService {
-  private readonly mapper = inject(CarMapper);
-
   constructor() {
     super('carRental');
   }
@@ -44,29 +40,13 @@ export class CarApiService extends BaseApiService {
     return this.get<any>('/v2/cars/autoComplete', { string: query }).pipe(
       withBackoff(),
       map((response) => {
-        if (response._mock) {
-          return response.data as CarLocationOption[];
-        }
-        const cityData =
-          response?.getCarAutoComplete?.results?.city_data || {};
-        return Object.values(cityData).map(
-          (city: any): CarLocationOption => ({
-            id: city.ppn_car_cityid || '',
-            name: city.city || '',
-            label: city.city
-              ? `${city.city}, ${city.country || city.country_code || ''}`
-              : '',
-            cityId: city.ppn_car_cityid || '',
-            latitude: parseFloat(city.latitude) || 0,
-            longitude: parseFloat(city.longitude) || 0,
-          }),
-        );
+        return (response.data || []) as CarLocationOption[];
       }),
       catchError(() => of([])),
     );
   }
 
-  searchCars(params: CarSearchParams): Observable<ApiResult<CarRental[]>> {
+  searchCars(params: import('./car.mapper').CarSearchParams): Observable<ApiResult<CarRental[]>> {
     return this.get<any>('/v2/cars/resultsRequest', {
       pickup_city_id: params.pickupCityId,
       dropoff_city_id: params.dropoffCityId,
@@ -79,16 +59,7 @@ export class CarApiService extends BaseApiService {
       withBackoff(),
       map(
         (response): ApiResult<CarRental[]> => {
-          if (response._mock) {
-            return { data: response.data, error: null };
-          }
-          const resultsList =
-            response?.getCarResultsRequest?.results?.results_list || {};
-          const cars = Object.values(resultsList) as PricelineCar[];
-          return {
-            data: cars.map((car) => this.mapper.mapResponse(car, params)),
-            error: null,
-          };
+          return { data: response.data || [], error: null };
         },
       ),
       catchError(
