@@ -15,14 +15,19 @@ export interface ExternalRoute {
   to?: string; // Alternative field for destination
   departure?: string; // ISO 8601 datetime
   departureTime?: string; // Alternative field for departure
+  departureAt?: string; // Backend-mapped field
   arrival?: string; // ISO 8601 datetime
   arrivalTime?: string; // Alternative field for arrival
+  arrivalAt?: string; // Backend-mapped field
   duration?: string | number; // ISO 8601 "PT2H30M" or "2h 30m" or minutes
-  price?: number;
+  durationMinutes?: number; // Backend-mapped field (already in minutes)
+  price?: number | { total: number; currency: string }; // Number or backend Price object
   total_price?: number;
   currency?: string;
+  distance?: string; // e.g. "450 km"
   url?: string;
   booking_url?: string;
+  link?: { url: string; provider: string }; // Backend-mapped link
   operator?: string; // Provider name
   carrier?: string; // Alternative field for provider
 }
@@ -61,6 +66,12 @@ export class TransportMapper {
    * @returns Canonical Transport model
    */
   mapResponse(raw: ExternalRoute, params: TransportSearchParams): Transport {
+    // Handle backend-mapped price object vs raw number
+    const priceObj =
+      raw.price && typeof raw.price === 'object'
+        ? raw.price
+        : { total: (raw.price as number) || raw.total_price || 0, currency: raw.currency || 'BRL' };
+
     return {
       id: String(raw.id || crypto.randomUUID()),
       source: 'transport',
@@ -68,14 +79,11 @@ export class TransportMapper {
       mode: this.mapMode(raw.type || raw.mode || ''),
       origin: raw.origin || raw.from || params.origin,
       destination: raw.destination || raw.to || params.destination,
-      departureAt: raw.departure || raw.departureTime || '',
-      arrivalAt: raw.arrival || raw.arrivalTime || '',
-      durationMinutes: this.parseDuration(raw.duration || 0),
-      price: {
-        total: raw.price || raw.total_price || 0,
-        currency: 'BRL', // TODO: dynamic currency based on user locale
-      },
-      link: {
+      departureAt: raw.departureAt || raw.departure || raw.departureTime || '',
+      arrivalAt: raw.arrivalAt || raw.arrival || raw.arrivalTime || '',
+      durationMinutes: raw.durationMinutes || this.parseDuration(raw.duration || 0),
+      price: priceObj,
+      link: raw.link || {
         url: raw.url || raw.booking_url || '#',
         provider: raw.operator || raw.carrier || 'Transport',
       },

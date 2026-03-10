@@ -97,10 +97,15 @@ export class DiscordBotService implements OnModuleInit, OnModuleDestroy {
   }
 
   async createThread(userId: string, userName: string, userEmail: string): Promise<string | null> {
-    if (!this.ready || !this.channelId) return null;
+    this.logger.log(`createThread called: ready=${this.ready}, channelId=${this.channelId}`);
+    if (!this.ready || !this.channelId) {
+      this.logger.warn('Bot not ready or no channelId');
+      return null;
+    }
 
     try {
       const channel = await this.client.channels.fetch(this.channelId) as TextChannel;
+      this.logger.log(`Fetched channel: ${channel?.id}, type: ${channel?.type}`);
       if (!channel) return null;
 
       const thread = await channel.threads.create({
