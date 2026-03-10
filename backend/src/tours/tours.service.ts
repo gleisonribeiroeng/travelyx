@@ -26,16 +26,22 @@ export class ToursService {
     return this.configService.get<string>('MOCK_MODE') === 'true';
   }
 
+  /**
+   * Pick the best available Viator key.
+   * Uses sandbox by default. Only uses prod when VIATOR_USE_PROD=true
+   * (set this after the prod key is activated by Viator).
+   */
   private getViatorConfig() {
-    const isProd =
-      this.configService.get<string>('NODE_ENV') === 'production';
-    const apiKey = isProd
+    const useProd =
+      this.configService.get<string>('VIATOR_USE_PROD') === 'true';
+
+    const apiKey = useProd
       ? this.configService.get<string>('TOURS_API_KEY_PROD')
       : this.configService.get<string>('TOURS_API_KEY_SANDBOX');
-    const baseUrl = isProd
+    const baseUrl = useProd
       ? 'https://api.viator.com'
       : 'https://api.sandbox.viator.com';
-    return { apiKey, baseUrl, isProd };
+    return { apiKey, baseUrl, isProd: useProd };
   }
 
   private getHeaders(apiKey: string): Record<string, string> {
