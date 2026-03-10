@@ -42,13 +42,42 @@ export class HotelsService {
       return { _mock: true, data: filtered };
     }
 
-    const { data } = await firstValueFrom(
-      this.httpService.get(`${this.baseUrl}/api/v1/hotels/searchDestination`, {
-        params: query,
-        headers: this.getHeaders(),
-      }),
-    );
-    return data;
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(`${this.baseUrl}/api/v1/hotels/searchDestination`, {
+          params: query,
+          headers: this.getHeaders(),
+        }),
+      );
+      return data;
+    } catch (error: any) {
+      this.logger.error(`Hotel destination search error: ${error?.message}`);
+      throw error;
+    }
+  }
+
+  async searchHotels(query: Record<string, string>): Promise<any> {
+    if (this.isMockMode()) {
+      const stays = MOCK_STAYS.map((s) => ({
+        ...s,
+        checkIn: query['arrival_date'] || s.checkIn,
+        checkOut: query['departure_date'] || s.checkOut,
+      }));
+      return { _mock: true, data: stays };
+    }
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(`${this.baseUrl}/api/v1/hotels/searchHotels`, {
+          params: query,
+          headers: this.getHeaders(),
+        }),
+      );
+      return data;
+    } catch (error: any) {
+      this.logger.error(`Hotel search error: ${error?.message}`);
+      throw error;
+    }
   }
 
   getShowcase() {
@@ -63,24 +92,5 @@ export class HotelsService {
       topRated: enrich(MOCK_HOTEL_SHOWCASE_TOP_RATED),
       unique: enrich(MOCK_HOTEL_SHOWCASE_UNIQUE),
     };
-  }
-
-  async searchHotels(query: Record<string, string>): Promise<any> {
-    if (this.isMockMode()) {
-      const stays = MOCK_STAYS.map((s) => ({
-        ...s,
-        checkIn: query['arrival_date'] || s.checkIn,
-        checkOut: query['departure_date'] || s.checkOut,
-      }));
-      return { _mock: true, data: stays };
-    }
-
-    const { data } = await firstValueFrom(
-      this.httpService.get(`${this.baseUrl}/api/v1/hotels/searchHotels`, {
-        params: query,
-        headers: this.getHeaders(),
-      }),
-    );
-    return data;
   }
 }

@@ -316,24 +316,68 @@ const TRIP_STATUS_TAGS: Record<TripStatus, ListItemTag> = {
   concluida: { label: 'Concluída', variant: 'cheap' },
 };
 
+function formatDatePtBr(isoDate: string): string {
+  if (!isoDate) return '';
+  const [y, m, d] = isoDate.split('-');
+  const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  return `${parseInt(d, 10)} ${months[parseInt(m, 10) - 1]} ${y}`;
+}
+
+function calcDays(start: string, end: string): number {
+  if (!start || !end) return 0;
+  const diff = new Date(end).getTime() - new Date(start).getTime();
+  return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
+}
+
+function buildTripSummary(trip: Trip): string {
+  const parts: string[] = [];
+  const fc = trip.flights?.length ?? 0;
+  const sc = trip.stays?.length ?? 0;
+  const ac = trip.activities?.length ?? 0;
+  const atc = trip.attractions?.length ?? 0;
+  const cc = trip.carRentals?.length ?? 0;
+  const tc = trip.transports?.length ?? 0;
+
+  if (fc) parts.push(`✈ ${fc} ${fc === 1 ? 'voo' : 'voos'}`);
+  if (sc) parts.push(`🏨 ${sc} ${sc === 1 ? 'hotel' : 'hotéis'}`);
+  if (ac) parts.push(`🎟 ${ac} ${ac === 1 ? 'passeio' : 'passeios'}`);
+  if (atc) parts.push(`📍 ${atc} ${atc === 1 ? 'atração' : 'atrações'}`);
+  if (cc) parts.push(`🚗 ${cc} ${cc === 1 ? 'carro' : 'carros'}`);
+  if (tc) parts.push(`🚌 ${tc} ${tc === 1 ? 'transporte' : 'transportes'}`);
+
+  return parts.length > 0 ? parts.join(' • ') : '';
+}
+
 export function tripToListItem(trip: Trip): ListItemConfig {
+  const hasDateRange = !!(trip.dates.start && trip.dates.end);
+  const days = hasDateRange ? calcDays(trip.dates.start, trip.dates.end) : 0;
+  const dateText = hasDateRange
+    ? `${formatDatePtBr(trip.dates.start)} → ${formatDatePtBr(trip.dates.end)}`
+    : '—';
+  const durationText = days > 0 ? ` · ${days} ${days === 1 ? 'dia' : 'dias'}` : '';
+
+  const infoLines: ListItemInfoLine[] = [
+    { icon: 'location_on', text: trip.destination || 'Destino não definido' },
+    { icon: 'date_range', text: dateText + durationText },
+  ];
+
+  const summary = buildTripSummary(trip);
+  if (summary) {
+    infoLines.push({ icon: 'inventory_2', text: summary });
+  }
+
   return {
     id: trip.id,
     images: trip.coverImage ? [trip.coverImage] : undefined,
     placeholderIcon: 'luggage',
     title: trip.name || 'Viagem sem nome',
-    infoLines: [
-      { icon: 'location_on', text: trip.destination || 'Destino não definido' },
-      { icon: 'date_range', text: trip.dates.start && trip.dates.end
-          ? `${trip.dates.start} — ${trip.dates.end}`
-          : '—' },
-    ],
+    infoLines,
     tags: [TRIP_STATUS_TAGS[trip.status]],
     iconActions: [
       { id: 'edit', icon: 'edit', tooltip: 'Editar viagem' },
       { id: 'cover', icon: 'add_photo_alternate', tooltip: 'Imagem de capa' },
     ],
-    primaryAction: { type: 'view', label: 'Abrir', icon: 'open_in_new' },
+    primaryAction: { type: 'view', label: 'Abrir viagem', icon: 'open_in_new' },
     secondaryAction: { type: 'remove', label: 'Excluir', icon: 'delete' },
   };
 }

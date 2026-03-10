@@ -12,6 +12,8 @@ export interface ShowcaseFlight {
   departureAt: string;
   arrivalAt: string;
   airline: string;
+  airlineCode?: string;
+  airlineLogo?: string | null;
   flightNumber: string;
   durationMinutes: number;
   stops: number;

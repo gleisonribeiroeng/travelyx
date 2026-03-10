@@ -411,6 +411,8 @@ export class SearchComponent {
 
     const effectiveOrigin = origin.iataCode;
     const effectiveDest = destination.iataCode;
+    const fromId = origin.id || `${effectiveOrigin}.AIRPORT`;
+    const toId = destination.id || `${effectiveDest}.AIRPORT`;
 
     this.errorMessage.set(null);
     this.isSearching.set(true);
@@ -423,6 +425,8 @@ export class SearchComponent {
         return this.flightApi.searchFlights({
           origin: effectiveOrigin,
           destination: effectiveDest,
+          fromId,
+          toId,
           departureDate,
           adults: passengers,
         }).pipe(map(result => {
@@ -457,6 +461,8 @@ export class SearchComponent {
       const params: any = {
         origin: effectiveOrigin,
         destination: effectiveDest,
+        fromId,
+        toId,
         departureDate: departure.toISOString().split('T')[0],
         adults: passengers,
       };
@@ -504,6 +510,8 @@ export class SearchComponent {
         this.flightApi.searchFlights({
           origin: origin.iataCode,
           destination: dest.iataCode,
+          fromId: origin.id || `${origin.iataCode}.AIRPORT`,
+          toId: dest.id || `${dest.iataCode}.AIRPORT`,
           departureDate: date.toISOString().split('T')[0],
           adults: passengers,
         })

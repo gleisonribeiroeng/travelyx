@@ -1,12 +1,17 @@
 <div class="trip-list-page">
+  <!-- Header -->
   <div class="page-header">
-    <h1>Minhas Viagens</h1>
-    <button mat-fab extended color="primary" (click)="openCreateDialog()">
+    <div class="header-text">
+      <h1>Minhas Viagens</h1>
+      <p class="header-subtitle">Planeje e organize suas próximas aventuras</p>
+    </div>
+    <button mat-fab extended color="primary" class="create-btn" (click)="openCreateDialog()">
       <mat-icon>add</mat-icon>
       Nova Viagem
     </button>
   </div>
 
+  <!-- Filter Bar -->
   <div class="filter-bar">
     <mat-chip-listbox aria-label="Filtrar por status">
       <mat-chip-option [selected]="statusFilter() === ''" (selectionChange)="statusFilter.set('')">
@@ -22,28 +27,43 @@
         Concluídas
       </mat-chip-option>
     </mat-chip-listbox>
+    @if (filteredTrips().length > 0) {
+      <span class="trip-count">{{ filteredTrips().length }} {{ filteredTrips().length === 1 ? 'viagem' : 'viagens' }}</span>
+    }
   </div>
 
+  <!-- Loading State -->
   @if (tripState.isLoading()) {
     <div class="loading-state">
       <mat-spinner diameter="48"></mat-spinner>
       <p>Carregando viagens...</p>
     </div>
-  } @else if (filteredTrips().length === 0) {
+  }
+
+  <!-- Empty State -->
+  @else if (filteredTrips().length === 0) {
     <div class="empty-state">
-      <mat-icon class="empty-icon">luggage</mat-icon>
-      <h2>Nenhuma viagem encontrada</h2>
+      <div class="empty-visual">
+        <div class="empty-icon-circle">
+          <mat-icon class="empty-icon">flight_takeoff</mat-icon>
+        </div>
+      </div>
       @if (statusFilter()) {
-        <p>Nenhuma viagem com o status selecionado.</p>
+        <h2>Nenhuma viagem encontrada</h2>
+        <p class="empty-text">Nenhuma viagem com o status "{{ getStatusLabel(statusFilter()) }}".</p>
       } @else {
-        <p>Crie sua primeira viagem para começar a planejar!</p>
-        <button mat-flat-button color="primary" (click)="openCreateDialog()">
+        <h2>Planeje sua primeira viagem</h2>
+        <p class="empty-text">Organize voos, hotéis, passeios e roteiro em um só lugar.</p>
+        <button mat-flat-button color="primary" class="empty-cta" (click)="openCreateDialog()">
           <mat-icon>add</mat-icon>
-          Criar Viagem
+          Criar nova viagem
         </button>
       }
     </div>
-  } @else {
+  }
+
+  <!-- Trip Cards -->
+  @else {
     <div class="trips-list">
       @for (trip of filteredTrips(); track trip.id) {
         <app-list-item-base

@@ -9,6 +9,7 @@ import { AppError } from './models/app-error.model';
 import { withBackoff } from './retry.utils';
 
 export interface AirportOption {
+  id: string;
   iataCode: string;
   name: string;
   cityName: string;
@@ -17,6 +18,8 @@ export interface AirportOption {
 export interface FlightSearchParams {
   origin: string;
   destination: string;
+  fromId?: string;
+  toId?: string;
   departureDate: string;
   returnDate?: string;
   adults: number;
@@ -37,11 +40,10 @@ export class FlightApiService extends BaseApiService {
 
   searchFlights(params: FlightSearchParams): Observable<ApiResult<Flight[]>> {
     const queryParams: Record<string, string | number | boolean> = {
-      originLocationCode: params.origin,
-      destinationLocationCode: params.destination,
+      fromId: params.fromId || `${params.origin}.AIRPORT`,
+      toId: params.toId || `${params.destination}.AIRPORT`,
       departureDate: params.departureDate,
       adults: params.adults,
-      max: 50,
     };
 
     if (params.returnDate) {
@@ -88,9 +90,10 @@ export class FlightApiService extends BaseApiService {
           return response.data as AirportOption[];
         }
         return response.data.map((airport: any) => ({
-          iataCode: airport.iataCode,
+          id: airport.id || '',
+          iataCode: airport.iataCode || airport.code || '',
           name: airport.name,
-          cityName: airport.address?.cityName || airport.name,
+          cityName: airport.address?.cityName || airport.cityName || airport.name,
         }));
       }),
       catchError(() => of([])),

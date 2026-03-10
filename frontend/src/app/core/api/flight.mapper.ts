@@ -60,7 +60,7 @@ export class FlightMapper implements Mapper<AmadeusFlightOffer, Flight> {
       arrivalAt: lastSegment.arrival.at,
       airline: raw.validatingAirlineCodes[0],
       airlineCode: carrierCode,
-      airlineLogo: `https://pics.avs.io/60/60/${carrierCode}.png`,
+      airlineLogo: `https://pics.avs.io/200/200/${carrierCode}.png`,
       flightNumber: `${firstSegment.carrierCode}${firstSegment.number}`,
       durationMinutes: this.parseDuration(itinerary.duration),
       stops: segments.length - 1,

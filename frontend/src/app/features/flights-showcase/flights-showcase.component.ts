@@ -132,11 +132,17 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
     const arrTime = flight.arrivalAt.split('T')[1]?.substring(0, 5) ?? '';
     const stopsText = flight.stops === 0 ? 'Direto' : `${flight.stops} parada${flight.stops > 1 ? 's' : ''}`;
 
-    const images = flight.destinationImage ? [flight.destinationImage] : [];
+    const images = flight.airlineLogo
+      ? [flight.airlineLogo]
+      : flight.destinationImage
+        ? [flight.destinationImage]
+        : [];
+    const isLogo = !!flight.airlineLogo;
 
     return {
       id: flight.id,
       images,
+      logoImage: isLogo,
       placeholderIcon: 'flight',
       title: `${flight.origin} → ${flight.destination}`,
       infoLines: [

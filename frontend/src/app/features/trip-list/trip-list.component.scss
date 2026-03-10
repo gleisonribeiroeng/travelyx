@@ -1,48 +1,184 @@
+// ════════════════════════════════════════════════════════════
+// Minhas Viagens — Page Layout
+// ════════════════════════════════════════════════════════════
+
 .trip-list-page {
-  padding: 24px;
-  max-width: 1200px;
+  padding: 32px 24px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
+// ── Header ─────────────────────────────────────────────────
+
 .page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+
+  h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin: 0;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+}
+
+.header-subtitle {
+  font-size: 0.92rem;
+  color: #9ca3af;
+  margin: 4px 0 0;
+  font-weight: 400;
+}
+
+.create-btn {
+  flex-shrink: 0;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+// ── Filter Bar ─────────────────────────────────────────────
+
+.filter-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
-
-  h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--triply-text-primary);
-    margin: 0;
-  }
+  gap: 16px;
 }
 
-.filter-bar {
-  margin-bottom: 24px;
+.trip-count {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
-.loading-state, .empty-state {
+// ── Loading State ──────────────────────────────────────────
+
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 24px;
+  padding: 80px 24px;
   text-align: center;
-  gap: 16px;
-  color: var(--triply-text-secondary);
+  gap: 20px;
+  color: #9ca3af;
+
+  p {
+    margin: 0;
+    font-size: 0.92rem;
+  }
 }
 
-.empty-icon {
-  font-size: 64px;
-  width: 64px;
-  height: 64px;
-  opacity: 0.3;
+// ── Empty State ────────────────────────────────────────────
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 64px;
+  text-align: center;
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 8px;
+  }
 }
 
-.trips-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
+.empty-visual {
+  margin-bottom: 28px;
+}
 
-@media (max-width: 600px) {
-  .trip-list-page { padding: 16px; }
-  .page-header { flex-direction: column; gap: 16px; align-items: flex-start; }
+.empty-icon-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.08) 0%, rgba(108, 92, 231, 0.15) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .empty-icon {
+    font-size: 44px;
+    width: 44px;
+    height: 44px;
+    color: var(--triply-primary, #6c5ce7);
+    opacity: 0.7;
+  }
+}
+
+.empty-text {
+  font-size: 0.92rem;
+  color: #9ca3af;
+  margin: 0 0 24px;
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+.empty-cta {
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 0 28px;
+  height: 44px;
+  border-radius: 10px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 12px rgba(108, 92, 231, 0.25);
+}
+
+// ── Trips List ─────────────────────────────────────────────
+
+.trips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// ── Responsive ─────────────────────────────────────────────
+
+@media (max-width: 639px) {
+  .trip-list-page {
+    padding: 20px 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .create-btn {
+      align-self: flex-start;
+    }
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .empty-state {
+    padding: 48px 16px 40px;
+  }
+
+  .empty-icon-circle {
+    width: 80px;
+    height: 80px;
+
+    .empty-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+  }
 }

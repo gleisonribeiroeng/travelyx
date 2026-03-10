@@ -750,6 +750,8 @@ export class WizardFlightStepComponent {
         this.api.searchFlights({
           origin: origin.iataCode,
           destination: dest.iataCode,
+          fromId: origin.id || `${origin.iataCode}.AIRPORT`,
+          toId: dest.id || `${dest.iataCode}.AIRPORT`,
           departureDate: date.toISOString().split('T')[0],
           adults: passengers,
         })
@@ -867,6 +869,8 @@ export class WizardFlightStepComponent {
 
     const effectiveOrigin = origin.iataCode;
     const effectiveDest = dest.iataCode;
+    const fromId = origin.id || `${effectiveOrigin}.AIRPORT`;
+    const toId = dest.id || `${effectiveDest}.AIRPORT`;
 
     this.isSearching.set(true);
     this.hasSearched.set(true);
@@ -878,6 +882,8 @@ export class WizardFlightStepComponent {
         return this.api.searchFlights({
           origin: effectiveOrigin,
           destination: effectiveDest,
+          fromId,
+          toId,
           departureDate,
           adults: passengers,
         }).pipe(map(result => result.data));
@@ -904,6 +910,8 @@ export class WizardFlightStepComponent {
       const params: any = {
         origin: effectiveOrigin,
         destination: effectiveDest,
+        fromId,
+        toId,
         departureDate: departure.toISOString().split('T')[0],
         adults: passengers,
       };
@@ -1053,6 +1061,8 @@ export class WizardFlightStepComponent {
     this.api.searchFlights({
       origin: dest.iataCode,
       destination: origin.iataCode,
+      fromId: dest.id || `${dest.iataCode}.AIRPORT`,
+      toId: origin.id || `${origin.iataCode}.AIRPORT`,
       departureDate: returnDate.toISOString().split('T')[0],
       adults: this.searchForm.value.passengers ?? 1,
     }).pipe(finalize(() => this.isSearching.set(false)))
