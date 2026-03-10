@@ -3,8 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import {
-  MOCK_AIRPORTS,
-  MOCK_FLIGHTS,
   MOCK_SHOWCASE_DEALS,
   MOCK_SHOWCASE_POPULAR,
   MOCK_SHOWCASE_RECOMMENDED,
@@ -22,10 +20,6 @@ export class FlightsService {
     private readonly configService: ConfigService,
   ) {}
 
-  private isMockMode(): boolean {
-    return this.configService.get<string>('MOCK_MODE') === 'true';
-  }
-
   private getHeaders(): Record<string, string> {
     return {
       'X-RapidAPI-Key': this.configService.get<string>('HOTEL_API_KEY')!,
@@ -38,15 +32,6 @@ export class FlightsService {
    * Maps response to the canonical Flight model so the frontend can consume it directly.
    */
   async searchFlights(query: Record<string, string>): Promise<any> {
-    if (this.isMockMode()) {
-      const origin = query['originLocationCode'];
-      const dest = query['destinationLocationCode'];
-      const filtered = MOCK_FLIGHTS.filter(
-        (f) => f.origin === origin && f.destination === dest,
-      );
-      return { _mock: true, data: filtered.length > 0 ? filtered : MOCK_FLIGHTS };
-    }
-
     const fromId = query['fromId'] || '';
     const toId = query['toId'] || '';
     const departDate = query['departureDate'] || query['departDate'] || '';
@@ -54,7 +39,7 @@ export class FlightsService {
     const adults = query['adults'] || '1';
 
     if (!fromId || !toId || !departDate) {
-      return { _mock: true, data: [] };
+      return { data: [] };
     }
 
     const params: Record<string, string> = {
@@ -84,7 +69,7 @@ export class FlightsService {
 
       if (!data?.status || !data?.data?.flightOffers) {
         this.logger.warn('Booking.com flights: no results');
-        return { _mock: true, data: [] };
+        return { data: [] };
       }
 
       const flights = data.data.flightOffers
@@ -92,13 +77,13 @@ export class FlightsService {
         .filter(Boolean);
 
       this.logger.log(`Booking.com flights: ${flights.length} results`);
-      return { _mock: true, data: flights };
+      return { data: flights };
     } catch (error: any) {
       const status = error?.response?.status;
       this.logger.error(
         `Booking.com flights error: ${error?.message} | HTTP ${status ?? 'N/A'}`,
       );
-      return { _mock: true, data: [] };
+      throw error;
     }
   }
 
@@ -165,11 +150,26 @@ export class FlightsService {
   }
 
   getShowcase() {
+    const airlineCodeMap: Record<string, string> = {
+      'LATAM': 'LA', 'GOL': 'G3', 'Azul': 'AD',
+      'Air France': 'AF', 'TAP': 'TP', 'KLM': 'KL',
+      'Brussels Airlines': 'SN', 'Lufthansa': 'LH',
+      'American Airlines': 'AA', 'United': 'UA', 'Delta': 'DL',
+      'Iberia': 'IB', 'Emirates': 'EK',
+    };
+
     const enrich = (flights: any[]) =>
-      flights.map((f) => ({
-        ...f,
-        destinationImage: DESTINATION_IMAGES[f.destination]?.url ?? null,
-      }));
+      flights.map((f) => {
+        const code = f.airlineCode || airlineCodeMap[f.airline] || '';
+        return {
+          ...f,
+          airlineCode: code,
+          airlineLogo: code
+            ? `https://pics.avs.io/120/120/${code}.png`
+            : null,
+          destinationImage: DESTINATION_IMAGES[f.destination]?.url ?? null,
+        };
+      });
 
     return {
       deals: enrich(MOCK_SHOWCASE_DEALS),
@@ -180,23 +180,11 @@ export class FlightsService {
 
   /**
    * Search flight destinations via Booking.com API.
-   * Returns results with `id` (Booking.com search ID) and `iataCode` (IATA code).
    */
   async searchAirports(query: Record<string, string>): Promise<any> {
-    if (this.isMockMode()) {
-      const kw = (query['keyword'] || '').toLowerCase();
-      const filtered = MOCK_AIRPORTS.filter(
-        (a) =>
-          a.name.toLowerCase().includes(kw) ||
-          a.cityName.toLowerCase().includes(kw) ||
-          a.iataCode.toLowerCase().includes(kw),
-      );
-      return { _mock: true, data: filtered };
-    }
-
     const keyword = query['keyword'] || '';
     if (keyword.length < 2) {
-      return { _mock: true, data: [] };
+      return { data: [] };
     }
 
     try {
@@ -211,7 +199,7 @@ export class FlightsService {
       );
 
       if (!data?.status || !Array.isArray(data?.data)) {
-        return { _mock: true, data: [] };
+        return { data: [] };
       }
 
       const mapped = data.data
@@ -223,12 +211,12 @@ export class FlightsService {
           cityName: item.cityName || item.name || '',
         }));
 
-      return { _mock: true, data: mapped };
+      return { data: mapped };
     } catch (error: any) {
       this.logger.error(
         `Booking.com flight destination error: ${error?.message}`,
       );
-      return { _mock: true, data: [] };
+      throw error;
     }
   }
 }

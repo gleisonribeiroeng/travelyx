@@ -1,8 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
-import { FlightMapper, AmadeusFlightOffer } from './flight.mapper';
 import { Flight } from '../models/trip.models';
 import { ApiResult } from './api-error.utils';
 import { AppError } from './models/app-error.model';
@@ -26,14 +25,11 @@ export interface FlightSearchParams {
 }
 
 /**
- * FlightApiService — calls NestJS backend which handles Amadeus OAuth2.
- * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
- * or raw Amadeus response in real mode (needs mapping).
+ * FlightApiService — calls NestJS backend which proxies Booking.com Flights API.
+ * Backend maps all responses server-side and returns { data: [...] }.
  */
 @Injectable({ providedIn: 'root' })
 export class FlightApiService extends BaseApiService {
-  private readonly mapper = inject(FlightMapper);
-
   constructor() {
     super('amadeus');
   }
@@ -56,15 +52,10 @@ export class FlightApiService extends BaseApiService {
     ).pipe(
       withBackoff(),
       map(
-        (response): ApiResult<Flight[]> => {
-          if (response._mock) {
-            return { data: response.data, error: null };
-          }
-          return {
-            data: response.data.map((offer: AmadeusFlightOffer) => this.mapper.mapResponse(offer)),
-            error: null,
-          };
-        },
+        (response): ApiResult<Flight[]> => ({
+          data: response.data || [],
+          error: null,
+        }),
       ),
       catchError(
         (error: AppError): Observable<ApiResult<Flight[]>> =>
@@ -85,17 +76,7 @@ export class FlightApiService extends BaseApiService {
       view: 'FULL',
     }).pipe(
       withBackoff(),
-      map((response) => {
-        if (response._mock) {
-          return response.data as AirportOption[];
-        }
-        return response.data.map((airport: any) => ({
-          id: airport.id || '',
-          iataCode: airport.iataCode || airport.code || '',
-          name: airport.name,
-          cityName: airport.address?.cityName || airport.cityName || airport.name,
-        }));
-      }),
+      map((response) => (response.data || []) as AirportOption[]),
       catchError(() => of([])),
     );
   }

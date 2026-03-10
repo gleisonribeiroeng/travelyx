@@ -32,8 +32,7 @@ export interface HotelSearchParams {
 
 /**
  * HotelApiService — calls NestJS backend which proxies Booking.com API via RapidAPI.
- * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
- * or raw Booking.com response in real mode (needs mapping).
+ * Backend passes raw Booking.com responses; frontend maps them via HotelMapper.
  */
 @Injectable({ providedIn: 'root' })
 export class HotelApiService extends BaseApiService {
@@ -51,9 +50,6 @@ export class HotelApiService extends BaseApiService {
     return this.get<any>('/api/v1/hotels/searchDestination', { query }).pipe(
       withBackoff(),
       map((response) => {
-        if (response._mock) {
-          return response.data as DestinationOption[];
-        }
         const results = response.data || [];
         return results.map(
           (item: any): DestinationOption => ({
@@ -82,9 +78,6 @@ export class HotelApiService extends BaseApiService {
       withBackoff(),
       map(
         (response): ApiResult<Stay[]> => {
-          if (response._mock) {
-            return { data: response.data, error: null };
-          }
           const results =
             response.data?.result || response.data?.hotels || response.data || [];
           const hotels = Array.isArray(results) ? results : [];

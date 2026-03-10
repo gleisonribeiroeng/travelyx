@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { MOCK_CAR_LOCATIONS, MOCK_CAR_RENTALS } from '../common/mock-data';
 
 @Injectable()
 export class CarsService {
@@ -14,10 +13,6 @@ export class CarsService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
-
-  private isMockMode(): boolean {
-    return this.configService.get<string>('MOCK_MODE') === 'true';
-  }
 
   private getHeaders(): Record<string, string> {
     return {
@@ -50,16 +45,6 @@ export class CarsService {
   }
 
   async autoComplete(query: Record<string, string>): Promise<any> {
-    if (this.isMockMode()) {
-      const kw = (query['string'] || '').toLowerCase();
-      const filtered = MOCK_CAR_LOCATIONS.filter(
-        (l) =>
-          l.name.toLowerCase().includes(kw) ||
-          l.label.toLowerCase().includes(kw),
-      );
-      return { _mock: true, data: filtered };
-    }
-
     try {
       const { data } = await firstValueFrom(
         this.httpService.get(`${this.baseUrl}/v2/cars/autoComplete`, {
@@ -74,7 +59,7 @@ export class CarsService {
 
       if (cities.length === 0) {
         this.logger.warn(`Priceline autoComplete: no results for "${query['string']}"`);
-        return { _mock: true, data: [] };
+        return { data: [] };
       }
 
       const mapped = cities.map((city: any) => ({
@@ -89,7 +74,7 @@ export class CarsService {
       }));
 
       this.logger.log(`Priceline autoComplete: ${mapped.length} results for "${query['string']}"`);
-      return { _mock: true, data: mapped };
+      return { data: mapped };
     } catch (error: any) {
       this.logger.error(`Car autoComplete error: ${error?.message}`);
       throw error;
@@ -100,17 +85,6 @@ export class CarsService {
     const pickupLocation = query['pickup_city_id'];
     const pickupDate = query['pickup_date'];
     const dropoffDate = query['dropoff_date'];
-
-    if (this.isMockMode()) {
-      const enriched = MOCK_CAR_RENTALS.map((car) => ({
-        ...car,
-        link: {
-          url: this.buildQeeqAffiliateLink(pickupLocation, pickupDate, dropoffDate),
-          provider: 'QEEQ',
-        },
-      }));
-      return { _mock: true, data: enriched };
-    }
 
     try {
       const { data } = await firstValueFrom(
@@ -127,7 +101,7 @@ export class CarsService {
       if (rawCars.length === 0) {
         const errorMsg = data?.getCarResultsRequest?.error?.status || '';
         this.logger.warn(`Priceline car search: 0 results. ${errorMsg}`);
-        return { _mock: true, data: [] };
+        return { data: [] };
       }
 
       const qeeqLink = this.buildQeeqAffiliateLink(
@@ -141,7 +115,7 @@ export class CarsService {
         .filter(Boolean);
 
       this.logger.log(`Priceline car search: ${mapped.length} results`);
-      return { _mock: true, data: mapped };
+      return { data: mapped };
     } catch (error: any) {
       this.logger.error(`Priceline car search error: ${error?.message}`);
       throw error;
