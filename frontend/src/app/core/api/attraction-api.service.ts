@@ -33,8 +33,8 @@ export class AttractionApiService extends BaseApiService {
   ): Observable<ApiResult<Attraction[]>> {
     return this.post<any>('/search', {
       filtering: { destination: params.city },
+      currency: 'BRL',
       pagination: { offset: 0, limit: 20 },
-      sorting: { sort: 'REVIEW_AVG_RATING_D' },
     }).pipe(
       withBackoff(),
       map((response): ApiResult<Attraction[]> => {

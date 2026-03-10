@@ -27,8 +27,8 @@ export class TourApiService extends BaseApiService {
   searchTours(params: TourSearchParams): Observable<ApiResult<Activity[]>> {
     return this.post<any>('/partner/products/search', {
       filtering: { destination: params.destination },
+      currency: 'BRL',
       pagination: { offset: 0, limit: 20 },
-      sorting: { sort: 'REVIEW_AVG_RATING_D' },
     }).pipe(
       withBackoff(),
       map(

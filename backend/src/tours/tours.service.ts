@@ -142,8 +142,10 @@ export class ToursService {
       destinationId = resolved;
     }
 
+    // Build clean body — strip sorting (Viator sandbox rejects unknown sorts)
+    const { sorting, ...bodyWithoutSorting } = body || {};
     const searchBody = {
-      ...body,
+      ...bodyWithoutSorting,
       filtering: {
         ...body?.filtering,
         destination: destinationId,
