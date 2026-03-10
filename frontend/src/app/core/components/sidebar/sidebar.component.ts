@@ -56,7 +56,6 @@ export class SidebarComponent {
         { icon: 'flight', label: 'Voos', route: `${base}/search` },
         { icon: 'hotel', label: 'Hotéis', route: `${base}/hotels` },
         { icon: 'directions_car', label: 'Carros', route: `${base}/cars` },
-        { icon: 'directions_bus', label: 'Transporte', route: `${base}/transport` },
         { icon: 'local_activity', label: 'Passeios', route: `${base}/tours` },
         { icon: 'museum', label: 'Atrações', route: `${base}/attractions` },
       ]},

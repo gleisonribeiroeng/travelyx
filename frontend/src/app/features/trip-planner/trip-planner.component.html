@@ -169,62 +169,6 @@
   </mat-card-content>
 </mat-card>
 
-<!-- ═══ Transporte ═══ -->
-<mat-card class="search-form-card">
-  <mat-card-header>
-    <mat-card-title>Transporte</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <form [formGroup]="transportForm">
-      <div class="section-label">Preferência de Transporte</div>
-      <div class="chip-row">
-        @for (opt of transportOptions; track opt.value) {
-          <button type="button" class="option-chip"
-                  [class.active]="transportForm.get('preference')?.value === opt.value"
-                  (click)="transportForm.get('preference')?.setValue(opt.value)">
-            <mat-icon>{{ opt.icon }}</mat-icon> {{ opt.label }}
-          </button>
-        }
-      </div>
-
-      @if (isTransportPlane()) {
-        <div class="section-label">Companhia Aérea <span class="label-hint">(opcional, múltipla seleção)</span></div>
-        <div class="chip-row compact">
-          @for (airline of airlines; track airline.code) {
-            <button type="button" class="option-chip small"
-                    [class.active]="isAirlineSelected(airline.code)"
-                    (click)="toggleAirline(airline.code)">
-              {{ airline.name }}
-            </button>
-          }
-        </div>
-
-        <div class="section-label">Forma de Pagamento</div>
-        <div class="chip-row">
-          @for (opt of paymentOptions; track opt.value) {
-            <button type="button" class="option-chip"
-                    [class.active]="transportForm.get('paymentMethod')?.value === opt.value"
-                    (click)="transportForm.get('paymentMethod')?.setValue(opt.value)">
-              <mat-icon>{{ opt.icon }}</mat-icon> {{ opt.label }}
-            </button>
-          }
-        </div>
-
-        @if (transportForm.get('paymentMethod')?.value === 'miles') {
-          <p class="field-hint">
-            <mat-icon>info</mat-icon> Apenas voos com opção de resgate por milhas serão exibidos.
-          </p>
-        }
-        @if (transportForm.get('paymentMethod')?.value === 'mixed') {
-          <p class="field-hint">
-            <mat-icon>info</mat-icon> Será mostrada a proporção estimada de milhas + dinheiro.
-          </p>
-        }
-      }
-    </form>
-  </mat-card-content>
-</mat-card>
-
 <!-- ═══ Hospedagem ═══ -->
 <mat-card class="search-form-card">
   <mat-card-header>
