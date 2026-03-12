@@ -15,11 +15,15 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TripsService } from './trips.service';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Controller('trips')
 @UseGuards(JwtAuthGuard)
 export class TripsController {
-  constructor(private readonly tripsService: TripsService) {}
+  constructor(
+    private readonly tripsService: TripsService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   @Get()
   findAll(@Req() req: any) {
@@ -32,7 +36,11 @@ export class TripsController {
   }
 
   @Post()
-  create(@Body() body: any, @Req() req: any) {
+  async create(@Body() body: any, @Req() req: any) {
+    const check = await this.subscriptionService.canCreateTrip(req.user.sub);
+    if (!check.allowed) {
+      throw new BadRequestException({ message: check.reason, code: 'PLAN_LIMIT' });
+    }
     return this.tripsService.create(req.user.sub, body);
   }
 
@@ -49,7 +57,11 @@ export class TripsController {
   // --- Itinerary Items ---
 
   @Post(':tripId/items')
-  addItem(@Param('tripId') tripId: string, @Body() body: any, @Req() req: any) {
+  async addItem(@Param('tripId') tripId: string, @Body() body: any, @Req() req: any) {
+    const check = await this.subscriptionService.canAddItem(req.user.sub);
+    if (!check.allowed) {
+      throw new BadRequestException({ message: check.reason, code: 'PLAN_LIMIT' });
+    }
     return this.tripsService.addItineraryItem(tripId, req.user.sub, body);
   }
 

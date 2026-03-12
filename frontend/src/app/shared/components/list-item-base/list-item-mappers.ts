@@ -166,6 +166,7 @@ export function carToListItem(
   return {
     id: car.id,
     images,
+    containImage: true,
     placeholderIcon: 'directions_car',
     title: car.vehicleType,
     infoLines,

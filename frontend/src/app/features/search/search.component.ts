@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -43,6 +43,8 @@ import {
   ManualFlightDialogData,
   ManualFlightDialogResult,
 } from '../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
+import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
+import { flightToListItem, FlightTagType } from '../../shared/components/list-item-base/list-item-mappers';
 
 type TripType = 'roundTrip' | 'oneWay' | 'multi';
 
@@ -54,7 +56,7 @@ interface MonthOption {
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
@@ -69,6 +71,18 @@ export class SearchComponent {
   readonly flexibleDates = signal(false);
   readonly selectedMonths = signal<string[]>([]);
   readonly availableMonths: MonthOption[] = this.buildAvailableMonths();
+
+  // Segment tracking for round-trip flights
+  readonly currentSegment = signal<'outbound' | 'return'>('outbound');
+  readonly outboundFlightId = signal<string | null>(null);
+  readonly returnFlightId = signal<string | null>(null);
+
+  readonly segmentLabel = computed(() =>
+    this.currentSegment() === 'outbound' ? 'Voo de IDA' : 'Voo de VOLTA'
+  );
+  readonly isRoundTrip = computed(() => this.tripType() === 'roundTrip');
+  readonly hasOutbound = computed(() => this.outboundFlightId() !== null);
+  readonly hasReturn = computed(() => this.returnFlightId() !== null);
 
   // Form controls with custom airport validator
   originControl = new FormControl<AirportOption | null>(null, [
@@ -102,6 +116,16 @@ export class SearchComponent {
         end: new Date(dates.end + 'T00:00:00'),
       });
     }
+
+    // Reset segment state when tripType changes
+    effect(() => {
+      this.tripType();
+      untracked(() => {
+        this.currentSegment.set('outbound');
+        this.outboundFlightId.set(null);
+        this.returnFlightId.set(null);
+      });
+    });
   }
 
   // Autocomplete observables
@@ -218,20 +242,61 @@ export class SearchComponent {
     return `${hours}h ${mins.toString().padStart(2, '0')}m`;
   }
 
-  formatTime(isoDate: string): string {
-    const d = new Date(isoDate);
-    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
-  }
-
-  isNextDay(departure: string, arrival: string): boolean {
-    const dep = new Date(departure);
-    const arr = new Date(arrival);
-    return arr.getDate() !== dep.getDate();
-  }
-
   dismissError(): void {
     this.errorMessage.set(null);
     this.errorSource.set(null);
+  }
+
+  private getFlightTag(flight: Flight): FlightTagType | null {
+    const cat = this.categorized();
+    if (cat.bestValue?.id === flight.id) return 'bestValue';
+    if (cat.cheapest?.id === flight.id) return 'cheapest';
+    if (cat.fastest?.id === flight.id) return 'fastest';
+    return null;
+  }
+
+  toListItem(flight: Flight) {
+    return flightToListItem(flight, {
+      isAdded: this.isAdded(flight.id),
+      tag: this.getFlightTag(flight),
+    });
+  }
+
+  toListItemForSegment(flight: Flight, _segmentIndex: number) {
+    return flightToListItem(flight, {
+      isAdded: this.isAdded(flight.id),
+    });
+  }
+
+  onPrimaryClick(id: string): void {
+    const flight = this.findFlightById(id);
+    if (!flight) return;
+    if (this.isAdded(flight.id)) return;
+    this.addToItinerary(flight);
+  }
+
+  onSecondaryClick(id: string): void {
+    const flight = this.findFlightById(id);
+    if (flight) this.openDetail(flight);
+  }
+
+  onCardItemClick(id: string): void {
+    const flight = this.findFlightById(id);
+    if (flight) this.openDetail(flight);
+  }
+
+  onSegmentPrimaryClick(id: string, segmentIndex: number): void {
+    const flight = this.findFlightInSegment(id, segmentIndex);
+    if (flight) this.addSegmentFlightToItinerary(flight, segmentIndex);
+  }
+
+  private findFlightById(id: string): Flight | undefined {
+    return this.filteredFlights().find(f => f.id === id)
+      ?? this.searchResults().find(f => f.id === id);
+  }
+
+  private findFlightInSegment(id: string, segmentIndex: number): Flight | undefined {
+    return this.multiCityResults()[segmentIndex]?.find(f => f.id === id);
   }
 
   // ── Multi-city segment management ──
@@ -592,8 +657,20 @@ export class SearchComponent {
     });
   }
 
+  switchSegment(segment: 'outbound' | 'return'): void {
+    this.currentSegment.set(segment);
+  }
+
   addToItinerary(flight: Flight): void {
     this.tripState.addFlight(flight);
+
+    const isOutbound = this.isRoundTrip() && this.currentSegment() === 'outbound';
+    const isReturn = this.isRoundTrip() && this.currentSegment() === 'return';
+    const legLabel = isOutbound ? 'IDA' : isReturn ? 'VOLTA' : '';
+    const label = legLabel
+      ? `Voo ${legLabel}: ${flight.origin} \u2192 ${flight.destination}`
+      : `Voo: ${flight.origin} \u2192 ${flight.destination}`;
+
     this.tripState.addItineraryItem({
       id: crypto.randomUUID(),
       type: 'flight',
@@ -601,13 +678,24 @@ export class SearchComponent {
       date: flight.departureAt.split('T')[0],
       timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
       durationMinutes: flight.durationMinutes,
-      label: `Voo: ${flight.origin} \u2192 ${flight.destination}`,
+      label,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: 0,
       isPaid: false,
       attachment: null,
     });
-    this.notify.success('Voo adicionado ao roteiro');
+
+    // Track segment for round-trip
+    if (this.isRoundTrip()) {
+      if (this.currentSegment() === 'outbound') {
+        this.outboundFlightId.set(flight.id);
+        this.currentSegment.set('return');
+      } else {
+        this.returnFlightId.set(flight.id);
+      }
+    }
+
+    this.notify.success(legLabel ? `Voo de ${legLabel} adicionado ao roteiro` : 'Voo adicionado ao roteiro');
   }
 
   setFilter(value: string): void {

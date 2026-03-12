@@ -3,7 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import {
-  MOCK_ACTIVITIES,
   MOCK_TOUR_SHOWCASE_MOST_BOOKED,
   MOCK_TOUR_SHOWCASE_MUST_DO,
   MOCK_TOUR_SHOWCASE_UNIQUE,
@@ -21,10 +20,6 @@ export class ToursService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
-
-  private isMockMode(): boolean {
-    return this.configService.get<string>('MOCK_MODE') === 'true';
-  }
 
   /**
    * Pick the best available Viator key.
@@ -120,15 +115,11 @@ export class ToursService {
   }
 
   async searchTours(body: any): Promise<any> {
-    if (this.isMockMode()) {
-      return { _mock: true, data: MOCK_ACTIVITIES };
-    }
-
     const { apiKey, baseUrl } = this.getViatorConfig();
 
     if (!apiKey) {
-      this.logger.warn('Viator API key not configured — returning mock data');
-      return { _mock: true, data: MOCK_ACTIVITIES };
+      this.logger.warn('Viator API key not configured');
+      return { products: [] };
     }
 
     // If the frontend sends a city name as destination, resolve it to numeric ID
@@ -141,9 +132,9 @@ export class ToursService {
       );
       if (!resolved) {
         this.logger.warn(
-          `Could not resolve destination "${destinationId}" — returning mock data`,
+          `Could not resolve destination "${destinationId}"`,
         );
-        return { _mock: true, data: MOCK_ACTIVITIES };
+        return { products: [] };
       }
       destinationId = resolved;
     }
@@ -170,12 +161,7 @@ export class ToursService {
 
       const products =
         data?.products || data?.data?.products || data?.data || [];
-      if (!Array.isArray(products) || products.length === 0) {
-        this.logger.log('Viator: 0 results, falling back to mock data');
-        return { _mock: true, data: MOCK_ACTIVITIES };
-      }
-
-      this.logger.log(`Viator: ${products.length} results`);
+      this.logger.log(`Viator: ${Array.isArray(products) ? products.length : 0} results`);
       return data;
     } catch (error: any) {
       const status = error?.response?.status;
@@ -183,7 +169,7 @@ export class ToursService {
       this.logger.error(
         `Viator API error: ${error?.message} | HTTP ${status ?? 'N/A'} | body: ${JSON.stringify(errorBody)?.substring(0, 500)}`,
       );
-      return { _mock: true, data: MOCK_ACTIVITIES };
+      return { products: [] };
     }
   }
 }

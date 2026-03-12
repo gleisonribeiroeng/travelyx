@@ -120,6 +120,18 @@ $sidebar-width: 260px;
   }
 }
 
+.pro-badge {
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: white;
+  line-height: 1.4;
+}
+
 .admin-group {
   padding: 8px 12px;
   border-top: 1px solid var(--triply-border-subtle);

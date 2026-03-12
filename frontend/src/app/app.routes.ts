@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { tripGuard } from './core/guards/trip.guard';
+import { planGuard } from './core/guards/plan.guard';
 
 export const routes: Routes = [
   // ── Public routes ──
@@ -146,26 +147,31 @@ export const routes: Routes = [
       },
       {
         path: 'budget',
+        canActivate: [planGuard('budget')],
         loadComponent: () =>
           import('./features/budget/budget.component').then(m => m.BudgetComponent),
       },
       {
         path: 'conflicts',
+        canActivate: [planGuard('conflictDetails')],
         loadComponent: () =>
           import('./features/conflicts/conflicts.component').then(m => m.ConflictsComponent),
       },
       {
         path: 'checklist',
+        canActivate: [planGuard('checklist')],
         loadComponent: () =>
           import('./features/checklist/checklist.component').then(m => m.ChecklistComponent),
       },
       {
         path: 'documents',
+        canActivate: [planGuard('documents')],
         loadComponent: () =>
           import('./features/documents/documents.component').then(m => m.DocumentsComponent),
       },
       {
         path: 'active-trip',
+        canActivate: [planGuard('activeTrip')],
         loadComponent: () =>
           import('./features/active-trip/active-trip.component').then(m => m.ActiveTripComponent),
       },

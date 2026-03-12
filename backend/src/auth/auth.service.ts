@@ -9,11 +9,14 @@ export interface GoogleUser {
   firstName: string;
   lastName: string;
   picture: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface ValidatedUser {
   id: string;
   role: string;
+  plan: string;
   isActive: boolean;
 }
 
@@ -25,12 +28,16 @@ export class AuthService {
   ) {}
 
   async validateGoogleUser(googleUser: GoogleUser) {
+    const tokenData: Record<string, string> = {};
+    if (googleUser.accessToken) tokenData.googleAccessToken = googleUser.accessToken;
+    if (googleUser.refreshToken) tokenData.googleRefreshToken = googleUser.refreshToken;
+
     // First try to find by googleId
     const byGoogleId = await this.prisma.user.findUnique({ where: { googleId: googleUser.googleId } });
     if (byGoogleId) {
       return this.prisma.user.update({
         where: { id: byGoogleId.id },
-        data: { email: googleUser.email, name: googleUser.name, picture: googleUser.picture },
+        data: { email: googleUser.email, name: googleUser.name, picture: googleUser.picture, ...tokenData },
       });
     }
 
@@ -39,7 +46,7 @@ export class AuthService {
     if (byEmail) {
       return this.prisma.user.update({
         where: { id: byEmail.id },
-        data: { googleId: googleUser.googleId, name: googleUser.name, picture: googleUser.picture },
+        data: { googleId: googleUser.googleId, name: googleUser.name, picture: googleUser.picture, ...tokenData },
       });
     }
 
@@ -50,11 +57,12 @@ export class AuthService {
         email: googleUser.email,
         name: googleUser.name,
         picture: googleUser.picture,
+        ...tokenData,
       },
     });
   }
 
-  generateJwt(user: GoogleUser, dbUser: { id: string; role: string }): string {
+  generateJwt(user: GoogleUser, dbUser: { id: string; role: string; plan: string }): string {
     const payload = {
       sub: dbUser.id,
       googleId: user.googleId,
@@ -62,6 +70,7 @@ export class AuthService {
       name: user.name,
       picture: user.picture,
       role: dbUser.role,
+      plan: dbUser.plan,
     };
     return this.jwtService.sign(payload);
   }
@@ -69,7 +78,7 @@ export class AuthService {
   async ensureUserExists(payload: { sub: string; googleId?: string; email: string; name: string; picture: string }): Promise<ValidatedUser> {
     // Check if user exists by ID
     const existing = await this.prisma.user.findUnique({ where: { id: payload.sub } });
-    if (existing) return { id: existing.id, role: existing.role, isActive: existing.isActive };
+    if (existing) return { id: existing.id, role: existing.role, plan: existing.plan, isActive: existing.isActive };
 
     // User doesn't exist (DB was recreated) — recreate via googleId or email
     if (payload.googleId) {
@@ -78,7 +87,7 @@ export class AuthService {
         update: { email: payload.email, name: payload.name, picture: payload.picture },
         create: { id: payload.sub, googleId: payload.googleId, email: payload.email, name: payload.name, picture: payload.picture },
       });
-      return { id: user.id, role: user.role, isActive: user.isActive };
+      return { id: user.id, role: user.role, plan: user.plan, isActive: user.isActive };
     }
 
     // No googleId in token — create with email as fallback googleId
@@ -87,6 +96,6 @@ export class AuthService {
       update: { name: payload.name, picture: payload.picture },
       create: { id: payload.sub, googleId: `legacy-${payload.email}`, email: payload.email, name: payload.name, picture: payload.picture },
     });
-    return { id: user.id, role: user.role, isActive: user.isActive };
+    return { id: user.id, role: user.role, plan: user.plan, isActive: user.isActive };
   }
 }

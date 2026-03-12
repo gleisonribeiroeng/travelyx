@@ -2,12 +2,15 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
+export type Plan = 'FREE' | 'PRO' | 'BUSINESS';
+
 export interface AuthUser {
   googleId: string;
   email: string;
   name: string;
   picture: string;
   role: string;
+  plan: Plan;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +24,12 @@ export class AuthService {
   readonly user = this._user.asReadonly();
   readonly isLoggedIn = computed(() => !!this._user());
   readonly isAdmin = computed(() => this._user()?.role === 'ADMIN');
+  readonly plan = computed<Plan>(() => this._user()?.plan || 'FREE');
+  readonly isPro = computed(() => {
+    const p = this.plan();
+    return p === 'PRO' || p === 'BUSINESS' || this.isAdmin();
+  });
+  readonly isBusiness = computed(() => this.plan() === 'BUSINESS' || this.isAdmin());
 
   constructor(private readonly http: HttpClient) {}
 
@@ -41,6 +50,7 @@ export class AuthService {
         name: payload.name,
         picture: payload.picture,
         role: payload.role || 'USER',
+        plan: payload.plan || 'FREE',
       };
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
       this._user.set(user);

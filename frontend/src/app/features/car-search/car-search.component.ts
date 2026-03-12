@@ -224,6 +224,7 @@ export class CarSearchComponent {
         dropoffDate: dropoffDateStr,
         dropoffTime: dropoffTime,
         driverAge,
+        currency: this.tripState.trip().currency || 'BRL',
       })
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({

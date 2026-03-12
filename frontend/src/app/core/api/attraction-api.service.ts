@@ -38,9 +38,6 @@ export class AttractionApiService extends BaseApiService {
     }).pipe(
       withBackoff(),
       map((response): ApiResult<Attraction[]> => {
-        if (response._mock) {
-          return { data: response.data, error: null };
-        }
         const results =
           response.products || response.data?.products || response.data || [];
         const products = Array.isArray(results) ? results : [];

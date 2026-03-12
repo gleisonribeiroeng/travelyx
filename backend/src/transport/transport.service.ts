@@ -2,8 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { MOCK_TRANSPORTS } from '../common/mock-data';
-
 /**
  * TransportService — real transport search using FlixBus public API.
  *
@@ -12,7 +10,6 @@ import { MOCK_TRANSPORTS } from '../common/mock-data';
  * 2. Search trips between the two cities on the given date
  * 3. Map results to our canonical transport format
  * 4. Attach Kiwi.com affiliate links for booking
- * 5. Fallback to mock data if API fails or returns no results
  */
 @Injectable()
 export class TransportService {
@@ -24,10 +21,6 @@ export class TransportService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
-
-  private isMockMode(): boolean {
-    return this.configService.get<string>('MOCK_MODE') === 'true';
-  }
 
   /**
    * Build a Kiwi.com affiliate deep link via Travelpayouts for booking.
@@ -66,7 +59,6 @@ export class TransportService {
           {
             params: {
               language: 'en',
-              country: 'BR',
               limit: 10,
               q: cityName,
             },
@@ -143,38 +135,13 @@ export class TransportService {
     };
   }
 
-  private enrichMockData(
-    origin: string,
-    destination: string,
-    departureDate: string,
-  ): any {
-    const enriched = MOCK_TRANSPORTS.map((t) => ({
-      ...t,
-      origin: origin || t.origin,
-      destination: destination || t.destination,
-      link: {
-        url: this.buildKiwiTransportLink(
-          origin || t.origin,
-          destination || t.destination,
-          departureDate,
-        ),
-        provider: 'Kiwi.com',
-      },
-    }));
-    return { _mock: true, data: enriched };
-  }
-
   async searchTransport(query: Record<string, string>): Promise<any> {
     const origin = query['origin'] || '';
     const destination = query['destination'] || '';
     const departureDate = query['date'] || '';
 
-    if (this.isMockMode()) {
-      return this.enrichMockData(origin, destination, departureDate);
-    }
-
     if (!origin || !destination) {
-      return this.enrichMockData(origin, destination, departureDate);
+      return { data: [] };
     }
 
     // Step 1: Resolve city UUIDs
@@ -187,7 +154,7 @@ export class TransportService {
       this.logger.log(
         `FlixBus: Could not resolve cities — origin="${origin}" (${originCity ? 'found' : 'NOT found'}), dest="${destination}" (${destCity ? 'found' : 'NOT found'})`,
       );
-      return this.enrichMockData(origin, destination, departureDate);
+      return { data: [] };
     }
 
     this.logger.log(
@@ -250,13 +217,6 @@ export class TransportService {
         }
       }
 
-      if (allTrips.length === 0) {
-        this.logger.log(
-          `FlixBus: 0 trips for ${originCity.name} → ${destCity.name} on ${flixDate}`,
-        );
-        return this.enrichMockData(origin, destination, departureDate);
-      }
-
       this.logger.log(
         `FlixBus: ${allTrips.length} trips for ${originCity.name} → ${destCity.name} on ${flixDate}`,
       );
@@ -268,7 +228,7 @@ export class TransportService {
       this.logger.error(
         `FlixBus search error: ${error?.message} | HTTP ${status ?? 'N/A'} | body: ${JSON.stringify(errorBody)?.substring(0, 500)}`,
       );
-      return this.enrichMockData(origin, destination, departureDate);
+      return { data: [] };
     }
   }
 }

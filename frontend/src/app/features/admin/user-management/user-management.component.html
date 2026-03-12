@@ -19,6 +19,7 @@
             <th>Usuário</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Plano</th>
             <th>Status</th>
             <th>Viagens</th>
             <th>Cadastro</th>
@@ -29,7 +30,14 @@
           @for (user of users(); track user.id) {
             <tr [class.inactive]="!user.isActive">
               <td class="user-cell">
-                <img [src]="user.picture" [alt]="user.name" class="user-avatar" referrerpolicy="no-referrer">
+                <div class="avatar-wrapper">
+                  <img [src]="user.picture" [alt]="user.name" class="user-avatar" referrerpolicy="no-referrer">
+                  <span
+                    class="online-indicator"
+                    [class.online]="presence.isOnline(user.id)"
+                    [matTooltip]="presence.isOnline(user.id) ? 'Online' : 'Offline'"
+                  ></span>
+                </div>
                 <span class="user-name">{{ user.name }}</span>
               </td>
               <td>{{ user.email }}</td>
@@ -42,6 +50,17 @@
                 >
                   <mat-option value="USER">USER</mat-option>
                   <mat-option value="ADMIN">ADMIN</mat-option>
+                </mat-select>
+              </td>
+              <td>
+                <mat-select
+                  [value]="user.plan || 'FREE'"
+                  (selectionChange)="onPlanChange(user, $event.value)"
+                  class="plan-select"
+                >
+                  <mat-option value="FREE">FREE</mat-option>
+                  <mat-option value="PRO">PRO</mat-option>
+                  <mat-option value="BUSINESS">BUSINESS</mat-option>
                 </mat-select>
               </td>
               <td>

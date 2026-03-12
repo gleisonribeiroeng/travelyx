@@ -686,17 +686,17 @@ function formatDate(iso: string): string {
     /* ─── Actions ────────────────────────────────────────────────── */
     .detail-actions {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      padding: var(--triply-spacing-sm) var(--triply-spacing-md) !important;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding: 12px var(--triply-spacing-md) !important;
       border-top: 1px solid var(--triply-border);
 
       .action-spacer { display: none; }
 
       button {
         min-height: 44px;
-        flex: 1;
-        min-width: 120px;
+        width: 100%;
       }
 
       button mat-icon {
@@ -740,12 +740,14 @@ function formatDate(iso: string): string {
       }
 
       .detail-actions {
+        flex-direction: row;
         flex-wrap: nowrap;
         padding: var(--triply-spacing-sm) var(--triply-spacing-lg) !important;
 
         .action-spacer { display: block; flex: 1; }
 
         button {
+          width: auto;
           flex: none;
           min-width: 0;
         }

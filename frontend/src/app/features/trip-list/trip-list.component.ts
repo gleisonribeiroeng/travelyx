@@ -9,6 +9,7 @@ import { Trip, TripStatus } from '../../core/models/trip.models';
 import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { tripToListItem } from '../../shared/components/list-item-base/list-item-mappers';
+import { PlanService } from '../../core/services/plan.service';
 
 @Component({
   selector: 'app-trip-list',
@@ -22,6 +23,7 @@ export class TripListComponent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
+  private readonly planService = inject(PlanService);
 
   readonly statusFilter = signal<string>('');
 
@@ -33,6 +35,10 @@ export class TripListComponent {
   });
 
   openCreateDialog(): void {
+    if (!this.planService.canCreateTrip(this.tripState.trips().length)) {
+      this.planService.showLimitPaywall('trip');
+      return;
+    }
     const ref = this.dialog.open(TripCreateDialogComponent, {
       width: '440px',
       panelClass: 'mobile-fullscreen-dialog',

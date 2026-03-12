@@ -1,8 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { ItineraryItem, ItineraryItemType } from '../../core/models/trip.models';
+
+export interface AddItemDialogData {
+  presetType?: string;
+  presetDate?: string;
+}
 
 @Component({
   selector: 'app-add-item-dialog',
@@ -40,17 +45,41 @@ import { ItineraryItem, ItineraryItemType } from '../../core/models/trip.models'
           </mat-form-field>
         </div>
 
-        <div class="row-2">
-          <mat-form-field appearance="outline">
-            <mat-label>Duração (min)</mat-label>
-            <input matInput type="number" formControlName="durationMinutes" min="15" step="15" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Notas</mat-label>
-            <input matInput formControlName="notes" />
-          </mat-form-field>
+        <div class="duration-section">
+          <span class="duration-label">Duração</span>
+          <div class="duration-row">
+            <mat-form-field appearance="outline" class="duration-field">
+              <mat-label>Horas</mat-label>
+              <mat-select formControlName="durationHours">
+                @for (h of hourOptions; track h) {
+                  <mat-option [value]="h">{{ h }}h</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="duration-field">
+              <mat-label>Minutos</mat-label>
+              <mat-select formControlName="durationMins">
+                @for (m of minuteOptions; track m) {
+                  <mat-option [value]="m">{{ m }}min</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="duration-presets">
+            @for (p of durationPresets; track p.label) {
+              <button type="button" class="preset-chip"
+                      [class.active]="isPresetActive(p)"
+                      (click)="applyPreset(p)">
+                {{ p.label }}
+              </button>
+            }
+          </div>
         </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Notas</mat-label>
+          <input matInput formControlName="notes" />
+        </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -73,11 +102,22 @@ import { ItineraryItem, ItineraryItemType } from '../../core/models/trip.models'
       mat-form-field { flex: 1; }
     }
     mat-dialog-content { padding-top: 8px !important; }
+    .duration-section { margin-bottom: 8px; }
+    .duration-label { font-size: 13px; color: #666; margin-bottom: 4px; display: block; }
+    .duration-row { display: flex; gap: 12px; .duration-field { flex: 1; } }
+    .duration-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; margin-bottom: 8px; }
+    .preset-chip {
+      border: 1px solid #ddd; border-radius: 16px; padding: 4px 12px;
+      font-size: 12px; background: #fafafa; cursor: pointer; transition: all .15s;
+      &:hover { border-color: #999; }
+      &.active { background: #1976d2; color: #fff; border-color: #1976d2; }
+    }
   `],
 })
 export class AddItemDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<AddItemDialogComponent>);
+  private readonly dialogData = inject<AddItemDialogData>(MAT_DIALOG_DATA, { optional: true });
 
   readonly itemTypes = [
     { value: 'flight', label: 'Voo', icon: 'flight' },
@@ -89,25 +129,46 @@ export class AddItemDialogComponent {
     { value: 'custom', label: 'Outro', icon: 'event' },
   ];
 
+  readonly hourOptions = Array.from({ length: 13 }, (_, i) => i);      // 0–12
+  readonly minuteOptions = [0, 15, 30, 45];
+  readonly durationPresets = [
+    { label: '30min', hours: 0, mins: 30 },
+    { label: '1h', hours: 1, mins: 0 },
+    { label: '2h', hours: 2, mins: 0 },
+    { label: '3h', hours: 3, mins: 0 },
+    { label: 'Meio dia', hours: 6, mins: 0 },
+    { label: 'Dia inteiro', hours: 10, mins: 0 },
+  ];
+
   readonly form = this.fb.group({
-    type: ['custom', Validators.required],
+    type: [this.dialogData?.presetType || 'custom', Validators.required],
     label: ['', Validators.required],
-    date: ['', Validators.required],
+    date: [this.dialogData?.presetDate || '', Validators.required],
     timeSlot: [''],
-    durationMinutes: [null as number | null],
+    durationHours: [0],
+    durationMins: [0],
     notes: [''],
   });
+
+  isPresetActive(p: { hours: number; mins: number }): boolean {
+    return this.form.value.durationHours === p.hours && this.form.value.durationMins === p.mins;
+  }
+
+  applyPreset(p: { hours: number; mins: number }): void {
+    this.form.patchValue({ durationHours: p.hours, durationMins: p.mins });
+  }
 
   submit(): void {
     if (this.form.invalid) return;
     const v = this.form.value;
+    const totalMinutes = ((v.durationHours || 0) * 60) + (v.durationMins || 0);
     const item: ItineraryItem = {
       id: crypto.randomUUID(),
       type: (v.type || 'custom') as ItineraryItemType,
       refId: null,
       date: v.date!,
       timeSlot: v.timeSlot || null,
-      durationMinutes: v.durationMinutes || null,
+      durationMinutes: totalMinutes || null,
       label: v.label!,
       notes: v.notes || '',
       order: 0,

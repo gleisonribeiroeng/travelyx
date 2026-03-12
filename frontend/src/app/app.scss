@@ -2,6 +2,7 @@
   display: block;
   min-height: 100vh;
   background-color: var(--triply-page-bg);
+  overflow-x: hidden;
 }
 
 // Public layout (landing, showcase pages)
@@ -64,8 +65,10 @@
     grid-area: content;
     padding: var(--triply-spacing-md);
     overflow-y: auto;
+    overflow-x: hidden;
     background: var(--triply-page-bg);
     box-sizing: border-box;
+    max-width: 100vw;
   }
 
 }

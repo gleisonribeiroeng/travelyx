@@ -9,6 +9,8 @@ export interface AdminUser {
   email: string;
   picture: string;
   role: 'USER' | 'ADMIN';
+  plan: 'FREE' | 'PRO' | 'BUSINESS';
+  planExpiresAt: string | null;
   isActive: boolean;
   createdAt: string;
   _count: { trips: number };
@@ -30,5 +32,13 @@ export class AdminService {
 
   toggleActive(userId: string, isActive: boolean): Observable<{ id: string; isActive: boolean }> {
     return this.http.patch<{ id: string; isActive: boolean }>(`${this.apiUrl}/users/${userId}/activate`, { isActive });
+  }
+
+  getOnlineUsers(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/online-users`);
+  }
+
+  updatePlan(userId: string, plan: 'FREE' | 'PRO' | 'BUSINESS'): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/users/${userId}/plan`, { plan });
   }
 }

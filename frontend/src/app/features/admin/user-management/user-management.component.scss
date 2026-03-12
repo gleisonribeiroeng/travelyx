@@ -88,11 +88,32 @@
   gap: 12px;
 }
 
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .user-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--triply-text-secondary, #9e9e9e);
+  border: 2px solid var(--triply-surface-1, #fff);
+  transition: background-color 0.3s ease;
+
+  &.online {
+    background: var(--triply-success, #22c55e);
+  }
 }
 
 .user-name {
@@ -102,6 +123,10 @@
 
 .role-select {
   width: 100px;
+}
+
+.plan-select {
+  width: 110px;
 }
 
 .status-badge {

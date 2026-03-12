@@ -40,8 +40,10 @@ export interface ListItemIconAction {
 export interface ListItemConfig {
   id: string;
   images?: string[];
-  /** When true, renders image with object-fit: contain (ideal for logos) */
+  /** When true, renders as compact logo (small column, object-fit: contain) */
   logoImage?: boolean;
+  /** When true, renders image with object-fit: contain instead of cover (for product photos like cars) */
+  containImage?: boolean;
   placeholderIcon: string;
   title: string;
   infoLines: ListItemInfoLine[];

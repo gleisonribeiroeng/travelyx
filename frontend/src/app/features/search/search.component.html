@@ -297,38 +297,40 @@
   />
 }
 
-<!-- Standard Results Section (non-multi) -->
-@if (tripType() !== 'multi' && searchResults().length > 0) {
-  <!-- Highlight Cards -->
-  @if (categorized().cheapest || categorized().fastest || categorized().bestValue) {
-    <div class="highlights-strip">
-      @if (categorized().cheapest; as cheapest) {
-        <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
-          <div class="hl-badge"><mat-icon>savings</mat-icon> Mais Barato</div>
-          <div class="hl-route">{{ cheapest.origin }} &rarr; {{ cheapest.destination }}</div>
-          <div class="hl-info">{{ cheapest.airline }} · {{ formatDuration(cheapest.durationMinutes) }} · {{ cheapest.stops === 0 ? 'Direto' : cheapest.stops + ' parada(s)' }}</div>
-          <div class="hl-price">{{ cheapest.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
-        </div>
-      }
-      @if (categorized().fastest; as fastest) {
-        <div class="hl-card hl-fast" (click)="addToItinerary(fastest)">
-          <div class="hl-badge"><mat-icon>bolt</mat-icon> Mais Rápido</div>
-          <div class="hl-route">{{ fastest.origin }} &rarr; {{ fastest.destination }}</div>
-          <div class="hl-info">{{ fastest.airline }} · {{ formatDuration(fastest.durationMinutes) }} · {{ fastest.stops === 0 ? 'Direto' : fastest.stops + ' parada(s)' }}</div>
-          <div class="hl-price">{{ fastest.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
-        </div>
-      }
-      @if (categorized().bestValue; as best) {
-        <div class="hl-card hl-value" (click)="addToItinerary(best)">
-          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
-          <div class="hl-route">{{ best.origin }} &rarr; {{ best.destination }}</div>
-          <div class="hl-info">{{ best.airline }} · {{ formatDuration(best.durationMinutes) }} · {{ best.stops === 0 ? 'Direto' : best.stops + ' parada(s)' }}</div>
-          <div class="hl-price">{{ best.price.total | currency: 'BRL':'symbol':'1.0-0' }}</div>
-        </div>
-      }
-    </div>
-  }
+<!-- Loading State -->
+@if (isSearching()) {
+  <div class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Buscando voos...</p>
+  </div>
+}
 
+<!-- Segment indicator for round-trip -->
+@if (isRoundTrip() && hasSearched() && !isSearching() && searchResults().length > 0) {
+  <div class="segment-indicator">
+    <div class="segment-tabs">
+      <button class="seg-tab" [class.active]="currentSegment() === 'outbound'"
+              [class.done]="hasOutbound()"
+              (click)="switchSegment('outbound')">
+        <mat-icon>flight_takeoff</mat-icon>
+        <span>IDA</span>
+        @if (hasOutbound()) { <mat-icon class="check">check_circle</mat-icon> }
+      </button>
+      <div class="seg-connector"></div>
+      <button class="seg-tab" [class.active]="currentSegment() === 'return'"
+              [class.done]="hasReturn()"
+              (click)="switchSegment('return')">
+        <mat-icon>flight_land</mat-icon>
+        <span>VOLTA</span>
+        @if (hasReturn()) { <mat-icon class="check">check_circle</mat-icon> }
+      </button>
+    </div>
+    <p class="segment-hint">Selecionando: {{ segmentLabel() }}</p>
+  </div>
+}
+
+<!-- Standard Results Section (non-multi) -->
+@if (tripType() !== 'multi' && searchResults().length > 0 && !isSearching()) {
   <div class="results-section">
     <div class="results-header">
       <h2>{{ filteredFlights().length }} de {{ searchResults().length }} voos</h2>
@@ -359,82 +361,22 @@
       </mat-form-field>
     </div>
 
-    <!-- Flight Result Cards -->
-    @for (flight of filteredFlights(); track flight.id) {
-      <mat-card class="flight-card" [class.added]="isAdded(flight.id)"
-                (click)="openDetail(flight)" role="button" tabindex="0">
-        <mat-card-content>
-          <!-- Tags -->
-          @if (categorized().cheapest?.id === flight.id || categorized().fastest?.id === flight.id || categorized().bestValue?.id === flight.id) {
-            <div class="flight-tags">
-              @if (categorized().bestValue?.id === flight.id) {
-                <span class="ftag ftag-value">Melhor custo-benefício</span>
-              }
-              @if (categorized().cheapest?.id === flight.id) {
-                <span class="ftag ftag-cheap">Mais barato</span>
-              }
-              @if (categorized().fastest?.id === flight.id) {
-                <span class="ftag ftag-fast">Mais rápido</span>
-              }
-            </div>
-          }
-
-          <div class="result-row">
-            <!-- Airline -->
-            <div class="result-airline">
-              <mat-icon>flight</mat-icon>
-              <div>
-                <strong>{{ flight.airline }}</strong>
-                <span class="flight-number">{{ flight.flightNumber }}</span>
-              </div>
-            </div>
-
-            <!-- Departure -->
-            <div class="result-route">
-              <span class="time">{{ formatTime(flight.departureAt) }}</span>
-              <span class="code">{{ flight.origin }}</span>
-            </div>
-
-            <!-- Duration -->
-            <div class="result-duration">
-              <span>{{ formatDuration(flight.durationMinutes) }}</span>
-              <div class="duration-line"></div>
-              <span class="stops">{{ flight.stops === 0 ? 'Direto' : flight.stops + ' parada(s)' }}</span>
-            </div>
-
-            <!-- Arrival -->
-            <div class="result-route">
-              <span class="time">
-                {{ formatTime(flight.arrivalAt) }}
-                @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
-                  <span class="next-day">+1</span>
-                }
-              </span>
-              <span class="code">{{ flight.destination }}</span>
-            </div>
-
-            <!-- Price + Action -->
-            <div class="result-price">
-              <span class="price-value">{{ flight.price.currency }} {{ flight.price.total | number:'1.2-2' }}</span>
-              @if (isAdded(flight.id)) {
-                <button mat-stroked-button color="warn" (click)="openDetail(flight); $event.stopPropagation()">
-                  <mat-icon>check</mat-icon> Adicionado
-                </button>
-              } @else {
-                <button mat-flat-button color="primary" (click)="openDetail(flight); $event.stopPropagation()">
-                  Ver detalhes
-                </button>
-              }
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    }
+    <!-- Flight Result Cards using list-item-base -->
+    <div class="results-list">
+      @for (flight of filteredFlights(); track flight.id) {
+        <app-list-item-base
+          [config]="toListItem(flight)"
+          (primaryClick)="onPrimaryClick($event)"
+          (secondaryClick)="onSecondaryClick($event)"
+          (cardClick)="onCardItemClick($event)"
+        />
+      }
+    </div>
   </div>
 }
 
 <!-- Multi-City Results Section -->
-@if (tripType() === 'multi' && multiCityHasResults()) {
+@if (tripType() === 'multi' && multiCityHasResults() && !isSearching()) {
   <!-- Total Price Banner -->
   @if (multiCityTotalPrice() !== null) {
     <div class="multi-total-banner">
@@ -459,74 +401,22 @@
       </div>
 
       @if (segResults.length === 0) {
-        <mat-card class="empty-state">
-          <mat-card-content>
-            <mat-icon>flight_takeoff</mat-icon>
-            <p>Nenhum voo encontrado para este trecho.</p>
-          </mat-card-content>
-        </mat-card>
-      }
-
-      @for (flight of segResults; track flight.id) {
-        <div class="flight-card">
-          <div class="flight-row">
-            <div class="flight-left">
-              <div class="airline-logo">
-                <mat-icon>flight</mat-icon>
-              </div>
-
-              <div class="flight-schedule">
-                <div class="airport-pair">
-                  <div class="airport">
-                    <span class="iata">{{ flight.origin }}</span>
-                    <span class="time">{{ formatTime(flight.departureAt) }}</span>
-                  </div>
-                  <div class="airport">
-                    <span class="iata">{{ flight.destination }}</span>
-                    <span class="time">
-                      {{ formatTime(flight.arrivalAt) }}
-                      @if (isNextDay(flight.departureAt, flight.arrivalAt)) {
-                        <span class="next-day">+1</span>
-                      }
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flight-meta">
-                @if (flight.stops === 0) {
-                  <a class="stops-badge direct">Direto</a>
-                } @else {
-                  <a class="stops-badge">{{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</a>
-                }
-                <span class="duration">{{ formatDuration(flight.durationMinutes) }}</span>
-              </div>
-            </div>
-
-            <div class="flight-right">
-              <div class="price-section">
-                <span class="price-label">Trecho {{ i + 1 }}</span>
-                <span class="price-amount">{{ flight.price.total | currency: 'BRL':'symbol':'1.0-0' }}</span>
-              </div>
-
-              <div class="card-actions">
-                <button mat-icon-button
-                        (click)="addSegmentFlightToItinerary(flight, i)"
-                        matTooltip="Adicionar trecho ao roteiro">
-                  <mat-icon>add_shopping_cart</mat-icon>
-                </button>
-                <a mat-icon-button
-                   [href]="flight.link.url"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   matTooltip="Ver em {{ flight.link.provider }}">
-                  <mat-icon>open_in_new</mat-icon>
-                </a>
-              </div>
-            </div>
-          </div>
+        <div class="empty-state">
+          <mat-icon>flight_takeoff</mat-icon>
+          <p>Nenhum voo encontrado para este trecho.</p>
         </div>
       }
+
+      <div class="results-list">
+        @for (flight of segResults; track flight.id) {
+          <app-list-item-base
+            [config]="toListItemForSegment(flight, i)"
+            (primaryClick)="onSegmentPrimaryClick($event, i)"
+            (secondaryClick)="onSecondaryClick($event)"
+            (cardClick)="onCardItemClick($event)"
+          />
+        }
+      </div>
     </div>
   }
 }

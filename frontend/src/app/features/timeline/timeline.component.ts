@@ -10,6 +10,7 @@ import { ItineraryItem, ConflictAlert } from '../../core/models/trip.models';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { AddItemDialogComponent } from './add-item-dialog.component';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
+import { CalendarApiService } from '../../core/api/calendar-api.service';
 
 @Component({
   selector: 'app-timeline',
@@ -22,45 +23,11 @@ export class TimelineComponent {
   protected readonly tripState = inject(TripStateService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
+  private readonly calendarApi = inject(CalendarApiService);
 
-  readonly viewMode = signal<'expanded' | 'compact'>('compact');
+  readonly syncing = signal(false);
+
   readonly expandedDays = signal<Set<string>>(new Set());
-
-  openAddDialog(): void {
-    const ref = this.dialog.open(AddItemDialogComponent, { width: '480px' });
-    ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
-      if (!item) return;
-      this.tripState.addItineraryItem(item);
-      this.notify.success('Item adicionado ao roteiro');
-      const next = new Set(this.expandedDays());
-      next.add(item.date);
-      this.expandedDays.set(next);
-    });
-  }
-
-  toggleDay(date: string): void {
-    const current = this.expandedDays();
-    const next = new Set(current);
-    if (next.has(date)) {
-      next.delete(date);
-    } else {
-      next.add(date);
-    }
-    this.expandedDays.set(next);
-  }
-
-  isDayExpanded(date: string): boolean {
-    return this.expandedDays().has(date);
-  }
-
-  expandAll(): void {
-    const all = new Set(this.timeline().map(d => d.date));
-    this.expandedDays.set(all);
-  }
-
-  collapseAll(): void {
-    this.expandedDays.set(new Set());
-  }
 
   readonly conflicts = computed<ConflictAlert[]>(() => {
     try { return computeAllConflicts(this.tripState.trip()); } catch { return []; }
@@ -76,40 +43,122 @@ export class TimelineComponent {
     return !!t.dates.start && !!t.dates.end;
   });
 
+  readonly totalTripCost = computed(() =>
+    this.timeline().reduce((sum, d) => sum + d.stats.totalCost, 0)
+  );
+
+  readonly totalActivities = computed(() =>
+    this.timeline().reduce((sum, d) => sum + d.stats.itemCount, 0)
+  );
+
+  openAddDialog(presetType?: string, presetDate?: string): void {
+    const ref = this.dialog.open(AddItemDialogComponent, {
+      width: '480px',
+      data: { presetType, presetDate },
+    });
+    ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
+      if (!item) return;
+      this.tripState.addItineraryItem(item);
+      this.notify.success('Item adicionado ao roteiro');
+      const next = new Set(this.expandedDays());
+      next.add(item.date);
+      this.expandedDays.set(next);
+    });
+  }
+
+  toggleDay(date: string): void {
+    const next = new Set(this.expandedDays());
+    if (next.has(date)) { next.delete(date); } else { next.add(date); }
+    this.expandedDays.set(next);
+  }
+
+  isDayExpanded(date: string): boolean {
+    return this.expandedDays().has(date);
+  }
+
+  expandAll(): void {
+    this.expandedDays.set(new Set(this.timeline().map(d => d.date)));
+  }
+
+  collapseAll(): void {
+    this.expandedDays.set(new Set());
+  }
+
   getTypeIcon(type: string): string {
     const map: Record<string, string> = {
       flight: 'flight', stay: 'hotel', 'car-rental': 'directions_car',
       transport: 'directions_bus', activity: 'local_activity',
-      attraction: 'museum', custom: 'event',
+      attraction: 'place', custom: 'edit_note',
     };
     return map[type] || 'event';
   }
 
-  getTypeColor(type: string): string {
+  getTypeLabel(type: string): string {
     const map: Record<string, string> = {
-      flight: 'var(--triply-cat-flight)', stay: 'var(--triply-cat-stay)',
-      'car-rental': 'var(--triply-cat-car)', transport: 'var(--triply-cat-transport)',
-      activity: 'var(--triply-cat-activity)', attraction: 'var(--triply-cat-attraction)',
-      custom: 'var(--triply-primary)',
+      flight: 'Voo', stay: 'Hotel', 'car-rental': 'Carro',
+      transport: 'Transporte', activity: 'Passeio',
+      attraction: 'Atração', custom: 'Personalizado',
     };
-    return map[type] || 'var(--triply-primary)';
+    return map[type] || type;
+  }
+
+  getItemPrice(item: ItineraryItem): number {
+    if (!item.refId) return 0;
+    const trip = this.tripState.trip();
+    switch (item.type) {
+      case 'flight': return trip.flights.find(f => f.id === item.refId)?.price?.total ?? 0;
+      case 'stay': return trip.stays.find(s => s.id === item.refId)?.pricePerNight?.total ?? 0;
+      case 'car-rental': return trip.carRentals.find(c => c.id === item.refId)?.price?.total ?? 0;
+      case 'transport': return trip.transports.find(t => t.id === item.refId)?.price?.total ?? 0;
+      case 'activity': return trip.activities.find(a => a.id === item.refId)?.price?.total ?? 0;
+      default: return 0;
+    }
+  }
+
+  getItemLocation(item: ItineraryItem): string {
+    if (item.location) return item.location;
+    if (!item.refId) return '';
+    const trip = this.tripState.trip();
+    switch (item.type) {
+      case 'flight': {
+        const f = trip.flights.find(x => x.id === item.refId);
+        return f ? `${f.origin} → ${f.destination}` : '';
+      }
+      case 'stay': return trip.stays.find(x => x.id === item.refId)?.address ?? '';
+      case 'activity': return trip.activities.find(x => x.id === item.refId)?.city ?? '';
+      case 'attraction': return trip.attractions.find(x => x.id === item.refId)?.city ?? '';
+      default: return '';
+    }
+  }
+
+  formatDuration(minutes: number): string {
+    if (minutes < 60) return `${minutes}min`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? `${h}h${m}min` : `${h}h`;
+  }
+
+  formatCurrency(value: number): string {
+    if (!value) return '';
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: this.tripState.trip().currency || 'BRL' });
   }
 
   onDrop(event: CdkDragDrop<ItineraryItem[]>, targetDate: string): void {
     const item = event.item.data as ItineraryItem;
     if (!item) return;
-
     if (item.date !== targetDate || event.previousIndex !== event.currentIndex) {
       const updated: ItineraryItem = { ...item, date: targetDate, order: event.currentIndex };
       this.tripState.updateItineraryItem(updated);
     }
   }
 
-  removeItem(id: string): void {
+  removeItem(id: string, event: Event): void {
+    event.stopPropagation();
     this.tripState.removeItineraryItem(id);
   }
 
-  togglePaid(item: ItineraryItem): void {
+  togglePaid(item: ItineraryItem, event: Event): void {
+    event.stopPropagation();
     this.tripState.toggleItemPaid(item.id);
   }
 
@@ -155,19 +204,90 @@ export class TimelineComponent {
     if (!data) return;
 
     const ref = this.dialog.open(ItemDetailDialogComponent, {
-      width: '600px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
-      data,
+      width: '600px', maxWidth: '95vw', maxHeight: '90vh', data,
     });
 
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (result?.action === 'remove') {
-        this.removeItem(item.id);
+        this.tripState.removeItineraryItem(item.id);
         this.removeDomainItem(item.type, item.refId!);
       } else if (result?.action === 'togglePaid') {
-        this.togglePaid(item);
+        this.tripState.toggleItemPaid(item.id);
       }
+    });
+  }
+
+  syncToCalendar(): void {
+    const trip = this.tripState.trip();
+    const allItems = trip.itineraryItems;
+    if (allItems.length === 0) {
+      this.notify.info('Nenhum item na timeline para sincronizar');
+      return;
+    }
+
+    this.syncing.set(true);
+
+    // First check if Calendar is connected
+    this.calendarApi.checkStatus().subscribe({
+      next: (status) => {
+        if (status.connected) {
+          this.doSync(trip.name, allItems);
+        } else {
+          // Not connected — redirect to authorize Calendar
+          this.syncing.set(false);
+          this.authorizeCalendar();
+        }
+      },
+      error: () => {
+        // Status check failed — try authorize
+        this.syncing.set(false);
+        this.authorizeCalendar();
+      },
+    });
+  }
+
+  private authorizeCalendar(): void {
+    this.calendarApi.getAuthorizeUrl().subscribe({
+      next: ({ url }) => {
+        this.notify.info('Autorizando acesso ao Google Calendar...');
+        window.location.href = url;
+      },
+      error: () => {
+        this.notify.error('Erro ao iniciar autorização do Calendar.');
+      },
+    });
+  }
+
+  private doSync(tripName: string, allItems: ItineraryItem[]): void {
+    const events = allItems.map(item => ({
+      id: item.id,
+      type: item.type,
+      label: item.label,
+      date: item.date,
+      timeSlot: item.timeSlot,
+      durationMinutes: item.durationMinutes,
+      notes: item.notes,
+      location: this.getItemLocation(item) || undefined,
+    }));
+
+    this.calendarApi.syncToCalendar({ tripName: tripName || 'Viagem', events }).subscribe({
+      next: (result) => {
+        this.syncing.set(false);
+        if (result.errors.length > 0) {
+          this.notify.info(`${result.created} eventos criados, ${result.errors.length} erros`);
+        } else {
+          this.notify.success(`${result.created} eventos adicionados ao Google Calendar`);
+        }
+      },
+      error: (err) => {
+        this.syncing.set(false);
+        if (err?.status === 500 && err?.error?.message?.includes('Autorize')) {
+          this.authorizeCalendar();
+        } else {
+          const msg = err?.error?.message || 'Erro ao sincronizar com o Google Calendar.';
+          this.notify.error(msg);
+        }
+      },
     });
   }
 

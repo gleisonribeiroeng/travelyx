@@ -11,17 +11,27 @@ enum Role {
   ADMIN
 }
 
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+}
+
 model User {
-  id        String   @id @default(uuid())
-  googleId  String   @unique
-  email     String   @unique
-  name      String
-  picture   String
-  role      Role     @default(USER)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  trips     Trip[]
+  id                 String   @id @default(uuid())
+  googleId           String   @unique
+  email              String   @unique
+  name               String
+  picture            String
+  role               Role     @default(USER)
+  isActive           Boolean  @default(true)
+  plan               Plan     @default(FREE)
+  planExpiresAt      DateTime?
+  googleAccessToken  String?
+  googleRefreshToken String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  trips              Trip[]
   supportConversations SupportConversation[]
 }
 

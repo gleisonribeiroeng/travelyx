@@ -15,7 +15,10 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TripsModule } from './trips/trips.module';
 import { AdminModule } from './admin/admin.module';
+import { PresenceModule } from './presence/presence.module';
 import { SupportModule } from './support/support.module';
+import { CalendarModule } from './calendar/calendar.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 import { HomeShowcaseController } from './common/home-showcase.controller';
 
 @Module({
@@ -35,7 +38,10 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
     AttractionsModule,
     TransportModule,
     AdminModule,
+    PresenceModule,
     SupportModule,
+    CalendarModule,
+    SubscriptionModule,
   ],
   controllers: [HomeShowcaseController],
   providers: [

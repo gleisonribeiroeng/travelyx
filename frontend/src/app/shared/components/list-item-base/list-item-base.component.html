@@ -4,10 +4,10 @@
      (click)="onCardClick()">
 
   <!-- ═══ COLUMN 1: IMAGE ═══ -->
-  <div class="item-image">
+  <div class="item-image" [class.logo-mode]="config().logoImage">
     @if (currentImage()) {
       <img [src]="currentImage()" [alt]="config().title"
-           [class]="config().logoImage ? 'img-logo' : 'img-cover'" loading="lazy" />
+           [class]="config().logoImage ? 'img-logo' : config().containImage ? 'img-contain' : 'img-cover'" loading="lazy" />
     } @else {
       <div class="img-placeholder">
         <mat-icon>{{ config().placeholderIcon }}</mat-icon>
@@ -26,7 +26,7 @@
         }
       </div>
     }
-    @if (config().tags?.length) {
+    @if (config().tags?.length && !config().logoImage) {
       <div class="image-tags">
         @for (tag of config().tags; track tag.label) {
           <span class="tag" [class]="'tag-' + tag.variant">{{ tag.label }}</span>
@@ -37,6 +37,13 @@
 
   <!-- ═══ COLUMN 2: INFO ═══ -->
   <div class="item-info">
+    @if (config().tags?.length && config().logoImage) {
+      <div class="inline-tags">
+        @for (tag of config().tags; track tag.label) {
+          <span class="tag" [class]="'tag-' + tag.variant">{{ tag.label }}</span>
+        }
+      </div>
+    }
     <h3 class="item-title">{{ config().title }}</h3>
 
     <div class="info-lines">

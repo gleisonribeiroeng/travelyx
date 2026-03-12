@@ -1,8 +1,9 @@
 <div class="timeline-page">
+  <!-- Page header -->
   <div class="page-header">
     <div class="header-text">
       <h1>Linha do Tempo</h1>
-      <p>Visão dia a dia do seu roteiro</p>
+      <p>Planeje cada dia da sua viagem</p>
     </div>
     <div class="header-actions">
       <button mat-button (click)="expandAll()" class="bulk-action">
@@ -11,131 +12,246 @@
       <button mat-button (click)="collapseAll()" class="bulk-action">
         <mat-icon>unfold_less</mat-icon> Colapsar
       </button>
-      <button mat-flat-button color="primary" (click)="openAddDialog()" class="add-btn">
+
+      <!-- Google Calendar sync -->
+      <button mat-stroked-button class="bulk-action calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
+        @if (syncing()) {
+          <mat-spinner diameter="16"></mat-spinner>
+        } @else {
+          <mat-icon>event</mat-icon>
+        }
+        Google Calendar
+      </button>
+
+      <!-- Quick add menu -->
+      <button mat-flat-button color="primary" [matMenuTriggerFor]="addMenu" class="add-btn">
         <mat-icon>add</mat-icon> Novo Item
       </button>
-      <mat-button-toggle-group [value]="viewMode()" (change)="viewMode.set($event.value)">
-        <mat-button-toggle value="expanded"><mat-icon>view_agenda</mat-icon></mat-button-toggle>
-        <mat-button-toggle value="compact"><mat-icon>view_list</mat-icon></mat-button-toggle>
-      </mat-button-toggle-group>
+      <mat-menu #addMenu="matMenu">
+        <button mat-menu-item (click)="openAddDialog('flight')">
+          <mat-icon class="type-flight">flight</mat-icon> Voo
+        </button>
+        <button mat-menu-item (click)="openAddDialog('stay')">
+          <mat-icon class="type-stay">hotel</mat-icon> Hotel
+        </button>
+        <button mat-menu-item (click)="openAddDialog('activity')">
+          <mat-icon class="type-activity">local_activity</mat-icon> Passeio
+        </button>
+        <button mat-menu-item (click)="openAddDialog('attraction')">
+          <mat-icon class="type-attraction">place</mat-icon> Atração
+        </button>
+        <button mat-menu-item (click)="openAddDialog('transport')">
+          <mat-icon class="type-transport">directions_bus</mat-icon> Transporte
+        </button>
+        <button mat-menu-item (click)="openAddDialog('custom')">
+          <mat-icon class="type-custom">edit_note</mat-icon> Item personalizado
+        </button>
+      </mat-menu>
     </div>
   </div>
 
   @if (!hasDates()) {
-    <mat-card class="empty-state">
-      <mat-card-content>
-        <mat-icon>date_range</mat-icon>
-        <h3>Defina as datas da viagem</h3>
-        <p>A timeline será gerada automaticamente com base nas datas do seu roteiro.</p>
-      </mat-card-content>
-    </mat-card>
+    <div class="empty-state">
+      <mat-icon>date_range</mat-icon>
+      <h3>Defina as datas da viagem</h3>
+      <p>A timeline será gerada automaticamente com base nas datas do seu roteiro.</p>
+    </div>
   } @else {
-    @for (day of timeline(); track day.date) {
-      <div class="day-section" [class.empty-day]="day.isEmpty" [class.is-expanded]="isDayExpanded(day.date)">
-        <div class="day-header" (click)="toggleDay(day.date)">
-          <mat-icon class="expand-icon">{{ isDayExpanded(day.date) ? 'expand_more' : 'chevron_right' }}</mat-icon>
-          <div class="day-label">
-            <span class="day-number">{{ day.dayLabel.split(' — ')[0] }}</span>
-            <span class="day-date">{{ day.dayLabel.split(' — ')[1] }}</span>
+    <!-- Timeline rail -->
+    <div class="timeline-rail">
+      @for (day of timeline(); track day.date; let isLast = $last) {
+        <div class="day-section" [class.empty-day]="day.isEmpty" [class.expanded]="isDayExpanded(day.date)" [class.last-day]="isLast">
+
+          <!-- Day node on the rail -->
+          <div class="day-node" [class.has-items]="!day.isEmpty">
+            <div class="node-dot"></div>
           </div>
 
-          <!-- Preview chips when collapsed -->
-          @if (!isDayExpanded(day.date) && !day.isEmpty) {
-            <div class="day-preview">
-              @for (item of day.allDayItems.concat(day.timedItems).slice(0, 4); track item.id) {
-                <span class="preview-chip" [style.--type-color]="getTypeColor(item.type)">
-                  <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
-                  {{ item.label | slice:0:20 }}{{ item.label.length > 20 ? '...' : '' }}
-                </span>
-              }
-              @if (day.allDayItems.length + day.timedItems.length > 4) {
-                <span class="preview-more">+{{ day.allDayItems.length + day.timedItems.length - 4 }}</span>
-              }
-            </div>
-          }
-
-          <div class="day-badges">
-            @if (day.conflicts.length > 0) {
-              <span class="conflict-badge">
-                <mat-icon>warning</mat-icon> {{ day.conflicts.length }}
-              </span>
-            }
-            <span class="item-count">{{ day.allDayItems.length + day.timedItems.length }} {{ (day.allDayItems.length + day.timedItems.length) === 1 ? 'item' : 'itens' }}</span>
-          </div>
-        </div>
-
-        @if (isDayExpanded(day.date)) {
-          <div class="day-body">
-            @if (day.isEmpty) {
-              <div class="empty-day-content">
-                <mat-icon>wb_sunny</mat-icon>
-                <span>Dia livre</span>
+          <!-- Day card -->
+          <div class="day-card">
+            <!-- Day header -->
+            <div class="day-header" (click)="toggleDay(day.date)">
+              <div class="day-title">
+                <span class="day-number">{{ day.dayLabel.split(' — ')[0] }}</span>
+                <span class="day-date-text">{{ day.dayLabel.split(' — ')[1] }}</span>
               </div>
-            } @else {
-              <!-- All-day items -->
-              @for (item of day.allDayItems; track item.id) {
-                <div class="timeline-item all-day" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''"
-                     (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
-                  <div class="item-indicator"></div>
-                  <mat-icon class="item-type-icon">{{ getTypeIcon(item.type) }}</mat-icon>
-                  <div class="item-content">
-                    <span class="item-label">{{ item.label }}</span>
-                    @if (item.notes && viewMode() === 'expanded') {
-                      <span class="item-notes">{{ item.notes }}</span>
+
+              <div class="day-meta">
+                @if (day.stats.itemCount > 0) {
+                  <span class="meta-chip items">
+                    <mat-icon>event</mat-icon> {{ day.stats.itemCount }}
+                  </span>
+                }
+                @if (day.stats.totalDurationMinutes > 0) {
+                  <span class="meta-chip duration">
+                    <mat-icon>schedule</mat-icon> {{ formatDuration(day.stats.totalDurationMinutes) }}
+                  </span>
+                }
+                @if (day.stats.totalCost > 0) {
+                  <span class="meta-chip cost">
+                    <mat-icon>payments</mat-icon> {{ formatCurrency(day.stats.totalCost) }}
+                  </span>
+                }
+                @if (day.conflicts.length > 0) {
+                  <span class="meta-chip conflict">
+                    <mat-icon>warning</mat-icon> {{ day.conflicts.length }}
+                  </span>
+                }
+              </div>
+
+              <mat-icon class="expand-chevron">{{ isDayExpanded(day.date) ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </div>
+
+            <!-- Collapsed preview -->
+            @if (!isDayExpanded(day.date) && !day.isEmpty) {
+              <div class="day-preview">
+                @for (item of day.allDayItems.concat(day.timedItems).slice(0, 5); track item.id) {
+                  <span class="preview-pill" [attr.data-type]="item.type">
+                    <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
+                    {{ item.label | slice:0:18 }}{{ item.label.length > 18 ? '…' : '' }}
+                  </span>
+                }
+                @if (day.stats.itemCount > 5) {
+                  <span class="preview-more">+{{ day.stats.itemCount - 5 }}</span>
+                }
+              </div>
+            }
+
+            <!-- Expanded content -->
+            @if (isDayExpanded(day.date)) {
+              <div class="day-body" [@.disabled]="true">
+                @if (day.isEmpty) {
+                  <div class="empty-day-msg">
+                    <mat-icon>wb_sunny</mat-icon>
+                    <span>Dia livre — nenhuma atividade planejada</span>
+                    <button mat-stroked-button class="add-day-btn" (click)="$event.stopPropagation(); openAddDialog(undefined, day.date)">
+                      <mat-icon>add</mat-icon> Adicionar
+                    </button>
+                  </div>
+                } @else {
+                  <!-- All-day items -->
+                  @for (item of day.allDayItems; track item.id) {
+                    <div class="activity-card" [attr.data-type]="item.type"
+                         (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
+                      <div class="card-color-bar"></div>
+                      <div class="card-icon">
+                        <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
+                      </div>
+                      <div class="card-body">
+                        <div class="card-top">
+                          <span class="card-type-label">{{ getTypeLabel(item.type) }}</span>
+                          <span class="card-all-day">Dia inteiro</span>
+                        </div>
+                        <div class="card-title">{{ item.label }}</div>
+                        @if (getItemLocation(item)) {
+                          <div class="card-location">
+                            <mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}
+                          </div>
+                        }
+                        @if (item.notes) {
+                          <div class="card-notes">{{ item.notes }}</div>
+                        }
+                      </div>
+                      <div class="card-right">
+                        @if (getItemPrice(item)) {
+                          <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span>
+                        }
+                        <div class="card-actions">
+                          <mat-icon class="action-icon" [class.is-paid]="item.isPaid"
+                                    [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
+                                    (click)="togglePaid(item, $event)">
+                            {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
+                          </mat-icon>
+                          <mat-icon class="action-icon delete" matTooltip="Remover"
+                                    (click)="removeItem(item.id, $event)">close</mat-icon>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Timed items with drag-drop -->
+                  <div class="timed-items-zone" cdkDropList [cdkDropListData]="day.timedItems" (cdkDropListDropped)="onDrop($event, day.date)">
+                    @for (item of day.timedItems; track item.id) {
+                      <div class="activity-card timed" [attr.data-type]="item.type" cdkDrag [cdkDragData]="item"
+                           (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
+                        <div class="card-color-bar"></div>
+                        <div class="card-time">
+                          <span class="time-text">{{ item.timeSlot }}</span>
+                          @if (item.durationMinutes) {
+                            <span class="time-duration">{{ formatDuration(item.durationMinutes) }}</span>
+                          }
+                        </div>
+                        <div class="card-icon">
+                          <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
+                        </div>
+                        <div class="card-body">
+                          <div class="card-top">
+                            <span class="card-type-label">{{ getTypeLabel(item.type) }}</span>
+                          </div>
+                          <div class="card-title">{{ item.label }}</div>
+                          @if (getItemLocation(item)) {
+                            <div class="card-location">
+                              <mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}
+                            </div>
+                          }
+                          @if (item.notes) {
+                            <div class="card-notes">{{ item.notes }}</div>
+                          }
+                        </div>
+                        <div class="card-right">
+                          @if (getItemPrice(item)) {
+                            <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span>
+                          }
+                          <div class="card-actions">
+                            <mat-icon class="action-icon" [class.is-paid]="item.isPaid"
+                                      [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
+                                      (click)="togglePaid(item, $event)">
+                              {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
+                            </mat-icon>
+                            <mat-icon class="action-icon drag-handle" cdkDragHandle matTooltip="Arrastar">drag_indicator</mat-icon>
+                            <mat-icon class="action-icon delete" matTooltip="Remover"
+                                      (click)="removeItem(item.id, $event)">close</mat-icon>
+                          </div>
+                        </div>
+                      </div>
                     }
                   </div>
-                  <mat-icon class="paid-toggle" [class.is-paid]="item.isPaid"
-                            [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
-                            (click)="$event.stopPropagation(); togglePaid(item)">
-                    {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
-                  </mat-icon>
-                </div>
-              }
 
-              <!-- Timed items with drag-drop -->
-              <div class="timed-items" cdkDropList [cdkDropListData]="day.timedItems" (cdkDropListDropped)="onDrop($event, day.date)">
-                @for (item of day.timedItems; track item.id) {
-                  <div class="timeline-item timed" cdkDrag [cdkDragData]="item" [style.--type-color]="getTypeColor(item.type)" [matTooltip]="item.notes || ''"
-                       (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
-                    <div class="item-time">{{ item.timeSlot }}</div>
-                    <div class="item-indicator"></div>
-                    <mat-icon class="item-type-icon">{{ getTypeIcon(item.type) }}</mat-icon>
-                    <div class="item-content">
-                      <span class="item-label">{{ item.label }}</span>
-                      @if (item.durationMinutes) {
-                        <span class="item-duration">{{ item.durationMinutes }} min</span>
-                      }
-                      @if (item.notes && viewMode() === 'expanded') {
-                        <span class="item-notes">{{ item.notes }}</span>
-                      }
+                  <!-- Free slots -->
+                  @for (slot of day.freeSlots; track slot.startTime) {
+                    <div class="free-slot">
+                      <mat-icon>hourglass_empty</mat-icon>
+                      <span>Tempo livre — {{ formatDuration(slot.durationMinutes) }} disponíveis ({{ slot.startTime }} – {{ slot.endTime }})</span>
                     </div>
-                    <div class="item-actions">
-                      <mat-icon class="paid-toggle" [class.is-paid]="item.isPaid"
-                                [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
-                                (click)="$event.stopPropagation(); togglePaid(item)">
-                        {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
-                      </mat-icon>
-                      <mat-icon class="drag-handle" cdkDragHandle>drag_indicator</mat-icon>
-                    </div>
+                  }
+                }
+
+                <!-- Day conflicts -->
+                @if (day.conflicts.length > 0) {
+                  <div class="day-conflicts">
+                    @for (conflict of day.conflicts; track conflict.id) {
+                      <div class="conflict-alert" [class]="conflict.severity">
+                        <mat-icon>{{ conflict.severity === 'error' ? 'error' : 'warning' }}</mat-icon>
+                        <div class="conflict-text">
+                          <span class="conflict-msg">{{ conflict.message }}</span>
+                          @if (conflict.suggestion) {
+                            <span class="conflict-tip">{{ conflict.suggestion }}</span>
+                          }
+                        </div>
+                      </div>
+                    }
                   </div>
                 }
-              </div>
-            }
 
-            <!-- Day conflicts -->
-            @if (day.conflicts.length > 0 && viewMode() === 'expanded') {
-              <div class="day-conflicts">
-                @for (conflict of day.conflicts; track conflict.id) {
-                  <div class="conflict-alert" [class]="conflict.severity">
-                    <mat-icon>{{ conflict.severity === 'error' ? 'error' : 'warning' }}</mat-icon>
-                    <span>{{ conflict.message }}</span>
-                  </div>
-                }
+                <!-- Add to this day -->
+                <button mat-stroked-button class="add-day-btn" (click)="$event.stopPropagation(); openAddDialog(undefined, day.date)">
+                  <mat-icon>add</mat-icon> Adicionar ao {{ day.dayLabel.split(' — ')[0] }}
+                </button>
               </div>
             }
           </div>
-        }
-      </div>
-    }
+        </div>
+      }
+    </div>
   }
 </div>

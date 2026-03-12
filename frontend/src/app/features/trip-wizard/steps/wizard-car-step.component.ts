@@ -375,6 +375,7 @@ export class WizardCarStepComponent {
       dropoffDate: fmt(dropoffDate),
       dropoffTime: this.searchForm.value.dropoffTime ?? '10:00',
       driverAge: 30,
+      currency: this.tripState.trip().currency || 'BRL',
     }).pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {

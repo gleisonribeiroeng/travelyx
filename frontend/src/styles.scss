@@ -20,6 +20,11 @@ html {
   --mat-sys-on-primary-container: #1A1A2E;
 }
 
+// ─── Global Box Sizing ──────────────────────────────────────────────────────────
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
 :root {
   // ── Primary ──
@@ -565,6 +570,22 @@ mat-card, .mat-mdc-card {
     .mat-mdc-dialog-container .mdc-dialog__surface {
       border-radius: 0 !important;
     }
+  }
+
+  // All dialogs get better mobile treatment
+  .cdk-overlay-pane:not(.mobile-fullscreen-dialog) {
+    max-width: calc(100vw - 16px) !important;
+    max-height: 95vh !important;
+  }
+
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 12px !important;
+  }
+
+  .mat-mdc-dialog-content {
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

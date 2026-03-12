@@ -5,6 +5,7 @@ import { Observable, of } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
+import { PlanService } from './plan.service';
 import { environment } from '../../../environments/environment';
 import {
   Trip,
@@ -46,6 +47,7 @@ export class TripStateService {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
+  private readonly planService = inject(PlanService);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/trips`;
 
   // ── Core state ──
@@ -429,13 +431,19 @@ export class TripStateService {
   // Itinerary Items
   // ---------------------------------------------------------------------------
 
-  addItineraryItem(item: ItineraryItem): void {
+  addItineraryItem(item: ItineraryItem): boolean {
+    const currentCount = this.trip().itineraryItems.length;
+    if (!this.planService.canAddItem(currentCount)) {
+      this.planService.showLimitPaywall('item');
+      return false;
+    }
     this.updateActiveTrip(t => ({
       ...t,
       itineraryItems: [...t.itineraryItems, item],
       updatedAt: new Date().toISOString(),
     }));
     this.scheduleSyncToApi();
+    return true;
   }
 
   removeItineraryItem(id: string): void {

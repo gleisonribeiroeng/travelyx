@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { CurrencyService } from '../common/currency.service';
 
 @Injectable()
 export class CarsService {
@@ -12,6 +13,7 @@ export class CarsService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly currencyService: CurrencyService,
   ) {}
 
   private getHeaders(): Record<string, string> {
@@ -85,11 +87,20 @@ export class CarsService {
     const pickupLocation = query['pickup_city_id'];
     const pickupDate = query['pickup_date'];
     const dropoffDate = query['dropoff_date'];
+    const targetCurrency = query['currency'] || 'BRL';
 
     try {
       const { data } = await firstValueFrom(
         this.httpService.get(`${this.baseUrl}/v2/cars/resultsRequest`, {
-          params: query,
+          params: {
+            pickup_city_id: query['pickup_city_id'],
+            dropoff_city_id: query['dropoff_city_id'],
+            pickup_date: query['pickup_date'],
+            dropoff_date: query['dropoff_date'],
+            pickup_time: query['pickup_time'],
+            dropoff_time: query['dropoff_time'],
+            driver_age: query['driver_age'],
+          },
           headers: this.getHeaders(),
         }),
       );
@@ -110,12 +121,14 @@ export class CarsService {
         dropoffDate,
       );
 
-      const mapped = rawCars
-        .map((raw: any, index: number) => this.mapPricelineCar(raw, index, query, qeeqLink))
-        .filter(Boolean);
+      const mapped = await Promise.all(
+        rawCars.map((raw: any, index: number) =>
+          this.mapPricelineCar(raw, index, query, qeeqLink, targetCurrency),
+        ),
+      );
 
-      this.logger.log(`Priceline car search: ${mapped.length} results`);
-      return { data: mapped };
+      this.logger.log(`Priceline car search: ${mapped.filter(Boolean).length} results (currency: ${targetCurrency})`);
+      return { data: mapped.filter(Boolean) };
     } catch (error: any) {
       this.logger.error(`Priceline car search error: ${error?.message}`);
       throw error;
@@ -125,12 +138,13 @@ export class CarsService {
   /**
    * Map a Priceline car result to our canonical CarRental model (server-side mapping).
    */
-  private mapPricelineCar(
+  private async mapPricelineCar(
     raw: any,
     index: number,
     query: Record<string, string>,
     qeeqLink: string,
-  ): any {
+    targetCurrency: string,
+  ): Promise<any> {
     const car = raw.car || {};
     const price = raw.price_details?.display || {};
     const partner = raw.partner || {};
@@ -138,7 +152,10 @@ export class CarsService {
     const dropoff = raw.dropoff || {};
 
     const totalPrice = parseFloat(price.total_price || price.price || '0');
-    const currency = price.currency || 'USD';
+    const sourceCurrency = price.currency || 'USD';
+
+    // Convert price to the trip's currency
+    const convertedPrice = await this.currencyService.convert(totalPrice, sourceCurrency, targetCurrency);
 
     const pickupDate = query['pickup_date'] || '';
     const dropoffDate = query['dropoff_date'] || '';
@@ -155,8 +172,8 @@ export class CarsService {
       pickUpAt: this.toIsoDateTime(pickupDate, pickupTime),
       dropOffAt: this.toIsoDateTime(dropoffDate, dropoffTime),
       price: {
-        total: Math.round(totalPrice * 100) / 100,
-        currency,
+        total: convertedPrice,
+        currency: targetCurrency,
       },
       images: [car.imageURL, car.images?.SIZE335X180].filter(
         (u: any): u is string => !!u,

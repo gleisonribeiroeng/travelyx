@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { AdminService, AdminUser } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PresenceService } from '../../../core/services/presence.service';
 
 @Component({
   selector: 'app-user-management',
@@ -12,16 +13,22 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss',
 })
-export class UserManagementComponent implements OnInit {
+export class UserManagementComponent implements OnInit, OnDestroy {
   private readonly adminService = inject(AdminService);
   private readonly notify = inject(NotificationService);
   private readonly auth = inject(AuthService);
+  readonly presence = inject(PresenceService);
 
   readonly users = signal<AdminUser[]>([]);
   readonly loading = signal(true);
 
   ngOnInit(): void {
+    this.presence.connect();
     this.loadUsers();
+  }
+
+  ngOnDestroy(): void {
+    this.presence.disconnect();
   }
 
   private loadUsers(): void {
@@ -30,6 +37,11 @@ export class UserManagementComponent implements OnInit {
       next: (users) => {
         this.users.set(users);
         this.loading.set(false);
+
+        // Load initial online status
+        this.adminService.getOnlineUsers().subscribe({
+          next: (ids) => this.presence.loadOnlineUsers(ids),
+        });
       },
       error: () => {
         this.notify.error('Erro ao carregar usuários');
@@ -60,6 +72,18 @@ export class UserManagementComponent implements OnInit {
         this.notify.success(`${user.name} ${isActive ? 'ativado' : 'desativado'}`);
       },
       error: () => this.notify.error('Erro ao alterar status'),
+    });
+  }
+
+  onPlanChange(user: AdminUser, plan: 'FREE' | 'PRO' | 'BUSINESS'): void {
+    this.adminService.updatePlan(user.id, plan).subscribe({
+      next: () => {
+        this.users.update(users =>
+          users.map(u => u.id === user.id ? { ...u, plan } : u)
+        );
+        this.notify.success(`Plano de ${user.name} alterado para ${plan}`);
+      },
+      error: () => this.notify.error('Erro ao alterar plano'),
     });
   }
 
