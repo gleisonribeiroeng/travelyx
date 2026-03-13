@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TripStateService } from '../../core/services/trip-state.service';
+import { TransitionService } from '../../core/services/transition.service';
 
 @Component({
   selector: 'app-auth-callback',
@@ -31,9 +32,7 @@ import { TripStateService } from '../../core/services/trip-state.service';
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     p { font-size: 1rem; opacity: 0.7; }
   `],
 })
@@ -42,20 +41,33 @@ export class AuthCallbackComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly tripState = inject(TripStateService);
+  private readonly transition = inject(TransitionService);
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
-    if (token) {
-      this.authService.handleCallback(token);
-      this.tripState.loadFromApi().subscribe((trips) => {
-        if (trips.length === 1) {
-          this.router.navigate(['/viagem', trips[0].id, 'home']);
-        } else {
-          this.router.navigate(['/viagens']);
-        }
-      });
-    } else {
+
+    if (!token) {
       this.router.navigate(['/landing']);
+      return;
     }
+
+    // If opened inside a popup, send token to parent and close
+    if (window.opener) {
+      window.opener.postMessage({ type: 'triply-auth', token }, window.location.origin);
+      window.close();
+      return;
+    }
+
+    // Normal redirect flow (fallback if popup was blocked)
+    this.authService.handleCallback(token);
+    this.transition.start();
+
+    this.tripState.loadFromApi().subscribe((trips) => {
+      if (trips.length === 1) {
+        this.router.navigate(['/viagem', trips[0].id, 'home']);
+      } else {
+        this.router.navigate(['/viagens']);
+      }
+    });
   }
 }

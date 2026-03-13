@@ -73,6 +73,42 @@
 
 }
 
+// ── Plane wipe transition overlay ──
+.plane-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.plane-dark {
+  position: absolute;
+  inset: 0;
+  background: #1a1a2e;
+}
+
+.plane-icon {
+  position: absolute;
+  z-index: 100000;
+  transform: translate(-50%, 50%);
+  pointer-events: none;
+  animation: plane-fly 1.4s ease-in-out infinite;
+}
+
+.plane-img {
+  width: 130px;
+  height: auto;
+  object-fit: contain;
+  // Flip horizontally (nose points left in original) + tilt up
+  transform: scaleX(-1) rotate(15deg);
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes plane-fly {
+  0%, 100% { transform: translate(-50%, 50%) translateY(0) translateX(0); }
+  50% { transform: translate(-50%, 50%) translateY(-4px) translateX(2px); }
+}
+
 // Desktop: sidebar in grid flow
 @media (min-width: 960px) {
   .dashboard-shell {

@@ -19,3 +19,13 @@
     <app-support-chat />
   </div>
 }
+
+<!-- Plane wipe transition overlay -->
+@if (transition.active()) {
+  <div class="plane-overlay">
+    <div class="plane-dark" [style.clip-path]="overlayClip()"></div>
+    <div class="plane-icon" [style.left.%]="planeX()" [style.bottom.%]="planeY()">
+      <img src="assets/aviao.png" alt="" class="plane-img">
+    </div>
+  </div>
+}

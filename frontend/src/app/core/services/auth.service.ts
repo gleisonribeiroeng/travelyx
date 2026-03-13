@@ -37,6 +37,60 @@ export class AuthService {
     return `${environment.apiBaseUrl}/api/auth/google`;
   }
 
+  /**
+   * Opens Google login in a centered popup window.
+   * Returns a Promise that resolves when login completes.
+   */
+  loginWithPopup(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const width = 500;
+      const height = 600;
+      const left = window.screenX + (window.innerWidth - width) / 2;
+      const top = window.screenY + (window.innerHeight - height) / 2;
+
+      const popup = window.open(
+        this.getGoogleLoginUrl(),
+        'google-login',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`,
+      );
+
+      if (!popup) {
+        // Popup blocked — fallback to redirect
+        window.location.href = this.getGoogleLoginUrl();
+        return;
+      }
+
+      const onMessage = (event: MessageEvent) => {
+        if (event.data?.type !== 'triply-auth') return;
+
+        window.removeEventListener('message', onMessage);
+        clearInterval(pollTimer);
+
+        const token = event.data.token;
+        if (token) {
+          this.handleCallback(token);
+          resolve();
+        } else {
+          reject(new Error('Login cancelado'));
+        }
+      };
+
+      window.addEventListener('message', onMessage);
+
+      // Poll in case user closes popup without completing login
+      const pollTimer = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(pollTimer);
+          window.removeEventListener('message', onMessage);
+          // Check if login happened (token may have been set)
+          if (!this._token()) {
+            reject(new Error('Login cancelado'));
+          }
+        }
+      }, 500);
+    });
+  }
+
   handleCallback(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
     this._token.set(token);
