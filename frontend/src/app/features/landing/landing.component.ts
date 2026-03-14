@@ -117,6 +117,11 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loginWithGoogle(): void {
+    // Use direct redirect — more reliable across domains and popup blockers
+    window.location.href = this.authService.getGoogleLoginUrl();
+  }
+
+  loginWithGooglePopup(): void {
     this.authService.loginWithPopup().then(() => {
       this.transition.start();
       this.tripState.loadFromApi().subscribe((trips) => {
