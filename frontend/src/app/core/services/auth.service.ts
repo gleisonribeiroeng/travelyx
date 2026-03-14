@@ -27,9 +27,9 @@ export class AuthService {
   readonly plan = computed<Plan>(() => this._user()?.plan || 'FREE');
   readonly isPro = computed(() => {
     const p = this.plan();
-    return p === 'PRO' || p === 'BUSINESS' || this.isAdmin();
+    return p === 'PRO' || p === 'BUSINESS';
   });
-  readonly isBusiness = computed(() => this.plan() === 'BUSINESS' || this.isAdmin());
+  readonly isBusiness = computed(() => this.plan() === 'BUSINESS');
 
   constructor(private readonly http: HttpClient) {}
 
@@ -39,7 +39,9 @@ export class AuthService {
 
   /**
    * Opens Google login in a centered popup window.
-   * Returns a Promise that resolves when login completes.
+   * Uses localStorage 'storage' event to detect when the popup completes login.
+   * This is reliable even after cross-origin Google OAuth redirects
+   * (which null out window.opener).
    */
   loginWithPopup(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -48,44 +50,58 @@ export class AuthService {
       const left = window.screenX + (window.innerWidth - width) / 2;
       const top = window.screenY + (window.innerHeight - height) / 2;
 
+      // Clear token so we can detect when the popup sets it
+      const hadToken = !!this._token();
+
       const popup = window.open(
         this.getGoogleLoginUrl(),
-        'google-login',
+        'triply-google-login',
         `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`,
       );
 
       if (!popup) {
-        // Popup blocked — fallback to redirect
         window.location.href = this.getGoogleLoginUrl();
         return;
       }
 
-      const onMessage = (event: MessageEvent) => {
-        if (event.data?.type !== 'triply-auth') return;
-
-        window.removeEventListener('message', onMessage);
+      const cleanup = () => {
+        window.removeEventListener('storage', onStorage);
         clearInterval(pollTimer);
+      };
 
-        const token = event.data.token;
-        if (token) {
-          this.handleCallback(token);
+      // 'storage' event fires in the PARENT when another tab/popup writes to localStorage
+      const onStorage = (e: StorageEvent) => {
+        if (e.key !== this.TOKEN_KEY || !e.newValue) return;
+        cleanup();
+        // Reload signals from localStorage (popup already wrote them)
+        this._token.set(e.newValue);
+        const user = this.loadUser();
+        if (user) this._user.set(user);
+        // Close popup if still open
+        try { popup.close(); } catch { /* cross-origin */ }
+        resolve();
+      };
+
+      window.addEventListener('storage', onStorage);
+
+      // Poll to detect popup closed without login
+      const pollTimer = setInterval(() => {
+        if (!popup.closed) return;
+        cleanup();
+        // Check if token was set (race condition safety)
+        const token = localStorage.getItem(this.TOKEN_KEY);
+        if (token && !hadToken) {
+          this._token.set(token);
+          const user = this.loadUser();
+          if (user) this._user.set(user);
+          resolve();
+        } else if (token !== this._token()) {
+          this._token.set(token);
+          const user = this.loadUser();
+          if (user) this._user.set(user);
           resolve();
         } else {
           reject(new Error('Login cancelado'));
-        }
-      };
-
-      window.addEventListener('message', onMessage);
-
-      // Poll in case user closes popup without completing login
-      const pollTimer = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(pollTimer);
-          window.removeEventListener('message', onMessage);
-          // Check if login happened (token may have been set)
-          if (!this._token()) {
-            reject(new Error('Login cancelado'));
-          }
         }
       }, 500);
     });

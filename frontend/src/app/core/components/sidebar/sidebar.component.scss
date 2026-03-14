@@ -120,6 +120,14 @@ $sidebar-width: 260px;
   }
 }
 
+.nav-item.locked {
+  opacity: 0.55;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
 .pro-badge {
   margin-left: auto;
   font-size: 0.6rem;

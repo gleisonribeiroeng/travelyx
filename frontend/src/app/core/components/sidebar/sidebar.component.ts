@@ -5,13 +5,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth.service';
 import { TripStateService } from '../../services/trip-state.service';
 import { TripRouterService } from '../../services/trip-router.service';
-import { PlanService } from '../../services/plan.service';
+import { PlanService, PlanLimits } from '../../services/plan.service';
 
 interface NavItem {
   icon: string;
   label: string;
   route: string;
   pro?: boolean;
+  proFeature?: keyof PlanLimits['features'];
 }
 
 interface NavGroup {
@@ -67,10 +68,10 @@ export class SidebarComponent {
         { icon: 'timeline', label: 'Linha do Tempo', route: `${base}/timeline` },
       ]},
       { label: 'Organização', items: [
-        { icon: 'account_balance_wallet', label: 'Orçamento', route: `${base}/budget`, pro: true },
-        { icon: 'notification_important', label: 'Alertas', route: `${base}/conflicts`, pro: true },
-        { icon: 'checklist', label: 'Checklist', route: `${base}/checklist`, pro: true },
-        { icon: 'description', label: 'Documentos', route: `${base}/documents`, pro: true },
+        { icon: 'account_balance_wallet', label: 'Orçamento', route: `${base}/budget`, pro: true, proFeature: 'budget' },
+        { icon: 'notification_important', label: 'Alertas', route: `${base}/conflicts`, pro: true, proFeature: 'conflictDetails' },
+        { icon: 'checklist', label: 'Checklist', route: `${base}/checklist`, pro: true, proFeature: 'checklist' },
+        { icon: 'description', label: 'Documentos', route: `${base}/documents`, pro: true, proFeature: 'documents' },
       ]},
     ];
   });
@@ -91,6 +92,13 @@ export class SidebarComponent {
   openNewTrip(): void {
     this.router.navigate(['/viagens']);
     this.closeMobile();
+  }
+
+  handleProClick(item: NavItem): void {
+    this.closeMobile();
+    if (item.proFeature) {
+      this.planService.showPaywall(item.proFeature);
+    }
   }
 
   logout(): void {

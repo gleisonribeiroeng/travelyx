@@ -14,19 +14,27 @@
           <span class="group-label">{{ group.label }}</span>
         }
         @for (item of group.items; track item.route) {
-          <a
-            class="nav-item"
-            [routerLink]="item.route"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: item.route === '/viagens' || item.route.endsWith('/home') }"
-            (click)="closeMobile()"
-          >
-            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-            <span class="nav-label">{{ item.label }}</span>
-            @if (item.pro && !planService.isPro()) {
+          @if (item.pro && !planService.isPro()) {
+            <a
+              class="nav-item locked"
+              (click)="handleProClick(item)"
+            >
+              <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+              <span class="nav-label">{{ item.label }}</span>
               <span class="pro-badge">PRO</span>
-            }
-          </a>
+            </a>
+          } @else {
+            <a
+              class="nav-item"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: item.route === '/viagens' || item.route.endsWith('/home') }"
+              (click)="closeMobile()"
+            >
+              <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+              <span class="nav-label">{{ item.label }}</span>
+            </a>
+          }
         }
       </div>
     }

@@ -24,11 +24,6 @@ export class PlanGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
 
-    // ADMIN bypasses plan checks
-    if (user?.role === 'ADMIN') {
-      return true;
-    }
-
     const userLevel = PLAN_HIERARCHY[user?.plan || 'FREE'] ?? 0;
     const requiredLevel = PLAN_HIERARCHY[requiredPlan] ?? 0;
 

@@ -51,9 +51,13 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    // If opened inside a popup, send token to parent and close
-    if (window.opener) {
-      window.opener.postMessage({ type: 'triply-auth', token }, window.location.origin);
+    // Detect if running inside the login popup (window.name persists through redirects)
+    const isPopup = window.name === 'triply-google-login';
+
+    if (isPopup) {
+      // Save token to localStorage — parent window detects this via 'storage' event
+      this.authService.handleCallback(token);
+      // Close the popup
       window.close();
       return;
     }
