@@ -62,16 +62,21 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    // Normal redirect flow (fallback if popup was blocked)
+    // Normal redirect flow
     this.authService.handleCallback(token);
     this.transition.start();
 
-    this.tripState.loadFromApi().subscribe((trips) => {
-      if (trips.length === 1) {
-        this.router.navigate(['/viagem', trips[0].id, 'home']);
-      } else {
+    this.tripState.loadFromApi().subscribe({
+      next: (trips) => {
+        if (trips.length === 1) {
+          this.router.navigate(['/viagem', trips[0].id, 'home']);
+        } else {
+          this.router.navigate(['/viagens']);
+        }
+      },
+      error: () => {
         this.router.navigate(['/viagens']);
-      }
+      },
     });
   }
 }
