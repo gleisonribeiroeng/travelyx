@@ -302,41 +302,41 @@
   padding: 4px;
   overflow: hidden;
 
-  :host ::ng-deep {
+  ::ng-deep {
     .fc {
       font-family: var(--triply-font-family);
     }
 
     // Mobile: stack toolbar into rows — nav on top, title below, view buttons last
-    .fc .fc-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+    .fc .fc-toolbar.fc-header-toolbar {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
       gap: 6px;
       padding: 8px 4px;
     }
 
-    // Navigation chunk (prev/next/today) — full width, centered
-    .fc .fc-toolbar .fc-toolbar-chunk:first-child {
-      order: 1;
-      display: flex;
-      justify-content: center;
-      width: 100%;
+    // All chunks: full width on mobile
+    .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
     }
 
-    // Title chunk — full width, centered
-    .fc .fc-toolbar .fc-toolbar-chunk:nth-child(2) {
+    // Navigation chunk (prev/next/today)
+    .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk:first-child {
+      order: 1;
+    }
+
+    // Title chunk
+    .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
       order: 2;
-      width: 100%;
       text-align: center;
     }
 
-    // View buttons chunk — full width, centered
-    .fc .fc-toolbar .fc-toolbar-chunk:last-child {
+    // View buttons chunk
+    .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk:last-child {
       order: 3;
-      display: flex;
-      justify-content: center;
-      width: 100%;
     }
 
     .fc .fc-toolbar-title {
@@ -629,23 +629,23 @@
     padding: 16px;
     border-radius: var(--triply-radius-lg);
 
-    :host ::ng-deep {
+    ::ng-deep {
       // Tablet+: single-row toolbar
-      .fc .fc-toolbar {
-        flex-wrap: nowrap;
+      .fc .fc-toolbar.fc-header-toolbar {
+        flex-wrap: nowrap !important;
         gap: 0;
       }
 
-      .fc .fc-toolbar .fc-toolbar-chunk {
-        width: auto;
+      .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk {
+        width: auto !important;
       }
 
-      .fc .fc-toolbar .fc-toolbar-chunk:first-child {
-        justify-content: flex-start;
+      .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk:first-child {
+        justify-content: flex-start !important;
       }
 
-      .fc .fc-toolbar .fc-toolbar-chunk:last-child {
-        justify-content: flex-end;
+      .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk:last-child {
+        justify-content: flex-end !important;
       }
 
       .fc .fc-toolbar-title {
