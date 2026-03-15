@@ -29,4 +29,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "cd backend && npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "cd backend && npx prisma db execute --file prisma/fix-migration.sql --schema prisma/schema.prisma 2>/dev/null; npx prisma migrate deploy; node dist/main"]
