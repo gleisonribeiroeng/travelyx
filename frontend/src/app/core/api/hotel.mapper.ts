@@ -74,13 +74,26 @@ export class HotelMapper implements Mapper<BookingComHotel, Stay> {
       rating,
       reviewCount: prop.reviewCount ?? 0,
       photoUrl: prop.photoUrls?.[0] || null,
-      images: prop.photoUrls || [],
+      images: this.deduplicatePhotos(prop.photoUrls || []),
       link: {
         url: `https://www.booking.com/hotel/searchresults.html?aid=304142&dest_id=${hotelId}`,
         provider: 'Booking.com',
       },
       addedToItinerary: false,
     };
+  }
+
+  /** Remove duplicate photos that differ only in resolution (square500/square1024/square2000). */
+  private deduplicatePhotos(urls: string[]): string[] {
+    const seen = new Set<string>();
+    return urls.filter(url => {
+      // Extract the photo ID (number before .jpg) to identify unique photos
+      const match = url.match(/\/(\d+)\.jpg/);
+      const key = match ? match[1] : url;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   }
 
   private calculateNights(checkIn: string, checkOut: string): number {

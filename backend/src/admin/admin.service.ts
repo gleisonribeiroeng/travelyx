@@ -24,7 +24,7 @@ export class AdminService {
   async updateRole(userId: string, role: string) {
     return this.prisma.user.update({
       where: { id: userId },
-      data: { role },
+      data: { role: role as any },
       select: { id: true, role: true },
     });
   }

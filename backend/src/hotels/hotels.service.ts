@@ -57,6 +57,34 @@ export class HotelsService {
     }
   }
 
+  async getHotelPhotos(hotelId: string): Promise<any> {
+    if (!hotelId) return { data: [] };
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(`${this.baseUrl}/api/v1/hotels/getHotelPhotos`, {
+          params: { hotel_id: hotelId },
+          headers: this.getHeaders(),
+        }),
+      );
+
+      if (!data?.status || !Array.isArray(data?.data)) {
+        return { data: [] };
+      }
+
+      // Return unique photo URLs (max 15 for performance)
+      const photos = data.data
+        .slice(0, 15)
+        .map((p: any) => p.url?.replace('square1024', 'square600') || p.url)
+        .filter(Boolean);
+
+      return { data: photos };
+    } catch (error: any) {
+      this.logger.error(`Hotel photos error: ${error?.message}`);
+      return { data: [] };
+    }
+  }
+
   getShowcase() {
     const enrich = (hotels: any[]) =>
       hotels.map((h) => ({

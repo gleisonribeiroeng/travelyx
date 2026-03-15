@@ -95,4 +95,11 @@ export class HotelApiService extends BaseApiService {
       ),
     );
   }
+
+  getHotelPhotos(hotelId: string): Observable<string[]> {
+    return this.get<any>('/api/v1/hotels/getHotelPhotos', { hotel_id: hotelId }).pipe(
+      map((response) => response.data || []),
+      catchError(() => of([])),
+    );
+  }
 }

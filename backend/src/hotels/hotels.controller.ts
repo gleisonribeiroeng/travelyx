@@ -14,4 +14,9 @@ export class HotelsController {
   searchHotels(@Query() query: Record<string, string>) {
     return this.hotelsService.searchHotels(query);
   }
+
+  @Get('api/v1/hotels/getHotelPhotos')
+  getHotelPhotos(@Query('hotel_id') hotelId: string) {
+    return this.hotelsService.getHotelPhotos(hotelId);
+  }
 }

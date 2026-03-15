@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
@@ -6,6 +6,7 @@ import {
   Flight, Stay, CarRental, Transport, Activity, Attraction,
 } from '../../../core/models/trip.models';
 import { ExternalLink } from '../../../core/models/base.model';
+import { HotelApiService } from '../../../core/api/hotel-api.service';
 
 // ─── Public API ────────────────────────────────────────────────────────────────
 
@@ -755,13 +756,24 @@ function formatDate(iso: string): string {
     }
   `],
 })
-export class ItemDetailDialogComponent {
+export class ItemDetailDialogComponent implements OnInit {
   readonly data = inject<ItemDetailData>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<ItemDetailDialogComponent>);
+  private readonly hotelApi = inject(HotelApiService);
 
   readonly selectedImage = signal(0);
   readonly isPaid = signal(this.data.isPaid ?? false);
   readonly isManual = computed(() => this.data.item.source === 'manual');
+  readonly extraPhotos = signal<string[]>([]);
+
+  ngOnInit(): void {
+    if (this.data.type === 'stay') {
+      const hotelId = this.data.item.id;
+      this.hotelApi.getHotelPhotos(hotelId).subscribe(photos => {
+        if (photos.length > 0) this.extraPhotos.set(photos);
+      });
+    }
+  }
 
   readonly title = computed(() => {
     switch (this.data.type) {
@@ -779,7 +791,12 @@ export class ItemDetailDialogComponent {
 
   readonly images = computed((): string[] => {
     switch (this.data.type) {
-      case 'stay': { const h = this.data.item; return h.photoUrl ? [h.photoUrl, ...h.images] : h.images; }
+      case 'stay': {
+        const extra = this.extraPhotos();
+        if (extra.length > 0) return extra;
+        const h = this.data.item;
+        return h.photoUrl ? [h.photoUrl] : [];
+      }
       case 'car-rental': return this.data.item.images;
       case 'activity': return this.data.item.images;
       case 'attraction': return this.data.item.images;
