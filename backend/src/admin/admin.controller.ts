@@ -3,7 +3,7 @@ import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { Role, Plan } from '@prisma/client';
+// Role and Plan are now String types in Prisma schema
 import { PresenceGateway } from '../presence/presence.gateway';
 import { SubscriptionService } from '../subscription/subscription.service';
 
@@ -28,7 +28,7 @@ export class AdminController {
   }
 
   @Patch('users/:id/role')
-  updateRole(@Param('id') id: string, @Body() body: { role: Role }) {
+  updateRole(@Param('id') id: string, @Body() body: { role: string }) {
     return this.adminService.updateRole(id, body.role);
   }
 
@@ -38,7 +38,7 @@ export class AdminController {
   }
 
   @Patch('users/:id/plan')
-  updatePlan(@Param('id') id: string, @Body() body: { plan: Plan; daysValid?: number }) {
+  updatePlan(@Param('id') id: string, @Body() body: { plan: string; daysValid?: number }) {
     return this.subscriptionService.setPlan(id, body.plan, body.daysValid);
   }
 }

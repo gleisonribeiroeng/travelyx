@@ -4,18 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Role {
-  USER
-  ADMIN
-}
-
-enum Plan {
-  FREE
-  PRO
-  BUSINESS
 }
 
 model User {
@@ -24,9 +12,9 @@ model User {
   email              String   @unique
   name               String
   picture            String
-  role               Role     @default(USER)
+  role               String   @default("USER")
   isActive           Boolean  @default(true)
-  plan               Plan     @default(FREE)
+  plan               String   @default("FREE")
   planExpiresAt      DateTime?
   googleAccessToken  String?
   googleRefreshToken String?
