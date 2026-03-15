@@ -77,11 +77,22 @@ export class HotelSearchComponent {
   });
 
   constructor() {
-    const dates = this.tripState.trip().dates;
+    const trip = this.tripState.trip();
+    const dates = trip.dates;
     if (dates.start && dates.end) {
       this.hotelSearchForm.get('dateRange')!.patchValue({
         start: new Date(dates.start + 'T00:00:00'),
         end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+
+    // Auto-fill destination from trip
+    if (trip.destination) {
+      this.destinationControl.setValue(trip.destination as any);
+      this.hotelApi.searchDestinations(trip.destination).subscribe(results => {
+        if (results.length > 0) {
+          this.destinationControl.setValue(results[0]);
+        }
       });
     }
   }
