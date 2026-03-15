@@ -1,8 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { TripStateService } from '../../core/services/trip-state.service';
-import { TransitionService } from '../../core/services/transition.service';
 
 @Component({
   selector: 'app-auth-callback',
@@ -40,43 +38,22 @@ export class AuthCallbackComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly tripState = inject(TripStateService);
-  private readonly transition = inject(TransitionService);
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
+    console.log('[AUTH-CALLBACK] token present:', !!token);
 
     if (!token) {
+      console.log('[AUTH-CALLBACK] No token found, going to landing');
       this.router.navigate(['/landing']);
       return;
     }
 
-    // Detect if running inside the login popup (window.name persists through redirects)
-    const isPopup = window.name === 'triply-google-login';
-
-    if (isPopup) {
-      // Save token to localStorage — parent window detects this via 'storage' event
-      this.authService.handleCallback(token);
-      // Close the popup
-      window.close();
-      return;
-    }
-
-    // Normal redirect flow
+    // Save token and user info
     this.authService.handleCallback(token);
-    this.transition.start();
+    console.log('[AUTH-CALLBACK] Logged in:', this.authService.isLoggedIn(), 'user:', this.authService.user()?.email);
 
-    this.tripState.loadFromApi().subscribe({
-      next: (trips) => {
-        if (trips.length === 1) {
-          this.router.navigate(['/viagem', trips[0].id, 'home']);
-        } else {
-          this.router.navigate(['/viagens']);
-        }
-      },
-      error: () => {
-        this.router.navigate(['/viagens']);
-      },
-    });
+    // Go straight to trips list
+    this.router.navigate(['/viagens']);
   }
 }
