@@ -54,6 +54,14 @@ async function main() {
       await client.query(`ALTER TABLE "User" ADD COLUMN "planExpiresAt" TIMESTAMP(3)`);
       console.log('[DB-FIX] Created planExpiresAt column');
     }
+    if (!colMap['googleAccessToken']) {
+      await client.query(`ALTER TABLE "User" ADD COLUMN "googleAccessToken" TEXT`);
+      console.log('[DB-FIX] Created googleAccessToken column');
+    }
+    if (!colMap['googleRefreshToken']) {
+      await client.query(`ALTER TABLE "User" ADD COLUMN "googleRefreshToken" TEXT`);
+      console.log('[DB-FIX] Created googleRefreshToken column');
+    }
 
     // Drop old enum types (no longer needed)
     await client.query(`DROP TYPE IF EXISTS "Plan" CASCADE`);
