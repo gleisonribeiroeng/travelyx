@@ -5,11 +5,37 @@ import { Activity } from '../models/trip.models';
  * External Viator product response shape from Viator Partner API.
  * All fields are optional because API response format is based on public documentation.
  */
+export interface ViatorImageVariant {
+  url: string;
+  width?: number;
+  height?: number;
+}
+
+/**
+ * Pick the best quality image variant from Viator's variants array.
+ * Prefers variants with width >= 720px. Falls back to the largest available.
+ */
+export function pickBestVariant(variants?: ViatorImageVariant[]): string | undefined {
+  if (!variants?.length) return undefined;
+
+  // If variants have width info, pick the best one
+  const withSize = variants.filter(v => v.width);
+  if (withSize.length) {
+    // Sort by width descending, pick the first one >= 720 or the largest
+    const sorted = [...withSize].sort((a, b) => (b.width ?? 0) - (a.width ?? 0));
+    const ideal = sorted.find(v => (v.width ?? 0) >= 720 && (v.width ?? 0) <= 1200);
+    return (ideal ?? sorted[0])?.url;
+  }
+
+  // No size info — pick the last variant (Viator sorts smallest to largest)
+  return variants[variants.length - 1]?.url;
+}
+
 export interface ViatorProduct {
   productCode?: string;
   title?: string;
   description?: string;
-  images?: Array<{ variants: Array<{ url: string }> }>;
+  images?: Array<{ variants: ViatorImageVariant[] }>;
   pricing?: {
     summary?: {
       fromPrice?: number;
@@ -83,11 +109,7 @@ export class TourMapper {
         currency: 'BRL', // TODO: dynamic currency based on user locale
       },
       images: (raw.images || [])
-        .map(img => {
-          const variants = img.variants ?? [];
-          // Pick a high-quality variant (prefer larger sizes near the end of the array)
-          return (variants[variants.length - 1] ?? variants[0])?.url;
-        })
+        .map(img => pickBestVariant(img.variants))
         .filter((u): u is string => !!u),
       link: {
         url: raw.bookingInfo?.bookingUrl || '#',

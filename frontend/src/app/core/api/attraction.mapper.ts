@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Attraction } from '../models/trip.models';
+import { ViatorImageVariant, pickBestVariant } from './tour.mapper';
 
 /**
  * Viator product response shape (same as tours).
@@ -8,7 +9,7 @@ export interface ViatorAttractionProduct {
   productCode?: string;
   title?: string;
   description?: string;
-  images?: Array<{ variants: Array<{ url: string }> }>;
+  images?: Array<{ variants: ViatorImageVariant[] }>;
   pricing?: {
     summary?: {
       fromPrice?: number;
@@ -61,10 +62,7 @@ export class AttractionMapper {
       city: params.city,
       category,
       images: (raw.images || [])
-        .map(img => {
-          const variants = img.variants ?? [];
-          return (variants[variants.length - 1] ?? variants[0])?.url;
-        })
+        .map(img => pickBestVariant(img.variants))
         .filter((u): u is string => !!u),
       link: raw.bookingInfo?.bookingUrl
         ? { url: raw.bookingInfo.bookingUrl, provider: 'Viator' }
