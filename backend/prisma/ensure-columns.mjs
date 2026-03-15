@@ -3,50 +3,66 @@ import pg from 'pg';
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 
 async function main() {
-  console.log('[ENSURE-COLUMNS] Connecting to database...');
+  console.log('[DB-FIX] Connecting to database...');
   const client = await pool.connect();
   try {
-    const { rows } = await client.query(
-      `SELECT column_name FROM information_schema.columns WHERE table_name = 'User'`
-    );
-    const existing = new Set(rows.map(r => r.column_name));
-    console.log('[ENSURE-COLUMNS] Existing columns:', [...existing].join(', '));
-
-    const { rows: enums } = await client.query(
-      `SELECT typname FROM pg_type WHERE typname IN ('Role', 'Plan')`
-    );
-    const existingEnums = new Set(enums.map(r => r.typname));
-    console.log('[ENSURE-COLUMNS] Existing enums:', [...existingEnums].join(', '));
-
-    if (!existingEnums.has('Role')) {
-      await client.query(`CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN')`);
-      console.log('[ENSURE-COLUMNS] Created Role enum');
+    // Check column types
+    const { rows: cols } = await client.query(`
+      SELECT column_name, data_type, udt_name
+      FROM information_schema.columns
+      WHERE table_name = 'User'
+    `);
+    console.log('[DB-FIX] Current columns:');
+    for (const c of cols) {
+      console.log(`  ${c.column_name}: ${c.data_type} (${c.udt_name})`);
     }
-    if (!existing.has('role')) {
-      await client.query(`ALTER TABLE "User" ADD COLUMN "role" "Role" NOT NULL DEFAULT 'USER'`);
+
+    const colMap = {};
+    for (const c of cols) {
+      colMap[c.column_name] = c.udt_name;
+    }
+
+    // Convert 'role' column from enum to TEXT if needed
+    if (colMap['role'] === 'Role') {
+      await client.query(`ALTER TABLE "User" ALTER COLUMN "role" TYPE TEXT USING "role"::TEXT`);
+      await client.query(`ALTER TABLE "User" ALTER COLUMN "role" SET DEFAULT 'USER'`);
+      console.log('[DB-FIX] Converted role from enum to TEXT');
+    }
+
+    // Convert 'plan' column from enum to TEXT if needed
+    if (colMap['plan'] === 'Plan') {
+      await client.query(`ALTER TABLE "User" ALTER COLUMN "plan" TYPE TEXT USING "plan"::TEXT`);
+      await client.query(`ALTER TABLE "User" ALTER COLUMN "plan" SET DEFAULT 'FREE'`);
+      console.log('[DB-FIX] Converted plan from enum to TEXT');
+    }
+
+    // Ensure columns exist (if missing entirely)
+    if (!colMap['role']) {
+      await client.query(`ALTER TABLE "User" ADD COLUMN "role" TEXT NOT NULL DEFAULT 'USER'`);
       await client.query(`UPDATE "User" SET "role" = 'ADMIN' WHERE "email" = 'gleison423200@gmail.com'`);
-      console.log('[ENSURE-COLUMNS] Created role column');
+      console.log('[DB-FIX] Created role column');
     }
-    if (!existing.has('isActive')) {
+    if (!colMap['isActive']) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "isActive" BOOLEAN NOT NULL DEFAULT true`);
-      console.log('[ENSURE-COLUMNS] Created isActive column');
+      console.log('[DB-FIX] Created isActive column');
     }
-    if (!existingEnums.has('Plan')) {
-      await client.query(`CREATE TYPE "Plan" AS ENUM ('FREE', 'PRO', 'BUSINESS')`);
-      console.log('[ENSURE-COLUMNS] Created Plan enum');
+    if (!colMap['plan']) {
+      await client.query(`ALTER TABLE "User" ADD COLUMN "plan" TEXT NOT NULL DEFAULT 'FREE'`);
+      console.log('[DB-FIX] Created plan column');
     }
-    if (!existing.has('plan')) {
-      await client.query(`ALTER TABLE "User" ADD COLUMN "plan" "Plan" NOT NULL DEFAULT 'FREE'`);
-      console.log('[ENSURE-COLUMNS] Created plan column');
-    }
-    if (!existing.has('planExpiresAt')) {
+    if (!colMap['planExpiresAt']) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "planExpiresAt" TIMESTAMP(3)`);
-      console.log('[ENSURE-COLUMNS] Created planExpiresAt column');
+      console.log('[DB-FIX] Created planExpiresAt column');
     }
 
-    console.log('[ENSURE-COLUMNS] Done!');
+    // Drop old enum types (no longer needed)
+    await client.query(`DROP TYPE IF EXISTS "Plan" CASCADE`);
+    await client.query(`DROP TYPE IF EXISTS "Role" CASCADE`);
+    console.log('[DB-FIX] Dropped old enum types');
+
+    console.log('[DB-FIX] All done!');
   } catch (e) {
-    console.error('[ENSURE-COLUMNS] ERROR:', e.message);
+    console.error('[DB-FIX] ERROR:', e.message);
   } finally {
     client.release();
     await pool.end();
