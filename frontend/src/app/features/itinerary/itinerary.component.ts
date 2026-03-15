@@ -113,7 +113,7 @@ export class ItineraryComponent {
     editable: true,
     selectable: false,
     eventDisplay: 'block',
-    dayMaxEvents: 3,
+    dayMaxEvents: 2,
     eventOverlap: (stillEvent: any) => {
       const fixedTypes = ['flight', 'car-rental', 'transport'];
       return !fixedTypes.includes(stillEvent.extendedProps?.type);

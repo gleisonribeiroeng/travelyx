@@ -61,7 +61,10 @@ export class AttractionMapper {
       city: params.city,
       category,
       images: (raw.images || [])
-        .map(img => img.variants?.[0]?.url)
+        .map(img => {
+          const variants = img.variants ?? [];
+          return (variants[variants.length - 1] ?? variants[0])?.url;
+        })
         .filter((u): u is string => !!u),
       link: raw.bookingInfo?.bookingUrl
         ? { url: raw.bookingInfo.bookingUrl, provider: 'Viator' }

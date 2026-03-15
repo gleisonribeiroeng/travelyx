@@ -110,10 +110,15 @@ export class SearchComponent {
 
   constructor() {
     const dates = this.tripState.trip().dates;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     if (dates.start && dates.end) {
+      const start = new Date(dates.start + 'T00:00:00');
+      const end = new Date(dates.end + 'T00:00:00');
       this.flightSearchForm.get('dateRange')!.patchValue({
-        start: new Date(dates.start + 'T00:00:00'),
-        end: new Date(dates.end + 'T00:00:00'),
+        start: start >= today ? start : null,
+        end: end >= today ? end : null,
       });
     }
 
@@ -522,6 +527,13 @@ export class SearchComponent {
     } else {
       const departure = this.flightSearchForm.value.dateRange?.start;
       if (!departure) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (departure < today) {
+        this.notify.error('A data de ida precisa ser hoje ou no futuro');
+        return;
+      }
 
       const params: any = {
         origin: effectiveOrigin,

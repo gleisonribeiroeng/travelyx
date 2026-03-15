@@ -83,7 +83,11 @@ export class TourMapper {
         currency: 'BRL', // TODO: dynamic currency based on user locale
       },
       images: (raw.images || [])
-        .map(img => img.variants?.[0]?.url)
+        .map(img => {
+          const variants = img.variants ?? [];
+          // Pick a high-quality variant (prefer larger sizes near the end of the array)
+          return (variants[variants.length - 1] ?? variants[0])?.url;
+        })
         .filter((u): u is string => !!u),
       link: {
         url: raw.bookingInfo?.bookingUrl || '#',

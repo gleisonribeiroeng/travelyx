@@ -46,6 +46,7 @@
   grid-template-columns: 1fr;
   gap: 16px;
   margin-top: var(--triply-spacing-lg);
+  overflow: hidden;
 }
 
 .hl-card {
@@ -55,6 +56,8 @@
   box-shadow: var(--triply-shadow-xs);
   transition: transform var(--triply-transition-normal), box-shadow var(--triply-transition-normal);
   border-top: 3px solid transparent;
+  min-width: 0;
+  overflow: hidden;
 
   &.hl-cheap {
     background: linear-gradient(180deg, rgba(16, 185, 129, 0.06) 0%, #fff 50%);

@@ -47,6 +47,7 @@
 .header-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -734,6 +735,22 @@
   .page-header {
     flex-direction: column;
     gap: 8px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .bulk-action {
+    font-size: 0.7rem !important;
+    padding: 0 8px !important;
+  }
+
+  .add-btn {
+    font-size: 0.75rem !important;
+    padding: 0 10px !important;
+    min-height: 32px !important;
   }
 
   .day-section {
