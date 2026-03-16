@@ -110,8 +110,8 @@ export class BudgetService {
   getCategoryLabel(cat: string): string {
     const map: Record<string, string> = {
       flight: 'Voos', stay: 'Hospedagem', 'car-rental': 'Aluguel de Carro',
-      transport: 'Transporte', activity: 'Passeios',
-      attraction: 'Atrações', food: 'Alimentação', shopping: 'Compras',
+      transport: 'Transporte', activity: 'Atividades',
+      attraction: 'Atividades', food: 'Alimentação', shopping: 'Compras',
       insurance: 'Seguro', visa: 'Visto', other: 'Outros',
     };
     return map[cat] || cat;

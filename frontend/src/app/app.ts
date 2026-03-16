@@ -5,6 +5,7 @@ import { SidebarComponent } from './core/components/sidebar/sidebar.component';
 import { TopBarComponent } from './core/components/top-bar/top-bar.component';
 import { ToastContainerComponent } from './shared/components/toast/toast-container.component';
 import { SupportChatComponent } from './shared/components/support-chat/support-chat.component';
+import { BottomNavComponent } from './core/components/bottom-nav/bottom-nav.component';
 import { AuthService } from './core/services/auth.service';
 import { TripStateService } from './core/services/trip-state.service';
 import { TransitionService } from './core/services/transition.service';
@@ -12,7 +13,7 @@ import { TransitionService } from './core/services/transition.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, SupportChatComponent],
+  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, SupportChatComponent, BottomNavComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

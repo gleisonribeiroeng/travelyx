@@ -104,6 +104,14 @@ export class HotelSearchComponent {
               country: '',
             } as any);
           }
+          // Auto-search after destination resolves
+          if (!this.hasSearched()) {
+            setTimeout(() => {
+              if (this.hotelSearchForm.valid) {
+                this.searchHotels();
+              }
+            }, 300);
+          }
         },
         error: () => {
           // API failed — create fallback so form is usable

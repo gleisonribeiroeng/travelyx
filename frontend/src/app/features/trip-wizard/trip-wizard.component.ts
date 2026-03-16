@@ -31,8 +31,7 @@ export class TripWizardComponent {
       { key: 'flights', label: 'Voos', icon: 'flight', route: `${base}/flights` },
       { key: 'hotels', label: 'Hotéis', icon: 'hotel', route: `${base}/hotels` },
       { key: 'cars', label: 'Carros', icon: 'directions_car', route: `${base}/cars` },
-      { key: 'tours', label: 'Passeios', icon: 'local_activity', route: `${base}/tours` },
-      { key: 'attractions', label: 'Atrações', icon: 'museum', route: `${base}/attractions` },
+      { key: 'tours', label: 'Atividades', icon: 'local_activity', route: `${base}/tours` },
       { key: 'review', label: 'Revisão', icon: 'checklist', route: `${base}/review` },
     ];
   });

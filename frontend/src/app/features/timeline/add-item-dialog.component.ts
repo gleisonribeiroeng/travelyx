@@ -123,8 +123,7 @@ export class AddItemDialogComponent {
     { value: 'flight', label: 'Voo', icon: 'flight' },
     { value: 'stay', label: 'Hotel', icon: 'hotel' },
     { value: 'car-rental', label: 'Carro', icon: 'directions_car' },
-    { value: 'activity', label: 'Passeio', icon: 'local_activity' },
-    { value: 'attraction', label: 'Atração', icon: 'museum' },
+    { value: 'activity', label: 'Atividade', icon: 'local_activity' },
     { value: 'transport', label: 'Transporte', icon: 'directions_bus' },
     { value: 'custom', label: 'Outro', icon: 'event' },
   ];

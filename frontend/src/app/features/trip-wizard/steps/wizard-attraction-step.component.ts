@@ -22,13 +22,13 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
   template: `
     <div class="wizard-step">
       <div class="step-header">
-        <h2>Atrações turísticas</h2>
-        <p>Encontre pontos turísticos e lugares imperdíveis</p>
+        <h2>Atividades</h2>
+        <p>Passeios, atrações e experiências no destino</p>
       </div>
 
       @if (selectedAttractions().length > 0) {
         <div class="current-selection">
-          <h3>Atrações selecionadas</h3>
+          <h3>Atividades selecionadas</h3>
           @for (attr of selectedAttractions(); track attr.id) {
             <mat-card class="selected-card">
               <mat-card-content>
@@ -52,7 +52,7 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
         <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
           <div class="toggle-info">
             <mat-icon>museum</mat-icon>
-            <span>Busca de Atrações</span>
+            <span>Busca de Atividades</span>
           </div>
           <div class="toggle-action">
             <span>Editar busca</span>
@@ -83,7 +83,7 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
                 <mat-spinner diameter="20"></mat-spinner>
               } @else {
                 <mat-icon>search</mat-icon>
-                Buscar atrações
+                Buscar atividades
               }
             </button>
           </form>
@@ -93,20 +93,20 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
       @if (isSearching()) {
         <div class="loading-state">
           <mat-spinner diameter="40"></mat-spinner>
-          <p>Buscando atrações...</p>
+          <p>Buscando atividades...</p>
         </div>
       }
 
       @if (!isSearching() && hasSearched() && results().length === 0) {
         <div class="empty-results">
           <mat-icon>search_off</mat-icon>
-          <p>Nenhuma atração encontrada.</p>
+          <p>Nenhuma atividade encontrada.</p>
         </div>
       }
 
       @if (results().length > 0) {
         <div class="results-list">
-          <h3>{{ results().length }} atrações encontradas</h3>
+          <h3>{{ results().length }} atividades encontradas</h3>
           @for (attr of results(); track attr.id) {
             <app-list-item-base
               [config]="toListItem(attr)"
@@ -164,6 +164,18 @@ export class WizardAttractionStepComponent {
   readonly formCollapsed = signal(false);
 
   readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
+
+  constructor() {
+    const trip = this.tripState.trip();
+    if (trip.destination && !this.hasSearched()) {
+      this.cityControl.setValue(trip.destination);
+      setTimeout(() => {
+        if (this.searchForm.valid) {
+          this.search();
+        }
+      }, 300);
+    }
+  }
 
   searchForm = new FormGroup({
     city: this.cityControl,
@@ -254,13 +266,13 @@ export class WizardAttractionStepComponent {
         date: result.date,
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
-        label: `Atração: ${attraction.name}`,
+        label: `Atividade: ${attraction.name}`,
         notes: attraction.category || '',
         order: 0,
         isPaid: false,
         attachment: null,
       });
-      this.notify.success('Atração adicionada!');
+      this.notify.success('Atividade adicionada!');
     });
   }
 

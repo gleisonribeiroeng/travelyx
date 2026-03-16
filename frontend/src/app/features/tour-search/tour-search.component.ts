@@ -39,6 +39,18 @@ export class TourSearchComponent {
   // Autocomplete destination control
   readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
 
+  constructor() {
+    const trip = this.tripState.trip();
+    if (trip.destination && !this.hasSearched()) {
+      this.destinationControl.setValue(trip.destination);
+      setTimeout(() => {
+        if (this.tourSearchForm.valid) {
+          this.searchTours();
+        }
+      }, 300);
+    }
+  }
+
   // Form controls
   tourSearchForm = new FormGroup({
     destination: this.destinationControl,
@@ -148,13 +160,13 @@ export class TourSearchComponent {
         date: result.date,
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
-        label: `Passeio: ${tour.name}`,
+        label: `Atividade: ${tour.name}`,
         notes: tour.city || '',
         order: 0,
         isPaid: false,
         attachment: null,
       });
-      this.notify.success('Passeio adicionado ao roteiro');
+      this.notify.success('Atividade adicionada ao roteiro');
     });
   }
 
@@ -213,6 +225,6 @@ export class TourSearchComponent {
     this.tripState.removeItineraryItem(
       this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
     );
-    this.notify.success('Passeio removido do roteiro');
+    this.notify.success('Atividade removida do roteiro');
   }
 }

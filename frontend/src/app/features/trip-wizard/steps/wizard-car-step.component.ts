@@ -43,15 +43,6 @@ import {
         <p>Encontre o carro ideal para se locomover no destino</p>
       </div>
 
-      <!-- Manual entry -->
-      <div class="manual-entry-section">
-        <button mat-stroked-button (click)="openManualCarDialog()">
-          <mat-icon>edit_note</mat-icon>
-          Adicionar carro manualmente
-        </button>
-        <span class="manual-hint">Ja tem uma reserva? Insira os dados do aluguel.</span>
-      </div>
-
       @if (selectedCars().length > 0) {
         <div class="current-selection">
           <h3>Carros selecionados</h3>
@@ -166,6 +157,14 @@ import {
               }
             </button>
           </form>
+
+          <div class="manual-entry-section">
+            <button mat-stroked-button (click)="openManualCarDialog()">
+              <mat-icon>edit_note</mat-icon>
+              Adicionar carro manualmente
+            </button>
+            <span class="manual-hint">Ja tem uma reserva? Insira os dados do aluguel.</span>
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -267,6 +266,36 @@ export class WizardCarStepComponent {
   readonly formCollapsed = signal(false);
   readonly sameDropOff = signal(true);
   readonly minDate = new Date();
+
+  constructor() {
+    const trip = this.tripState.trip();
+    const dates = trip.dates;
+
+    // Auto-fill dates from trip
+    if (dates.start && dates.end) {
+      this.searchForm.get('dateRange')!.patchValue({
+        start: new Date(dates.start + 'T00:00:00'),
+        end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+
+    // Auto-fill pickup location from trip destination
+    if (trip.destination && !this.hasSearched()) {
+      this.api.searchLocations(trip.destination).subscribe({
+        next: (results) => {
+          if (results.length > 0) {
+            this.pickupControl.setValue(results[0]);
+            // Auto-search after location resolves
+            setTimeout(() => {
+              if (this.searchForm.valid) {
+                this.search();
+              }
+            }, 300);
+          }
+        },
+      });
+    }
+  }
 
   get minDropoff(): Date {
     return this.searchForm.value.dateRange?.start || new Date();

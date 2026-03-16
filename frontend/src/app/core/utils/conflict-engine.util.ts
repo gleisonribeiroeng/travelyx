@@ -235,7 +235,7 @@ function detectBookingGaps(trip: Trip): ConflictAlert[] {
           message: `${consecutiveEmpty} dias consecutivos sem atividades planejadas (${formatDateBR(gapStart)} a ${formatDateBR(day)}).`,
           involvedItems: [],
           suggestion:
-            'Considere adicionar atividades ou passeios para esses dias.',
+            'Considere adicionar atividades para esses dias.',
         });
       }
       consecutiveEmpty = 0;
@@ -253,7 +253,7 @@ function detectBookingGaps(trip: Trip): ConflictAlert[] {
       message: `${consecutiveEmpty} dias consecutivos sem atividades planejadas (${formatDateBR(gapStart)} a ${formatDateBR(lastDay)}).`,
       involvedItems: [],
       suggestion:
-        'Considere adicionar atividades ou passeios para esses dias.',
+        'Considere adicionar atividades para esses dias.',
     });
   }
 

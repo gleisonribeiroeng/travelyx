@@ -1,13 +1,13 @@
 <div class="view-header">
-  <h1>Passeios</h1>
-  <p>Encontre passeios, atividades e experiências no seu destino</p>
+  <h1>Atividades</h1>
+  <p>Passeios, atrações e experiências no seu destino</p>
 </div>
 
 @if (formCollapsed()) {
   <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
     <div class="toggle-info">
       <mat-icon>local_activity</mat-icon>
-      <span>Busca de Passeios</span>
+      <span>Busca de Atividades</span>
     </div>
     <div class="toggle-action">
       <span>Editar busca</span>
@@ -43,7 +43,7 @@
       } @else {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="tourSearchForm.invalid">
           <mat-icon>search</mat-icon>
-          <span>Buscar Passeios</span>
+          <span>Buscar Atividades</span>
         </button>
       }
     </form>
@@ -51,7 +51,7 @@
 </mat-card>
 
 @if (errorMessage()) {
-  <app-error-banner [source]="errorSource() ?? 'Passeios'" [message]="errorMessage()!" (dismiss)="dismissError()" />
+  <app-error-banner [source]="errorSource() ?? 'Atividades'" [message]="errorMessage()!" (dismiss)="dismissError()" />
 }
 
 @if (searchResults().length > 0) {
@@ -105,7 +105,7 @@
 
   <div class="results-section">
     <div class="results-header">
-      <h2>{{ sortedResults().length }} passeio{{ sortedResults().length !== 1 ? 's' : '' }} encontrado{{ sortedResults().length !== 1 ? 's' : '' }}</h2>
+      <h2>{{ sortedResults().length }} atividade{{ sortedResults().length !== 1 ? 's' : '' }} encontrada{{ sortedResults().length !== 1 ? 's' : '' }}</h2>
 
       <!-- Sort Dropdown -->
       <mat-form-field appearance="outline" class="sort-field">
@@ -132,7 +132,7 @@
   <mat-card class="empty-state">
     <mat-card-content>
       <mat-icon>local_activity</mat-icon>
-      <p>Nenhum passeio encontrado. Tente um destino diferente.</p>
+      <p>Nenhuma atividade encontrada. Tente um destino diferente.</p>
     </mat-card-content>
   </mat-card>
 }

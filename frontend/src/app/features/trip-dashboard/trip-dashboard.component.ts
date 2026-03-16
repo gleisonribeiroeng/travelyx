@@ -35,6 +35,31 @@ export class TripDashboardComponent {
     this.tripState.stays().length > 0 || this.tripState.itineraryItems().length > 0
   );
 
+  /** Trip has meaningful content (items added, not just created) */
+  readonly hasContent = computed(() =>
+    this.tripState.flights().length > 0 ||
+    this.tripState.stays().length > 0 ||
+    this.tripState.carRentals().length > 0 ||
+    this.tripState.activities().length > 0 ||
+    this.tripState.attractions().length > 0 ||
+    this.tripState.itineraryItems().length > 0
+  );
+
+  /** Guided steps for new/empty trips */
+  readonly guidedSteps = computed(() => {
+    const hasFlights = this.tripState.flights().length > 0;
+    const hasStays = this.tripState.stays().length > 0;
+    const hasActivities = this.tripState.activities().length > 0 || this.tripState.attractions().length > 0;
+    const hasTimeline = this.tripState.itineraryItems().length > 0;
+
+    return [
+      { icon: 'flight', label: 'Buscar voos', desc: 'Encontre os melhores preços para seu destino', route: 'search', done: hasFlights },
+      { icon: 'hotel', label: 'Reservar hotel', desc: 'Escolha onde ficar durante sua viagem', route: 'hotels', done: hasStays },
+      { icon: 'local_activity', label: 'Adicionar atividades', desc: 'Passeios, atrações e experiências no destino', route: 'tours', done: hasActivities },
+      { icon: 'event_note', label: 'Montar roteiro', desc: 'Organize tudo dia a dia no calendário', route: 'itinerary', done: hasTimeline },
+    ];
+  });
+
   readonly daysUntilTrip = computed(() => {
     const start = this.trip().dates.start;
     if (!start) return null;
@@ -83,9 +108,8 @@ export class TripDashboardComponent {
     { icon: 'flight', label: 'Voos', count: this.tripState.flights().length, route: 'search', color: 'var(--triply-cat-flight)' },
     { icon: 'hotel', label: 'Hotéis', count: this.tripState.stays().length, route: 'hotels', color: 'var(--triply-cat-stay)' },
     { icon: 'directions_car', label: 'Carros', count: this.tripState.carRentals().length, route: 'cars', color: 'var(--triply-cat-car)' },
-    { icon: 'local_activity', label: 'Passeios', count: this.tripState.activities().length, route: 'tours', color: 'var(--triply-cat-activity)' },
+    { icon: 'local_activity', label: 'Atividades', count: this.tripState.activities().length + this.tripState.attractions().length, route: 'tours', color: 'var(--triply-cat-activity)' },
     { icon: 'directions_bus', label: 'Transportes', count: this.tripState.transports().length, route: 'transport', color: 'var(--triply-cat-transport)' },
-    { icon: 'museum', label: 'Atrações', count: this.tripState.attractions().length, route: 'attractions', color: 'var(--triply-cat-attraction)' },
   ].filter(s => s.count > 0));
 
   getTypeIcon(type: string): string {
@@ -100,8 +124,8 @@ export class TripDashboardComponent {
   getTypeLabel(type: string): string {
     const map: Record<string, string> = {
       flight: 'Voo', stay: 'Hotel', 'car-rental': 'Carro',
-      transport: 'Transporte', activity: 'Passeio',
-      attraction: 'Atração', custom: 'Evento',
+      transport: 'Transporte', activity: 'Atividade',
+      attraction: 'Atividade', custom: 'Evento',
     };
     return map[type] || 'Item';
   }

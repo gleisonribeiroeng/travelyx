@@ -79,7 +79,7 @@ export class AddExpenseDialogComponent {
     { value: 'food', label: 'Alimentação' },
     { value: 'shopping', label: 'Compras' },
     { value: 'transport', label: 'Transporte' },
-    { value: 'activity', label: 'Passeio' },
+    { value: 'activity', label: 'Atividade' },
     { value: 'insurance', label: 'Seguro' },
     { value: 'visa', label: 'Visto' },
     { value: 'other', label: 'Outros' },

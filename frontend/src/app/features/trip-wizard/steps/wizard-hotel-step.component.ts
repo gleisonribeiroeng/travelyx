@@ -50,15 +50,6 @@ import {
         <p>Encontre a hospedagem perfeita para sua viagem</p>
       </div>
 
-      <!-- Manual entry -->
-      <div class="manual-entry-section">
-        <button mat-stroked-button (click)="openManualHotelDialog()">
-          <mat-icon>edit_note</mat-icon>
-          Adicionar hotel manualmente
-        </button>
-        <span class="manual-hint">Ja tem uma reserva? Insira os dados da hospedagem.</span>
-      </div>
-
       @if (selectedHotels().length > 0) {
         <div class="current-selection">
           <h3>Hotéis selecionados</h3>
@@ -155,6 +146,14 @@ import {
               }
             </button>
           </form>
+
+          <div class="manual-entry-section">
+            <button mat-stroked-button (click)="openManualHotelDialog()">
+              <mat-icon>edit_note</mat-icon>
+              Adicionar hotel manualmente
+            </button>
+            <span class="manual-hint">Ja tem uma reserva? Insira os dados da hospedagem.</span>
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -266,11 +265,29 @@ export class WizardHotelStepComponent {
   });
 
   constructor() {
-    const dates = this.tripState.trip().dates;
+    const trip = this.tripState.trip();
+    const dates = trip.dates;
     if (dates.start && dates.end) {
       this.searchForm.get('dateRange')!.patchValue({
         start: new Date(dates.start + 'T00:00:00'),
         end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+
+    // Auto-fill destination from trip
+    if (trip.destination && !this.hasSearched()) {
+      this.api.searchDestinations(trip.destination).subscribe({
+        next: (results) => {
+          if (results.length > 0) {
+            this.destinationControl.setValue(results[0]);
+            // Auto-search after destination resolves
+            setTimeout(() => {
+              if (this.searchForm.valid) {
+                this.search();
+              }
+            }, 300);
+          }
+        },
       });
     }
   }

@@ -59,15 +59,6 @@ interface MonthOption {
         <p>Busque e selecione o voo ideal para sua viagem</p>
       </div>
 
-      <!-- Manual entry -->
-      <div class="manual-entry-section">
-        <button mat-stroked-button (click)="openManualFlightDialog()">
-          <mat-icon>edit_note</mat-icon>
-          Adicionar voo manualmente
-        </button>
-        <span class="manual-hint">Ja tem uma reserva? Insira os dados do voo.</span>
-      </div>
-
       <!-- Current selection -->
       @if (selectedFlights().length > 0) {
         <div class="current-selection">
@@ -291,6 +282,14 @@ interface MonthOption {
               }
             </button>
           </form>
+
+          <div class="manual-entry-section">
+            <button mat-stroked-button (click)="openManualFlightDialog()">
+              <mat-icon>edit_note</mat-icon>
+              Adicionar voo manualmente
+            </button>
+            <span class="manual-hint">Ja tem uma reserva? Insira os dados do voo.</span>
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -592,11 +591,23 @@ export class WizardFlightStepComponent {
 
   constructor() {
     // Pre-fill dates from trip
-    const dates = this.tripState.trip().dates;
+    const trip = this.tripState.trip();
+    const dates = trip.dates;
     if (dates.start && dates.end) {
       this.searchForm.get('dateRange')!.patchValue({
         start: new Date(dates.start + 'T00:00:00'),
         end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+
+    // Auto-fill destination from trip (no auto-search — origin is still needed)
+    if (trip.destination && !this.destinationControl.value) {
+      this.api.searchAirports(trip.destination).subscribe({
+        next: (airports) => {
+          if (airports.length > 0) {
+            this.destinationControl.setValue(airports[0]);
+          }
+        },
       });
     }
 

@@ -52,13 +52,13 @@ import { TripStateService } from '../../../core/services/trip-state.service';
           @if (tourCount() > 0) {
             <div class="stat-chip">
               <mat-icon>local_activity</mat-icon>
-              <span>{{ tourCount() }} passeio(s)</span>
+              <span>{{ tourCount() }} atividade(s)</span>
             </div>
           }
           @if (attractionCount() > 0) {
             <div class="stat-chip">
               <mat-icon>museum</mat-icon>
-              <span>{{ attractionCount() }} atração(ões)</span>
+              <span>{{ attractionCount() }} atividade(s)</span>
             </div>
           }
         </div>
@@ -151,7 +151,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (tourCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>local_activity</mat-icon> Passeios</h3>
+              <h3><mat-icon>local_activity</mat-icon> Atividades</h3>
               @for (tour of tripState.activities(); track tour.id) {
                 <div class="review-item">
                   <div class="review-item-info">
@@ -172,7 +172,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (attractionCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>museum</mat-icon> Atrações</h3>
+              <h3><mat-icon>local_activity</mat-icon> Atividades</h3>
               @for (attr of tripState.attractions(); track attr.id) {
                 <div class="review-item">
                   <div class="review-item-info">

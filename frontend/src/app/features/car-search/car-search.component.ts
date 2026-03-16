@@ -62,11 +62,18 @@ export class CarSearchComponent {
 
     // Auto-fill pickup location from trip destination
     if (trip.destination) {
-      this.pickupLocationControl.setValue(trip.destination as any);
       this.carApi.searchLocations(trip.destination).subscribe({
         next: (results) => {
           if (results.length > 0) {
             this.pickupLocationControl.setValue(results[0]);
+            // Auto-search after location resolves
+            if (!this.hasSearched()) {
+              setTimeout(() => {
+                if (this.carSearchForm.valid) {
+                  this.searchCars();
+                }
+              }, 300);
+            }
           }
         },
       });

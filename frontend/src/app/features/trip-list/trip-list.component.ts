@@ -48,8 +48,8 @@ export class TripListComponent {
       if (!result) return;
       this.tripState.createTrip(result).subscribe({
         next: (trip) => {
-          this.notify.success('Viagem criada com sucesso!');
-          this.router.navigate(['/viagem', trip.id, 'home']);
+          this.notify.success('Viagem criada! Vamos montar seu roteiro.');
+          this.router.navigate(['/viagem', trip.id, 'planner']);
         },
         error: () => this.notify.error('Erro ao criar viagem'),
       });

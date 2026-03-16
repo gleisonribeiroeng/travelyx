@@ -38,6 +38,18 @@ export class AttractionSearchComponent {
   // Autocomplete city control
   readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
 
+  constructor() {
+    const trip = this.tripState.trip();
+    if (trip.destination && !this.hasSearched()) {
+      this.cityControl.setValue(trip.destination);
+      setTimeout(() => {
+        if (this.attractionSearchForm.valid) {
+          this.searchAttractions();
+        }
+      }, 300);
+    }
+  }
+
   // Form controls
   attractionSearchForm = new FormGroup({
     city: this.cityControl,
@@ -125,13 +137,13 @@ export class AttractionSearchComponent {
         date: result.date,
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
-        label: `Atração: ${attraction.name}`,
+        label: `Atividade: ${attraction.name}`,
         notes: attraction.category || '',
         order: 0,
         isPaid: false,
         attachment: null,
       });
-      this.notify.success('Atração adicionada ao roteiro');
+      this.notify.success('Atividade adicionada ao roteiro');
     });
   }
 
@@ -175,6 +187,6 @@ export class AttractionSearchComponent {
     this.tripState.removeItineraryItem(
       this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
     );
-    this.notify.success('Atração removida do roteiro');
+    this.notify.success('Atividade removida do roteiro');
   }
 }

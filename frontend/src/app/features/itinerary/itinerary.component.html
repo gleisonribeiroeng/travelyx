@@ -113,7 +113,7 @@
       <!-- PASSEIOS -->
       @if (summaryActivities().length > 0) {
         <div class="compact-group">
-          <div class="compact-group-label"><mat-icon class="type-activity-color">local_activity</mat-icon> Passeios</div>
+          <div class="compact-group-label"><mat-icon class="type-activity-color">local_activity</mat-icon> Atividades</div>
           @for (tour of summaryActivities(); track tour.id) {
             <div class="compact-row">
               <div class="compact-accent accent-activity"></div>
@@ -138,7 +138,7 @@
       <!-- ATRAÇÕES -->
       @if (summaryAttractions().length > 0) {
         <div class="compact-group">
-          <div class="compact-group-label"><mat-icon class="type-attraction-color">museum</mat-icon> Atrações</div>
+          <div class="compact-group-label"><mat-icon class="type-attraction-color">local_activity</mat-icon> Atividades</div>
           @for (attraction of summaryAttractions(); track attraction.id) {
             <div class="compact-row">
               <div class="compact-accent accent-attraction"></div>

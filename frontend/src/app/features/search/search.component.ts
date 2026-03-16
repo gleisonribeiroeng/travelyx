@@ -139,6 +139,18 @@ export class SearchComponent {
       });
     }
 
+    // Auto-fill destination from trip if not restored from saved state
+    const trip = this.tripState.trip();
+    if (!this.destinationControl.value && trip.destination) {
+      this.flightApi.searchAirports(trip.destination).subscribe({
+        next: (airports) => {
+          if (airports.length > 0) {
+            this.destinationControl.setValue(airports[0]);
+          }
+        },
+      });
+    }
+
     // Reset segment state when tripType changes
     effect(() => {
       this.tripType();

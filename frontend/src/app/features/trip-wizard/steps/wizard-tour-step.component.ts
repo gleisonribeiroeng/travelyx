@@ -26,13 +26,13 @@ import { activityToListItem, TourTagType } from '../../../shared/components/list
   template: `
     <div class="wizard-step">
       <div class="step-header">
-        <h2>Passeios e atividades</h2>
-        <p>Descubra tours guiados e experiencias no seu destino</p>
+        <h2>Atividades</h2>
+        <p>Passeios, atrações e experiências no destino</p>
       </div>
 
       @if (selectedTours().length > 0) {
         <div class="current-selection">
-          <h3>Passeios selecionados</h3>
+          <h3>Atividades selecionadas</h3>
           @for (tour of selectedTours(); track tour.id) {
             <mat-card class="selected-card">
               <mat-card-content>
@@ -57,7 +57,7 @@ import { activityToListItem, TourTagType } from '../../../shared/components/list
         <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
           <div class="toggle-info">
             <mat-icon>explore</mat-icon>
-            <span>Busca de Passeios</span>
+            <span>Busca de Atividades</span>
           </div>
           <div class="toggle-action">
             <span>Editar busca</span>
@@ -88,7 +88,7 @@ import { activityToListItem, TourTagType } from '../../../shared/components/list
                 <mat-spinner diameter="20"></mat-spinner>
               } @else {
                 <mat-icon>search</mat-icon>
-                Buscar passeios
+                Buscar atividades
               }
             </button>
           </form>
@@ -98,20 +98,20 @@ import { activityToListItem, TourTagType } from '../../../shared/components/list
       @if (isSearching()) {
         <div class="loading-state">
           <mat-spinner diameter="40"></mat-spinner>
-          <p>Buscando passeios...</p>
+          <p>Buscando atividades...</p>
         </div>
       }
 
       @if (!isSearching() && hasSearched() && results().length === 0) {
         <div class="empty-results">
           <mat-icon>search_off</mat-icon>
-          <p>Nenhum passeio encontrado.</p>
+          <p>Nenhuma atividade encontrada.</p>
         </div>
       }
 
       @if (results().length > 0) {
         <div class="results-list">
-          <h3>{{ results().length }} passeios encontrados</h3>
+          <h3>{{ results().length }} atividades encontradas</h3>
           @for (tour of sortedResults(); track tour.id) {
             <app-list-item-base
               [config]="toListItem(tour)"
@@ -170,6 +170,18 @@ export class WizardTourStepComponent {
   readonly formCollapsed = signal(false);
 
   readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
+
+  constructor() {
+    const trip = this.tripState.trip();
+    if (trip.destination && !this.hasSearched()) {
+      this.destinationControl.setValue(trip.destination);
+      setTimeout(() => {
+        if (this.searchForm.valid) {
+          this.search();
+        }
+      }, 300);
+    }
+  }
 
   searchForm = new FormGroup({
     destination: this.destinationControl,
@@ -292,13 +304,13 @@ export class WizardTourStepComponent {
         date: result.date,
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
-        label: `Passeio: ${tour.name}`,
+        label: `Atividade: ${tour.name}`,
         notes: tour.city || '',
         order: 0,
         isPaid: false,
         attachment: null,
       });
-      this.notify.success('Passeio adicionado!');
+      this.notify.success('Atividade adicionada!');
     });
   }
 

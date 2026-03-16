@@ -29,12 +29,12 @@ export type ItemDetailResult =
 
 const TYPE_LABELS: Record<string, string> = {
   flight: 'Voo', stay: 'Hotel', 'car-rental': 'Aluguel de Carro',
-  transport: 'Transporte', activity: 'Passeio', attraction: 'Atração',
+  transport: 'Transporte', activity: 'Atividade', attraction: 'Atividade',
 };
 
 const TYPE_ICONS: Record<string, string> = {
   flight: 'flight', stay: 'hotel', 'car-rental': 'directions_car',
-  transport: 'directions_bus', activity: 'local_activity', attraction: 'museum',
+  transport: 'directions_bus', activity: 'local_activity', attraction: 'local_activity',
 };
 
 const MODE_LABELS: Record<string, string> = {

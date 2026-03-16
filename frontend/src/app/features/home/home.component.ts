@@ -84,7 +84,7 @@ export class HomeComponent {
     { label: 'Definir destino', icon: 'place', done: !!this.tripDestination() },
     { label: 'Buscar voos', icon: 'flight', done: this.flightCount() > 0 },
     { label: 'Reservar hotel', icon: 'hotel', done: this.hotelCount() > 0 },
-    { label: 'Adicionar passeios', icon: 'local_activity', done: this.activityCount() > 0 },
+    { label: 'Adicionar atividades', icon: 'local_activity', done: this.activityCount() > 0 },
     { label: 'Montar roteiro', icon: 'map', done: this.itineraryItemCount() > 0 },
   ]);
 
@@ -106,8 +106,8 @@ export class HomeComponent {
   getTypeLabel(type: string): string {
     const map: Record<string, string> = {
       flight: 'Voo', stay: 'Hotel', 'car-rental': 'Carro',
-      transport: 'Transporte', activity: 'Passeio',
-      attraction: 'Atração', custom: 'Personalizado',
+      transport: 'Transporte', activity: 'Atividade',
+      attraction: 'Atividade', custom: 'Personalizado',
     };
     return map[type] || type;
   }

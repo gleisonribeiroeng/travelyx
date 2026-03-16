@@ -88,7 +88,7 @@ export class TimelineComponent {
     const map: Record<string, string> = {
       flight: 'flight', stay: 'hotel', 'car-rental': 'directions_car',
       transport: 'directions_bus', activity: 'local_activity',
-      attraction: 'place', custom: 'edit_note',
+      attraction: 'local_activity', custom: 'edit_note',
     };
     return map[type] || 'event';
   }
@@ -96,8 +96,8 @@ export class TimelineComponent {
   getTypeLabel(type: string): string {
     const map: Record<string, string> = {
       flight: 'Voo', stay: 'Hotel', 'car-rental': 'Carro',
-      transport: 'Transporte', activity: 'Passeio',
-      attraction: 'Atração', custom: 'Personalizado',
+      transport: 'Transporte', activity: 'Atividade',
+      attraction: 'Atividade', custom: 'Personalizado',
     };
     return map[type] || type;
   }

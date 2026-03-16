@@ -1,17 +1,19 @@
 <div class="dashboard">
-  <!-- Hero CTA Banner -->
-  <div class="hero-banner" (click)="navigateTo('planner')" tabindex="0" role="button">
-    <div class="hero-content">
-      <div class="hero-icon"><mat-icon>explore</mat-icon></div>
-      <div class="hero-text">
-        <h2>Planejamento Guiado</h2>
-        <p>Monte seu roteiro passo a passo com nosso assistente</p>
+  <!-- Hero CTA Banner (only when trip already has content) -->
+  @if (hasContent()) {
+    <div class="hero-banner" (click)="navigateTo('planner')" tabindex="0" role="button">
+      <div class="hero-content">
+        <div class="hero-icon"><mat-icon>explore</mat-icon></div>
+        <div class="hero-text">
+          <h2>Planejamento Guiado</h2>
+          <p>Monte seu roteiro passo a passo com nosso assistente</p>
+        </div>
+        <button mat-flat-button class="hero-cta">
+          Começar <mat-icon>arrow_forward</mat-icon>
+        </button>
       </div>
-      <button mat-flat-button class="hero-cta">
-        Começar <mat-icon>arrow_forward</mat-icon>
-      </button>
     </div>
-  </div>
+  }
 
   @if (hasTrip()) {
     <!-- ═══ SECTION 1: Trip Header ═══ -->
@@ -51,7 +53,7 @@
           }
         </div>
       </div>
-      @if (daysUntilTrip() !== null && daysUntilTrip()! > 0) {
+      @if (daysUntilTrip() !== null && daysUntilTrip()! > 0 && daysUntilTrip()! <= 30) {
         <div class="countdown-chip" [class.imminent]="tripPhase() === 'imminent'">
           <span class="countdown-number">{{ daysUntilTrip() }}</span>
           <span class="countdown-label">{{ daysUntilTrip() === 1 ? 'dia' : 'dias' }}</span>
@@ -70,60 +72,85 @@
       </div>
     }
 
-    <!-- ═══ SECTION 2: Metrics ═══ -->
-    <div class="metrics-grid">
-      <!-- Score -->
-      <mat-card class="metric-card score-card" (click)="navigateTo('checklist')">
-        <mat-card-content>
-          <div class="score-circle" [style.--score-color]="score.scoreColor()">
-            <svg viewBox="0 0 36 36" class="score-svg">
-              <path class="score-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path class="score-fill" [attr.stroke-dasharray]="score.score().total + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <span class="score-value">{{ score.score().total }}</span>
-          </div>
-          <span class="metric-label">{{ score.scoreLabel() }}</span>
-        </mat-card-content>
-      </mat-card>
+    <!-- ═══ SECTION 2: Guided Steps (empty trip) or Metrics (has content) ═══ -->
+    @if (!hasContent()) {
+      <div class="guided-steps">
+        <h3 class="guided-title">
+          <mat-icon>rocket_launch</mat-icon>
+          Próximos passos para sua viagem
+        </h3>
+        @for (step of guidedSteps(); track step.route; let i = $index) {
+          <button class="guided-step" [class.done]="step.done" (click)="navigateTo(step.route)">
+            <div class="step-number" [class.done]="step.done">
+              @if (step.done) {
+                <mat-icon>check</mat-icon>
+              } @else {
+                {{ i + 1 }}
+              }
+            </div>
+            <div class="step-info">
+              <span class="step-label">{{ step.label }}</span>
+              <span class="step-desc">{{ step.desc }}</span>
+            </div>
+            <mat-icon class="step-arrow">chevron_right</mat-icon>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="metrics-grid">
+        <!-- Score -->
+        <mat-card class="metric-card score-card" (click)="navigateTo('checklist')">
+          <mat-card-content>
+            <div class="score-circle" [style.--score-color]="score.scoreColor()">
+              <svg viewBox="0 0 36 36" class="score-svg">
+                <path class="score-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="score-fill" [attr.stroke-dasharray]="score.score().total + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <span class="score-value">{{ score.score().total }}</span>
+            </div>
+            <span class="metric-label">{{ score.scoreLabel() }}</span>
+          </mat-card-content>
+        </mat-card>
 
-      <!-- Budget -->
-      <mat-card class="metric-card budget-card" (click)="navigateTo('budget')">
-        <mat-card-content>
-          <mat-icon class="metric-icon budget-icon">account_balance_wallet</mat-icon>
-          <span class="metric-value">{{ budget.summary().totalPlanned | currency:'BRL':'symbol':'1.0-0' }}</span>
-          <span class="metric-label">Orçamento</span>
-          @if (budget.summary().totalPaid > 0) {
-            <span class="metric-sub">{{ budget.summary().totalPaid | currency:'BRL':'symbol':'1.0-0' }} pago</span>
-          }
-        </mat-card-content>
-      </mat-card>
+        <!-- Budget -->
+        <mat-card class="metric-card budget-card" (click)="navigateTo('budget')">
+          <mat-card-content>
+            <mat-icon class="metric-icon budget-icon">account_balance_wallet</mat-icon>
+            <span class="metric-value">{{ budget.summary().totalPlanned | currency:'BRL':'symbol':'1.0-0' }}</span>
+            <span class="metric-label">Orçamento</span>
+            @if (budget.summary().totalPaid > 0) {
+              <span class="metric-sub">{{ budget.summary().totalPaid | currency:'BRL':'symbol':'1.0-0' }} pago</span>
+            }
+          </mat-card-content>
+        </mat-card>
 
-      <!-- Conflicts -->
-      <mat-card class="metric-card conflicts-card" (click)="navigateTo('conflicts')"
-                [class.has-errors]="errorCount() > 0" [class.has-warnings]="warningCount() > 0 && errorCount() === 0"
-                [class.clean]="conflicts().length === 0">
-        <mat-card-content>
-          @if (conflicts().length === 0) {
-            <mat-icon class="metric-icon clean-icon">check_circle</mat-icon>
-            <span class="metric-value clean-text">OK</span>
-          } @else {
-            <mat-icon class="metric-icon conflict-icon">{{ errorCount() > 0 ? 'error' : 'warning' }}</mat-icon>
-            <span class="metric-value">{{ conflicts().length }}</span>
-          }
-          <span class="metric-label">{{ conflicts().length === 0 ? 'Sem conflitos' : (conflicts().length === 1 ? 'Conflito' : 'Conflitos') }}</span>
-        </mat-card-content>
-      </mat-card>
+        <!-- Conflicts -->
+        <mat-card class="metric-card conflicts-card" (click)="navigateTo('conflicts')"
+                  [class.has-errors]="errorCount() > 0" [class.has-warnings]="warningCount() > 0 && errorCount() === 0"
+                  [class.clean]="conflicts().length === 0">
+          <mat-card-content>
+            @if (conflicts().length === 0) {
+              <mat-icon class="metric-icon clean-icon">check_circle</mat-icon>
+              <span class="metric-value clean-text">OK</span>
+            } @else {
+              <mat-icon class="metric-icon conflict-icon">{{ errorCount() > 0 ? 'error' : 'warning' }}</mat-icon>
+              <span class="metric-value">{{ conflicts().length }}</span>
+            }
+            <span class="metric-label">{{ conflicts().length === 0 ? 'Sem conflitos' : (conflicts().length === 1 ? 'Conflito' : 'Conflitos') }}</span>
+          </mat-card-content>
+        </mat-card>
 
-      <!-- Checklist -->
-      <mat-card class="metric-card checklist-card" (click)="navigateTo('checklist')">
-        <mat-card-content>
-          <mat-icon class="metric-icon checklist-icon">checklist</mat-icon>
-          <span class="metric-value">{{ checklist.progress().percentage }}%</span>
-          <span class="metric-label">Checklist</span>
-          <span class="metric-sub">{{ checklist.progress().done }}/{{ checklist.progress().total }}</span>
-        </mat-card-content>
-      </mat-card>
-    </div>
+        <!-- Checklist -->
+        <mat-card class="metric-card checklist-card" (click)="navigateTo('checklist')">
+          <mat-card-content>
+            <mat-icon class="metric-icon checklist-icon">checklist</mat-icon>
+            <span class="metric-value">{{ checklist.progress().percentage }}%</span>
+            <span class="metric-label">Checklist</span>
+            <span class="metric-sub">{{ checklist.progress().done }}/{{ checklist.progress().total }}</span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
 
     <!-- ═══ SECTION 3: Progress & Stats ═══ -->
     @if (paidProgress().total > 0) {
@@ -193,7 +220,8 @@
       </mat-card>
     }
 
-    <!-- ═══ SECTION 5: Quick Actions ═══ -->
+    <!-- ═══ SECTION 5: Quick Actions (only when trip has content) ═══ -->
+    @if (hasContent()) {
     <div class="quick-actions" role="navigation" aria-label="Ações rápidas">
       <button class="quick-action-card" (click)="navigateTo('search')" aria-label="Buscar voos">
         <mat-icon aria-hidden="true">flight</mat-icon>
@@ -203,15 +231,16 @@
         <mat-icon aria-hidden="true">hotel</mat-icon>
         <span>Hotéis</span>
       </button>
-      <button class="quick-action-card" (click)="navigateTo('tours')" aria-label="Buscar passeios">
+      <button class="quick-action-card" (click)="navigateTo('tours')" aria-label="Buscar atividades">
         <mat-icon aria-hidden="true">local_activity</mat-icon>
-        <span>Passeios</span>
+        <span>Atividades</span>
       </button>
       <button class="quick-action-card" (click)="navigateTo('itinerary')" aria-label="Ver roteiro">
         <mat-icon aria-hidden="true">map</mat-icon>
         <span>Roteiro</span>
       </button>
     </div>
+    }
   } @else {
     <!-- Empty State -->
     <mat-card class="empty-state">

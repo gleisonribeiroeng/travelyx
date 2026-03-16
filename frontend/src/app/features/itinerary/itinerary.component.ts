@@ -30,7 +30,7 @@ const TYPE_COLORS: Record<string, string> = {
   'car-rental': '#C8764A',
   transport: '#5B8DC9',
   activity: '#C46B9B',
-  attraction: '#8B7EC8',
+  attraction: '#C46B9B',
   custom: '#9CA3AF',
 };
 

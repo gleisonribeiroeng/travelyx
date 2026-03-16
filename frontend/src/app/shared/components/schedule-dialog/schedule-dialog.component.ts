@@ -15,7 +15,6 @@ export interface ScheduleDialogData {
   defaultDate: string;
   tripDates: { start: string; end: string };
   durationMinutes: number | null;
-  // Edit mode fields
   editMode?: boolean;
   currentTimeSlot?: string;
   itemId?: string;
@@ -36,10 +35,8 @@ export interface ScheduleDialogResult {
     <h2 mat-dialog-title>
       @if (data.editMode) {
         Editar Horário
-      } @else if (data.type === 'activity') {
-        Agendar Passeio
       } @else {
-        Agendar Atração
+        Agendar Atividade
       }
     </h2>
 
@@ -59,12 +56,34 @@ export interface ScheduleDialogResult {
           <mat-error>Horário é obrigatório</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Duração (minutos)</mat-label>
-          <input matInput type="number" formControlName="durationMinutes" min="15" step="15">
-          <mat-hint>Tempo estimado da atividade</mat-hint>
-          <mat-error>Mínimo 15 minutos</mat-error>
-        </mat-form-field>
+        <div class="duration-section">
+          <span class="duration-label">Duração estimada</span>
+          <div class="duration-row">
+            <mat-form-field appearance="outline" class="duration-field">
+              <mat-label>Horas</mat-label>
+              <mat-select formControlName="durationHours">
+                @for (h of hourOptions; track h) {
+                  <mat-option [value]="h">{{ h }}h</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="duration-field">
+              <mat-label>Minutos</mat-label>
+              <mat-select formControlName="durationMins">
+                @for (m of minuteOptions; track m) {
+                  <mat-option [value]="m">{{ m }}min</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="duration-presets">
+            @for (p of durationPresets; track p.label) {
+              <button type="button" class="preset-chip" [class.active]="isPresetActive(p)" (click)="applyPreset(p)">
+                {{ p.label }}
+              </button>
+            }
+          </div>
+        </div>
       </form>
 
       @if (conflictResult()?.hasConflict) {
@@ -116,6 +135,44 @@ export interface ScheduleDialogResult {
       }
     }
 
+    .duration-section { margin-bottom: 8px; }
+
+    .duration-label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .duration-row {
+      display: flex;
+      gap: 12px;
+
+      .duration-field { flex: 1; }
+    }
+
+    .duration-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: -4px;
+      margin-bottom: 8px;
+    }
+
+    .preset-chip {
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 4px 12px;
+      font-size: 12px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+
+      &:hover { border-color: #999; }
+      &.active { background: var(--triply-primary, #7c3aed); color: #fff; border-color: var(--triply-primary, #7c3aed); }
+    }
+
     .conflict-warning {
       display: flex;
       gap: 12px;
@@ -146,9 +203,7 @@ export interface ScheduleDialogResult {
       }
     }
 
-    .spacer {
-      flex: 1;
-    }
+    .spacer { flex: 1; }
 
     .remove-btn {
       mat-icon {
@@ -166,10 +221,30 @@ export class ScheduleDialogComponent {
   private readonly tripState = inject(TripStateService);
   private readonly fb = inject(FormBuilder);
 
+  readonly hourOptions = Array.from({ length: 13 }, (_, i) => i);  // 0–12
+  readonly minuteOptions = [0, 15, 30, 45];
+
+  readonly durationPresets = [
+    { label: '30min', hours: 0, mins: 30 },
+    { label: '1h', hours: 1, mins: 0 },
+    { label: '2h', hours: 2, mins: 0 },
+    { label: '3h', hours: 3, mins: 0 },
+    { label: 'Meio dia', hours: 6, mins: 0 },
+    { label: 'Dia inteiro', hours: 10, mins: 0 },
+  ];
+
+  private initialHours = Math.floor((this.data.durationMinutes ?? 60) / 60);
+  private initialMins = (this.data.durationMinutes ?? 60) % 60;
+  // Snap to nearest valid minute option (0, 15, 30, 45)
+  private snappedMins = this.minuteOptions.reduce((prev, curr) =>
+    Math.abs(curr - this.initialMins) < Math.abs(prev - this.initialMins) ? curr : prev
+  );
+
   readonly form = this.fb.group({
     date: [this.data.defaultDate, Validators.required],
     timeSlot: [this.data.currentTimeSlot ?? '10:00', Validators.required],
-    durationMinutes: [this.data.durationMinutes ?? 60, [Validators.required, Validators.min(15)]],
+    durationHours: [this.initialHours],
+    durationMins: [this.snappedMins],
   });
 
   readonly conflictResult = signal<ConflictResult | null>(null);
@@ -179,13 +254,26 @@ export class ScheduleDialogComponent {
     this.checkConflicts();
   }
 
+  isPresetActive(p: { hours: number; mins: number }): boolean {
+    return this.form.value.durationHours === p.hours && this.form.value.durationMins === p.mins;
+  }
+
+  applyPreset(p: { hours: number; mins: number }): void {
+    this.form.patchValue({ durationHours: p.hours, durationMins: p.mins });
+  }
+
+  private getTotalMinutes(): number {
+    return ((this.form.value.durationHours || 0) * 60) + (this.form.value.durationMins || 0);
+  }
+
   private checkConflicts(): void {
-    const { date, timeSlot, durationMinutes } = this.form.value;
+    const { date, timeSlot } = this.form.value;
     if (!date || !timeSlot) {
       this.conflictResult.set(null);
       return;
     }
 
+    const durationMinutes = this.getTotalMinutes() || 60;
     const trip = this.tripState.trip();
     const blocks = buildTimeBlocks(
       trip.flights,
@@ -195,7 +283,7 @@ export class ScheduleDialogComponent {
       this.data.itemId
     );
 
-    const result = detectConflicts(date, timeSlot, durationMinutes ?? 60, blocks);
+    const result = detectConflicts(date, timeSlot, durationMinutes, blocks);
     this.conflictResult.set(result);
   }
 
@@ -209,7 +297,8 @@ export class ScheduleDialogComponent {
 
   onConfirm(): void {
     if (this.form.invalid || this.conflictResult()?.hasConflict) return;
-    const { date, timeSlot, durationMinutes } = this.form.value;
+    const { date, timeSlot } = this.form.value;
+    const durationMinutes = this.getTotalMinutes() || 60;
     this.dialogRef.close({ date, timeSlot, durationMinutes } as ScheduleDialogResult);
   }
 }

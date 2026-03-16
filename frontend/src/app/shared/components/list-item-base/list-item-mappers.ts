@@ -359,8 +359,8 @@ function buildTripSummary(trip: Trip): string {
 
   if (fc) parts.push(`✈ ${fc} ${fc === 1 ? 'voo' : 'voos'}`);
   if (sc) parts.push(`🏨 ${sc} ${sc === 1 ? 'hotel' : 'hotéis'}`);
-  if (ac) parts.push(`🎟 ${ac} ${ac === 1 ? 'passeio' : 'passeios'}`);
-  if (atc) parts.push(`📍 ${atc} ${atc === 1 ? 'atração' : 'atrações'}`);
+  const totalAct = (ac || 0) + (atc || 0);
+  if (totalAct) parts.push(`🎟 ${totalAct} ${totalAct === 1 ? 'atividade' : 'atividades'}`);
   if (cc) parts.push(`🚗 ${cc} ${cc === 1 ? 'carro' : 'carros'}`);
   if (tc) parts.push(`🚌 ${tc} ${tc === 1 ? 'transporte' : 'transportes'}`);
 

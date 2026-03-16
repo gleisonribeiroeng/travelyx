@@ -55,19 +55,16 @@ export class SidebarComponent {
         { icon: 'luggage', label: 'Minhas Viagens', route: '/viagens' },
         { icon: 'space_dashboard', label: 'Visão Geral', route: `${base}/home` },
       ]},
-      { label: 'Planejamento', items: [
-        { icon: 'route', label: 'Planejamento Guiado', route: `${base}/planner` },
-      ]},
       { label: 'Explorar', items: [
         { icon: 'flight', label: 'Voos', route: `${base}/search` },
         { icon: 'hotel', label: 'Hotéis', route: `${base}/hotels` },
         { icon: 'directions_car', label: 'Carros', route: `${base}/cars` },
-        { icon: 'local_activity', label: 'Passeios', route: `${base}/tours` },
-        { icon: 'museum', label: 'Atrações', route: `${base}/attractions` },
+        { icon: 'local_activity', label: 'Atividades', route: `${base}/tours` },
       ]},
       { label: 'Roteiro', items: [
-        { icon: 'event_note', label: 'Agenda', route: `${base}/itinerary` },
-        { icon: 'timeline', label: 'Linha do Tempo', route: `${base}/timeline` },
+        { icon: 'route', label: 'Assistente', route: `${base}/planner` },
+        { icon: 'event_note', label: 'Meu Roteiro', route: `${base}/itinerary` },
+        { icon: 'view_timeline', label: 'Linha do Tempo', route: `${base}/timeline` },
       ]},
       { label: 'Organização', items: [
         { icon: 'account_balance_wallet', label: 'Orçamento', route: `${base}/budget`, pro: true, proFeature: 'budget' },
