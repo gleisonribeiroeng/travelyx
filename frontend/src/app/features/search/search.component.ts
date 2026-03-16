@@ -108,12 +108,29 @@ export class SearchComponent {
     ]),
   });
 
+  private readonly FORM_STORAGE_KEY = 'travelyx_flight_search_form';
+
   constructor() {
     const dates = this.tripState.trip().dates;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (dates.start && dates.end) {
+    // Try to restore saved form state
+    const saved = this.loadFormState();
+    if (saved) {
+      if (saved['origin']) this.originControl.setValue(saved['origin']);
+      if (saved['destination']) this.destinationControl.setValue(saved['destination']);
+      if (saved['passengers']) this.flightSearchForm.get('passengers')!.setValue(saved['passengers']);
+      if (saved['tripType']) this.tripType.set(saved['tripType']);
+      if (saved['dateStart']) {
+        const start = new Date(saved['dateStart']);
+        if (start >= today) this.flightSearchForm.get('dateRange.start')!.setValue(start);
+      }
+      if (saved['dateEnd']) {
+        const end = new Date(saved['dateEnd']);
+        if (end >= today) this.flightSearchForm.get('dateRange.end')!.setValue(end);
+      }
+    } else if (dates.start && dates.end) {
       const start = new Date(dates.start + 'T00:00:00');
       const end = new Date(dates.end + 'T00:00:00');
       this.flightSearchForm.get('dateRange')!.patchValue({
@@ -131,6 +148,42 @@ export class SearchComponent {
         this.returnFlightId.set(null);
       });
     });
+
+    // Save form state on changes
+    effect(() => {
+      const origin = this.originControl.value;
+      const dest = this.destinationControl.value;
+      const passengers = this.flightSearchForm.get('passengers')!.value;
+      const dateStart = this.flightSearchForm.get('dateRange.start')!.value;
+      const dateEnd = this.flightSearchForm.get('dateRange.end')!.value;
+      const tripType = this.tripType();
+
+      untracked(() => {
+        this.saveFormState({
+          origin: typeof origin === 'object' ? origin : null,
+          destination: typeof dest === 'object' ? dest : null,
+          passengers,
+          tripType,
+          dateStart: dateStart?.toISOString() ?? null,
+          dateEnd: dateEnd?.toISOString() ?? null,
+        });
+      });
+    });
+  }
+
+  private saveFormState(state: Record<string, unknown>): void {
+    try {
+      localStorage.setItem(this.FORM_STORAGE_KEY, JSON.stringify(state));
+    } catch { /* quota exceeded - ignore */ }
+  }
+
+  private loadFormState(): Record<string, any> | null {
+    try {
+      const raw = localStorage.getItem(this.FORM_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   }
 
   // Autocomplete observables
@@ -519,7 +572,12 @@ export class SearchComponent {
             this.searchResults.set(unique);
           },
           error: (err) => {
-            this.errorMessage.set(err.message || 'Erro ao buscar voos');
+            const detail = err.status === 0
+              ? 'Sem conexão com o servidor. Verifique sua internet e tente novamente.'
+              : err.status === 429
+              ? 'Muitas buscas seguidas. Aguarde alguns segundos e tente novamente.'
+              : err.message || 'Erro ao buscar voos. Tente outras datas ou aeroportos.';
+            this.errorMessage.set(detail);
             this.errorSource.set(err.source || 'Voos');
             this.searchResults.set([]);
           },
@@ -622,7 +680,10 @@ export class SearchComponent {
           }
         },
         error: (err) => {
-          this.errorMessage.set(err.message || 'Erro ao buscar voos multi-cidade');
+          const detail = err.status === 0
+            ? 'Sem conexão com o servidor. Verifique sua internet.'
+            : err.message || 'Erro ao buscar voos multi-cidade. Tente novamente.';
+          this.errorMessage.set(detail);
           this.errorSource.set('Voos Multi-Cidade');
         },
       });

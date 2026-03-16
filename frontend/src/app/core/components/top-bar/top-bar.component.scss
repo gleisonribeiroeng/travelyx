@@ -27,7 +27,11 @@
   border: 1px solid var(--triply-border-subtle);
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
-  max-width: 300px;
+  max-width: 200px;
+
+  @media (min-width: 480px) {
+    max-width: 300px;
+  }
 
   &:hover {
     border-color: var(--triply-primary);

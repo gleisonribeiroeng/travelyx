@@ -61,6 +61,16 @@ export class NotificationService {
   }
 
   private add(type: ToastType, message: string, options?: ToastOptions): void {
+    // Deduplicate: skip if same message is already visible
+    const existing = this._toasts().find(t => t.message === message && t.state !== 'leaving');
+    if (existing) return;
+
+    // Limit max visible toasts to 3
+    const visible = this._toasts().filter(t => t.state !== 'leaving');
+    if (visible.length >= 3) {
+      this.startLeaving(visible[0].id);
+    }
+
     const id = this.nextId++;
     const duration = options?.duration ?? DEFAULT_DURATIONS[type];
     const dismissible = options?.dismissible ?? true;

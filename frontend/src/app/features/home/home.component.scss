@@ -119,12 +119,17 @@
   }
 }
 
-// Mobile-first: fixed 3-col grid
+// Mobile-first: 2-col grid, 3-col on wider screens
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--triply-spacing-md);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--triply-spacing-sm);
   margin-bottom: var(--triply-spacing-lg);
+
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--triply-spacing-md);
+  }
 }
 
 .stat-card {

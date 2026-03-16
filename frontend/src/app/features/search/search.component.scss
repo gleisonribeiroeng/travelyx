@@ -97,6 +97,10 @@
     font-size: 0.7rem;
     gap: 2px;
     padding: 0 4px;
+
+    mat-icon {
+      display: none;
+    }
   }
 }
 
@@ -111,12 +115,16 @@
   margin-bottom: var(--triply-spacing-md);
 }
 
-// Mobile-first: 2 columns
+// Mobile-first: 2 columns, 1 on very small screens
 .month-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 8px;
   margin-bottom: var(--triply-spacing-md);
+
+  @media (min-width: 380px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
   padding: 12px;
   background: rgba(124, 77, 255, 0.04);
   border-radius: var(--triply-radius-sm);

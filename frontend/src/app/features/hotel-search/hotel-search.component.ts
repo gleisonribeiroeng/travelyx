@@ -88,11 +88,33 @@ export class HotelSearchComponent {
 
     // Auto-fill destination from trip
     if (trip.destination) {
+      // Temporarily set as string for display, then resolve to proper object
       this.destinationControl.setValue(trip.destination as any);
-      this.hotelApi.searchDestinations(trip.destination).subscribe(results => {
-        if (results.length > 0) {
-          this.destinationControl.setValue(results[0]);
-        }
+      this.hotelApi.searchDestinations(trip.destination).subscribe({
+        next: (results) => {
+          if (results.length > 0) {
+            this.destinationControl.setValue(results[0]);
+          } else {
+            // No results — create a fallback destination object
+            this.destinationControl.setValue({
+              destId: '',
+              destType: 'city',
+              label: trip.destination,
+              region: '',
+              country: '',
+            } as any);
+          }
+        },
+        error: () => {
+          // API failed — create fallback so form is usable
+          this.destinationControl.setValue({
+            destId: '',
+            destType: 'city',
+            label: trip.destination,
+            region: '',
+            country: '',
+          } as any);
+        },
       });
     }
   }
@@ -154,10 +176,11 @@ export class HotelSearchComponent {
       if (!control.value) {
         return null; // Let required handle empty
       }
-      if (
-        typeof control.value === 'string' ||
-        !(control.value as DestinationOption).destId
-      ) {
+      // Accept any object with a label (DestinationOption or fallback)
+      if (typeof control.value === 'object' && control.value.label) {
+        return null;
+      }
+      if (typeof control.value === 'string') {
         return { invalidDestination: true };
       }
       return null;
@@ -222,14 +245,44 @@ export class HotelSearchComponent {
     this.hasSearched.set(true);
     this.formCollapsed.set(true);
 
+    // If destination has no destId (fallback), resolve it first
+    if (!destination.destId) {
+      this.hotelApi.searchDestinations(destination.label).subscribe({
+        next: (results) => {
+          if (results.length > 0) {
+            this.destinationControl.setValue(results[0]);
+            this.executeSearch(results[0], checkInStr, checkOutStr, guests, rooms);
+          } else {
+            this.isSearching.set(false);
+            this.errorMessage.set('Destino não encontrado. Selecione um destino da lista.');
+          }
+        },
+        error: () => {
+          this.isSearching.set(false);
+          this.errorMessage.set('Erro ao buscar destino. Tente novamente.');
+        },
+      });
+      return;
+    }
+
+    this.executeSearch(destination, checkInStr, checkOutStr, guests, rooms);
+  }
+
+  private executeSearch(
+    destination: DestinationOption,
+    checkIn: string,
+    checkOut: string,
+    adults: number,
+    rooms: number,
+  ): void {
     this.hotelApi
       .searchHotels({
         destId: destination.destId,
         searchType: destination.searchType,
-        checkIn: checkInStr,
-        checkOut: checkOutStr,
-        adults: guests,
-        rooms: rooms,
+        checkIn,
+        checkOut,
+        adults,
+        rooms,
       })
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({

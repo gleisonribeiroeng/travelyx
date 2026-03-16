@@ -154,7 +154,11 @@
 .hero {
   position: relative;
   background: linear-gradient(145deg, #f0eef9 0%, var(--triply-surface-0) 40%, #eef6f0 100%);
-  padding: 100px 20px 60px;
+  padding: 80px 16px 48px;
+
+  @media (min-width: 480px) {
+    padding: 100px 20px 60px;
+  }
   overflow: hidden;
 }
 
@@ -1044,7 +1048,7 @@
   margin: 0;
 }
 
-.footer-links { display: flex; gap: 40px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 24px; }
 
 .footer-col {
   display: flex;

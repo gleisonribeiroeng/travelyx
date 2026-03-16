@@ -653,8 +653,12 @@
 
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--triply-spacing-sm);
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .quick-action-card {
@@ -670,6 +674,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
+  font-family: inherit;
+  min-height: 44px;
 
   mat-icon {
     font-size: 24px;

@@ -69,6 +69,7 @@ $sidebar-width: 260px;
   align-items: center;
   gap: 12px;
   height: 40px;
+  width: 100%;
   padding: 0 16px;
   color: var(--triply-dash-sidebar-text-muted);
   text-decoration: none;
@@ -78,6 +79,10 @@ $sidebar-width: 260px;
   white-space: nowrap;
   cursor: pointer;
   border-radius: var(--triply-radius-sm);
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
 
   .nav-icon {
     flex-shrink: 0;
