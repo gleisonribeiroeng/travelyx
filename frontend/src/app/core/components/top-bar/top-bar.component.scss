@@ -237,7 +237,31 @@
 }
 
 @media (max-width: 600px) {
+  .topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
   .trip-context {
     max-width: 180px;
+  }
+
+  .topbar-search {
+    max-width: 42px;
+    padding: 8px;
+    cursor: pointer;
+    overflow: hidden;
+
+    .search-input {
+      display: none;
+    }
+  }
+
+  .user-chip {
+    padding: 4px;
+
+    .dropdown-arrow {
+      display: none;
+    }
   }
 }

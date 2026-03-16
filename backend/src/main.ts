@@ -42,6 +42,11 @@ async function ensureColumns() {
       await client.query(`ALTER TABLE "User" ADD COLUMN "planExpiresAt" TIMESTAMP(3)`);
       console.log('[DB-FIX] Created planExpiresAt column');
     }
+    if (!existing.has('stripeCustomerId')) {
+      await client.query(`ALTER TABLE "User" ADD COLUMN "stripeCustomerId" TEXT`);
+      await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS "User_stripeCustomerId_key" ON "User"("stripeCustomerId")`);
+      console.log('[DB-FIX] Created stripeCustomerId column');
+    }
 
     console.log('[DB-FIX] Schema OK');
   } catch (e: any) {

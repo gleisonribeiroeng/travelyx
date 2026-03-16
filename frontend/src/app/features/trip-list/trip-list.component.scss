@@ -47,6 +47,18 @@
   justify-content: space-between;
   margin-bottom: 24px;
   gap: 16px;
+
+  mat-chip-listbox {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 1;
+    min-width: 0;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 .trip-count {
@@ -94,24 +106,67 @@
 
 .empty-visual {
   margin-bottom: 28px;
+  position: relative;
 }
 
 .empty-icon-circle {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.08) 0%, rgba(108, 92, 231, 0.15) 100%);
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
+  animation: float 3s ease-in-out infinite;
 
   .empty-icon {
-    font-size: 44px;
-    width: 44px;
-    height: 44px;
-    color: var(--triply-primary, #6c5ce7);
-    opacity: 0.7;
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #fff;
   }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.empty-decorations {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+
+  .deco {
+    position: absolute;
+    font-size: 24px;
+    opacity: 0.7;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .deco-pin {
+    top: -10px;
+    right: -10px;
+    animation-delay: 0.5s;
+  }
+
+  .deco-palm {
+    bottom: -5px;
+    left: -15px;
+    animation-delay: 1s;
+  }
+
+  .deco-sun {
+    top: 5px;
+    left: -5px;
+    animation-delay: 1.5s;
+  }
+}
+
+.empty-clear-filter {
+  font-weight: 600;
+  border-radius: 10px;
 }
 
 .empty-text {
@@ -162,9 +217,8 @@
   }
 
   .filter-bar {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 8px;
+    overflow: hidden;
   }
 
   .empty-state {
@@ -172,13 +226,17 @@
   }
 
   .empty-icon-circle {
-    width: 80px;
-    height: 80px;
+    width: 96px;
+    height: 96px;
 
     .empty-icon {
-      font-size: 36px;
-      width: 36px;
-      height: 36px;
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
     }
+  }
+
+  .empty-decorations .deco {
+    font-size: 20px;
   }
 }

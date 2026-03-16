@@ -47,13 +47,22 @@
         <div class="empty-icon-circle">
           <mat-icon class="empty-icon">flight_takeoff</mat-icon>
         </div>
+        <div class="empty-decorations">
+          <span class="deco deco-pin">📍</span>
+          <span class="deco deco-palm">🌴</span>
+          <span class="deco deco-sun">☀️</span>
+        </div>
       </div>
       @if (statusFilter()) {
         <h2>Nenhuma viagem encontrada</h2>
         <p class="empty-text">Nenhuma viagem com o status "{{ getStatusLabel(statusFilter()) }}".</p>
+        <button mat-stroked-button color="primary" class="empty-clear-filter" (click)="statusFilter.set('')">
+          <mat-icon>filter_alt_off</mat-icon>
+          Limpar filtro
+        </button>
       } @else {
-        <h2>Planeje sua primeira viagem</h2>
-        <p class="empty-text">Organize voos, hotéis, passeios e roteiro em um só lugar.</p>
+        <h2>Sua próxima aventura começa aqui</h2>
+        <p class="empty-text">Crie uma viagem e organize voos, hotéis, passeios e roteiro em um só lugar.</p>
         <button mat-flat-button color="primary" class="empty-cta" (click)="openCreateDialog()">
           <mat-icon>add</mat-icon>
           Criar nova viagem

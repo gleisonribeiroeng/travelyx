@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 
 @Injectable()
 export class StripeService {
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null;
   private readonly logger = new Logger(StripeService.name);
   private readonly frontendUrl: string;
 
@@ -13,8 +13,19 @@ export class StripeService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    this.stripe = new Stripe(this.config.get<string>('STRIPE_SECRET_KEY')!);
+    const key = this.config.get<string>('STRIPE_SECRET_KEY');
+    if (key) {
+      this.stripe = new Stripe(key);
+    } else {
+      this.stripe = null;
+      this.logger.warn('STRIPE_SECRET_KEY not set — Stripe features disabled');
+    }
     this.frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+  }
+
+  private ensureStripe(): Stripe {
+    if (!this.stripe) throw new Error('Stripe not configured');
+    return this.stripe;
   }
 
   /**
@@ -32,7 +43,7 @@ export class StripeService {
       return user.stripeCustomerId;
     }
 
-    const customer = await this.stripe.customers.create({
+    const customer = await this.ensureStripe().customers.create({
       email: user.email,
       name: user.name,
       metadata: { userId },
@@ -58,7 +69,7 @@ export class StripeService {
       throw new Error('STRIPE_PRO_PRICE_ID not configured');
     }
 
-    const session = await this.stripe.checkout.sessions.create({
+    const session = await this.ensureStripe().checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
@@ -80,7 +91,7 @@ export class StripeService {
   async createPortalSession(userId: string): Promise<string> {
     const customerId = await this.getOrCreateCustomer(userId);
 
-    const session = await this.stripe.billingPortal.sessions.create({
+    const session = await this.ensureStripe().billingPortal.sessions.create({
       customer: customerId,
       return_url: `${this.frontendUrl}/viagens`,
     });
@@ -93,7 +104,7 @@ export class StripeService {
    */
   constructEvent(payload: Buffer, signature: string): Stripe.Event {
     const secret = this.config.get<string>('STRIPE_WEBHOOK_SECRET')!;
-    return this.stripe.webhooks.constructEvent(payload, signature, secret);
+    return this.ensureStripe().webhooks.constructEvent(payload, signature, secret);
   }
 
   /**
