@@ -100,10 +100,13 @@ export class ItineraryItemComponent implements OnInit {
 
   ngOnInit(): void {
     const item = this.item();
+    const durH = Math.floor((item.durationMinutes ?? 0) / 60);
+    const durM = (item.durationMinutes ?? 0) % 60;
     this.editForm = this.fb.group({
       date: [item.date, Validators.required],
       timeSlot: [item.timeSlot, timeSlotValidator],
-      durationMinutes: [item.durationMinutes],
+      durationHours: [durH],
+      durationMins: [durM],
       label: [item.label, Validators.required],
       notes: [item.notes],
     });
@@ -117,7 +120,8 @@ export class ItineraryItemComponent implements OnInit {
     this.editForm.patchValue({
       date: item.date,
       timeSlot: item.timeSlot,
-      durationMinutes: item.durationMinutes,
+      durationHours: Math.floor((item.durationMinutes ?? 0) / 60),
+      durationMins: (item.durationMinutes ?? 0) % 60,
       label: item.label,
       notes: item.notes,
     });
@@ -135,7 +139,7 @@ export class ItineraryItemComponent implements OnInit {
       ...this.item(),
       date: formValue.date,
       timeSlot: formValue.timeSlot || null,
-      durationMinutes: formValue.durationMinutes ?? null,
+      durationMinutes: ((formValue.durationHours || 0) * 60 + (formValue.durationMins || 0)) || null,
       label: formValue.label,
       notes: formValue.notes,
     };

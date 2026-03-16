@@ -212,11 +212,24 @@
           <mat-error>Formato de horário inválido (HH:MM)</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Duração (minutos)</mat-label>
-          <input matInput type="number" formControlName="durationMinutes" min="15" step="15">
-          <mat-hint>Tempo estimado da atividade</mat-hint>
-        </mat-form-field>
+        <div class="duration-row">
+          <mat-form-field appearance="outline" class="duration-field">
+            <mat-label>Horas</mat-label>
+            <mat-select formControlName="durationHours">
+              @for (h of [0,1,2,3,4,5,6,7,8,9,10,11,12]; track h) {
+                <mat-option [value]="h">{{ h }}h</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="duration-field">
+            <mat-label>Minutos</mat-label>
+            <mat-select formControlName="durationMins">
+              @for (m of [0,15,30,45]; track m) {
+                <mat-option [value]="m">{{ m }}min</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
 
         <mat-form-field appearance="outline">
           <mat-label>Título</mat-label>

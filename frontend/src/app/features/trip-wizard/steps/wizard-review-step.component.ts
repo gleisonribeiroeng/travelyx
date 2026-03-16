@@ -313,7 +313,8 @@ export class WizardReviewStepComponent {
   }
 
   finalize(): void {
-    this.notify.success('Viagem finalizada! Confira seu roteiro.');
-    this.router.navigate(['/itinerary']);
+    const tripId = this.tripState.activeTripId();
+    this.notify.success('Viagem finalizada! Confira sua linha do tempo.');
+    this.router.navigate(['/viagem', tripId, 'timeline']);
   }
 }

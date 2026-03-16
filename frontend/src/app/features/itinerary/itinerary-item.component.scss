@@ -1,3 +1,9 @@
+.duration-row {
+  display: flex;
+  gap: 12px;
+  .duration-field { flex: 1; }
+}
+
 // ── Itinerary Item Card ──
 .itinerary-card {
   margin-bottom: 12px;
