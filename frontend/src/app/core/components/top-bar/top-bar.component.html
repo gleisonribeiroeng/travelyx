@@ -45,14 +45,14 @@
 
     @if (auth.user(); as user) {
       <button class="user-chip" [matMenuTriggerFor]="userMenu">
-        <img [src]="user.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+        <img [src]="auth.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
         <span class="user-name">{{ firstName() }}</span>
         <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
       </button>
 
       <mat-menu #userMenu="matMenu">
         <div class="user-menu-header">
-          <img [src]="user.picture" alt="" class="menu-avatar" referrerpolicy="no-referrer">
+          <img [src]="auth.avatarUrl()" alt="" class="menu-avatar" referrerpolicy="no-referrer">
           <div class="menu-user-info">
             <strong>{{ user.name }}</strong>
             <small>{{ user.email }}</small>

@@ -48,6 +48,31 @@ export class CarSearchComponent {
   // Same drop-off location toggle (default: true)
   sameDropOff = signal(true);
 
+  constructor() {
+    const trip = this.tripState.trip();
+    const dates = trip.dates;
+
+    // Auto-fill dates from trip
+    if (dates.start && dates.end) {
+      this.carSearchForm.get('dateRange')!.patchValue({
+        start: new Date(dates.start + 'T00:00:00'),
+        end: new Date(dates.end + 'T00:00:00'),
+      });
+    }
+
+    // Auto-fill pickup location from trip destination
+    if (trip.destination) {
+      this.pickupLocationControl.setValue(trip.destination as any);
+      this.carApi.searchLocations(trip.destination).subscribe({
+        next: (results) => {
+          if (results.length > 0) {
+            this.pickupLocationControl.setValue(results[0]);
+          }
+        },
+      });
+    }
+  }
+
   // Autocomplete form controls (separate to enable object values)
   pickupLocationControl = new FormControl<CarLocationOption | null>(null, [
     Validators.required,

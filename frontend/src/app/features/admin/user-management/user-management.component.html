@@ -31,7 +31,7 @@
             <tr [class.inactive]="!user.isActive">
               <td class="user-cell">
                 <div class="avatar-wrapper">
-                  <img [src]="user.picture" [alt]="user.name" class="user-avatar" referrerpolicy="no-referrer">
+                  <img [src]="user.picture || ('https://ui-avatars.com/api/?name=' + (user.name || '?') + '&background=7c3aed&color=fff&size=80')" [alt]="user.name" class="user-avatar" referrerpolicy="no-referrer">
                   <span
                     class="online-indicator"
                     [class.online]="presence.isOnline(user.id)"

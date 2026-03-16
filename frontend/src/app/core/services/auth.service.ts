@@ -30,6 +30,12 @@ export class AuthService {
     return p === 'PRO' || p === 'BUSINESS';
   });
   readonly isBusiness = computed(() => this.plan() === 'BUSINESS');
+  readonly avatarUrl = computed(() => {
+    const u = this._user();
+    if (u?.picture) return u.picture;
+    const name = encodeURIComponent(u?.name || '?');
+    return `https://ui-avatars.com/api/?name=${name}&background=7c3aed&color=fff&size=80`;
+  });
 
   constructor(private readonly http: HttpClient) {}
 

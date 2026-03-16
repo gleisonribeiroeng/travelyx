@@ -1142,6 +1142,13 @@
 // RESPONSIVE
 // ════════════════════════════════════════════════════════════
 
+// Hide hero device on small screens (unreadable)
+@media (max-width: 599px) {
+  .hero-device {
+    display: none;
+  }
+}
+
 @media (min-width: 600px) {
   .pain-points {
     grid-template-columns: repeat(3, 1fr);

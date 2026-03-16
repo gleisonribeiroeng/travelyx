@@ -27,7 +27,7 @@
   <!-- User menu -->
   @if (authService.isLoggedIn()) {
     <button class="user-chip" [matMenuTriggerFor]="userMenu">
-      <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+      <img [src]="authService.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
       <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
       <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
     </button>

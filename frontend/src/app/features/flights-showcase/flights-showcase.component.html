@@ -11,7 +11,7 @@
     <div class="nav-actions">
       @if (authService.isLoggedIn()) {
         <div class="user-pill">
-          <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+          <img [src]="authService.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
           <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
         </div>
         <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
@@ -136,46 +136,50 @@
     }
 
     <!-- SECTION 1: DEALS -->
-    <section class="showcase-section reveal" id="deals-section">
-      <div class="section-header-new">
-        <span class="section-tag">Melhores ofertas</span>
-        <h2>Voos com precos imperdiveis</h2>
-        <p>Os menores precos para voce viajar gastando menos</p>
-      </div>
-      <div class="items-list">
-        @for (flight of deals(); track flight.id) {
-          <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (deals().length) {
+      <section class="showcase-section reveal" id="deals-section">
+        <div class="section-header-new">
+          <span class="section-tag">Melhores ofertas</span>
+          <h2>Voos com precos imperdiveis</h2>
+          <p>Os menores precos para voce viajar gastando menos</p>
+        </div>
+        <div class="items-list">
+          @for (flight of deals(); track flight.id) {
+            <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
 
-    <!-- SECTION 2: POPULAR -->
-    <section class="showcase-section section-surface reveal">
-      <div class="section-header-new">
-        <span class="section-tag">Mais populares</span>
-        <h2>Destinos favoritos dos brasileiros</h2>
-        <p>As rotas mais buscadas pelos viajantes</p>
-      </div>
-      <div class="items-list">
-        @for (flight of popular(); track flight.id) {
-          <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (popular().length) {
+      <section class="showcase-section section-surface reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Mais populares</span>
+          <h2>Destinos favoritos dos brasileiros</h2>
+          <p>As rotas mais buscadas pelos viajantes</p>
+        </div>
+        <div class="items-list">
+          @for (flight of popular(); track flight.id) {
+            <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
 
-    <!-- SECTION 3: RECOMMENDED -->
-    <section class="showcase-section reveal">
-      <div class="section-header-new">
-        <span class="section-tag">Recomendados</span>
-        <h2>Viagens curadas para voce</h2>
-        <p>Sugestoes para quem busca lazer e turismo</p>
-      </div>
-      <div class="items-list">
-        @for (flight of recommended(); track flight.id) {
-          <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (recommended().length) {
+      <section class="showcase-section reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Recomendados</span>
+          <h2>Viagens curadas para voce</h2>
+          <p>Sugestoes para quem busca lazer e turismo</p>
+        </div>
+        <div class="items-list">
+          @for (flight of recommended(); track flight.id) {
+            <app-list-item-base [config]="toListItem(flight)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
   }
 
   <!-- FINAL CTA -->

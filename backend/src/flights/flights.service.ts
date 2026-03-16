@@ -22,7 +22,9 @@ export class FlightsService {
 
   private getHeaders(): Record<string, string> {
     return {
-      'X-RapidAPI-Key': this.configService.get<string>('HOTEL_API_KEY')!,
+      'X-RapidAPI-Key':
+        this.configService.get<string>('FLIGHT_API_KEY') ||
+        this.configService.get<string>('HOTEL_API_KEY')!,
       'X-RapidAPI-Host': this.host,
     };
   }
@@ -42,9 +44,13 @@ export class FlightsService {
       return { data: [] };
     }
 
+    // Booking.com requires .AIRPORT suffix
+    const normalizedFrom = fromId.includes('.') ? fromId : `${fromId}.AIRPORT`;
+    const normalizedTo = toId.includes('.') ? toId : `${toId}.AIRPORT`;
+
     const params: Record<string, string> = {
-      fromId,
-      toId,
+      fromId: normalizedFrom,
+      toId: normalizedTo,
       departDate,
       adults,
       cabinClass: query['cabinClass'] || 'ECONOMY',
@@ -68,7 +74,9 @@ export class FlightsService {
       );
 
       if (!data?.status || !data?.data?.flightOffers) {
-        this.logger.warn('Booking.com flights: no results');
+        this.logger.warn(
+          `Booking.com flights: no results — status=${data?.status}, message=${data?.message || 'N/A'}, keys=${Object.keys(data?.data || {}).join(',')}`,
+        );
         return { data: [] };
       }
 

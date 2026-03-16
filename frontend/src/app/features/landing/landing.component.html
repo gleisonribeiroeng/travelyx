@@ -9,7 +9,7 @@
     <div class="nav-actions">
       @if (authService.isLoggedIn()) {
         <div class="user-pill">
-          <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+          <img [src]="authService.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
           <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
         </div>
         <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">

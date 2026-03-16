@@ -40,22 +40,22 @@
         }
       </div>
     }
-  </nav>
 
-  @if (auth.isAdmin()) {
-    <div class="nav-group admin-group">
-      <span class="group-label">Administração</span>
-      <a
-        class="nav-item"
-        routerLink="/admin/usuarios"
-        routerLinkActive="active"
-        (click)="closeMobile()"
-      >
-        <mat-icon class="nav-icon">group</mat-icon>
-        <span class="nav-label">Usuários</span>
-      </a>
-    </div>
-  }
+    @if (auth.isAdmin()) {
+      <div class="nav-group admin-group">
+        <span class="group-label">Administração</span>
+        <a
+          class="nav-item"
+          routerLink="/admin/usuarios"
+          routerLinkActive="active"
+          (click)="closeMobile()"
+        >
+          <mat-icon class="nav-icon">group</mat-icon>
+          <span class="nav-label">Usuários</span>
+        </a>
+      </div>
+    }
+  </nav>
 
   <div class="sidebar-footer">
     @if (auth.isPro()) {

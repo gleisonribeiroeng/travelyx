@@ -11,7 +11,7 @@
     <div class="nav-actions">
       @if (authService.isLoggedIn()) {
         <div class="user-pill">
-          <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+          <img [src]="authService.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
           <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
         </div>
         <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
@@ -135,47 +135,50 @@
       </section>
     }
 
-    <!-- SECTION 1: BEST PRICES -->
-    <section class="showcase-section reveal" id="deals-section">
-      <div class="section-header-new">
-        <span class="section-tag">Melhores precos</span>
-        <h2>Hoteis com diarias incriveis</h2>
-        <p>Bem avaliados e com menores precos para economizar</p>
-      </div>
-      <div class="items-list">
-        @for (hotel of bestPrices(); track hotel.id) {
-          <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (bestPrices().length) {
+      <section class="showcase-section reveal" id="deals-section">
+        <div class="section-header-new">
+          <span class="section-tag">Melhores precos</span>
+          <h2>Hoteis com diarias incriveis</h2>
+          <p>Bem avaliados e com menores precos para economizar</p>
+        </div>
+        <div class="items-list">
+          @for (hotel of bestPrices(); track hotel.id) {
+            <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
 
-    <!-- SECTION 2: TOP RATED -->
-    <section class="showcase-section section-surface reveal">
-      <div class="section-header-new">
-        <span class="section-tag">Mais bem avaliados</span>
-        <h2>Aprovados pelos hospedes</h2>
-        <p>Notas altas e centenas de avaliacoes positivas</p>
-      </div>
-      <div class="items-list">
-        @for (hotel of topRated(); track hotel.id) {
-          <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (topRated().length) {
+      <section class="showcase-section section-surface reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Mais bem avaliados</span>
+          <h2>Aprovados pelos hospedes</h2>
+          <p>Notas altas e centenas de avaliacoes positivas</p>
+        </div>
+        <div class="items-list">
+          @for (hotel of topRated(); track hotel.id) {
+            <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
 
-    <!-- SECTION 3: UNIQUE -->
-    <section class="showcase-section reveal">
-      <div class="section-header-new">
-        <span class="section-tag">Experiencias unicas</span>
-        <h2>Estadias inesqueciveis</h2>
-        <p>Resorts, pousadas de charme e hoteis boutique</p>
-      </div>
-      <div class="items-list">
-        @for (hotel of unique(); track hotel.id) {
-          <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (unique().length) {
+      <section class="showcase-section reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Experiencias unicas</span>
+          <h2>Estadias inesqueciveis</h2>
+          <p>Resorts, pousadas de charme e hoteis boutique</p>
+        </div>
+        <div class="items-list">
+          @for (hotel of unique(); track hotel.id) {
+            <app-list-item-base [config]="toListItem(hotel)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
   }
 
   <!-- FINAL CTA -->

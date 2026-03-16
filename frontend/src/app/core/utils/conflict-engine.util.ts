@@ -271,11 +271,20 @@ function detectBookingGaps(trip: Trip): ConflictAlert[] {
 export function computeAllConflicts(trip: Trip): ConflictAlert[] {
   _idCounter = 0;
 
+  // Don't generate hotel/gap alerts if the trip has no meaningful content yet
+  const hasContent =
+    trip.itineraryItems.length > 0 ||
+    trip.flights.length > 0 ||
+    trip.stays.length > 0 ||
+    trip.carRentals.length > 0 ||
+    trip.transports.length > 0 ||
+    trip.activities.length > 0;
+
   const alerts: ConflictAlert[] = [
     ...detectTimeOverlaps(trip),
-    ...detectNoHotelNights(trip),
+    ...(hasContent ? detectNoHotelNights(trip) : []),
     ...detectCheckoutMismatch(trip),
-    ...detectBookingGaps(trip),
+    ...(hasContent ? detectBookingGaps(trip) : []),
   ];
 
   const severityOrder: Record<string, number> = {

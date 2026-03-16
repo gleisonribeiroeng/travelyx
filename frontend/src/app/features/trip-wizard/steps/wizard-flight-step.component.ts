@@ -132,7 +132,7 @@ interface MonthOption {
                   <mat-icon>arrow_forward</mat-icon> Só ida
                 </mat-button-toggle>
                 <mat-button-toggle value="multi">
-                  <mat-icon>account_tree</mat-icon> Multi
+                  <mat-icon>account_tree</mat-icon> Multi-cidade
                 </mat-button-toggle>
               </mat-button-toggle-group>
             </div>

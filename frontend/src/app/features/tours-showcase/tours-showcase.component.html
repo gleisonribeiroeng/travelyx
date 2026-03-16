@@ -11,7 +11,7 @@
     <div class="nav-actions">
       @if (authService.isLoggedIn()) {
         <div class="user-pill">
-          <img [src]="authService.user()?.picture" alt="" class="user-avatar" referrerpolicy="no-referrer">
+          <img [src]="authService.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
           <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
         </div>
         <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
@@ -135,47 +135,50 @@
       </section>
     }
 
-    <!-- SECTION 1: MOST BOOKED -->
-    <section class="showcase-section reveal" id="deals-section">
-      <div class="section-header-new">
-        <span class="section-tag">Mais reservados</span>
-        <h2>Os favoritos dos viajantes</h2>
-        <p>Passeios que todo mundo esta fazendo</p>
-      </div>
-      <div class="items-list">
-        @for (tour of mostBooked(); track tour.id) {
-          <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (mostBooked().length) {
+      <section class="showcase-section reveal" id="deals-section">
+        <div class="section-header-new">
+          <span class="section-tag">Mais reservados</span>
+          <h2>Os favoritos dos viajantes</h2>
+          <p>Passeios que todo mundo esta fazendo</p>
+        </div>
+        <div class="items-list">
+          @for (tour of mostBooked(); track tour.id) {
+            <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
 
-    <!-- SECTION 2: MUST DO -->
-    <section class="showcase-section section-surface reveal">
-      <div class="section-header-new">
-        <span class="section-tag">Imperdiveis</span>
-        <h2>Experiencias que definem o destino</h2>
-        <p>Se for para esse lugar, faca isso</p>
-      </div>
-      <div class="items-list">
-        @for (tour of mustDo(); track tour.id) {
-          <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (mustDo().length) {
+      <section class="showcase-section section-surface reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Imperdiveis</span>
+          <h2>Experiencias que definem o destino</h2>
+          <p>Se for para esse lugar, faca isso</p>
+        </div>
+        <div class="items-list">
+          @for (tour of mustDo(); track tour.id) {
+            <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
 
-    <!-- SECTION 3: UNIQUE -->
-    <section class="showcase-section reveal">
-      <div class="section-header-new">
-        <span class="section-tag">Experiencias diferentes</span>
-        <h2>Memorias unicas</h2>
-        <p>Gastronomia, fotografia, trilhas e atividades especiais</p>
-      </div>
-      <div class="items-list">
-        @for (tour of unique(); track tour.id) {
-          <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
-        }
-      </div>
-    </section>
+    @if (unique().length) {
+      <section class="showcase-section reveal">
+        <div class="section-header-new">
+          <span class="section-tag">Experiencias diferentes</span>
+          <h2>Memorias unicas</h2>
+          <p>Gastronomia, fotografia, trilhas e atividades especiais</p>
+        </div>
+        <div class="items-list">
+          @for (tour of unique(); track tour.id) {
+            <app-list-item-base [config]="toListItem(tour)" (cardClick)="onCardClick($event)" (primaryClick)="onPrimaryClick($event)" />
+          }
+        </div>
+      </section>
+    }
   }
 
   <!-- FINAL CTA -->
