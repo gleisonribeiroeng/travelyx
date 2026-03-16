@@ -19,6 +19,7 @@ import { PresenceModule } from './presence/presence.module';
 import { SupportModule } from './support/support.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { StripeModule } from './stripe/stripe.module';
 import { HomeShowcaseController } from './common/home-showcase.controller';
 
 @Module({
@@ -42,6 +43,7 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
     SupportModule,
     CalendarModule,
     SubscriptionModule,
+    StripeModule,
   ],
   controllers: [HomeShowcaseController],
   providers: [

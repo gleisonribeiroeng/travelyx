@@ -16,6 +16,7 @@ model User {
   isActive           Boolean  @default(true)
   plan               String   @default("FREE")
   planExpiresAt      DateTime?
+  stripeCustomerId   String?  @unique
   googleAccessToken  String?
   googleRefreshToken String?
   createdAt          DateTime @default(now())

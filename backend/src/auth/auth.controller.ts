@@ -49,4 +49,20 @@ export class AuthController {
   getProfile(@Req() req: Request) {
     return req.user;
   }
+
+  /**
+   * POST /api/auth/refresh-token — issue a fresh JWT with current plan/role from DB.
+   * Used after Stripe checkout completes to update the frontend token.
+   */
+  @Get('refresh-token')
+  @UseGuards(JwtAuthGuard)
+  async refreshToken(@Req() req: Request) {
+    const user = req.user as any;
+    const dbUser = await this.authService.ensureUserExists(user);
+    const token = this.authService.generateJwt(
+      { googleId: user.googleId, email: user.email, name: user.name, firstName: '', lastName: '', picture: user.picture },
+      dbUser,
+    );
+    return { token };
+  }
 }

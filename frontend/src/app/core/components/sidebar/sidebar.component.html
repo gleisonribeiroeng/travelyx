@@ -58,6 +58,18 @@
   }
 
   <div class="sidebar-footer">
+    @if (auth.isPro()) {
+      <button class="manage-sub-btn" (click)="openPortal()">
+        <mat-icon>credit_card</mat-icon>
+        <span>Gerenciar assinatura</span>
+      </button>
+    } @else {
+      <button class="upgrade-btn" (click)="openCheckout()">
+        <mat-icon>rocket_launch</mat-icon>
+        <span>Upgrade PRO</span>
+        <span class="pro-badge" aria-hidden="true">PRO</span>
+      </button>
+    }
     <button class="add-action" (click)="openNewTrip()">
       <mat-icon>add_circle_outline</mat-icon>
       <span>Nova Viagem</span>

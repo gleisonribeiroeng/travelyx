@@ -54,7 +54,9 @@ async function ensureColumns() {
 
 async function bootstrap() {
   await ensureColumns();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
   app.enableCors({ origin: frontendUrl });
   app.setGlobalPrefix('api');

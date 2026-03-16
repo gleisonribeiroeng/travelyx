@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { StripeService } from '../../../core/services/stripe.service';
 
 export interface PaywallDialogData {
   feature: string;       // e.g. 'Orçamento', 'Documentos'
@@ -39,11 +40,18 @@ export interface PaywallDialogData {
       </div>
 
       <div class="paywall-actions">
-        <button mat-flat-button color="primary" class="upgrade-btn" (click)="onUpgrade()">
-          <mat-icon>rocket_launch</mat-icon>
-          Fazer Upgrade
-        </button>
-        <button mat-button (click)="dialogRef.close()">Agora não</button>
+        @if (loading()) {
+          <button mat-flat-button color="primary" class="upgrade-btn" disabled>
+            <mat-icon class="spin">sync</mat-icon>
+            Redirecionando...
+          </button>
+        } @else {
+          <button mat-flat-button color="primary" class="upgrade-btn" (click)="onUpgrade()">
+            <mat-icon>rocket_launch</mat-icon>
+            Fazer Upgrade
+          </button>
+        }
+        <button mat-button (click)="dialogRef.close()" [disabled]="loading()">Agora não</button>
       </div>
     </div>
   `,
@@ -167,14 +175,29 @@ export interface PaywallDialogData {
         margin-right: 4px;
       }
     }
+
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
   `],
 })
 export class PaywallDialogComponent {
   readonly data = inject<PaywallDialogData>(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<PaywallDialogComponent>);
+  private readonly stripe = inject(StripeService);
 
-  onUpgrade(): void {
-    // TODO: integrate with payment provider (Stripe, etc.)
-    this.dialogRef.close('upgrade');
+  readonly loading = signal(false);
+
+  async onUpgrade(): Promise<void> {
+    this.loading.set(true);
+    try {
+      await this.stripe.checkout();
+    } catch {
+      this.loading.set(false);
+    }
   }
 }

@@ -33,6 +33,20 @@ export const routes: Routes = [
       import('./features/tours-showcase/tours-showcase.component').then(m => m.ToursShowcaseComponent),
   },
 
+  // ── Checkout (Stripe) ──
+  {
+    path: 'checkout/success',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/checkout/checkout-success.component').then(m => m.CheckoutSuccessComponent),
+  },
+  {
+    path: 'checkout/cancel',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/checkout/checkout-cancel.component').then(m => m.CheckoutCancelComponent),
+  },
+
   // ── Trip list (authenticated, no trip context needed) ──
   {
     path: 'viagens',

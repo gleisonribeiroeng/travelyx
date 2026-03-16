@@ -62,6 +62,11 @@ async function main() {
       await client.query(`ALTER TABLE "User" ADD COLUMN "googleRefreshToken" TEXT`);
       console.log('[DB-FIX] Created googleRefreshToken column');
     }
+    if (!colMap['stripeCustomerId']) {
+      await client.query(`ALTER TABLE "User" ADD COLUMN "stripeCustomerId" TEXT`);
+      await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS "User_stripeCustomerId_key" ON "User"("stripeCustomerId")`);
+      console.log('[DB-FIX] Created stripeCustomerId column');
+    }
 
     // Drop old enum types (no longer needed)
     await client.query(`DROP TYPE IF EXISTS "Plan" CASCADE`);

@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { TripStateService } from '../../services/trip-state.service';
 import { TripRouterService } from '../../services/trip-router.service';
 import { PlanService, PlanLimits } from '../../services/plan.service';
+import { StripeService } from '../../services/stripe.service';
 
 interface NavItem {
   icon: string;
@@ -33,6 +34,7 @@ export class SidebarComponent {
   protected readonly tripState = inject(TripStateService);
   private readonly tripRouter = inject(TripRouterService);
   protected readonly planService = inject(PlanService);
+  private readonly stripeService = inject(StripeService);
 
   mobileOpen = signal(false);
 
@@ -99,6 +101,16 @@ export class SidebarComponent {
     if (item.proFeature) {
       this.planService.showPaywall(item.proFeature);
     }
+  }
+
+  async openCheckout(): Promise<void> {
+    this.closeMobile();
+    await this.stripeService.checkout();
+  }
+
+  async openPortal(): Promise<void> {
+    this.closeMobile();
+    await this.stripeService.portal();
   }
 
   logout(): void {
