@@ -145,7 +145,22 @@ export class AuthService {
   }
 
   private loadToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return null;
+    // Security: reject expired tokens on load
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const payload = JSON.parse(atob(parts[1]));
+      if (payload.exp && payload.exp < Date.now() / 1000) {
+        localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.USER_KEY);
+        return null;
+      }
+    } catch {
+      return null;
+    }
+    return token;
   }
 
   private loadUser(): AuthUser | null {
@@ -160,8 +175,15 @@ export class AuthService {
 
   private decodeJwt(token: string): any {
     try {
-      const payload = token.split('.')[1];
-      return JSON.parse(atob(payload));
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const payload = JSON.parse(atob(parts[1]));
+      // Security: reject expired tokens
+      if (payload.exp && payload.exp < Date.now() / 1000) {
+        this.logout();
+        return null;
+      }
+      return payload;
     } catch {
       return null;
     }

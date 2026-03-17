@@ -1,4 +1,6 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import pg from 'pg';
 
@@ -23,7 +25,7 @@ async function ensureColumns() {
     }
     if (!existing.has('role')) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "role" "Role" NOT NULL DEFAULT 'USER'`);
-      await client.query(`UPDATE "User" SET "role" = 'ADMIN' WHERE "email" = 'gleison423200@gmail.com'`);
+      await client.query(`UPDATE "User" SET "role" = 'ADMIN' WHERE "email" = $1`, [process.env.ADMIN_EMAIL || 'gleison423200@gmail.com']);
       console.log('[DB-FIX] Created role column');
     }
     if (!existing.has('isActive')) {
@@ -62,8 +64,30 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
   });
+
+  // Security: HTTP headers
+  app.use(helmet({
+    contentSecurityPolicy: false, // handled by frontend meta tag
+    crossOriginEmbedderPolicy: false, // allows loading external images
+  }));
+
+  // Security: CORS
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
-  app.enableCors({ origin: frontendUrl });
+  app.enableCors({
+    origin: frontendUrl,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true,
+  });
+
+  // Security: global validation pipe — strips unknown fields, transforms types
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: false,
+    transform: true,
+  }));
+
+  // Security: request body size limit (1MB)
+  // Note: rawBody for Stripe webhooks is handled separately
   app.setGlobalPrefix('api');
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }

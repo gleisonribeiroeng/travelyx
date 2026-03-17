@@ -31,10 +31,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     this.logger.error(`[${status}] ${message}`, exception instanceof Error ? exception.stack : '');
 
+    // Security: don't leak internal error details in production
+    const isProduction = process.env.NODE_ENV === 'production';
+    const safeMessage = isProduction && status === HttpStatus.INTERNAL_SERVER_ERROR
+      ? 'Internal server error'
+      : message;
+
     response.status(status).json({
       status,
       code,
-      message,
+      message: safeMessage,
       timestamp: new Date().toISOString(),
     });
   }

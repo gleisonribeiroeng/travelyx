@@ -112,7 +112,7 @@ export class TripsService {
     if (data.attractions !== undefined) updateData.attractions = JSON.stringify(data.attractions);
 
     await this.prisma.trip.update({
-      where: { id },
+      where: { id, userId },
       data: updateData,
     });
 
@@ -162,7 +162,7 @@ export class TripsService {
     }
 
     const trip = await this.prisma.trip.findFirst({
-      where: { id },
+      where: { id, userId },
       include: {
         itineraryItems: {
           orderBy: [{ date: 'asc' }, { order: 'asc' }],

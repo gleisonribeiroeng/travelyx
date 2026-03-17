@@ -238,8 +238,9 @@ export class SupportChatComponent implements OnDestroy {
 
     const baseUrl = environment.apiBaseUrl || window.location.origin;
 
+    const token = this.auth.getToken();
     this.socket = io(`${baseUrl}/support`, {
-      query: { userId: user.googleId },
+      auth: { token },
       transports: ['websocket', 'polling'],
     });
 

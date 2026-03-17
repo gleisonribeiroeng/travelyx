@@ -7,12 +7,26 @@ export class SupportGateway implements OnGatewayConnection, OnGatewayDisconnect 
   private readonly logger = new Logger(SupportGateway.name);
   private readonly userSockets = new Map<string, Socket[]>();
 
+  private extractUserId(client: Socket): string | null {
+    const token = (client.handshake.auth?.token as string) || (client.handshake.query?.token as string);
+    if (token) {
+      try {
+        const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        if (payload.sub && payload.exp && payload.exp > Date.now() / 1000) {
+          return payload.sub;
+        }
+      } catch { /* invalid token */ }
+    }
+    return (client.handshake.query.userId as string) || null;
+  }
+
   handleConnection(client: Socket) {
-    const userId = client.handshake.query.userId as string;
+    const userId = this.extractUserId(client);
     if (!userId) {
       client.disconnect();
       return;
     }
+    (client as any)._userId = userId;
 
     const existing = this.userSockets.get(userId) || [];
     existing.push(client);
@@ -21,7 +35,7 @@ export class SupportGateway implements OnGatewayConnection, OnGatewayDisconnect 
   }
 
   handleDisconnect(client: Socket) {
-    const userId = client.handshake.query.userId as string;
+    const userId = (client as any)._userId as string;
     if (!userId) return;
 
     const sockets = this.userSockets.get(userId) || [];

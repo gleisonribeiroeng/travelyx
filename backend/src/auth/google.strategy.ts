@@ -6,9 +6,14 @@ import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(configService: ConfigService) {
+    const clientID = configService.get<string>('GOOGLE_CLIENT_ID');
+    const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET');
+    if ((!clientID || !clientSecret) && process.env.NODE_ENV === 'production') {
+      throw new Error('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in production');
+    }
     super({
-      clientID: configService.get<string>('GOOGLE_CLIENT_ID') || 'PLACEHOLDER',
-      clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET') || 'PLACEHOLDER',
+      clientID: clientID || 'PLACEHOLDER',
+      clientSecret: clientSecret || 'PLACEHOLDER',
       callbackURL: configService.get<string>('GOOGLE_CALLBACK_URL') || 'http://localhost:3000/api/auth/google/callback',
       scope: ['email', 'profile'],
     } as any);

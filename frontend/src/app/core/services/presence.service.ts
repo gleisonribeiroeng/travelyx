@@ -17,21 +17,12 @@ export class PresenceService implements OnDestroy {
     const user = this.auth.user();
     if (!user) return;
 
-    // Decode JWT to get the DB userId (sub field)
     const token = this.auth.getToken();
     if (!token) return;
 
-    let userId: string;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      userId = payload.sub;
-    } catch {
-      return;
-    }
-
     const baseUrl = environment.apiBaseUrl || window.location.origin;
     this.socket = io(`${baseUrl}/presence`, {
-      query: { userId },
+      auth: { token },
       transports: ['websocket', 'polling'],
     });
 

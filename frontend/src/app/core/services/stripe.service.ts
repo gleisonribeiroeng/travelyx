@@ -9,6 +9,19 @@ export class StripeService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
 
+  /** Security: validate redirect URL is from a trusted domain */
+  private isSafeRedirect(url: string): boolean {
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'https:' &&
+        (parsed.hostname === 'checkout.stripe.com' ||
+         parsed.hostname === 'billing.stripe.com' ||
+         parsed.hostname.endsWith('.stripe.com'));
+    } catch {
+      return false;
+    }
+  }
+
   /**
    * Redirect user to Stripe Checkout for PRO upgrade.
    */
@@ -16,6 +29,7 @@ export class StripeService {
     const { url } = await firstValueFrom(
       this.http.post<{ url: string }>(`${environment.apiBaseUrl}/api/stripe/checkout`, {}),
     );
+    if (!this.isSafeRedirect(url)) throw new Error('Invalid checkout URL');
     window.location.href = url;
   }
 
@@ -26,6 +40,7 @@ export class StripeService {
     const { url } = await firstValueFrom(
       this.http.post<{ url: string }>(`${environment.apiBaseUrl}/api/stripe/portal`, {}),
     );
+    if (!this.isSafeRedirect(url)) throw new Error('Invalid portal URL');
     window.location.href = url;
   }
 

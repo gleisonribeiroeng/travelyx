@@ -17,12 +17,30 @@ export class PresenceGateway
   @WebSocketServer()
   server: Server;
 
+  private extractUserId(client: Socket): string | null {
+    // Security: prefer auth token over query param
+    const token = (client.handshake.auth?.token as string) || (client.handshake.query?.token as string);
+    if (token) {
+      try {
+        const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        // Basic structure validation (expiry check)
+        if (payload.sub && payload.exp && payload.exp > Date.now() / 1000) {
+          return payload.sub;
+        }
+      } catch { /* invalid token */ }
+    }
+    // Fallback: legacy userId query param (will be removed in future)
+    return (client.handshake.query.userId as string) || null;
+  }
+
   handleConnection(client: Socket) {
-    const userId = client.handshake.query.userId as string;
+    const userId = this.extractUserId(client);
     if (!userId) {
       client.disconnect();
       return;
     }
+    // Store userId on socket for disconnect handler
+    (client as any)._userId = userId;
 
     const wasOnline = this.userSockets.has(userId);
     const sockets = this.userSockets.get(userId) || new Set();
@@ -36,7 +54,7 @@ export class PresenceGateway
   }
 
   handleDisconnect(client: Socket) {
-    const userId = client.handshake.query.userId as string;
+    const userId = (client as any)._userId as string;
     if (!userId) return;
 
     const sockets = this.userSockets.get(userId);

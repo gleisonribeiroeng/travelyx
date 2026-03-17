@@ -5,6 +5,17 @@
   <title>Travelyx</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com;
+    img-src 'self' https: data:;
+    connect-src 'self' http://localhost:3000 ws://localhost:3000 https://*.railway.app wss://*.railway.app https://ui-avatars.com;
+    frame-src 'none';
+    object-src 'none';
+    base-uri 'self';
+  ">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,13 +24,5 @@
 </head>
 <body>
   <app-root></app-root>
-  <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
-    (function () {
-      var script = document.createElement("script");
-      script.async = 1;
-      script.src = 'https://emrld.cc/NTA0MDM5.js?t=504039';
-      document.head.appendChild(script);
-    })();
-  </script>
 </body>
 </html>
