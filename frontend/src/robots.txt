@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /itinerary
+Disallow: /timeline
+Disallow: /flights
+Disallow: /hotels
+Disallow: /cars
+Disallow: /tours
+Disallow: /account
+Disallow: /settings
+Disallow: /admin
+
+Sitemap: https://travelyx.com.br/sitemap.xml
