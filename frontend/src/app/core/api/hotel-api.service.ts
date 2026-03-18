@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
@@ -37,6 +38,7 @@ export interface HotelSearchParams {
 @Injectable({ providedIn: 'root' })
 export class HotelApiService extends BaseApiService {
   private readonly mapper = inject(HotelMapper);
+  private readonly currencyService = inject(CurrencyService);
 
   constructor() {
     super('hotel');
@@ -72,7 +74,7 @@ export class HotelApiService extends BaseApiService {
       departure_date: params.checkOut,
       adults: params.adults,
       room_qty: params.rooms,
-      currency_code: 'BRL',
+      currency_code: this.currencyService.currency(),
       locale: 'pt-br',
     }).pipe(
       withBackoff(),

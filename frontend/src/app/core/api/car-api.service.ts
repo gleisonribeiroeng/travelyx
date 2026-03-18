@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
@@ -28,6 +29,8 @@ export interface CarLocationOption {
  */
 @Injectable({ providedIn: 'root' })
 export class CarApiService extends BaseApiService {
+  private readonly currencyService = inject(CurrencyService);
+
   constructor() {
     super('carRental');
   }
@@ -55,7 +58,7 @@ export class CarApiService extends BaseApiService {
       pickup_time: params.pickupTime,
       dropoff_time: params.dropoffTime,
       driver_age: params.driverAge,
-      currency: params.currency || 'BRL',
+      currency: params.currency || this.currencyService.currency(),
     }).pipe(
       withBackoff(),
       map(

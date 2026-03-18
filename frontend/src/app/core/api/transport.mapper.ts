@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Transport } from '../models/trip.models';
 
 /**
@@ -58,6 +59,7 @@ export interface TransportSearchParams {
  */
 @Injectable({ providedIn: 'root' })
 export class TransportMapper {
+  private readonly currencyService = inject(CurrencyService);
   /**
    * Transform an external transport route response into a canonical Transport model.
    *
@@ -70,7 +72,7 @@ export class TransportMapper {
     const priceObj =
       raw.price && typeof raw.price === 'object'
         ? raw.price
-        : { total: (raw.price as number) || raw.total_price || 0, currency: raw.currency || 'BRL' };
+        : { total: (raw.price as number) || raw.total_price || 0, currency: raw.currency || this.currencyService.currency() };
 
     return {
       id: String(raw.id || crypto.randomUUID()),

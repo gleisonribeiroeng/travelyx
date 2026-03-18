@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Mapper } from './mapper.interface';
 import { Flight } from '../models/trip.models';
 
@@ -36,6 +37,7 @@ export interface AmadeusFlightOffer {
  */
 @Injectable({ providedIn: 'root' })
 export class FlightMapper implements Mapper<AmadeusFlightOffer, Flight> {
+  private readonly currencyService = inject(CurrencyService);
   /**
    * Transform a single Amadeus flight offer into a canonical Flight model.
    *
@@ -66,7 +68,7 @@ export class FlightMapper implements Mapper<AmadeusFlightOffer, Flight> {
       stops: segments.length - 1,
       price: {
         total: parseFloat(raw.price.total),
-        currency: 'BRL', // TODO: dynamic currency based on user locale
+        currency: this.currencyService.currency(),
       },
       link: {
         url: `https://www.amadeus.com/booking/${raw.id}`,

@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Activity } from '../models/trip.models';
 
 /**
@@ -82,6 +83,7 @@ export interface TourSearchParams {
  */
 @Injectable({ providedIn: 'root' })
 export class TourMapper {
+  private readonly currencyService = inject(CurrencyService);
   /**
    * Transform an external Viator product response into a canonical Activity model.
    *
@@ -106,7 +108,7 @@ export class TourMapper {
       reviewCount: raw.reviews?.totalReviews ?? 0,
       price: {
         total: raw.pricing?.summary?.fromPrice || 0,
-        currency: 'BRL', // TODO: dynamic currency based on user locale
+        currency: this.currencyService.currency(),
       },
       images: (raw.images || [])
         .map(img => pickBestVariant(img.variants))

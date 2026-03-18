@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Mapper } from './mapper.interface';
 import { Stay } from '../models/trip.models';
 
@@ -37,13 +38,14 @@ export interface BookingComHotel {
  */
 @Injectable({ providedIn: 'root' })
 export class HotelMapper implements Mapper<BookingComHotel, Stay> {
+  private readonly currencyService = inject(CurrencyService);
   mapResponse(raw: BookingComHotel, checkIn?: string, checkOut?: string): Stay {
     const prop = raw.property || {} as BookingComHotel['property'];
     const ci = checkIn || prop.checkinDate || '';
     const co = checkOut || prop.checkoutDate || '';
 
     const totalPrice = prop.priceBreakdown?.grossPrice?.value || 0;
-    const currency = 'BRL'; // TODO: dynamic currency based on user locale
+    const currency = this.currencyService.currency();
 
     const nights = this.calculateNights(ci, co);
     const pricePerNight = nights > 0 ? totalPrice / nights : totalPrice;

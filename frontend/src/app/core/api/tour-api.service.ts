@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
@@ -19,6 +20,7 @@ export type { TourSearchParams } from './tour.mapper';
 @Injectable({ providedIn: 'root' })
 export class TourApiService extends BaseApiService {
   private readonly mapper = inject(TourMapper);
+  private readonly currencyService = inject(CurrencyService);
 
   constructor() {
     super('tours');
@@ -27,7 +29,7 @@ export class TourApiService extends BaseApiService {
   searchTours(params: TourSearchParams): Observable<ApiResult<Activity[]>> {
     return this.post<any>('/partner/products/search', {
       filtering: { destination: params.destination },
-      currency: 'BRL',
+      currency: this.currencyService.currency(),
       pagination: { offset: 0, limit: 20 },
     }).pipe(
       withBackoff(),

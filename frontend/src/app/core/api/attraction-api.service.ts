@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
@@ -23,6 +24,7 @@ export type { AttractionSearchParams } from './attraction.mapper';
 @Injectable({ providedIn: 'root' })
 export class AttractionApiService extends BaseApiService {
   private readonly mapper = inject(AttractionMapper);
+  private readonly currencyService = inject(CurrencyService);
 
   constructor() {
     super('attractions');
@@ -33,7 +35,7 @@ export class AttractionApiService extends BaseApiService {
   ): Observable<ApiResult<Attraction[]>> {
     return this.post<any>('/search', {
       filtering: { destination: params.city },
-      currency: 'BRL',
+      currency: this.currencyService.currency(),
       pagination: { offset: 0, limit: 20 },
     }).pipe(
       withBackoff(),

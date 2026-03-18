@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { CarRental } from '../models/trip.models';
 
 /**
@@ -53,6 +54,7 @@ export interface CarSearchParams {
  */
 @Injectable({ providedIn: 'root' })
 export class CarMapper {
+  private readonly currencyService = inject(CurrencyService);
   mapResponse(raw: PricelineCar, params: CarSearchParams): CarRental {
     const car = raw.car || {};
     const price = raw.price_details?.display;
@@ -69,7 +71,7 @@ export class CarMapper {
       dropOffAt: this.toIsoDateTime(params.dropoffDate, params.dropoffTime),
       price: {
         total: parseFloat(price?.total_price || price?.price || '0'),
-        currency: 'BRL', // TODO: dynamic currency based on user locale
+        currency: this.currencyService.currency(),
       },
       images: [car.imageURL, car.images?.SIZE335X180].filter((u): u is string => !!u),
       link: {

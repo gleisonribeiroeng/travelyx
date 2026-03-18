@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { CurrencyService } from '../i18n/currency.service';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
@@ -19,6 +20,7 @@ export type { TransportSearchParams } from './transport.mapper';
 @Injectable({ providedIn: 'root' })
 export class TransportApiService extends BaseApiService {
   private readonly mapper = inject(TransportMapper);
+  private readonly currencyService = inject(CurrencyService);
 
   constructor() {
     super('transport');
@@ -29,7 +31,7 @@ export class TransportApiService extends BaseApiService {
       origin: params.origin,
       destination: params.destination,
       date: params.departureDate,
-      currency: 'BRL',
+      currency: this.currencyService.currency(),
     }).pipe(
       withBackoff(),
       map(
