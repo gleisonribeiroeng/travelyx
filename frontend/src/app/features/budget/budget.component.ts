@@ -1,17 +1,19 @@
 import { Component, inject, computed, signal } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { BudgetService } from '../../core/services/budget.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TripScoreService } from '../../core/services/trip-score.service';
 import { ManualExpense } from '../../core/models/trip.models';
 import { AddExpenseDialogComponent, AddExpenseResult } from './add-expense-dialog.component';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
 @Component({
   selector: 'app-budget',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, CurrencyPipe],
+  imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe, TranslatePipe],
   templateUrl: './budget.component.html',
   styleUrl: './budget.component.scss',
 })

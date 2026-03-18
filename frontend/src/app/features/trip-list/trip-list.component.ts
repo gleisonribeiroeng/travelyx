@@ -10,11 +10,13 @@ import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from 
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { tripToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 import { PlanService } from '../../core/services/plan.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-trip-list',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DatePipe, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, CommonModule, DatePipe, ListItemBaseComponent, TranslatePipe],
   templateUrl: './trip-list.component.html',
   styleUrl: './trip-list.component.scss',
 })
@@ -24,6 +26,7 @@ export class TripListComponent {
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
   private readonly planService = inject(PlanService);
+  private readonly i18n = inject(TranslationService);
 
   readonly statusFilter = signal<string>('');
 
@@ -48,10 +51,10 @@ export class TripListComponent {
       if (!result) return;
       this.tripState.createTrip(result).subscribe({
         next: (trip) => {
-          this.notify.success('Viagem criada! Vamos montar seu roteiro.');
+          this.notify.success(this.i18n.t('trips.createdSuccess'));
           this.router.navigate(['/viagem', trip.id, 'planner']);
         },
-        error: () => this.notify.error('Erro ao criar viagem'),
+        error: () => this.notify.error(this.i18n.t('trips.createError')),
       });
     });
   }
@@ -62,10 +65,10 @@ export class TripListComponent {
   }
 
   deleteTrip(id: string): void {
-    if (!confirm('Tem certeza que deseja excluir esta viagem? Esta ação não pode ser desfeita.')) return;
+    if (!confirm(this.i18n.t('trips.deleteConfirm'))) return;
     this.tripState.deleteTrip(id).subscribe({
-      next: () => this.notify.success('Viagem excluída'),
-      error: () => this.notify.error('Erro ao excluir viagem'),
+      next: () => this.notify.success(this.i18n.t('trips.deletedSuccess')),
+      error: () => this.notify.error(this.i18n.t('trips.deleteError')),
     });
   }
 
@@ -79,9 +82,9 @@ export class TripListComponent {
 
   getStatusLabel(status: string): string {
     const map: Record<string, string> = {
-      planejamento: 'Planejamento',
-      ativa: 'Ativa',
-      concluida: 'Concluída',
+      planejamento: this.i18n.t('trips.statusPlanning'),
+      ativa: this.i18n.t('trips.statusActive'),
+      concluida: this.i18n.t('trips.statusCompleted'),
     };
     return map[status] || status;
   }
@@ -114,7 +117,7 @@ export class TripListComponent {
       this.tripState.selectTrip(id);
       this.tripState.setTripMeta(result.name, result.destination, result.dates);
       if (prevActive && prevActive !== id) this.tripState.selectTrip(prevActive);
-      this.notify.success('Viagem atualizada!');
+      this.notify.success(this.i18n.t('trips.updatedSuccess'));
     });
   }
 
@@ -129,7 +132,7 @@ export class TripListComponent {
       reader.onload = () => {
         const dataUrl = reader.result as string;
         this.tripState.setTripCoverImage(id, dataUrl);
-        this.notify.success('Imagem de capa adicionada!');
+        this.notify.success(this.i18n.t('trips.coverAdded'));
       };
       reader.readAsDataURL(file);
     };

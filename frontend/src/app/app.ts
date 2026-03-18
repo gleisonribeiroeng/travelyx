@@ -9,11 +9,12 @@ import { BottomNavComponent } from './core/components/bottom-nav/bottom-nav.comp
 import { AuthService } from './core/services/auth.service';
 import { TripStateService } from './core/services/trip-state.service';
 import { TransitionService } from './core/services/transition.service';
+import { TranslatePipe } from './core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, SupportChatComponent, BottomNavComponent],
+  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, SupportChatComponent, BottomNavComponent, TranslatePipe],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

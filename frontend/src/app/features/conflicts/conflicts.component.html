@@ -1,7 +1,7 @@
 <div class="conflicts-page">
   <div class="page-header">
-    <h1>Alertas</h1>
-    <p>Análise automática de problemas no seu roteiro</p>
+    <h1>{{ 'nav.alerts' | translate }}</h1>
+    <p>{{ 'conflicts.subtitle' | translate }}</p>
   </div>
 
   <!-- Status Banner -->
@@ -10,8 +10,8 @@
       <mat-card-content>
         <mat-icon>check_circle</mat-icon>
         <div>
-          <strong>Tudo certo!</strong>
-          <p>Nenhum conflito detectado no seu roteiro.</p>
+          <strong>{{ 'conflicts.allClear' | translate }}</strong>
+          <p>{{ 'conflicts.noConflicts' | translate }}</p>
         </div>
       </mat-card-content>
     </mat-card>
@@ -20,19 +20,19 @@
       @if (errorCount() > 0) {
         <div class="badge error">
           <mat-icon>error</mat-icon>
-          <span>{{ errorCount() }} {{ errorCount() === 1 ? 'erro' : 'erros' }}</span>
+          <span>{{ errorCount() }} {{ errorCount() === 1 ? ('conflicts.error' | translate) : ('conflicts.errors' | translate) }}</span>
         </div>
       }
       @if (warningCount() > 0) {
         <div class="badge warning">
           <mat-icon>warning</mat-icon>
-          <span>{{ warningCount() }} {{ warningCount() === 1 ? 'alerta' : 'alertas' }}</span>
+          <span>{{ warningCount() }} {{ warningCount() === 1 ? ('conflicts.warning' | translate) : ('conflicts.warnings' | translate) }}</span>
         </div>
       }
       @if (infoCount() > 0) {
         <div class="badge info">
           <mat-icon>info</mat-icon>
-          <span>{{ infoCount() }} {{ infoCount() === 1 ? 'sugestao' : 'sugestoes' }}</span>
+          <span>{{ infoCount() }} {{ infoCount() === 1 ? ('conflicts.suggestion' | translate) : ('conflicts.suggestions' | translate) }}</span>
         </div>
       }
     </div>
@@ -41,7 +41,7 @@
   <!-- Errors -->
   @if (groupedConflicts().errors.length > 0) {
     <section class="conflict-section">
-      <h3 class="section-title error"><mat-icon>error</mat-icon> Erros criticos</h3>
+      <h3 class="section-title error"><mat-icon>error</mat-icon> {{ 'conflicts.criticalErrors' | translate }}</h3>
       @for (conflict of groupedConflicts().errors; track conflict.id) {
         <mat-card class="conflict-card error">
           <mat-card-content>
@@ -66,7 +66,7 @@
   <!-- Warnings -->
   @if (groupedConflicts().warnings.length > 0) {
     <section class="conflict-section">
-      <h3 class="section-title warning"><mat-icon>warning</mat-icon> Alertas</h3>
+      <h3 class="section-title warning"><mat-icon>warning</mat-icon> {{ 'conflicts.alertsSection' | translate }}</h3>
       @for (conflict of groupedConflicts().warnings; track conflict.id) {
         <mat-card class="conflict-card warning">
           <mat-card-content>
@@ -91,7 +91,7 @@
   <!-- Info -->
   @if (groupedConflicts().info.length > 0) {
     <section class="conflict-section">
-      <h3 class="section-title info"><mat-icon>info</mat-icon> Sugestoes</h3>
+      <h3 class="section-title info"><mat-icon>info</mat-icon> {{ 'conflicts.suggestionsSection' | translate }}</h3>
       @for (conflict of groupedConflicts().info; track conflict.id) {
         <mat-card class="conflict-card info">
           <mat-card-content>

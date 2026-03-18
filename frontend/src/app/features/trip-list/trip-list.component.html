@@ -2,12 +2,12 @@
   <!-- Header -->
   <div class="page-header">
     <div class="header-text">
-      <h1>Minhas Viagens</h1>
-      <p class="header-subtitle">Planeje e organize suas próximas aventuras</p>
+      <h1>{{ 'trips.title' | translate }}</h1>
+      <p class="header-subtitle">{{ 'trips.subtitle' | translate }}</p>
     </div>
     <button mat-fab extended color="primary" class="create-btn" (click)="openCreateDialog()">
       <mat-icon>add</mat-icon>
-      Nova Viagem
+      {{ 'trips.newTrip' | translate }}
     </button>
   </div>
 
@@ -15,20 +15,20 @@
   <div class="filter-bar">
     <mat-chip-listbox aria-label="Filtrar por status">
       <mat-chip-option [selected]="statusFilter() === ''" (selectionChange)="statusFilter.set('')">
-        Todas
+        {{ 'trips.filterAll' | translate }}
       </mat-chip-option>
       <mat-chip-option [selected]="statusFilter() === 'planejamento'" (selectionChange)="statusFilter.set('planejamento')">
-        Planejamento
+        {{ 'trips.filterPlanning' | translate }}
       </mat-chip-option>
       <mat-chip-option [selected]="statusFilter() === 'ativa'" (selectionChange)="statusFilter.set('ativa')">
-        Ativas
+        {{ 'trips.filterActive' | translate }}
       </mat-chip-option>
       <mat-chip-option [selected]="statusFilter() === 'concluida'" (selectionChange)="statusFilter.set('concluida')">
-        Concluídas
+        {{ 'trips.filterCompleted' | translate }}
       </mat-chip-option>
     </mat-chip-listbox>
     @if (filteredTrips().length > 0) {
-      <span class="trip-count">{{ filteredTrips().length }} {{ filteredTrips().length === 1 ? 'viagem' : 'viagens' }}</span>
+      <span class="trip-count">{{ filteredTrips().length }} {{ filteredTrips().length === 1 ? ('trips.trip' | translate) : ('trips.trips' | translate) }}</span>
     }
   </div>
 
@@ -36,7 +36,7 @@
   @if (tripState.isLoading()) {
     <div class="loading-state">
       <mat-spinner diameter="48"></mat-spinner>
-      <p>Carregando viagens...</p>
+      <p>{{ 'trips.loading' | translate }}</p>
     </div>
   }
 
@@ -54,18 +54,18 @@
         </div>
       </div>
       @if (statusFilter()) {
-        <h2>Nenhuma viagem encontrada</h2>
+        <h2>{{ 'trips.emptyFilterTitle' | translate }}</h2>
         <p class="empty-text">Nenhuma viagem com o status "{{ getStatusLabel(statusFilter()) }}".</p>
         <button mat-stroked-button color="primary" class="empty-clear-filter" (click)="statusFilter.set('')">
           <mat-icon>filter_alt_off</mat-icon>
-          Limpar filtro
+          {{ 'trips.clearFilter' | translate }}
         </button>
       } @else {
-        <h2>Sua próxima aventura começa aqui</h2>
-        <p class="empty-text">Crie uma viagem e organize voos, hotéis, passeios e roteiro em um só lugar.</p>
+        <h2>{{ 'trips.emptyTitle' | translate }}</h2>
+        <p class="empty-text">{{ 'trips.emptyDesc' | translate }}</p>
         <button mat-flat-button color="primary" class="empty-cta" (click)="openCreateDialog()">
           <mat-icon>add</mat-icon>
-          Criar nova viagem
+          {{ 'trips.createNew' | translate }}
         </button>
       }
     </div>

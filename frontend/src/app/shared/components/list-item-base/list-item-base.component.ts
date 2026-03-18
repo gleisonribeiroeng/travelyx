@@ -1,13 +1,15 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
+import { DynamicCurrencyPipe } from '../../../core/i18n/dynamic-currency.pipe';
 import { ListItemConfig } from './list-item-base.model';
 import { renderStars, formatRating } from '../../../core/utils/rating.util';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-list-item-base',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, TranslatePipe, DynamicCurrencyPipe],
   templateUrl: './list-item-base.component.html',
   styleUrl: './list-item-base.component.scss',
 })

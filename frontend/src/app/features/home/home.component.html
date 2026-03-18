@@ -101,37 +101,37 @@
             @if (costFlights() > 0) {
               <div class="cost-row">
                 <span class="cost-label"><mat-icon>flight</mat-icon> Voos</span>
-                <span class="cost-value">{{ costFlights() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+                <span class="cost-value">{{ costFlights() | dynamicCurrency:'symbol':'1.0-0' }}</span>
               </div>
             }
             @if (costHotels() > 0) {
               <div class="cost-row">
                 <span class="cost-label"><mat-icon>hotel</mat-icon> Hotéis</span>
-                <span class="cost-value">{{ costHotels() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+                <span class="cost-value">{{ costHotels() | dynamicCurrency:'symbol':'1.0-0' }}</span>
               </div>
             }
             @if (costCars() > 0) {
               <div class="cost-row">
                 <span class="cost-label"><mat-icon>directions_car</mat-icon> Carros</span>
-                <span class="cost-value">{{ costCars() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+                <span class="cost-value">{{ costCars() | dynamicCurrency:'symbol':'1.0-0' }}</span>
               </div>
             }
             @if (costActivities() > 0) {
               <div class="cost-row">
                 <span class="cost-label"><mat-icon>local_activity</mat-icon> Atividades</span>
-                <span class="cost-value">{{ costActivities() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+                <span class="cost-value">{{ costActivities() | dynamicCurrency:'symbol':'1.0-0' }}</span>
               </div>
             }
             @if (costTransports() > 0) {
               <div class="cost-row">
                 <span class="cost-label"><mat-icon>directions_bus</mat-icon> Transportes</span>
-                <span class="cost-value">{{ costTransports() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+                <span class="cost-value">{{ costTransports() | dynamicCurrency:'symbol':'1.0-0' }}</span>
               </div>
             }
           </div>
           <div class="cost-total">
             <span>Total estimado</span>
-            <span class="total-value">{{ totalCost() | currency: 'BRL':'symbol':'1.0-0' }}</span>
+            <span class="total-value">{{ totalCost() | dynamicCurrency:'symbol':'1.0-0' }}</span>
           </div>
         </mat-card-content>
       </mat-card>

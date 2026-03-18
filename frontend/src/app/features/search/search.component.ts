@@ -45,6 +45,9 @@ import {
 } from '../../shared/components/manual-flight-dialog/manual-flight-dialog.component';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { flightToListItem, FlightTagType } from '../../shared/components/list-item-base/list-item-mappers';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
 type TripType = 'roundTrip' | 'oneWay' | 'multi';
 
@@ -56,7 +59,7 @@ interface MonthOption {
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent, TranslatePipe, DynamicCurrencyPipe],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
@@ -65,6 +68,7 @@ export class SearchComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly t = inject(TranslationService);
 
   // Trip type & flexible dates
   readonly tripType = signal<TripType>('roundTrip');
@@ -78,7 +82,7 @@ export class SearchComponent {
   readonly returnFlightId = signal<string | null>(null);
 
   readonly segmentLabel = computed(() =>
-    this.currentSegment() === 'outbound' ? 'Voo de IDA' : 'Voo de VOLTA'
+    this.currentSegment() === 'outbound' ? this.t.t('flights.outboundFlight') : this.t.t('flights.returnFlightLabel')
   );
   readonly isRoundTrip = computed(() => this.tripType() === 'roundTrip');
   readonly hasOutbound = computed(() => this.outboundFlightId() !== null);
@@ -585,12 +589,12 @@ export class SearchComponent {
           },
           error: (err) => {
             const detail = err.status === 0
-              ? 'Sem conexão com o servidor. Verifique sua internet e tente novamente.'
+              ? this.t.t('flights.errorNoConnection')
               : err.status === 429
-              ? 'Muitas buscas seguidas. Aguarde alguns segundos e tente novamente.'
-              : err.message || 'Erro ao buscar voos. Tente outras datas ou aeroportos.';
+              ? this.t.t('flights.errorTooManyRequests')
+              : err.message || this.t.t('flights.errorGeneric');
             this.errorMessage.set(detail);
-            this.errorSource.set(err.source || 'Voos');
+            this.errorSource.set(err.source || this.t.t('flights.title'));
             this.searchResults.set([]);
           },
         });
@@ -601,7 +605,7 @@ export class SearchComponent {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (departure < today) {
-        this.notify.error('A data de ida precisa ser hoje ou no futuro');
+        this.notify.error(this.t.t('flights.errorPastDate'));
         return;
       }
 
@@ -677,7 +681,7 @@ export class SearchComponent {
               const seg = this.segmentsArray.at(index);
               const orig = (seg.get('origin')?.value as AirportOption)?.iataCode ?? '?';
               const dest = (seg.get('destination')?.value as AirportOption)?.iataCode ?? '?';
-              errors.push(`Trecho ${index + 1} (${orig} → ${dest}): ${result.error.message}`);
+              errors.push(`${this.t.t('flights.segment')} ${index + 1} (${orig} → ${dest}): ${result.error.message}`);
               segmentResults.push([]);
             } else {
               segmentResults.push(result.data);
@@ -688,15 +692,15 @@ export class SearchComponent {
 
           if (errors.length > 0) {
             this.errorMessage.set(errors.join('\n'));
-            this.errorSource.set('Voos Multi-Cidade');
+            this.errorSource.set(this.t.t('flights.multiCitySource'));
           }
         },
         error: (err) => {
           const detail = err.status === 0
-            ? 'Sem conexão com o servidor. Verifique sua internet.'
-            : err.message || 'Erro ao buscar voos multi-cidade. Tente novamente.';
+            ? this.t.t('flights.errorNoConnection')
+            : err.message || this.t.t('flights.errorMultiCity');
           this.errorMessage.set(detail);
-          this.errorSource.set('Voos Multi-Cidade');
+          this.errorSource.set(this.t.t('flights.multiCitySource'));
         },
       });
   }
@@ -710,13 +714,13 @@ export class SearchComponent {
       date: flight.departureAt.split('T')[0],
       timeSlot: flight.departureAt.split('T')[1]?.substring(0, 5) || null,
       durationMinutes: flight.durationMinutes,
-      label: `Voo Trecho ${segmentIndex + 1}: ${flight.origin} → ${flight.destination}`,
+      label: `${this.t.t('flights.flightSegmentLabel')} ${segmentIndex + 1}: ${flight.origin} → ${flight.destination}`,
       notes: `${flight.airline} ${flight.flightNumber}`,
       order: segmentIndex,
       isPaid: false,
       attachment: null,
     });
-    this.notify.success(`Trecho ${segmentIndex + 1} adicionado ao roteiro`);
+    this.notify.success(this.t.t('flights.segmentAdded', { index: segmentIndex + 1 }));
   }
 
   isAdded(id: string): boolean {
@@ -751,10 +755,10 @@ export class SearchComponent {
 
     const isOutbound = this.isRoundTrip() && this.currentSegment() === 'outbound';
     const isReturn = this.isRoundTrip() && this.currentSegment() === 'return';
-    const legLabel = isOutbound ? 'IDA' : isReturn ? 'VOLTA' : '';
+    const legLabel = isOutbound ? this.t.t('flights.outbound') : isReturn ? this.t.t('flights.returnFlight') : '';
     const label = legLabel
-      ? `Voo ${legLabel}: ${flight.origin} \u2192 ${flight.destination}`
-      : `Voo: ${flight.origin} \u2192 ${flight.destination}`;
+      ? `${this.t.t('flights.flightLabel')} ${legLabel}: ${flight.origin} \u2192 ${flight.destination}`
+      : `${this.t.t('flights.flightLabel')}: ${flight.origin} \u2192 ${flight.destination}`;
 
     this.tripState.addItineraryItem({
       id: crypto.randomUUID(),
@@ -780,7 +784,7 @@ export class SearchComponent {
       }
     }
 
-    this.notify.success(legLabel ? `Voo de ${legLabel} adicionado ao roteiro` : 'Voo adicionado ao roteiro');
+    this.notify.success(legLabel ? this.t.t('flights.flightLegAdded', { leg: legLabel }) : this.t.t('flights.flightAdded'));
   }
 
   setFilter(value: string): void {
@@ -819,20 +823,20 @@ export class SearchComponent {
         date: result.flight.departureAt.split('T')[0],
         timeSlot: result.flight.departureAt.split('T')[1]?.substring(0, 5) || null,
         durationMinutes: result.flight.durationMinutes,
-        label: `Voo: ${result.flight.origin} → ${result.flight.destination}`,
+        label: `${this.t.t('flights.flightLabel')}: ${result.flight.origin} → ${result.flight.destination}`,
         notes: `${result.flight.airline} ${result.flight.flightNumber}`,
         order: 0,
         isPaid: result.isPaid,
         attachment: null,
       });
-      this.notify.success('Voo manual adicionado!');
+      this.notify.success(this.t.t('flights.manualFlightAdded'));
     });
   }
 
   private buildAvailableMonths(): MonthOption[] {
     const months: MonthOption[] = [];
     const now = new Date();
-    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     for (let i = 0; i < 6; i++) {
       const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
       const value = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;

@@ -5,22 +5,22 @@
   <!-- Desktop nav (hidden on mobile via CSS) -->
   <nav class="nav-links desktop-nav">
     <a mat-button routerLink="/search" routerLinkActive="active-link">
-      <mat-icon>search</mat-icon> Voos
+      <mat-icon>search</mat-icon> {{ 'nav.flights' | translate }}
     </a>
     <a mat-button routerLink="/hotels" routerLinkActive="active-link">
-      <mat-icon>hotel</mat-icon> Hotéis
+      <mat-icon>hotel</mat-icon> {{ 'nav.hotels' | translate }}
     </a>
     <a mat-button routerLink="/cars" routerLinkActive="active-link">
-      <mat-icon>directions_car</mat-icon> Carros
+      <mat-icon>directions_car</mat-icon> {{ 'nav.cars' | translate }}
     </a>
     <a mat-button routerLink="/tours" routerLinkActive="active-link">
-      <mat-icon>local_activity</mat-icon> Atividades
+      <mat-icon>local_activity</mat-icon> {{ 'nav.activities' | translate }}
     </a>
     <a mat-button routerLink="/attractions" routerLinkActive="active-link">
-      <mat-icon>local_activity</mat-icon> Atividades
+      <mat-icon>local_activity</mat-icon> {{ 'nav.activities' | translate }}
     </a>
     <a mat-button routerLink="/itinerary" routerLinkActive="active-link">
-      <mat-icon>map</mat-icon> Roteiro
+      <mat-icon>map</mat-icon> {{ 'nav.myItinerary' | translate }}
     </a>
   </nav>
 
@@ -39,7 +39,7 @@
       <mat-divider></mat-divider>
       <button mat-menu-item (click)="logout()">
         <mat-icon>logout</mat-icon>
-        <span>Sair</span>
+        <span>{{ 'nav.logout' | translate }}</span>
       </button>
     </mat-menu>
   }
@@ -54,26 +54,26 @@
 @if (menuOpen()) {
   <nav class="mobile-nav">
     <a mat-button routerLink="/search" routerLinkActive="active-link" (click)="closeMenu()">
-      <mat-icon>search</mat-icon> Voos
+      <mat-icon>search</mat-icon> {{ 'nav.flights' | translate }}
     </a>
     <a mat-button routerLink="/hotels" routerLinkActive="active-link" (click)="closeMenu()">
-      <mat-icon>hotel</mat-icon> Hotéis
+      <mat-icon>hotel</mat-icon> {{ 'nav.hotels' | translate }}
     </a>
     <a mat-button routerLink="/cars" routerLinkActive="active-link" (click)="closeMenu()">
-      <mat-icon>directions_car</mat-icon> Carros
+      <mat-icon>directions_car</mat-icon> {{ 'nav.cars' | translate }}
     </a>
     <a mat-button routerLink="/tours" routerLinkActive="active-link" (click)="closeMenu()">
-      <mat-icon>local_activity</mat-icon> Atividades
+      <mat-icon>local_activity</mat-icon> {{ 'nav.activities' | translate }}
     </a>
     <a mat-button routerLink="/attractions" routerLinkActive="active-link" (click)="closeMenu()">
-      <mat-icon>local_activity</mat-icon> Atividades
+      <mat-icon>local_activity</mat-icon> {{ 'nav.activities' | translate }}
     </a>
     <a mat-button routerLink="/itinerary" routerLinkActive="active-link" (click)="closeMenu()">
-      <mat-icon>map</mat-icon> Roteiro
+      <mat-icon>map</mat-icon> {{ 'nav.myItinerary' | translate }}
     </a>
     @if (authService.isLoggedIn()) {
       <a mat-button (click)="logout(); closeMenu()" class="logout-link">
-        <mat-icon>logout</mat-icon> Sair
+        <mat-icon>logout</mat-icon> {{ 'nav.logout' | translate }}
       </a>
     }
   </nav>

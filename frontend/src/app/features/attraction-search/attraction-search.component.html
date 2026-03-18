@@ -1,16 +1,16 @@
 <div class="view-header">
-  <h1>Atividades</h1>
-  <p>Passeios, atrações e experiências no destino</p>
+  <h1>{{ 'activities.title' | translate }}</h1>
+  <p>{{ 'activities.subtitleAttractions' | translate }}</p>
 </div>
 
 @if (formCollapsed()) {
   <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
     <div class="toggle-info">
       <mat-icon>museum</mat-icon>
-      <span>Busca de Atividades</span>
+      <span>{{ 'activities.searchToggle' | translate }}</span>
     </div>
     <div class="toggle-action">
-      <span>Editar busca</span>
+      <span>{{ 'activities.editSearch' | translate }}</span>
       <mat-icon>expand_more</mat-icon>
     </div>
   </div>
@@ -21,7 +21,7 @@
     <form [formGroup]="attractionSearchForm" (ngSubmit)="searchAttractions()">
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Cidade</mat-label>
+          <mat-label>{{ 'activities.city' | translate }}</mat-label>
           <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" />
           <mat-icon matPrefix>place</mat-icon>
           <mat-autocomplete #autoCity [displayWith]="displayCity">
@@ -29,19 +29,19 @@
               <mat-option [value]="dest">{{ dest.label }}</mat-option>
             }
           </mat-autocomplete>
-          @if (cityControl.hasError('required')) { <mat-error>Cidade é obrigatória</mat-error> }
+          @if (cityControl.hasError('required')) { <mat-error>{{ 'activities.cityRequired' | translate }}</mat-error> }
         </mat-form-field>
       </div>
 
       @if (isSearching()) {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
           <mat-spinner diameter="20"></mat-spinner>
-          <span>Buscando...</span>
+          <span>{{ 'activities.searching' | translate }}</span>
         </button>
       } @else {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="attractionSearchForm.invalid">
           <mat-icon>search</mat-icon>
-          <span>Buscar Atividades</span>
+          <span>{{ 'activities.searchActivities' | translate }}</span>
         </button>
       }
     </form>
@@ -49,13 +49,13 @@
 </mat-card>
 
 @if (errorMessage()) {
-  <app-error-banner [source]="errorSource() ?? 'Atividades'" [message]="errorMessage()!" (dismiss)="dismissError()" />
+  <app-error-banner [source]="errorSource() ?? ('activities.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
 }
 
 @if (searchResults().length > 0) {
   <div class="results-section">
     <div class="results-header">
-      <h2>{{ searchResults().length }} {{ searchResults().length !== 1 ? 'atividades encontradas' : 'atividade encontrada' }}</h2>
+      <h2>{{ searchResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
     </div>
 
     @for (attraction of searchResults(); track attraction.id) {
@@ -73,7 +73,7 @@
   <mat-card class="empty-state">
     <mat-card-content>
       <mat-icon>museum</mat-icon>
-      <p>Nenhuma atividade encontrada. Tente uma cidade diferente.</p>
+      <p>{{ 'activities.emptyStateAttractions' | translate }}</p>
     </mat-card-content>
   </mat-card>
 }

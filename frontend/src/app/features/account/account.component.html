@@ -3,7 +3,7 @@
     <button mat-icon-button (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1>Minha Conta</h1>
+    <h1>{{ 'account.title' | translate }}</h1>
   </div>
 
   @if (user(); as u) {
@@ -28,21 +28,21 @@
       <mat-card class="stats-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>bar_chart</mat-icon>
-          <mat-card-title>Resumo</mat-card-title>
+          <mat-card-title>{{ 'account.summary' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-value">{{ totalTrips() }}</span>
-              <span class="stat-label">Viagens</span>
+              <span class="stat-label">{{ 'account.trips' | translate }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ plan() }}</span>
-              <span class="stat-label">Plano</span>
+              <span class="stat-label">{{ 'account.plan' | translate }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-value">{{ u.role === 'ADMIN' ? 'Admin' : 'Usuário' }}</span>
-              <span class="stat-label">Tipo</span>
+              <span class="stat-value">{{ u.role === 'ADMIN' ? ('account.adminType' | translate) : ('account.userType' | translate) }}</span>
+              <span class="stat-label">{{ 'account.type' | translate }}</span>
             </div>
           </div>
         </mat-card-content>
@@ -52,19 +52,19 @@
       <mat-card class="plan-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>workspace_premium</mat-icon>
-          <mat-card-title>Seu Plano</mat-card-title>
+          <mat-card-title>{{ 'account.yourPlan' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="plan-details">
             <div class="plan-name">{{ planLabel() }}</div>
             @if (plan() === 'FREE') {
-              <p class="plan-desc">Você está no plano gratuito. Faça upgrade para desbloquear orçamento, checklist, documentos e mais.</p>
+              <p class="plan-desc">{{ 'account.freePlanDesc' | translate }}</p>
               <button mat-flat-button color="primary" (click)="upgradePlan()">
                 <mat-icon>upgrade</mat-icon>
-                Fazer Upgrade
+                {{ 'account.upgrade' | translate }}
               </button>
             } @else {
-              <p class="plan-desc">Você tem acesso a todos os recursos do plano {{ planLabel() }}.</p>
+              <p class="plan-desc">{{ 'account.proPlanDesc' | translate }} {{ planLabel() }}.</p>
             }
           </div>
         </mat-card-content>
@@ -74,7 +74,7 @@
       <mat-card class="actions-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>manage_accounts</mat-icon>
-          <mat-card-title>Conta</mat-card-title>
+          <mat-card-title>{{ 'account.accountSection' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="action-list">
@@ -82,7 +82,7 @@
               <div class="action-info">
                 <mat-icon>login</mat-icon>
                 <div>
-                  <strong>Login via Google</strong>
+                  <strong>{{ 'account.loginViaGoogle' | translate }}</strong>
                   <p>{{ u.email }}</p>
                 </div>
               </div>
@@ -92,8 +92,8 @@
               <div class="action-info">
                 <mat-icon class="danger">logout</mat-icon>
                 <div>
-                  <strong class="danger">Sair da conta</strong>
-                  <p>Encerrar sessão neste dispositivo</p>
+                  <strong class="danger">{{ 'account.logoutAccount' | translate }}</strong>
+                  <p>{{ 'account.logoutDesc' | translate }}</p>
                 </div>
               </div>
               <mat-icon>chevron_right</mat-icon>

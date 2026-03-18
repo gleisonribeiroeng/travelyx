@@ -7,7 +7,7 @@
     <div class="trip-context" [matMenuTriggerFor]="tripMenu">
       <mat-icon class="trip-context-icon">flight_takeoff</mat-icon>
       <div class="trip-context-info">
-        <span class="trip-context-name">{{ tripState.trip().name || 'Viagem sem nome' }}</span>
+        <span class="trip-context-name">{{ tripState.trip().name || ('topbar.unnamedTrip' | translate) }}</span>
         <span class="trip-context-status" [class]="'status-' + tripState.trip().status">
           {{ getStatusLabel(tripState.trip().status) }}
         </span>
@@ -26,20 +26,20 @@
       <mat-divider></mat-divider>
       <button mat-menu-item (click)="goToTripList()">
         <mat-icon>list</mat-icon>
-        <span>Todas as viagens</span>
+        <span>{{ 'topbar.allTrips' | translate }}</span>
       </button>
     </mat-menu>
   } @else {
     <div class="topbar-search">
       <mat-icon class="search-icon">search</mat-icon>
-      <input type="text" class="search-input" placeholder="Buscar destinos, voos, hotéis...">
+      <input type="text" class="search-input" [placeholder]="'topbar.searchPlaceholder' | translate">
     </div>
   }
 
   <div class="topbar-spacer"></div>
 
   <div class="topbar-actions">
-    <button mat-icon-button aria-label="Notificações">
+    <button mat-icon-button [attr.aria-label]="'topbar.notifications' | translate">
       <mat-icon>notifications_none</mat-icon>
     </button>
 
@@ -61,16 +61,16 @@
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="goToAccount()">
           <mat-icon>person</mat-icon>
-          <span>Minha Conta</span>
+          <span>{{ 'topbar.myAccount' | translate }}</span>
         </button>
         <button mat-menu-item (click)="goToSettings()">
           <mat-icon>settings</mat-icon>
-          <span>Configurações</span>
+          <span>{{ 'topbar.settings' | translate }}</span>
         </button>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>
-          <span>Sair</span>
+          <span>{{ 'topbar.logout' | translate }}</span>
         </button>
       </mat-menu>
     }

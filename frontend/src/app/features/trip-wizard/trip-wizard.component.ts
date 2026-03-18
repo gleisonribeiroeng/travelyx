@@ -4,6 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TripRouterService } from '../../core/services/trip-router.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 import { filter } from 'rxjs/operators';
 
 interface WizardStep {
@@ -16,7 +18,7 @@ interface WizardStep {
 @Component({
   selector: 'app-trip-wizard',
   standalone: true,
-  imports: [RouterOutlet, MatIconModule, MatButtonModule],
+  imports: [RouterOutlet, MatIconModule, MatButtonModule, TranslatePipe],
   templateUrl: './trip-wizard.component.html',
   styleUrl: './trip-wizard.component.scss',
 })
@@ -24,15 +26,16 @@ export class TripWizardComponent {
   private readonly router = inject(Router);
   private readonly tripState = inject(TripStateService);
   private readonly tripRouter = inject(TripRouterService);
+  private readonly i18n = inject(TranslationService);
 
   readonly steps = computed<WizardStep[]>(() => {
     const base = this.tripRouter.getRoute('planner');
     return [
-      { key: 'flights', label: 'Voos', icon: 'flight', route: `${base}/flights` },
-      { key: 'hotels', label: 'Hotéis', icon: 'hotel', route: `${base}/hotels` },
-      { key: 'cars', label: 'Carros', icon: 'directions_car', route: `${base}/cars` },
-      { key: 'tours', label: 'Atividades', icon: 'local_activity', route: `${base}/tours` },
-      { key: 'review', label: 'Revisão', icon: 'checklist', route: `${base}/review` },
+      { key: 'flights', label: this.i18n.t('wizard.flights'), icon: 'flight', route: `${base}/flights` },
+      { key: 'hotels', label: this.i18n.t('wizard.hotels'), icon: 'hotel', route: `${base}/hotels` },
+      { key: 'cars', label: this.i18n.t('wizard.cars'), icon: 'directions_car', route: `${base}/cars` },
+      { key: 'tours', label: this.i18n.t('wizard.activities'), icon: 'local_activity', route: `${base}/tours` },
+      { key: 'review', label: this.i18n.t('wizard.review'), icon: 'checklist', route: `${base}/review` },
     ];
   });
 

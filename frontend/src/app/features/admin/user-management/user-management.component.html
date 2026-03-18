@@ -2,9 +2,9 @@
   <div class="admin-header">
     <h1>
       <mat-icon>admin_panel_settings</mat-icon>
-      Gerenciamento de Usuários
+      {{ 'admin.title' | translate }}
     </h1>
-    <p class="subtitle">Gerencie roles e status dos usuários do sistema</p>
+    <p class="subtitle">{{ 'admin.subtitle' | translate }}</p>
   </div>
 
   @if (loading()) {
@@ -16,14 +16,14 @@
       <table class="users-table">
         <thead>
           <tr>
-            <th>Usuário</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Plano</th>
-            <th>Status</th>
-            <th>Viagens</th>
-            <th>Cadastro</th>
-            <th>Ações</th>
+            <th>{{ 'admin.colUser' | translate }}</th>
+            <th>{{ 'admin.colEmail' | translate }}</th>
+            <th>{{ 'admin.colRole' | translate }}</th>
+            <th>{{ 'admin.colPlan' | translate }}</th>
+            <th>{{ 'admin.colStatus' | translate }}</th>
+            <th>{{ 'admin.colTrips' | translate }}</th>
+            <th>{{ 'admin.colRegistered' | translate }}</th>
+            <th>{{ 'admin.colActions' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -65,7 +65,7 @@
               </td>
               <td>
                 <span class="status-badge" [class.active]="user.isActive" [class.inactive]="!user.isActive">
-                  {{ user.isActive ? 'Ativo' : 'Inativo' }}
+                  {{ user.isActive ? ('admin.active' | translate) : ('admin.inactive' | translate) }}
                 </span>
               </td>
               <td class="center">{{ user._count.trips }}</td>
@@ -73,7 +73,7 @@
               <td>
                 <button
                   mat-icon-button
-                  [matTooltip]="user.isActive ? 'Desativar usuário' : 'Ativar usuário'"
+                  [matTooltip]="user.isActive ? ('admin.deactivateUser' | translate) : ('admin.activateUser' | translate)"
                   (click)="onToggleActive(user)"
                   [disabled]="isCurrentUser(user)"
                 >
@@ -89,7 +89,7 @@
     @if (users().length === 0) {
       <div class="empty-state">
         <mat-icon>group_off</mat-icon>
-        <p>Nenhum usuário encontrado</p>
+        <p>{{ 'admin.noUsers' | translate }}</p>
       </div>
     }
   }

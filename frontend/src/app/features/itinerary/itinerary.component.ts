@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { KeyValuePipe, DatePipe, CurrencyPipe } from '@angular/common';
+import { KeyValuePipe, DatePipe } from '@angular/common';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { NotificationService } from '../../core/services/notification.service';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
@@ -17,6 +18,8 @@ import {
   ScheduleDialogResult,
 } from '../../shared/components/schedule-dialog/schedule-dialog.component';
 
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -42,10 +45,11 @@ const TYPE_COLORS: Record<string, string> = {
     MATERIAL_IMPORTS,
     KeyValuePipe,
     DatePipe,
-    CurrencyPipe,
+    DynamicCurrencyPipe,
     ItineraryItemComponent,
     ManualItemFormComponent,
     FullCalendarModule,
+    TranslatePipe,
   ],
   templateUrl: './itinerary.component.html',
   styleUrl: './itinerary.component.scss',
@@ -56,6 +60,7 @@ export class ItineraryComponent {
   private readonly calendarApi = inject(CalendarApiService);
   private readonly dialog = inject(MatDialog);
   private readonly tripRouter = inject(TripRouterService);
+  private readonly i18n = inject(TranslationService);
 
   readonly syncing = signal(false);
 
@@ -242,8 +247,8 @@ export class ItineraryComponent {
   }
 
   stopsLabel(stops: number): string {
-    if (stops === 0) return 'Direto';
-    return `${stops} parada${stops > 1 ? 's' : ''}`;
+    if (stops === 0) return this.i18n.t('itineraryItem.direct');
+    return `${stops} ${stops > 1 ? this.i18n.t('itineraryItem.stops') : this.i18n.t('itineraryItem.stop')}`;
   }
 
   navigateTo(route: string): void {
@@ -428,7 +433,7 @@ export class ItineraryComponent {
     const editableTypes = ['activity', 'attraction', 'custom'];
     if (!editableTypes.includes(item.type)) {
       // For fixed types, just ask to remove
-      if (confirm('Remover este item do roteiro?')) {
+      if (confirm(this.i18n.t('dialog.detail.removeFromItinerary') + '?')) {
         this.tripState.removeItineraryItem(eventId);
       }
       return;
@@ -455,7 +460,7 @@ export class ItineraryComponent {
 
       if (result.action === 'remove') {
         this.tripState.removeItineraryItem(eventId);
-        this.notify.success('Item removido do roteiro');
+        this.notify.success(this.i18n.t('notify.itemAdded'));
         return;
       }
 
@@ -465,7 +470,7 @@ export class ItineraryComponent {
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
       });
-      this.notify.success('Horário atualizado');
+      this.notify.success(this.i18n.t('notify.tripUpdated'));
     });
   }
 
@@ -482,7 +487,7 @@ export class ItineraryComponent {
     const trip = this.tripState.trip();
     const allItems = trip.itineraryItems;
     if (allItems.length === 0) {
-      this.notify.info('Nenhum item no roteiro para sincronizar');
+      this.notify.info(this.i18n.t('notify.noItemsToSync'));
       return;
     }
     this.syncing.set(true);
@@ -494,7 +499,7 @@ export class ItineraryComponent {
           this.syncing.set(false);
           this.calendarApi.getAuthorizeUrl().subscribe({
             next: ({ url }) => { window.location.href = url; },
-            error: () => { this.notify.error('Erro ao autorizar Google Calendar.'); },
+            error: () => { this.notify.error(this.i18n.t('notify.calendarAuthError')); },
           });
         }
       },
@@ -502,7 +507,7 @@ export class ItineraryComponent {
         this.syncing.set(false);
         this.calendarApi.getAuthorizeUrl().subscribe({
           next: ({ url }) => { window.location.href = url; },
-          error: () => { this.notify.error('Erro ao autorizar Google Calendar.'); },
+          error: () => { this.notify.error(this.i18n.t('notify.calendarAuthError')); },
         });
       },
     });
@@ -518,14 +523,14 @@ export class ItineraryComponent {
       next: (result) => {
         this.syncing.set(false);
         if (result.errors.length > 0) {
-          this.notify.info(`${result.created} eventos criados, ${result.errors.length} erros`);
+          this.notify.info(`${result.created} ${this.i18n.t('notify.eventsCreated')} ${result.errors.length} ${this.i18n.t('notify.errors')}`);
         } else {
-          this.notify.success(`${result.created} eventos adicionados ao Google Calendar`);
+          this.notify.success(`${result.created} ${this.i18n.t('notify.eventsAddedToCalendar')}`);
         }
       },
       error: () => {
         this.syncing.set(false);
-        this.notify.error('Erro ao sincronizar com o Google Calendar.');
+        this.notify.error(this.i18n.t('notify.calendarSyncError'));
       },
     });
   }

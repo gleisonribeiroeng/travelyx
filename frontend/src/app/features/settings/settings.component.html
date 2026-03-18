@@ -3,15 +3,53 @@
     <button mat-icon-button (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1>Configurações</h1>
+    <h1>{{ 'settings.title' | translate }}</h1>
   </div>
 
   <div class="settings-grid">
+    <!-- Language & Currency -->
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar>language</mat-icon>
+        <mat-card-title>{{ 'settings.langCurrency' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="setting-row">
+          <div class="setting-info">
+            <mat-icon>translate</mat-icon>
+            <div>
+              <strong>{{ 'settings.language' | translate }}</strong>
+              <p>{{ 'settings.languageDesc' | translate }}</p>
+            </div>
+          </div>
+          <mat-select [value]="language" (selectionChange)="onLanguageChange($event.value)" class="setting-select">
+            <mat-option value="pt">Português</mat-option>
+            <mat-option value="en">English</mat-option>
+          </mat-select>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="setting-row">
+          <div class="setting-info">
+            <mat-icon>payments</mat-icon>
+            <div>
+              <strong>{{ 'settings.currency' | translate }}</strong>
+              <p>{{ 'settings.currencyDesc' | translate }}</p>
+            </div>
+          </div>
+          <mat-select [value]="currency" (selectionChange)="onCurrencyChange($event.value)" class="setting-select">
+            <mat-option value="BRL">R$ BRL</mat-option>
+            <mat-option value="USD">$ USD</mat-option>
+            <mat-option value="EUR">€ EUR</mat-option>
+          </mat-select>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Notifications -->
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>notifications</mat-icon>
-        <mat-card-title>Notificações</mat-card-title>
+        <mat-card-title>{{ 'settings.notifications' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         @for (item of notifications; track item.key; let last = $last) {
@@ -34,7 +72,7 @@
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>display_settings</mat-icon>
-        <mat-card-title>Exibição</mat-card-title>
+        <mat-card-title>{{ 'settings.display' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         @for (item of display; track item.key; let last = $last) {
@@ -57,15 +95,15 @@
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>storage</mat-icon>
-        <mat-card-title>Dados</mat-card-title>
+        <mat-card-title>{{ 'settings.data' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="setting-row clickable" (click)="clearCache()">
           <div class="setting-info">
             <mat-icon>cached</mat-icon>
             <div>
-              <strong>Limpar cache local</strong>
-              <p>Remove dados em cache e recarrega a página</p>
+              <strong>{{ 'settings.clearCache' | translate }}</strong>
+              <p>{{ 'settings.clearCacheDesc' | translate }}</p>
             </div>
           </div>
           <mat-icon>chevron_right</mat-icon>
@@ -78,11 +116,11 @@
       <mat-card-content>
         <div class="app-info">
           <strong>Travelyx</strong>
-          <p>Versão 1.0.0</p>
+          <p>{{ 'settings.version' | translate }}</p>
           <div class="info-links">
-            <a href="/termos">Termos de Uso</a>
+            <a href="/termos">{{ 'settings.termsOfUse' | translate }}</a>
             <span>·</span>
-            <a href="/privacidade">Política de Privacidade</a>
+            <a href="/privacidade">{{ 'settings.privacyPolicy' | translate }}</a>
           </div>
         </div>
       </mat-card-content>

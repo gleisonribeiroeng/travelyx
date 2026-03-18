@@ -21,11 +21,13 @@ import {
 } from '../../core/utils/hotel-categorizer.util';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { ListItemConfig, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-hotels-showcase',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, ListItemBaseComponent, TranslatePipe],
   templateUrl: './hotels-showcase.component.html',
   styleUrl: './hotels-showcase.component.scss',
 })
@@ -34,6 +36,7 @@ export class HotelsShowcaseComponent implements OnInit, AfterViewInit, OnDestroy
   private readonly api = inject(HotelShowcaseApiService);
   private readonly el = inject(ElementRef);
   readonly authService = inject(AuthService);
+  readonly i18n = inject(TranslationService);
 
   readonly bestPrices = signal<ShowcaseHotel[]>([]);
   readonly topRated = signal<ShowcaseHotel[]>([]);
@@ -109,9 +112,9 @@ export class HotelsShowcaseComponent implements OnInit, AfterViewInit, OnDestroy
 
   toListItem(hotel: ShowcaseHotel, tag?: 'cheapest' | 'bestRated' | 'bestValue' | null): ListItemConfig {
     const tags: ListItemTag[] = [];
-    if (tag === 'bestValue') tags.push({ label: 'Melhor custo-beneficio', variant: 'value' });
-    if (tag === 'cheapest') tags.push({ label: 'Melhor preco', variant: 'cheap' });
-    if (tag === 'bestRated') tags.push({ label: 'Mais bem avaliado', variant: 'rated' });
+    if (tag === 'bestValue') tags.push({ label: this.i18n.t('showcase.bestValue'), variant: 'value' });
+    if (tag === 'cheapest') tags.push({ label: this.i18n.t('showcase.bestPrice'), variant: 'cheap' });
+    if (tag === 'bestRated') tags.push({ label: this.i18n.t('showcase.bestRated'), variant: 'rated' });
 
     const images = hotel.photoUrl ? [hotel.photoUrl] : [];
     if (hotel.cityImage && !images.includes(hotel.cityImage)) {
@@ -131,9 +134,9 @@ export class HotelsShowcaseComponent implements OnInit, AfterViewInit, OnDestroy
       price: {
         amount: hotel.pricePerNight.total,
         currency: hotel.pricePerNight.currency,
-        label: '/noite',
+        label: this.i18n.t('hotels.perNight'),
       },
-      primaryAction: { type: 'view', label: 'Ver hoteis', icon: 'search' },
+      primaryAction: { type: 'view', label: this.i18n.t('showcase.viewHotels'), icon: 'search' },
       tags,
       isAdded: false,
       isRecommended: !!tag,

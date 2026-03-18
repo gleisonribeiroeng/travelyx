@@ -18,11 +18,13 @@ import {
 import { categorizeTours, CategorizedTours } from '../../core/utils/tour-categorizer.util';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { ListItemConfig, ListItemInfoLine, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-tours-showcase',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, ListItemBaseComponent, TranslatePipe],
   templateUrl: './tours-showcase.component.html',
   styleUrl: './tours-showcase.component.scss',
 })
@@ -31,6 +33,7 @@ export class ToursShowcaseComponent implements OnInit, AfterViewInit, OnDestroy 
   private readonly api = inject(TourShowcaseApiService);
   private readonly el = inject(ElementRef);
   readonly authService = inject(AuthService);
+  readonly i18n = inject(TranslationService);
 
   readonly mostBooked = signal<ShowcaseTour[]>([]);
   readonly mustDo = signal<ShowcaseTour[]>([]);
@@ -114,9 +117,9 @@ export class ToursShowcaseComponent implements OnInit, AfterViewInit, OnDestroy 
 
   toListItem(tour: ShowcaseTour, tag?: 'cheapest' | 'bestRated' | 'bestValue' | null): ListItemConfig {
     const tags: ListItemTag[] = [];
-    if (tag === 'bestValue') tags.push({ label: 'Melhor custo-beneficio', variant: 'value' });
-    if (tag === 'cheapest') tags.push({ label: 'Melhor preco', variant: 'cheap' });
-    if (tag === 'bestRated') tags.push({ label: 'Mais bem avaliado', variant: 'rated' });
+    if (tag === 'bestValue') tags.push({ label: this.i18n.t('showcase.bestValue'), variant: 'value' });
+    if (tag === 'cheapest') tags.push({ label: this.i18n.t('showcase.bestPrice'), variant: 'cheap' });
+    if (tag === 'bestRated') tags.push({ label: this.i18n.t('showcase.bestRated'), variant: 'rated' });
 
     const images = tour.images?.length ? [...tour.images] : [];
     if (tour.cityImage && !images.includes(tour.cityImage)) {
@@ -143,9 +146,9 @@ export class ToursShowcaseComponent implements OnInit, AfterViewInit, OnDestroy 
       price: {
         amount: tour.price.total,
         currency: tour.price.currency,
-        label: '/pessoa',
+        label: this.i18n.t('activities.perPerson'),
       },
-      primaryAction: { type: 'view', label: 'Ver passeios', icon: 'search' },
+      primaryAction: { type: 'view', label: this.i18n.t('showcase.viewTours'), icon: 'search' },
       tags,
       isAdded: false,
       isRecommended: !!tag,

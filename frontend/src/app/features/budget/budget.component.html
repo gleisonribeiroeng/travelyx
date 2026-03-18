@@ -1,7 +1,7 @@
 <div class="budget-page">
   <div class="page-header">
-    <h1>Orçamento</h1>
-    <p>Controle financeiro completo do seu roteiro</p>
+    <h1>{{ 'budget.title' | translate }}</h1>
+    <p>{{ 'budget.subtitle' | translate }}</p>
   </div>
 
   <!-- Summary Cards -->
@@ -9,22 +9,22 @@
     <mat-card class="summary-card total">
       <mat-card-content>
         <mat-icon>account_balance_wallet</mat-icon>
-        <span class="summary-value">{{ budget.summary().totalPlanned | currency:'BRL':'symbol':'1.0-0' }}</span>
-        <span class="summary-label">Total planejado</span>
+        <span class="summary-value">{{ budget.summary().totalPlanned | dynamicCurrency:'symbol':'1.0-0' }}</span>
+        <span class="summary-label">{{ 'budget.totalPlanned' | translate }}</span>
       </mat-card-content>
     </mat-card>
     <mat-card class="summary-card paid">
       <mat-card-content>
         <mat-icon>check_circle</mat-icon>
-        <span class="summary-value">{{ budget.summary().totalPaid | currency:'BRL':'symbol':'1.0-0' }}</span>
-        <span class="summary-label">Pago</span>
+        <span class="summary-value">{{ budget.summary().totalPaid | dynamicCurrency:'symbol':'1.0-0' }}</span>
+        <span class="summary-label">{{ 'budget.totalPaid' | translate }}</span>
       </mat-card-content>
     </mat-card>
     <mat-card class="summary-card pending">
       <mat-card-content>
         <mat-icon>schedule</mat-icon>
-        <span class="summary-value">{{ budget.summary().totalPending | currency:'BRL':'symbol':'1.0-0' }}</span>
-        <span class="summary-label">Pendente</span>
+        <span class="summary-value">{{ budget.summary().totalPending | dynamicCurrency:'symbol':'1.0-0' }}</span>
+        <span class="summary-label">{{ 'budget.totalPending' | translate }}</span>
       </mat-card-content>
     </mat-card>
   </div>
@@ -32,7 +32,7 @@
   <!-- Progress -->
   <div class="progress-section">
     <div class="progress-header">
-      <span>Progresso de pagamento</span>
+      <span>{{ 'budget.paymentProgress' | translate }}</span>
       <span class="progress-value">{{ paidPercentage() }}%</span>
     </div>
     <mat-progress-bar mode="determinate" [value]="paidPercentage()"></mat-progress-bar>
@@ -41,10 +41,10 @@
   <!-- View Toggle -->
   <mat-button-toggle-group [value]="viewMode()" (change)="viewMode.set($event.value)" class="view-toggle">
     <mat-button-toggle value="category">
-      <mat-icon>category</mat-icon> Por categoria
+      <mat-icon>category</mat-icon> {{ 'budget.byCategory' | translate }}
     </mat-button-toggle>
     <mat-button-toggle value="day">
-      <mat-icon>calendar_today</mat-icon> Por dia
+      <mat-icon>calendar_today</mat-icon> {{ 'budget.byDay' | translate }}
     </mat-button-toggle>
   </mat-button-toggle-group>
 
@@ -60,9 +60,9 @@
                 <span class="category-name">{{ budget.getCategoryLabel(cat.category) }}</span>
               </div>
               <div class="category-amounts">
-                <span class="category-total">{{ cat.planned | currency:'BRL':'symbol':'1.0-0' }}</span>
+                <span class="category-total">{{ cat.planned | dynamicCurrency:'symbol':'1.0-0' }}</span>
                 @if (cat.paid > 0) {
-                  <span class="category-paid">{{ cat.paid | currency:'BRL':'symbol':'1.0-0' }} pago</span>
+                  <span class="category-paid">{{ cat.paid | dynamicCurrency:'symbol':'1.0-0' }} {{ 'budget.paid' | translate }}</span>
                 }
               </div>
             </div>
@@ -82,10 +82,10 @@
             <div class="day-header">
               <span class="day-date">{{ formatDate(day.date) }}</span>
               <div class="day-amounts">
-                <span class="day-planned">{{ day.planned | currency:'BRL':'symbol':'1.0-0' }}</span>
+                <span class="day-planned">{{ day.planned | dynamicCurrency:'symbol':'1.0-0' }}</span>
                 @if (day.paid > 0) {
                   <mat-icon class="day-paid-icon">check_circle</mat-icon>
-                  <span class="day-paid">{{ day.paid | currency:'BRL':'symbol':'1.0-0' }}</span>
+                  <span class="day-paid">{{ day.paid | dynamicCurrency:'symbol':'1.0-0' }}</span>
                 }
               </div>
             </div>
@@ -98,7 +98,7 @@
   <!-- Manual Expenses Section -->
   @if (tripState.manualExpenses().length > 0) {
     <div class="manual-section">
-      <h3><mat-icon>receipt_long</mat-icon> Gastos manuais</h3>
+      <h3><mat-icon>receipt_long</mat-icon> {{ 'budget.manualExpenses' | translate }}</h3>
       @for (exp of tripState.manualExpenses(); track exp.id) {
         <div class="manual-item" [class.paid]="exp.isPaid">
           <mat-icon>{{ budget.getCategoryIcon(exp.category) }}</mat-icon>
@@ -106,11 +106,11 @@
             <span class="manual-label">{{ exp.label }}</span>
             <span class="manual-meta">{{ budget.getCategoryLabel(exp.category) }} &middot; {{ formatDate(exp.date) }}</span>
           </div>
-          <span class="manual-amount">{{ exp.amount | currency:'BRL':'symbol':'1.2-2' }}</span>
-          <button mat-icon-button (click)="toggleExpensePaid(exp)" [matTooltip]="exp.isPaid ? 'Marcar como pendente' : 'Marcar como pago'">
+          <span class="manual-amount">{{ exp.amount | dynamicCurrency:'symbol':'1.2-2' }}</span>
+          <button mat-icon-button (click)="toggleExpensePaid(exp)" [matTooltip]="exp.isPaid ? ('budget.markPending' | translate) : ('budget.markPaid' | translate)">
             <mat-icon>{{ exp.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
           </button>
-          <button mat-icon-button color="warn" (click)="removeExpense(exp.id)" matTooltip="Remover">
+          <button mat-icon-button color="warn" (click)="removeExpense(exp.id)" [matTooltip]="'common.remove' | translate">
             <mat-icon>close</mat-icon>
           </button>
         </div>
@@ -119,7 +119,7 @@
   }
 
   <!-- FAB -->
-  <button mat-fab color="primary" class="add-fab" (click)="openAddExpense()" matTooltip="Adicionar gasto manual">
+  <button mat-fab color="primary" class="add-fab" (click)="openAddExpense()" [matTooltip]="'budget.addManualExpense' | translate">
     <mat-icon>add</mat-icon>
   </button>
 
@@ -128,8 +128,8 @@
     <mat-card class="empty-state">
       <mat-card-content>
         <mat-icon>account_balance_wallet</mat-icon>
-        <h3>Sem dados de orcamento</h3>
-        <p>Adicione itens ao roteiro ou gastos manuais para ver o orcamento consolidado.</p>
+        <h3>{{ 'budget.emptyTitle' | translate }}</h3>
+        <p>{{ 'budget.emptyDesc' | translate }}</p>
       </mat-card-content>
     </mat-card>
   }

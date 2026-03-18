@@ -4,11 +4,12 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TripRouterService } from '../../core/services/trip-router.service';
 import { ItineraryItem } from '../../core/models/trip.models';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-active-trip',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, TranslatePipe],
   templateUrl: './active-trip.component.html',
   styleUrl: './active-trip.component.scss',
 })

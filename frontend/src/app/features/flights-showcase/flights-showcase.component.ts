@@ -21,11 +21,13 @@ import {
 } from '../../core/utils/flight-categorizer.util';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { ListItemConfig, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-flights-showcase',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, DatePipe, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, DatePipe, ListItemBaseComponent, TranslatePipe],
   templateUrl: './flights-showcase.component.html',
   styleUrl: './flights-showcase.component.scss',
 })
@@ -34,6 +36,7 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
   private readonly api = inject(FlightShowcaseApiService);
   private readonly el = inject(ElementRef);
   readonly authService = inject(AuthService);
+  readonly i18n = inject(TranslationService);
 
   readonly deals = signal<ShowcaseFlight[]>([]);
   readonly popular = signal<ShowcaseFlight[]>([]);
@@ -124,13 +127,13 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
 
   toListItem(flight: ShowcaseFlight, tag?: 'cheapest' | 'fastest' | 'bestValue' | null): ListItemConfig {
     const tags: ListItemTag[] = [];
-    if (tag === 'bestValue') tags.push({ label: 'Melhor custo-beneficio', variant: 'value' });
-    if (tag === 'cheapest') tags.push({ label: 'Mais barato', variant: 'cheap' });
-    if (tag === 'fastest') tags.push({ label: 'Mais rapido', variant: 'fast' });
+    if (tag === 'bestValue') tags.push({ label: this.i18n.t('showcase.bestValue'), variant: 'value' });
+    if (tag === 'cheapest') tags.push({ label: this.i18n.t('showcase.cheapest'), variant: 'cheap' });
+    if (tag === 'fastest') tags.push({ label: this.i18n.t('showcase.fastest'), variant: 'fast' });
 
     const depTime = flight.departureAt.split('T')[1]?.substring(0, 5) ?? '';
     const arrTime = flight.arrivalAt.split('T')[1]?.substring(0, 5) ?? '';
-    const stopsText = flight.stops === 0 ? 'Direto' : `${flight.stops} parada${flight.stops > 1 ? 's' : ''}`;
+    const stopsText = flight.stops === 0 ? this.i18n.t('showcase.direct') : `${flight.stops} ${flight.stops > 1 ? this.i18n.t('showcase.stops') : this.i18n.t('showcase.stop')}`;
 
     return {
       id: flight.id,
@@ -147,7 +150,7 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
         amount: flight.price.total,
         currency: flight.price.currency,
       },
-      primaryAction: { type: 'view', label: 'Ver voos', icon: 'search' },
+      primaryAction: { type: 'view', label: this.i18n.t('showcase.viewFlights'), icon: 'search' },
       tags,
       isAdded: false,
       isRecommended: !!tag,

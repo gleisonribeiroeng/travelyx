@@ -2,10 +2,10 @@
   <!-- Header -->
   <div class="active-header">
     <div class="header-info">
-      <span class="day-label">Dia {{ dayNumber() }} de {{ totalDays() }}</span>
-      <h1>{{ trip().destination || 'Minha Viagem' }}</h1>
+      <span class="day-label">{{ 'activeTrip.dayOf' | translate }} {{ dayNumber() }} {{ 'activeTrip.of' | translate }} {{ totalDays() }}</span>
+      <h1>{{ trip().destination || ('activeTrip.defaultName' | translate) }}</h1>
     </div>
-    <button mat-icon-button (click)="navigateTo('home')" matTooltip="Voltar ao dashboard">
+    <button mat-icon-button (click)="navigateTo('home')" [matTooltip]="'activeTrip.backToDashboard' | translate">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -17,13 +17,13 @@
   @if (currentItem(); as item) {
     <mat-card class="now-card">
       <mat-card-content>
-        <span class="now-label">AGORA</span>
+        <span class="now-label">{{ 'activeTrip.now' | translate }}</span>
         <div class="now-content">
           <mat-icon class="now-icon">{{ getTypeIcon(item.type) }}</mat-icon>
           <div class="now-info">
             <strong>{{ item.label }}</strong>
             @if (item.timeSlot) {
-              <span>{{ item.timeSlot }} · {{ item.durationMinutes ?? 60 }} min</span>
+              <span>{{ item.timeSlot }} · {{ item.durationMinutes ?? 60 }} {{ 'activeTrip.min' | translate }}</span>
             }
             @if (item.notes) {
               <span class="now-notes">{{ item.notes }}</span>
@@ -35,9 +35,9 @@
   } @else if (nextItem(); as next) {
     <mat-card class="next-card">
       <mat-card-content>
-        <span class="next-label">PRÓXIMO</span>
+        <span class="next-label">{{ 'activeTrip.next' | translate }}</span>
         @if (minutesUntilNext() !== null) {
-          <span class="next-countdown">em {{ minutesUntilNext() }} min</span>
+          <span class="next-countdown">{{ 'activeTrip.inMinutes' | translate }} {{ minutesUntilNext() }} {{ 'activeTrip.min' | translate }}</span>
         }
         <div class="next-content">
           <mat-icon class="next-icon">{{ getTypeIcon(next.type) }}</mat-icon>
@@ -54,8 +54,8 @@
     <mat-card class="free-card">
       <mat-card-content>
         <mat-icon>wb_sunny</mat-icon>
-        <strong>Dia livre!</strong>
-        <span>Nenhum compromisso agendado.</span>
+        <strong>{{ 'activeTrip.freeDay' | translate }}</strong>
+        <span>{{ 'activeTrip.freeDayDesc' | translate }}</span>
       </mat-card-content>
     </mat-card>
   }
@@ -63,7 +63,7 @@
   <!-- Today's Schedule -->
   @if (todayItems().length > 0) {
     <div class="schedule-section">
-      <h3>Agenda de hoje</h3>
+      <h3>{{ 'activeTrip.todaySchedule' | translate }}</h3>
       @for (item of todayItems(); track item.id) {
         <div class="schedule-item" [class.past]="item.timeSlot && item.timeSlot < currentTime()"
              [class.current]="item.id === currentItem()?.id">
@@ -78,7 +78,7 @@
   <!-- Tomorrow Preview -->
   @if (tomorrowItems().length > 0) {
     <div class="tomorrow-section">
-      <h3>Amanhã</h3>
+      <h3>{{ 'activeTrip.tomorrow' | translate }}</h3>
       @for (item of tomorrowItems(); track item.id; let i = $index) {
         @if (i < 3) {
           <div class="schedule-item tomorrow">
@@ -89,7 +89,7 @@
         }
       }
       @if (tomorrowItems().length > 3) {
-        <span class="more-items">+{{ tomorrowItems().length - 3 }} mais</span>
+        <span class="more-items">+{{ tomorrowItems().length - 3 }} {{ 'activeTrip.more' | translate }}</span>
       }
     </div>
   }
@@ -97,16 +97,16 @@
   <!-- Quick Actions -->
   <div class="quick-actions">
     <button mat-stroked-button (click)="navigateTo('documents')">
-      <mat-icon>description</mat-icon> Documentos
+      <mat-icon>description</mat-icon> {{ 'activeTrip.documents' | translate }}
     </button>
     <button mat-stroked-button (click)="navigateTo('budget')">
-      <mat-icon>account_balance_wallet</mat-icon> Orçamento
+      <mat-icon>account_balance_wallet</mat-icon> {{ 'activeTrip.budget' | translate }}
     </button>
     <button mat-stroked-button (click)="navigateTo('checklist')">
-      <mat-icon>checklist</mat-icon> Checklist
+      <mat-icon>checklist</mat-icon> {{ 'activeTrip.checklist' | translate }}
     </button>
     <button mat-stroked-button (click)="navigateTo('itinerary')">
-      <mat-icon>map</mat-icon> Roteiro
+      <mat-icon>map</mat-icon> {{ 'activeTrip.itinerary' | translate }}
     </button>
   </div>
 </div>

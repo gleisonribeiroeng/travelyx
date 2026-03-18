@@ -1,16 +1,16 @@
 <div class="view-header">
-  <h1>Hotéis</h1>
-  <p>Encontre a hospedagem perfeita para sua viagem</p>
+  <h1>{{ 'hotels.title' | translate }}</h1>
+  <p>{{ 'hotels.subtitle' | translate }}</p>
 </div>
 
 @if (formCollapsed()) {
   <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
     <div class="toggle-info">
       <mat-icon>hotel</mat-icon>
-      <span>Busca de Hotéis</span>
+      <span>{{ 'hotels.searchToggle' | translate }}</span>
     </div>
     <div class="toggle-action">
-      <span>Editar busca</span>
+      <span>{{ 'hotels.editSearch' | translate }}</span>
       <mat-icon>expand_more</mat-icon>
     </div>
   </div>
@@ -22,7 +22,7 @@
       <!-- Destination Row -->
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Destino</mat-label>
+          <mat-label>{{ 'hotels.destination' | translate }}</mat-label>
           <input
             matInput
             [formControl]="destinationControl"
@@ -37,10 +37,10 @@
             }
           </mat-autocomplete>
           @if (destinationControl.hasError('required')) {
-            <mat-error>Destino é obrigatório</mat-error>
+            <mat-error>{{ 'hotels.destinationRequired' | translate }}</mat-error>
           }
           @if (destinationControl.hasError('invalidDestination')) {
-            <mat-error>Selecione um destino da lista</mat-error>
+            <mat-error>{{ 'hotels.selectDestination' | translate }}</mat-error>
           }
         </mat-form-field>
       </div>
@@ -48,10 +48,10 @@
       <!-- Check-in and Check-out Row -->
       <div class="form-row" formGroupName="dateRange">
         <mat-form-field appearance="outline">
-          <mat-label>Check-in — Check-out</mat-label>
+          <mat-label>{{ 'hotels.checkInOut' | translate }}</mat-label>
           <mat-date-range-input [rangePicker]="rangePicker" [min]="minCheckInDate" (click)="rangePicker.open()">
-            <input matStartDate formControlName="start" placeholder="Check-in">
-            <input matEndDate formControlName="end" placeholder="Check-out">
+            <input matStartDate formControlName="start" [placeholder]="'hotels.checkIn' | translate">
+            <input matEndDate formControlName="end" [placeholder]="'hotels.checkOut' | translate">
           </mat-date-range-input>
           <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
           <mat-date-range-picker #rangePicker></mat-date-range-picker>
@@ -61,20 +61,20 @@
       <!-- Guests and Rooms Row -->
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Hóspedes</mat-label>
+          <mat-label>{{ 'hotels.guests' | translate }}</mat-label>
           <mat-select formControlName="guests">
             @for (num of [1, 2, 3, 4, 5, 6, 7, 8]; track num) {
-              <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Hóspede' : 'Hóspedes' }}</mat-option>
+              <mat-option [value]="num">{{ num }} {{ num === 1 ? ('hotels.guestSingular' | translate) : ('hotels.guestPlural' | translate) }}</mat-option>
             }
           </mat-select>
           <mat-icon matPrefix>person</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Quartos</mat-label>
+          <mat-label>{{ 'hotels.rooms' | translate }}</mat-label>
           <mat-select formControlName="rooms">
             @for (num of [1, 2, 3, 4, 5]; track num) {
-              <mat-option [value]="num">{{ num }} {{ num === 1 ? 'Quarto' : 'Quartos' }}</mat-option>
+              <mat-option [value]="num">{{ num }} {{ num === 1 ? ('hotels.roomSingular' | translate) : ('hotels.roomPlural' | translate) }}</mat-option>
             }
           </mat-select>
           <mat-icon matPrefix>hotel</mat-icon>
@@ -91,7 +91,7 @@
           [disabled]="true"
         >
           <mat-spinner diameter="20"></mat-spinner>
-          <span>Buscando...</span>
+          <span>{{ 'hotels.searching' | translate }}</span>
         </button>
       } @else {
         <button
@@ -102,7 +102,7 @@
           [disabled]="hotelSearchForm.invalid"
         >
           <mat-icon>search</mat-icon>
-          <span>Buscar Hotéis</span>
+          <span>{{ 'hotels.searchHotels' | translate }}</span>
         </button>
       }
     </form>
@@ -110,9 +110,9 @@
     <div class="manual-entry-section">
       <button mat-stroked-button (click)="openManualHotelDialog()">
         <mat-icon>edit_note</mat-icon>
-        Adicionar hotel manualmente
+        {{ 'hotels.addManually' | translate }}
       </button>
-      <span class="manual-hint">Ja tem uma reserva? Insira os dados da hospedagem.</span>
+      <span class="manual-hint">{{ 'hotels.manualHint' | translate }}</span>
     </div>
   </mat-card-content>
 </mat-card>
@@ -120,7 +120,7 @@
 <!-- Error Banner -->
 @if (errorMessage()) {
   <app-error-banner
-    [source]="errorSource() ?? 'Hotéis'"
+    [source]="errorSource() ?? ('hotels.title' | translate)"
     [message]="errorMessage()!"
     (dismiss)="dismissError()"
   />
@@ -133,7 +133,7 @@
     <div class="highlights-strip">
       @if (categorized().cheapest; as cheapest) {
         <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
-          <div class="hl-badge"><mat-icon>savings</mat-icon> Melhor Preço</div>
+          <div class="hl-badge"><mat-icon>savings</mat-icon> {{ 'hotels.bestPrice' | translate }}</div>
           <div class="hl-name">{{ cheapest.name }}</div>
           <div class="hl-info">
             {{ cheapest.address }}
@@ -141,12 +141,12 @@
               · <mat-icon class="hl-star">star</mat-icon> {{ cheapest.rating.toFixed(1) }}
             }
           </div>
-          <div class="hl-price">{{ cheapest.pricePerNight.total | currency: 'BRL' }}<span class="hl-price-label">/noite</span></div>
+          <div class="hl-price">{{ cheapest.pricePerNight.total | dynamicCurrency }}<span class="hl-price-label">{{ 'hotels.perNight' | translate }}</span></div>
         </div>
       }
       @if (categorized().bestRated; as rated) {
         <div class="hl-card hl-rated" (click)="addToItinerary(rated)">
-          <div class="hl-badge"><mat-icon>star</mat-icon> Mais Bem Avaliado</div>
+          <div class="hl-badge"><mat-icon>star</mat-icon> {{ 'hotels.bestRated' | translate }}</div>
           <div class="hl-name">{{ rated.name }}</div>
           <div class="hl-info">
             {{ rated.address }}
@@ -157,12 +157,12 @@
               ({{ rated.reviewCount }})
             }
           </div>
-          <div class="hl-price">{{ rated.pricePerNight.total | currency: 'BRL' }}<span class="hl-price-label">/noite</span></div>
+          <div class="hl-price">{{ rated.pricePerNight.total | dynamicCurrency }}<span class="hl-price-label">{{ 'hotels.perNight' | translate }}</span></div>
         </div>
       }
       @if (categorized().bestValue; as best) {
         <div class="hl-card hl-value" (click)="addToItinerary(best)">
-          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> {{ 'hotels.bestValue' | translate }}</div>
           <div class="hl-name">{{ best.name }}</div>
           <div class="hl-info">
             {{ best.address }}
@@ -170,7 +170,7 @@
               · <mat-icon class="hl-star">star</mat-icon> {{ best.rating.toFixed(1) }}
             }
           </div>
-          <div class="hl-price">{{ best.pricePerNight.total | currency: 'BRL' }}<span class="hl-price-label">/noite</span></div>
+          <div class="hl-price">{{ best.pricePerNight.total | dynamicCurrency }}<span class="hl-price-label">{{ 'hotels.perNight' | translate }}</span></div>
         </div>
       }
     </div>
@@ -178,14 +178,14 @@
 
   <div class="results-section">
     <div class="results-header">
-      <h2>{{ sortedHotels().length }} hotéis encontrados</h2>
+      <h2>{{ sortedHotels().length }} {{ 'hotels.hotelsFound' | translate }}</h2>
 
       <!-- Sort Dropdown -->
       <mat-form-field appearance="outline" class="sort-field">
-        <mat-label>Ordenar por</mat-label>
+        <mat-label>{{ 'hotels.sortBy' | translate }}</mat-label>
         <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
-          <mat-option value="price">Preço (menor)</mat-option>
-          <mat-option value="rating">Avaliação (melhor)</mat-option>
+          <mat-option value="price">{{ 'hotels.sortPrice' | translate }}</mat-option>
+          <mat-option value="rating">{{ 'hotels.sortRating' | translate }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -207,7 +207,7 @@
   <mat-card class="empty-state">
     <mat-card-content>
       <mat-icon>hotel</mat-icon>
-      <p>Nenhum hotel encontrado. Tente um destino ou datas diferentes.</p>
+      <p>{{ 'hotels.emptyState' | translate }}</p>
     </mat-card-content>
   </mat-card>
 }

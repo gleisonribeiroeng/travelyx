@@ -39,10 +39,13 @@ import {
   ManualHotelDialogData,
   ManualHotelDialogResult,
 } from '../../shared/components/manual-hotel-dialog/manual-hotel-dialog.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 @Component({
   selector: 'app-hotel-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent, TranslatePipe, DynamicCurrencyPipe],
   templateUrl: './hotel-search.component.html',
   styleUrl: './hotel-search.component.scss',
 })
@@ -51,6 +54,7 @@ export class HotelSearchComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly t = inject(TranslationService);
 
   // Form controls with custom destination validator
   destinationControl = new FormControl<DestinationOption | null>(null, [
@@ -262,12 +266,12 @@ export class HotelSearchComponent {
             this.executeSearch(results[0], checkInStr, checkOutStr, guests, rooms);
           } else {
             this.isSearching.set(false);
-            this.errorMessage.set('Destino não encontrado. Selecione um destino da lista.');
+            this.errorMessage.set(this.t.t('hotels.destinationNotFound'));
           }
         },
         error: () => {
           this.isSearching.set(false);
-          this.errorMessage.set('Erro ao buscar destino. Tente novamente.');
+          this.errorMessage.set(this.t.t('hotels.errorSearchDestination'));
         },
       });
       return;
@@ -316,13 +320,13 @@ export class HotelSearchComponent {
       date: hotel.checkIn,
       timeSlot: null,
       durationMinutes: null,
-      label: `Hotel: ${hotel.name}`,
+      label: `${this.t.t('hotels.hotelLabel')}: ${hotel.name}`,
       notes: hotel.address || '',
       order: 0,
       isPaid: false,
       attachment: null,
     });
-    this.notify.success('Hotel adicionado ao roteiro');
+    this.notify.success(this.t.t('hotels.hotelAdded'));
   }
 
   // Set sort by
@@ -381,13 +385,13 @@ export class HotelSearchComponent {
         date: result.stay.checkIn,
         timeSlot: null,
         durationMinutes: null,
-        label: `Hotel: ${result.stay.name}`,
+        label: `${this.t.t('hotels.hotelLabel')}: ${result.stay.name}`,
         notes: result.stay.address || '',
         order: 0,
         isPaid: result.isPaid,
         attachment: null,
       });
-      this.notify.success('Hotel manual adicionado!');
+      this.notify.success(this.t.t('hotels.manualHotelAdded'));
     });
   }
 
@@ -396,6 +400,6 @@ export class HotelSearchComponent {
     this.tripState.removeItineraryItem(
       this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
     );
-    this.notify.success('Hotel removido do roteiro');
+    this.notify.success(this.t.t('hotels.hotelRemoved'));
   }
 }

@@ -21,11 +21,14 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 import { categorizeTours, CategorizedTours } from '../../core/utils/tour-categorizer.util';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { activityToListItem, TourTagType } from '../../shared/components/list-item-base/list-item-mappers';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
 @Component({
   selector: 'app-tour-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent, TranslatePipe, DynamicCurrencyPipe],
   templateUrl: './tour-search.component.html',
   styleUrl: './tour-search.component.scss',
 })
@@ -35,6 +38,7 @@ export class TourSearchComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly t = inject(TranslationService);
 
   // Autocomplete destination control
   readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
@@ -160,13 +164,13 @@ export class TourSearchComponent {
         date: result.date,
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
-        label: `Atividade: ${tour.name}`,
+        label: `${this.t.t('activities.activityLabel')}: ${tour.name}`,
         notes: tour.city || '',
         order: 0,
         isPaid: false,
         attachment: null,
       });
-      this.notify.success('Atividade adicionada ao roteiro');
+      this.notify.success(this.t.t('activities.activityAdded'));
     });
   }
 
@@ -225,6 +229,6 @@ export class TourSearchComponent {
     this.tripState.removeItineraryItem(
       this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
     );
-    this.notify.success('Atividade removida do roteiro');
+    this.notify.success(this.t.t('activities.activityRemoved'));
   }
 }

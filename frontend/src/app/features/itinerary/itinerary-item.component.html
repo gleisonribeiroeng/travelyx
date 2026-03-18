@@ -3,7 +3,7 @@
     @if (item().isPaid) {
       <div class="paid-badge">
         <mat-icon>check_circle</mat-icon>
-        Pago
+        {{ 'itineraryItem.paid' | translate }}
       </div>
     }
     @switch (item().type) {
@@ -20,7 +20,7 @@
                 <mat-icon class="arrow-icon">arrow_forward</mat-icon>
                 <span class="code">{{ flight.destination }}</span>
               </div>
-              <span class="price">{{ flight.price.total | currency: 'BRL' }}</span>
+              <span class="price">{{ flight.price.total | dynamicCurrency }}</span>
             </div>
             <div class="card-details">
               <span><mat-icon>schedule</mat-icon> {{ formatTime(flight.departureAt) }} — {{ formatTime(flight.arrivalAt) }}</span>
@@ -28,9 +28,9 @@
               <span><mat-icon>calendar_today</mat-icon> {{ formatDate(flight.departureAt) }}</span>
               <span><mat-icon>timelapse</mat-icon> {{ formatDuration(flight.durationMinutes) }}</span>
               @if (flight.stops > 0) {
-                <span><mat-icon>connecting_airports</mat-icon> {{ flight.stops }} parada{{ flight.stops > 1 ? 's' : '' }}</span>
+                <span><mat-icon>connecting_airports</mat-icon> {{ flight.stops }} {{ flight.stops > 1 ? ('itineraryItem.stops' | translate) : ('itineraryItem.stop' | translate) }}</span>
               } @else {
-                <span><mat-icon>check_circle</mat-icon> Direto</span>
+                <span><mat-icon>check_circle</mat-icon> {{ 'itineraryItem.direct' | translate }}</span>
               }
             </div>
           </div>
@@ -47,7 +47,7 @@
             <div class="card-header-row">
               <mat-icon class="type-icon">hotel</mat-icon>
               <div class="card-title">{{ hotel.name }}</div>
-              <span class="price">{{ hotel.pricePerNight.total | currency: 'BRL' }}/noite</span>
+              <span class="price">{{ hotel.pricePerNight.total | dynamicCurrency }}{{ 'itineraryItem.perNight' | translate }}</span>
             </div>
             <div class="card-details">
               <span><mat-icon>login</mat-icon> Check-in: {{ formatDate(hotel.checkIn) }}</span>
@@ -73,11 +73,11 @@
             <div class="card-header-row">
               <mat-icon class="type-icon">directions_car</mat-icon>
               <div class="card-title">{{ car.vehicleType }}</div>
-              <span class="price">{{ car.price.total | currency: 'BRL' }}</span>
+              <span class="price">{{ car.price.total | dynamicCurrency }}</span>
             </div>
             <div class="card-details">
-              <span><mat-icon>login</mat-icon> Retirada: {{ formatDate(car.pickUpAt) }} {{ formatTime(car.pickUpAt) }} — {{ car.pickUpLocation }}</span>
-              <span><mat-icon>logout</mat-icon> Devolução: {{ formatDate(car.dropOffAt) }} {{ formatTime(car.dropOffAt) }} — {{ car.dropOffLocation }}</span>
+              <span><mat-icon>login</mat-icon> {{ 'itineraryItem.pickup' | translate }}: {{ formatDate(car.pickUpAt) }} {{ formatTime(car.pickUpAt) }} — {{ car.pickUpLocation }}</span>
+              <span><mat-icon>logout</mat-icon> {{ 'itineraryItem.dropoff' | translate }}: {{ formatDate(car.dropOffAt) }} {{ formatTime(car.dropOffAt) }} — {{ car.dropOffLocation }}</span>
               @if (car.link?.provider) {
                 <span><mat-icon>business</mat-icon> {{ car.link.provider }}</span>
               }
@@ -100,7 +100,7 @@
                 <mat-icon class="arrow-icon">arrow_forward</mat-icon>
                 <span class="code">{{ transport.destination }}</span>
               </div>
-              <span class="price">{{ transport.price.total | currency: 'BRL' }}</span>
+              <span class="price">{{ transport.price.total | dynamicCurrency }}</span>
             </div>
             <div class="card-details">
               <span><mat-icon>schedule</mat-icon> {{ formatTime(transport.departureAt) }} — {{ formatTime(transport.arrivalAt) }}</span>
@@ -120,7 +120,7 @@
             <div class="card-header-row">
               <mat-icon class="type-icon">local_activity</mat-icon>
               <div class="card-title">{{ tour.name }}</div>
-              <span class="price">{{ tour.price.total | currency: 'BRL' }}</span>
+              <span class="price">{{ tour.price.total | dynamicCurrency }}</span>
             </div>
             <div class="card-details">
               @if (tour.city) {
@@ -168,28 +168,28 @@
     <!-- Shared action buttons -->
     <div class="card-actions">
       <button mat-icon-button (click)="togglePaid()"
-              [matTooltip]="item().isPaid ? 'Marcar como pendente' : 'Marcar como pago'"
+              [matTooltip]="item().isPaid ? ('itineraryItem.markPending' | translate) : ('itineraryItem.markPaid' | translate)"
               [class.paid-active]="item().isPaid">
         <mat-icon>{{ item().isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
       </button>
       <button mat-icon-button (click)="openAttachment()"
-              [matTooltip]="item().attachment ? 'Ver comprovante' : 'Anexar comprovante'"
+              [matTooltip]="item().attachment ? ('itineraryItem.viewReceipt' | translate) : ('itineraryItem.attachReceipt' | translate)"
               [class.has-attachment]="item().attachment">
         <mat-icon>{{ item().attachment ? 'attach_file' : 'upload_file' }}</mat-icon>
       </button>
-      <button mat-icon-button (click)="startEdit()" matTooltip="Editar">
+      <button mat-icon-button (click)="startEdit()" [matTooltip]="'itineraryItem.edit' | translate">
         <mat-icon>edit</mat-icon>
       </button>
-      <button mat-icon-button color="warn" (click)="remove.emit()" matTooltip="Remover">
+      <button mat-icon-button color="warn" (click)="remove.emit()" [matTooltip]="'itineraryItem.remove' | translate">
         <mat-icon>delete</mat-icon>
       </button>
       @if (!isFirst()) {
-        <button mat-icon-button (click)="moveUp.emit()" matTooltip="Mover para cima">
+        <button mat-icon-button (click)="moveUp.emit()" [matTooltip]="'itineraryItem.moveUp' | translate">
           <mat-icon>arrow_upward</mat-icon>
         </button>
       }
       @if (!isLast()) {
-        <button mat-icon-button (click)="moveDown.emit()" matTooltip="Mover para baixo">
+        <button mat-icon-button (click)="moveDown.emit()" [matTooltip]="'itineraryItem.moveDown' | translate">
           <mat-icon>arrow_downward</mat-icon>
         </button>
       }
@@ -200,21 +200,21 @@
     <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="edit-form">
       <mat-card-content>
         <mat-form-field appearance="outline">
-          <mat-label>Data</mat-label>
+          <mat-label>{{ 'itineraryItem.date' | translate }}</mat-label>
           <input matInput type="date" formControlName="date" required>
-          <mat-error>Data é obrigatória</mat-error>
+          <mat-error>{{ 'itineraryItem.dateRequired' | translate }}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Horário (opcional)</mat-label>
+          <mat-label>{{ 'itineraryItem.timeOptional' | translate }}</mat-label>
           <input matInput type="time" formControlName="timeSlot">
-          <mat-hint>Deixe vazio para itens de dia inteiro</mat-hint>
-          <mat-error>Formato de horário inválido (HH:MM)</mat-error>
+          <mat-hint>{{ 'itineraryItem.timeHint' | translate }}</mat-hint>
+          <mat-error>{{ 'itineraryItem.timeFormatError' | translate }}</mat-error>
         </mat-form-field>
 
         <div class="duration-row">
           <mat-form-field appearance="outline" class="duration-field">
-            <mat-label>Horas</mat-label>
+            <mat-label>{{ 'itineraryItem.hours' | translate }}</mat-label>
             <mat-select formControlName="durationHours">
               @for (h of [0,1,2,3,4,5,6,7,8,9,10,11,12]; track h) {
                 <mat-option [value]="h">{{ h }}h</mat-option>
@@ -222,7 +222,7 @@
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline" class="duration-field">
-            <mat-label>Minutos</mat-label>
+            <mat-label>{{ 'itineraryItem.minutes' | translate }}</mat-label>
             <mat-select formControlName="durationMins">
               @for (m of [0,15,30,45]; track m) {
                 <mat-option [value]="m">{{ m }}min</mat-option>
@@ -232,21 +232,21 @@
         </div>
 
         <mat-form-field appearance="outline">
-          <mat-label>Título</mat-label>
+          <mat-label>{{ 'itineraryItem.title' | translate }}</mat-label>
           <input matInput formControlName="label" required>
-          <mat-error>Título é obrigatório</mat-error>
+          <mat-error>{{ 'itineraryItem.titleRequired' | translate }}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Notas (opcional)</mat-label>
+          <mat-label>{{ 'itineraryItem.notesOptional' | translate }}</mat-label>
           <textarea matInput formControlName="notes" rows="2"></textarea>
         </mat-form-field>
       </mat-card-content>
 
       <mat-card-actions align="end">
-        <button mat-button type="button" (click)="cancelEdit()">Cancelar</button>
+        <button mat-button type="button" (click)="cancelEdit()">{{ 'common.cancel' | translate }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="editForm.invalid">
-          Salvar
+          {{ 'itineraryItem.save' | translate }}
         </button>
       </mat-card-actions>
     </form>
@@ -260,7 +260,7 @@
     <div class="card-header-row">
       <mat-icon class="type-icon">{{ getTypeIcon(item().type) }}</mat-icon>
       <div class="card-title">{{ item().label }}</div>
-      <span class="time-badge">{{ item().timeSlot || 'Dia inteiro' }}</span>
+      <span class="time-badge">{{ item().timeSlot || ('itineraryItem.allDay' | translate) }}</span>
     </div>
     @if (item().notes) {
       <div class="card-details">

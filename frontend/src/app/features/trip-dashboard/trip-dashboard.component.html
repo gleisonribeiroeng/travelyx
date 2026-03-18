@@ -5,11 +5,11 @@
       <div class="hero-content">
         <div class="hero-icon"><mat-icon>explore</mat-icon></div>
         <div class="hero-text">
-          <h2>Planejamento Guiado</h2>
-          <p>Monte seu roteiro passo a passo com nosso assistente</p>
+          <h2>{{ 'dash.guidedPlanning' | translate }}</h2>
+          <p>{{ 'dash.guidedPlanningDesc' | translate }}</p>
         </div>
         <button mat-flat-button class="hero-cta">
-          Começar <mat-icon>arrow_forward</mat-icon>
+          {{ 'dash.start' | translate }} <mat-icon>arrow_forward</mat-icon>
         </button>
       </div>
     </div>
@@ -32,22 +32,22 @@
         </div>
         <div class="trip-actions">
           <button mat-stroked-button class="edit-trip-btn" (click)="editTrip()">
-            <mat-icon>edit</mat-icon> Editar
+            <mat-icon>edit</mat-icon> {{ 'dash.edit' | translate }}
           </button>
           @switch (trip().status) {
             @case ('planejamento') {
               <button mat-flat-button color="primary" class="status-btn" (click)="setStatus('ativa')">
-                <mat-icon>flight_takeoff</mat-icon> Iniciar Viagem
+                <mat-icon>flight_takeoff</mat-icon> {{ 'dash.startTrip' | translate }}
               </button>
             }
             @case ('ativa') {
               <button mat-flat-button color="primary" class="status-btn" (click)="setStatus('concluida')">
-                <mat-icon>check_circle</mat-icon> Concluir
+                <mat-icon>check_circle</mat-icon> {{ 'dash.finish' | translate }}
               </button>
             }
             @case ('concluida') {
               <span class="status-badge badge-concluida">
-                <mat-icon>check_circle</mat-icon> Concluída
+                <mat-icon>check_circle</mat-icon> {{ 'dash.finished' | translate }}
               </span>
             }
           }
@@ -56,18 +56,18 @@
       @if (daysUntilTrip() !== null && daysUntilTrip()! > 0 && daysUntilTrip()! <= 30) {
         <div class="countdown-chip" [class.imminent]="tripPhase() === 'imminent'">
           <span class="countdown-number">{{ daysUntilTrip() }}</span>
-          <span class="countdown-label">{{ daysUntilTrip() === 1 ? 'dia' : 'dias' }}</span>
+          <span class="countdown-label">{{ daysUntilTrip() === 1 ? ('dash.day' | translate) : ('dash.days' | translate) }}</span>
         </div>
       }
       @if (tripPhase() === 'active') {
-        <div class="active-badge"><mat-icon>flight_takeoff</mat-icon> Em viagem!</div>
+        <div class="active-badge"><mat-icon>flight_takeoff</mat-icon> {{ 'dash.traveling' | translate }}</div>
       }
     </div>
 
     @if (!trip().dates.start) {
       <div class="missing-dates-alert" (click)="editTrip()">
         <mat-icon>info</mat-icon>
-        <span>Defina as datas da viagem para ativar a timeline</span>
+        <span>{{ 'dash.setDatesAlert' | translate }}</span>
         <mat-icon>edit</mat-icon>
       </div>
     }
@@ -77,7 +77,7 @@
       <div class="guided-steps">
         <h3 class="guided-title">
           <mat-icon>rocket_launch</mat-icon>
-          Próximos passos para sua viagem
+          {{ 'dash.nextSteps' | translate }}
         </h3>
         @for (step of guidedSteps(); track step.route; let i = $index) {
           <button class="guided-step" [class.done]="step.done" (click)="navigateTo(step.route)">
@@ -116,10 +116,10 @@
         <mat-card class="metric-card budget-card" (click)="navigateTo('budget')">
           <mat-card-content>
             <mat-icon class="metric-icon budget-icon">account_balance_wallet</mat-icon>
-            <span class="metric-value">{{ budget.summary().totalPlanned | currency:'BRL':'symbol':'1.0-0' }}</span>
-            <span class="metric-label">Orçamento</span>
+            <span class="metric-value">{{ budget.summary().totalPlanned | dynamicCurrency:'symbol':'1.0-0' }}</span>
+            <span class="metric-label">{{ 'dash.budget' | translate }}</span>
             @if (budget.summary().totalPaid > 0) {
-              <span class="metric-sub">{{ budget.summary().totalPaid | currency:'BRL':'symbol':'1.0-0' }} pago</span>
+              <span class="metric-sub">{{ budget.summary().totalPaid | dynamicCurrency:'symbol':'1.0-0' }} {{ 'dash.paid' | translate }}</span>
             }
           </mat-card-content>
         </mat-card>
@@ -136,7 +136,7 @@
               <mat-icon class="metric-icon conflict-icon">{{ errorCount() > 0 ? 'error' : 'warning' }}</mat-icon>
               <span class="metric-value">{{ conflicts().length }}</span>
             }
-            <span class="metric-label">{{ conflicts().length === 0 ? 'Sem conflitos' : (conflicts().length === 1 ? 'Conflito' : 'Conflitos') }}</span>
+            <span class="metric-label">{{ conflicts().length === 0 ? ('dash.noConflicts' | translate) : (conflicts().length === 1 ? ('dash.conflict' | translate) : ('dash.conflicts' | translate)) }}</span>
           </mat-card-content>
         </mat-card>
 
@@ -159,7 +159,7 @@
           <div class="paid-header">
             <mat-icon class="paid-card-icon">payments</mat-icon>
             <div class="paid-info">
-              <span class="paid-title">Pagamentos</span>
+              <span class="paid-title">{{ 'dash.payments' | translate }}</span>
               <span class="paid-detail">{{ paidProgress().paid }} de {{ paidProgress().total }} itens pagos</span>
             </div>
             <span class="paid-percentage">{{ paidProgress().percentage }}%</span>
@@ -188,9 +188,9 @@
       <mat-card class="next-items-card">
         <mat-card-content>
           <div class="section-header">
-            <h3><mat-icon>schedule</mat-icon> Próximos no roteiro</h3>
+            <h3><mat-icon>schedule</mat-icon> {{ 'dash.nextOnItinerary' | translate }}</h3>
             <button mat-button class="view-all-btn" (click)="navigateTo('itinerary')">
-              Ver tudo <mat-icon>arrow_forward</mat-icon>
+              {{ 'dash.viewAll' | translate }} <mat-icon>arrow_forward</mat-icon>
             </button>
           </div>
           <div class="next-items-list">
@@ -201,7 +201,7 @@
                   @if (item.timeSlot) {
                     <span class="time-value">{{ item.timeSlot }}</span>
                   } @else {
-                    <span class="time-value all-day">Dia todo</span>
+                    <span class="time-value all-day">{{ 'dash.allDay' | translate }}</span>
                   }
                   <span class="time-date">{{ formatShortDate(item.date) }}</span>
                 </div>
@@ -211,7 +211,7 @@
                   <span class="next-item-type">{{ getTypeLabel(item.type) }}</span>
                 </div>
                 @if (i === 0) {
-                  <span class="next-badge">Próximo</span>
+                  <span class="next-badge">{{ 'dash.next' | translate }}</span>
                 }
               </div>
             }
@@ -223,21 +223,21 @@
     <!-- ═══ SECTION 5: Quick Actions (only when trip has content) ═══ -->
     @if (hasContent()) {
     <div class="quick-actions" role="navigation" aria-label="Ações rápidas">
-      <button class="quick-action-card" (click)="navigateTo('search')" aria-label="Buscar voos">
+      <button class="quick-action-card" (click)="navigateTo('search')" [attr.aria-label]="'dash.searchFlights' | translate">
         <mat-icon aria-hidden="true">flight</mat-icon>
-        <span>Voos</span>
+        <span>{{ 'dash.quickFlights' | translate }}</span>
       </button>
-      <button class="quick-action-card" (click)="navigateTo('hotels')" aria-label="Buscar hotéis">
+      <button class="quick-action-card" (click)="navigateTo('hotels')" [attr.aria-label]="'dash.bookHotel' | translate">
         <mat-icon aria-hidden="true">hotel</mat-icon>
-        <span>Hotéis</span>
+        <span>{{ 'dash.quickHotels' | translate }}</span>
       </button>
-      <button class="quick-action-card" (click)="navigateTo('tours')" aria-label="Buscar atividades">
+      <button class="quick-action-card" (click)="navigateTo('tours')" [attr.aria-label]="'dash.addActivities' | translate">
         <mat-icon aria-hidden="true">local_activity</mat-icon>
-        <span>Atividades</span>
+        <span>{{ 'dash.quickActivities' | translate }}</span>
       </button>
-      <button class="quick-action-card" (click)="navigateTo('itinerary')" aria-label="Ver roteiro">
+      <button class="quick-action-card" (click)="navigateTo('itinerary')" [attr.aria-label]="'dash.buildItinerary' | translate">
         <mat-icon aria-hidden="true">map</mat-icon>
-        <span>Roteiro</span>
+        <span>{{ 'dash.quickItinerary' | translate }}</span>
       </button>
     </div>
     }
@@ -246,12 +246,12 @@
     <mat-card class="empty-state">
       <mat-card-content>
         <mat-icon>flight_takeoff</mat-icon>
-        <h3>Comece a planejar sua viagem!</h3>
-        <p>Use o Planejamento Guiado acima ou busque voos e hotéis diretamente.</p>
+        <h3>{{ 'dash.emptyTitle' | translate }}</h3>
+        <p>{{ 'dash.emptyDesc' | translate }}</p>
         <div class="empty-actions">
-          <button mat-flat-button color="primary" (click)="navigateTo('planner')"><mat-icon>route</mat-icon> Planejamento Guiado</button>
-          <button mat-stroked-button (click)="navigateTo('search')"><mat-icon>flight</mat-icon> Buscar Voos</button>
-          <button mat-stroked-button (click)="navigateTo('hotels')"><mat-icon>hotel</mat-icon> Buscar Hotéis</button>
+          <button mat-flat-button color="primary" (click)="navigateTo('planner')"><mat-icon>route</mat-icon> {{ 'dash.guidedPlanning' | translate }}</button>
+          <button mat-stroked-button (click)="navigateTo('search')"><mat-icon>flight</mat-icon> {{ 'dash.searchFlights' | translate }}</button>
+          <button mat-stroked-button (click)="navigateTo('hotels')"><mat-icon>hotel</mat-icon> {{ 'dash.bookHotel' | translate }}</button>
         </div>
       </mat-card-content>
     </mat-card>

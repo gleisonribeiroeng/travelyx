@@ -1,16 +1,16 @@
 <div class="view-header">
-  <h1>Atividades</h1>
-  <p>Passeios, atrações e experiências no seu destino</p>
+  <h1>{{ 'activities.title' | translate }}</h1>
+  <p>{{ 'activities.subtitle' | translate }}</p>
 </div>
 
 @if (formCollapsed()) {
   <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
     <div class="toggle-info">
       <mat-icon>local_activity</mat-icon>
-      <span>Busca de Atividades</span>
+      <span>{{ 'activities.searchToggle' | translate }}</span>
     </div>
     <div class="toggle-action">
-      <span>Editar busca</span>
+      <span>{{ 'activities.editSearch' | translate }}</span>
       <mat-icon>expand_more</mat-icon>
     </div>
   </div>
@@ -21,7 +21,7 @@
     <form [formGroup]="tourSearchForm" (ngSubmit)="searchTours()">
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Destino</mat-label>
+          <mat-label>{{ 'activities.destination' | translate }}</mat-label>
           <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" />
           <mat-icon matPrefix>place</mat-icon>
           <mat-autocomplete #autoDestination [displayWith]="displayDestination">
@@ -30,7 +30,7 @@
             }
           </mat-autocomplete>
           @if (destinationControl.hasError('required')) {
-            <mat-error>Destino é obrigatório</mat-error>
+            <mat-error>{{ 'activities.destinationRequired' | translate }}</mat-error>
           }
         </mat-form-field>
       </div>
@@ -38,12 +38,12 @@
       @if (isSearching()) {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
           <mat-spinner diameter="20"></mat-spinner>
-          <span>Buscando...</span>
+          <span>{{ 'activities.searching' | translate }}</span>
         </button>
       } @else {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="tourSearchForm.invalid">
           <mat-icon>search</mat-icon>
-          <span>Buscar Atividades</span>
+          <span>{{ 'activities.searchActivities' | translate }}</span>
         </button>
       }
     </form>
@@ -51,7 +51,7 @@
 </mat-card>
 
 @if (errorMessage()) {
-  <app-error-banner [source]="errorSource() ?? 'Atividades'" [message]="errorMessage()!" (dismiss)="dismissError()" />
+  <app-error-banner [source]="errorSource() ?? ('activities.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
 }
 
 @if (searchResults().length > 0) {
@@ -60,7 +60,7 @@
     <div class="highlights-strip">
       @if (categorized().cheapest; as cheapest) {
         <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
-          <div class="hl-badge"><mat-icon>savings</mat-icon> Melhor Preço</div>
+          <div class="hl-badge"><mat-icon>savings</mat-icon> {{ 'activities.bestPrice' | translate }}</div>
           <div class="hl-name">{{ cheapest.name }}</div>
           <div class="hl-info">
             {{ cheapest.city }}
@@ -68,12 +68,12 @@
               · <mat-icon class="hl-star">star</mat-icon> {{ cheapest.rating.toFixed(1) }}
             }
           </div>
-          <div class="hl-price">{{ cheapest.price.total | currency: 'BRL' }}<span class="hl-price-label">/pessoa</span></div>
+          <div class="hl-price">{{ cheapest.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
         </div>
       }
       @if (categorized().bestRated; as rated) {
         <div class="hl-card hl-rated" (click)="addToItinerary(rated)">
-          <div class="hl-badge"><mat-icon>star</mat-icon> Mais Bem Avaliado</div>
+          <div class="hl-badge"><mat-icon>star</mat-icon> {{ 'activities.bestRated' | translate }}</div>
           <div class="hl-name">{{ rated.name }}</div>
           <div class="hl-info">
             {{ rated.city }}
@@ -84,12 +84,12 @@
               ({{ rated.reviewCount }})
             }
           </div>
-          <div class="hl-price">{{ rated.price.total | currency: 'BRL' }}<span class="hl-price-label">/pessoa</span></div>
+          <div class="hl-price">{{ rated.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
         </div>
       }
       @if (categorized().bestValue; as best) {
         <div class="hl-card hl-value" (click)="addToItinerary(best)">
-          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> Melhor Custo-Benefício</div>
+          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> {{ 'activities.bestValue' | translate }}</div>
           <div class="hl-name">{{ best.name }}</div>
           <div class="hl-info">
             {{ best.city }}
@@ -97,7 +97,7 @@
               · <mat-icon class="hl-star">star</mat-icon> {{ best.rating.toFixed(1) }}
             }
           </div>
-          <div class="hl-price">{{ best.price.total | currency: 'BRL' }}<span class="hl-price-label">/pessoa</span></div>
+          <div class="hl-price">{{ best.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
         </div>
       }
     </div>
@@ -105,14 +105,14 @@
 
   <div class="results-section">
     <div class="results-header">
-      <h2>{{ sortedResults().length }} atividade{{ sortedResults().length !== 1 ? 's' : '' }} encontrada{{ sortedResults().length !== 1 ? 's' : '' }}</h2>
+      <h2>{{ sortedResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
 
       <!-- Sort Dropdown -->
       <mat-form-field appearance="outline" class="sort-field">
-        <mat-label>Ordenar por</mat-label>
+        <mat-label>{{ 'activities.sortBy' | translate }}</mat-label>
         <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
-          <mat-option value="price">Preço (menor)</mat-option>
-          <mat-option value="rating">Avaliação (melhor)</mat-option>
+          <mat-option value="price">{{ 'activities.sortPrice' | translate }}</mat-option>
+          <mat-option value="rating">{{ 'activities.sortRating' | translate }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -132,7 +132,7 @@
   <mat-card class="empty-state">
     <mat-card-content>
       <mat-icon>local_activity</mat-icon>
-      <p>Nenhuma atividade encontrada. Tente um destino diferente.</p>
+      <p>{{ 'activities.emptyState' | translate }}</p>
     </mat-card-content>
   </mat-card>
 }

@@ -4,6 +4,8 @@ import { NotificationService } from '../../core/services/notification.service';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { ItineraryItem } from '../../core/models/trip.models';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 /**
  * Custom validator for time slot (HH:MM format).
@@ -20,7 +22,7 @@ function timeSlotValidator(control: any) {
 @Component({
   selector: 'app-manual-item-form',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, TranslatePipe],
   templateUrl: './manual-item-form.component.html',
   styleUrl: './manual-item-form.component.scss',
 })
@@ -28,6 +30,7 @@ export class ManualItemFormComponent {
   private readonly tripState = inject(TripStateService);
   private readonly fb = inject(FormBuilder);
   private readonly notify = inject(NotificationService);
+  private readonly i18n = inject(TranslationService);
 
   readonly showForm = signal(false);
 
@@ -68,6 +71,6 @@ export class ManualItemFormComponent {
     this.tripState.addItineraryItem(newItem);
     this.form.reset();
     this.showForm.set(false);
-    this.notify.success('Item personalizado adicionado');
+    this.notify.success(this.i18n.t('notify.itemAdded'));
   }
 }

@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { ChecklistService } from '../../core/services/checklist.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { ChecklistItem } from '../../core/models/trip.models';
@@ -9,7 +10,7 @@ import { ChecklistItem } from '../../core/models/trip.models';
 @Component({
   selector: 'app-checklist',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, TranslatePipe],
   templateUrl: './checklist.component.html',
   styleUrl: './checklist.component.scss',
 })

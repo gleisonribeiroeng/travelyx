@@ -1,6 +1,8 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { ConflictAlert } from '../../core/models/trip.models';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
@@ -8,12 +10,13 @@ import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 @Component({
   selector: 'app-conflicts',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, TranslatePipe],
   templateUrl: './conflicts.component.html',
   styleUrl: './conflicts.component.scss',
 })
 export class ConflictsComponent {
   protected readonly tripState = inject(TripStateService);
+  private readonly i18n = inject(TranslationService);
 
   readonly conflicts = computed<ConflictAlert[]>(() => {
     try {
@@ -58,11 +61,11 @@ export class ConflictsComponent {
 
   getTypeLabel(type: string): string {
     const map: Record<string, string> = {
-      'time-overlap': 'Conflito de horario',
-      'no-hotel': 'Sem hospedagem',
-      'impossible-transfer': 'Transferencia impossivel',
-      'booking-gap': 'Lacuna na agenda',
-      'checkout-mismatch': 'Checkout incompativel',
+      'time-overlap': this.i18n.t('conflicts.typeTimeOverlap'),
+      'no-hotel': this.i18n.t('conflicts.typeNoHotel'),
+      'impossible-transfer': this.i18n.t('conflicts.typeImpossibleTransfer'),
+      'booking-gap': this.i18n.t('conflicts.typeBookingGap'),
+      'checkout-mismatch': this.i18n.t('conflicts.typeCheckoutMismatch'),
     };
     return map[type] || type;
   }

@@ -11,11 +11,13 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { AddItemDialogComponent } from './add-item-dialog.component';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DragDropModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, DragDropModule, TranslatePipe],
   templateUrl: './timeline.component.html',
   styleUrl: './timeline.component.scss',
 })
@@ -24,6 +26,7 @@ export class TimelineComponent {
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
   private readonly calendarApi = inject(CalendarApiService);
+  private readonly i18n = inject(TranslationService);
 
   readonly syncing = signal(false);
 
@@ -59,7 +62,7 @@ export class TimelineComponent {
     ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
       if (!item) return;
       this.tripState.addItineraryItem(item);
-      this.notify.success('Item adicionado ao roteiro');
+      this.notify.success(this.i18n.t('notify.itemAdded'));
       const next = new Set(this.expandedDays());
       next.add(item.date);
       this.expandedDays.set(next);
@@ -95,11 +98,11 @@ export class TimelineComponent {
 
   getTypeLabel(type: string): string {
     const map: Record<string, string> = {
-      flight: 'Voo', stay: 'Hotel', 'car-rental': 'Carro',
-      transport: 'Transporte', activity: 'Atividade',
-      attraction: 'Atividade', custom: 'Personalizado',
+      flight: 'timeline.typeFlight', stay: 'timeline.typeHotel', 'car-rental': 'timeline.typeCar',
+      transport: 'timeline.typeTransport', activity: 'timeline.typeActivity',
+      attraction: 'timeline.typeActivity', custom: 'timeline.typeCustom',
     };
-    return map[type] || type;
+    return this.i18n.t(map[type] || type);
   }
 
   getItemPrice(item: ItineraryItem): number {
@@ -221,7 +224,7 @@ export class TimelineComponent {
     const trip = this.tripState.trip();
     const allItems = trip.itineraryItems;
     if (allItems.length === 0) {
-      this.notify.info('Nenhum item na timeline para sincronizar');
+      this.notify.info(this.i18n.t('notify.noItemsToSync'));
       return;
     }
 
@@ -249,11 +252,11 @@ export class TimelineComponent {
   private authorizeCalendar(): void {
     this.calendarApi.getAuthorizeUrl().subscribe({
       next: ({ url }) => {
-        this.notify.info('Autorizando acesso ao Google Calendar...');
+        this.notify.info(this.i18n.t('notify.authorizingCalendar'));
         window.location.href = url;
       },
       error: () => {
-        this.notify.error('Erro ao iniciar autorização do Calendar.');
+        this.notify.error(this.i18n.t('notify.calendarAuthError'));
       },
     });
   }
@@ -274,9 +277,9 @@ export class TimelineComponent {
       next: (result) => {
         this.syncing.set(false);
         if (result.errors.length > 0) {
-          this.notify.info(`${result.created} eventos criados, ${result.errors.length} erros`);
+          this.notify.info(`${result.created} ${this.i18n.t('notify.eventsCreated')} ${result.errors.length} ${this.i18n.t('notify.errors')}`);
         } else {
-          this.notify.success(`${result.created} eventos adicionados ao Google Calendar`);
+          this.notify.success(`${result.created} ${this.i18n.t('notify.eventsAddedToCalendar')}`);
         }
       },
       error: (err) => {
@@ -284,7 +287,7 @@ export class TimelineComponent {
         if (err?.status === 500 && err?.error?.message?.includes('Autorize')) {
           this.authorizeCalendar();
         } else {
-          const msg = err?.error?.message || 'Erro ao sincronizar com o Google Calendar.';
+          const msg = err?.error?.message || this.i18n.t('notify.calendarSyncError');
           this.notify.error(msg);
         }
       },

@@ -3,10 +3,10 @@
   <nav class="showcase-nav">
     <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo" routerLink="/landing" style="cursor:pointer">
     <div class="nav-links">
-      <a routerLink="/landing">Home</a>
-      <a routerLink="/voos" class="active">Voos</a>
-      <a routerLink="/hoteis">Hotéis</a>
-      <a routerLink="/passeios">Passeios</a>
+      <a routerLink="/landing">{{ 'showcase.navHome' | translate }}</a>
+      <a routerLink="/voos" class="active">{{ 'showcase.navFlights' | translate }}</a>
+      <a routerLink="/hoteis">{{ 'showcase.navHotels' | translate }}</a>
+      <a routerLink="/passeios">{{ 'showcase.navTours' | translate }}</a>
     </div>
     <div class="nav-actions">
       @if (authService.isLoggedIn()) {
@@ -15,7 +15,7 @@
           <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
         </div>
         <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
-          Painel
+          {{ 'landing.nav.panel' | translate }}
         </button>
       } @else {
         <button class="google-login-btn" (click)="loginWithGoogle()">
@@ -25,7 +25,7 @@
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Entrar com Google
+          {{ 'landing.nav.loginGoogle' | translate }}
         </button>
       }
     </div>
@@ -36,16 +36,15 @@
     <div class="hero-glow" aria-hidden="true"></div>
     <div class="hero-inner">
       <div class="hero-content">
-        <span class="hero-badge">Passagens aéreas</span>
-        <h1>Seu próximo destino<br>está a um clique.</h1>
+        <span class="hero-badge">{{ 'showcase.flights.badge' | translate }}</span>
+        <h1 [innerHTML]="'showcase.flights.title' | translate"></h1>
         <p class="hero-sub">
-          Compare voos de dezenas de companhias aéreas.
-          Preços atualizados em tempo real.
+          {{ 'showcase.flights.subtitle' | translate }}
         </p>
         <div class="hero-actions">
           @if (authService.isLoggedIn()) {
             <button mat-flat-button class="hero-cta-primary" (click)="navigateTo('/search')">
-              <mat-icon>search</mat-icon> Comece a pesquisar
+              <mat-icon>search</mat-icon> {{ 'showcase.flights.startSearching' | translate }}
             </button>
           } @else {
             <button class="hero-google-btn" (click)="loginWithGoogle()">
@@ -55,11 +54,11 @@
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              Comece grátis com Google
+              {{ 'landing.hero.startFreeGoogle' | translate }}
             </button>
           }
           <button class="hero-cta-secondary" (click)="scrollToSection('deals-section')">
-            Ver ofertas <mat-icon>arrow_downward</mat-icon>
+            {{ 'showcase.viewDeals' | translate }} <mat-icon>arrow_downward</mat-icon>
           </button>
         </div>
       </div>
@@ -68,7 +67,7 @@
           <span class="mock-dot"></span>
           <span class="mock-dot"></span>
           <span class="mock-dot"></span>
-          <span class="mock-title">Melhores Voos</span>
+          <span class="mock-title">{{ 'showcase.flights.mockTitle' | translate }}</span>
         </div>
         <div class="mock-card">
           <div class="mock-accent"></div>
@@ -110,16 +109,16 @@
   @if (loading()) {
     <div class="loading-section">
       <mat-spinner diameter="48"></mat-spinner>
-      <p>Carregando ofertas...</p>
+      <p>{{ 'showcase.loadingDeals' | translate }}</p>
     </div>
   } @else {
     <!-- HIGHLIGHTS -->
     @if (highlights().cheapest || highlights().fastest || highlights().bestValue) {
       <section class="highlights-section reveal">
         <div class="section-header-new">
-          <span class="section-tag">Destaques</span>
-          <h2>Analisamos os melhores voos para voce</h2>
-          <p>Selecoes inteligentes por preco, duracao e custo-beneficio</p>
+          <span class="section-tag">{{ 'showcase.highlights' | translate }}</span>
+          <h2>{{ 'showcase.flights.highlightsTitle' | translate }}</h2>
+          <p>{{ 'showcase.flights.highlightsDesc' | translate }}</p>
         </div>
         <div class="highlights-list">
           @if (highlights().cheapest; as cheapest) {
@@ -139,9 +138,9 @@
     @if (deals().length) {
       <section class="showcase-section reveal" id="deals-section">
         <div class="section-header-new">
-          <span class="section-tag">Melhores ofertas</span>
-          <h2>Voos com precos imperdiveis</h2>
-          <p>Os menores precos para voce viajar gastando menos</p>
+          <span class="section-tag">{{ 'showcase.flights.dealsTag' | translate }}</span>
+          <h2>{{ 'showcase.flights.dealsTitle' | translate }}</h2>
+          <p>{{ 'showcase.flights.dealsDesc' | translate }}</p>
         </div>
         <div class="items-list">
           @for (flight of deals(); track flight.id) {
@@ -154,9 +153,9 @@
     @if (popular().length) {
       <section class="showcase-section section-surface reveal">
         <div class="section-header-new">
-          <span class="section-tag">Mais populares</span>
-          <h2>Destinos favoritos dos brasileiros</h2>
-          <p>As rotas mais buscadas pelos viajantes</p>
+          <span class="section-tag">{{ 'showcase.flights.popularTag' | translate }}</span>
+          <h2>{{ 'showcase.flights.popularTitle' | translate }}</h2>
+          <p>{{ 'showcase.flights.popularDesc' | translate }}</p>
         </div>
         <div class="items-list">
           @for (flight of popular(); track flight.id) {
@@ -169,9 +168,9 @@
     @if (recommended().length) {
       <section class="showcase-section reveal">
         <div class="section-header-new">
-          <span class="section-tag">Recomendados</span>
-          <h2>Viagens curadas para voce</h2>
-          <p>Sugestoes para quem busca lazer e turismo</p>
+          <span class="section-tag">{{ 'showcase.flights.recommendedTag' | translate }}</span>
+          <h2>{{ 'showcase.flights.recommendedTitle' | translate }}</h2>
+          <p>{{ 'showcase.flights.recommendedDesc' | translate }}</p>
         </div>
         <div class="items-list">
           @for (flight of recommended(); track flight.id) {
@@ -185,11 +184,11 @@
   <!-- FINAL CTA -->
   <section class="final-cta">
     <div class="cta-inner">
-      <h2>Planeje sua viagem completa.</h2>
-      <p>Voos, hotéis, passeios e roteiros — tudo em um só lugar.</p>
+      <h2>{{ 'showcase.cta.title' | translate }}</h2>
+      <p>{{ 'showcase.cta.subtitle' | translate }}</p>
       @if (authService.isLoggedIn()) {
         <button mat-flat-button class="cta-btn" (click)="navigateTo('/planner')">
-          <mat-icon>auto_awesome</mat-icon> Montar meu roteiro
+          <mat-icon>auto_awesome</mat-icon> {{ 'landing.cta.buildItinerary' | translate }}
         </button>
       } @else {
         <button class="cta-google-btn" (click)="loginWithGoogle()">
@@ -199,7 +198,7 @@
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Começar agora com Google
+          {{ 'landing.cta.startWithGoogle' | translate }}
         </button>
       }
     </div>
@@ -210,25 +209,25 @@
     <div class="footer-content">
       <div class="footer-brand">
         <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
-        <p class="footer-tagline">Planeje sua viagem perfeita</p>
+        <p class="footer-tagline">{{ 'landing.footer.tagline' | translate }}</p>
       </div>
       <div class="footer-links">
         <div class="footer-col">
-          <h4>Explorar</h4>
-          <a routerLink="/voos">Voos</a>
-          <a routerLink="/hoteis">Hotéis</a>
-          <a routerLink="/passeios">Passeios</a>
+          <h4>{{ 'landing.footer.explore' | translate }}</h4>
+          <a routerLink="/voos">{{ 'showcase.navFlights' | translate }}</a>
+          <a routerLink="/hoteis">{{ 'showcase.navHotels' | translate }}</a>
+          <a routerLink="/passeios">{{ 'showcase.navTours' | translate }}</a>
         </div>
         <div class="footer-col">
-          <h4>Produto</h4>
-          <a routerLink="/landing">Como funciona</a>
-          <a routerLink="/landing">Planejador de viagem</a>
-          <a routerLink="/landing">Roteiro visual</a>
+          <h4>{{ 'landing.footer.product' | translate }}</h4>
+          <a routerLink="/landing">{{ 'landing.nav.howItWorks' | translate }}</a>
+          <a routerLink="/landing">{{ 'landing.footer.tripPlanner' | translate }}</a>
+          <a routerLink="/landing">{{ 'landing.footer.visualItinerary' | translate }}</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Travelyx — Todos os direitos reservados</p>
+      <p>{{ 'landing.footer.copyright' | translate }}</p>
     </div>
   </footer>
 </div>

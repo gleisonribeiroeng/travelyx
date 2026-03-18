@@ -1,5 +1,6 @@
 import { Component, inject, computed } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
@@ -11,11 +12,13 @@ import { ChecklistService } from '../../core/services/checklist.service';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 import { ConflictAlert, TripStatus } from '../../core/models/trip.models';
 import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-trip-dashboard',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, CurrencyPipe, DatePipe],
+  imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe, DatePipe, TranslatePipe],
   templateUrl: './trip-dashboard.component.html',
   styleUrl: './trip-dashboard.component.scss',
 })
@@ -23,6 +26,7 @@ export class TripDashboardComponent {
   private readonly tripRouter = inject(TripRouterService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
+  private readonly i18n = inject(TranslationService);
   protected readonly tripState = inject(TripStateService);
   protected readonly budget = inject(BudgetService);
   protected readonly score = inject(TripScoreService);
@@ -53,10 +57,10 @@ export class TripDashboardComponent {
     const hasTimeline = this.tripState.itineraryItems().length > 0;
 
     return [
-      { icon: 'flight', label: 'Buscar voos', desc: 'Encontre os melhores preços para seu destino', route: 'search', done: hasFlights },
-      { icon: 'hotel', label: 'Reservar hotel', desc: 'Escolha onde ficar durante sua viagem', route: 'hotels', done: hasStays },
-      { icon: 'local_activity', label: 'Adicionar atividades', desc: 'Passeios, atrações e experiências no destino', route: 'tours', done: hasActivities },
-      { icon: 'event_note', label: 'Montar roteiro', desc: 'Organize tudo dia a dia no calendário', route: 'itinerary', done: hasTimeline },
+      { icon: 'flight', label: this.i18n.t('dash.searchFlights'), desc: this.i18n.t('dash.searchFlightsDesc'), route: 'search', done: hasFlights },
+      { icon: 'hotel', label: this.i18n.t('dash.bookHotel'), desc: this.i18n.t('dash.bookHotelDesc'), route: 'hotels', done: hasStays },
+      { icon: 'local_activity', label: this.i18n.t('dash.addActivities'), desc: this.i18n.t('dash.addActivitiesDesc'), route: 'tours', done: hasActivities },
+      { icon: 'event_note', label: this.i18n.t('dash.buildItinerary'), desc: this.i18n.t('dash.buildItineraryDesc'), route: 'itinerary', done: hasTimeline },
     ];
   });
 
@@ -105,11 +109,11 @@ export class TripDashboardComponent {
   });
 
   readonly stats = computed(() => [
-    { icon: 'flight', label: 'Voos', count: this.tripState.flights().length, route: 'search', color: 'var(--triply-cat-flight)' },
-    { icon: 'hotel', label: 'Hotéis', count: this.tripState.stays().length, route: 'hotels', color: 'var(--triply-cat-stay)' },
-    { icon: 'directions_car', label: 'Carros', count: this.tripState.carRentals().length, route: 'cars', color: 'var(--triply-cat-car)' },
-    { icon: 'local_activity', label: 'Atividades', count: this.tripState.activities().length + this.tripState.attractions().length, route: 'tours', color: 'var(--triply-cat-activity)' },
-    { icon: 'directions_bus', label: 'Transportes', count: this.tripState.transports().length, route: 'transport', color: 'var(--triply-cat-transport)' },
+    { icon: 'flight', label: this.i18n.t('dash.quickFlights'), count: this.tripState.flights().length, route: 'search', color: 'var(--triply-cat-flight)' },
+    { icon: 'hotel', label: this.i18n.t('dash.quickHotels'), count: this.tripState.stays().length, route: 'hotels', color: 'var(--triply-cat-stay)' },
+    { icon: 'directions_car', label: this.i18n.t('dash.quickCars'), count: this.tripState.carRentals().length, route: 'cars', color: 'var(--triply-cat-car)' },
+    { icon: 'local_activity', label: this.i18n.t('dash.quickActivities'), count: this.tripState.activities().length + this.tripState.attractions().length, route: 'tours', color: 'var(--triply-cat-activity)' },
+    { icon: 'directions_bus', label: this.i18n.t('dash.quickTransports'), count: this.tripState.transports().length, route: 'transport', color: 'var(--triply-cat-transport)' },
   ].filter(s => s.count > 0));
 
   getTypeIcon(type: string): string {
@@ -123,9 +127,13 @@ export class TripDashboardComponent {
 
   getTypeLabel(type: string): string {
     const map: Record<string, string> = {
-      flight: 'Voo', stay: 'Hotel', 'car-rental': 'Carro',
-      transport: 'Transporte', activity: 'Atividade',
-      attraction: 'Atividade', custom: 'Evento',
+      flight: this.i18n.t('dash.typeFlight'),
+      stay: this.i18n.t('dash.typeHotel'),
+      'car-rental': this.i18n.t('dash.typeCar'),
+      transport: this.i18n.t('dash.typeTransport'),
+      activity: this.i18n.t('dash.typeActivity'),
+      attraction: this.i18n.t('dash.typeActivity'),
+      custom: this.i18n.t('dash.typeEvent'),
     };
     return map[type] || 'Item';
   }
@@ -163,7 +171,7 @@ export class TripDashboardComponent {
     ref.afterClosed().subscribe((result: TripCreateDialogResult | undefined) => {
       if (!result) return;
       this.tripState.setTripMeta(result.name, result.destination, result.dates);
-      this.notify.success('Viagem atualizada!');
+      this.notify.success(this.i18n.t('dash.tripUpdated'));
     });
   }
 

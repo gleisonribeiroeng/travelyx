@@ -20,11 +20,13 @@ import { Attraction } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { attractionToListItem } from '../../shared/components/list-item-base/list-item-mappers';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-attraction-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent, TranslatePipe],
   templateUrl: './attraction-search.component.html',
   styleUrl: './attraction-search.component.scss',
 })
@@ -34,6 +36,7 @@ export class AttractionSearchComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly t = inject(TranslationService);
 
   // Autocomplete city control
   readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
@@ -137,13 +140,13 @@ export class AttractionSearchComponent {
         date: result.date,
         timeSlot: result.timeSlot,
         durationMinutes: result.durationMinutes,
-        label: `Atividade: ${attraction.name}`,
+        label: `${this.t.t('activities.activityLabel')}: ${attraction.name}`,
         notes: attraction.category || '',
         order: 0,
         isPaid: false,
         attachment: null,
       });
-      this.notify.success('Atividade adicionada ao roteiro');
+      this.notify.success(this.t.t('activities.activityAdded'));
     });
   }
 
@@ -187,6 +190,6 @@ export class AttractionSearchComponent {
     this.tripState.removeItineraryItem(
       this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
     );
-    this.notify.success('Atividade removida do roteiro');
+    this.notify.success(this.t.t('activities.activityRemoved'));
   }
 }

@@ -2,6 +2,8 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { DocumentItem, ItineraryItemType } from '../../core/models/trip.models';
 import { NotificationService } from '../../core/services/notification.service';
@@ -13,13 +15,14 @@ type DocCategory = DocumentItem['category'];
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, ListItemBaseComponent, TranslatePipe],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss',
 })
 export class DocumentsComponent {
   protected readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly i18n = inject(TranslationService);
 
   private readonly _documents = signal<DocumentItem[]>([]);
   readonly documents = this._documents.asReadonly();
@@ -33,16 +36,18 @@ export class DocumentsComponent {
   uploadExpiresAt = '';
   uploadFile: File | null = null;
 
-  readonly categories: { value: DocCategory; label: string; icon: string }[] = [
-    { value: 'passport', label: 'Passaporte', icon: 'badge' },
-    { value: 'visa', label: 'Visto', icon: 'fact_check' },
-    { value: 'boarding-pass', label: 'Cartão de Embarque', icon: 'airplane_ticket' },
-    { value: 'hotel-confirmation', label: 'Reserva Hotel', icon: 'hotel' },
-    { value: 'car-confirmation', label: 'Reserva Carro', icon: 'directions_car' },
-    { value: 'insurance', label: 'Seguro Viagem', icon: 'health_and_safety' },
-    { value: 'ticket', label: 'Ingresso', icon: 'confirmation_number' },
-    { value: 'other', label: 'Outro', icon: 'description' },
-  ];
+  get categories(): { value: DocCategory; label: string; icon: string }[] {
+    return [
+      { value: 'passport', label: this.i18n.t('docs.catPassport'), icon: 'badge' },
+      { value: 'visa', label: this.i18n.t('docs.catVisa'), icon: 'fact_check' },
+      { value: 'boarding-pass', label: this.i18n.t('docs.catBoardingPass'), icon: 'airplane_ticket' },
+      { value: 'hotel-confirmation', label: this.i18n.t('docs.catHotelConfirmation'), icon: 'hotel' },
+      { value: 'car-confirmation', label: this.i18n.t('docs.catCarConfirmation'), icon: 'directions_car' },
+      { value: 'insurance', label: this.i18n.t('docs.catInsurance'), icon: 'health_and_safety' },
+      { value: 'ticket', label: this.i18n.t('docs.catTicket'), icon: 'confirmation_number' },
+      { value: 'other', label: this.i18n.t('docs.catOther'), icon: 'description' },
+    ];
+  }
 
   readonly filteredDocs = computed(() => {
     const filter = this.filterCategory();
@@ -73,7 +78,7 @@ export class DocumentsComponent {
     if (input.files?.length) {
       const file = input.files[0];
       if (file.size > 10 * 1024 * 1024) {
-        this.notify.error('Arquivo muito grande. Máximo 10MB.');
+        this.notify.error(this.i18n.t('docs.fileTooLarge'));
         return;
       }
       this.uploadFile = file;
@@ -101,7 +106,7 @@ export class DocumentsComponent {
         expiresAt: this.uploadExpiresAt || null,
       };
       this._documents.update(docs => [...docs, doc]);
-      this.notify.success('Documento enviado!');
+      this.notify.success(this.i18n.t('notify.documentUploaded'));
       this.resetForm();
     };
     reader.readAsDataURL(this.uploadFile);

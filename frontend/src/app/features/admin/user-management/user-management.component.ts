@@ -5,11 +5,13 @@ import { AdminService, AdminUser } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PresenceService } from '../../../core/services/presence.service';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, MATERIAL_IMPORTS],
+  imports: [CommonModule, MATERIAL_IMPORTS, TranslatePipe],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss',
 })
@@ -18,6 +20,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   private readonly notify = inject(NotificationService);
   private readonly auth = inject(AuthService);
   readonly presence = inject(PresenceService);
+  protected readonly i18n = inject(TranslationService);
 
   readonly users = signal<AdminUser[]>([]);
   readonly loading = signal(true);
@@ -44,7 +47,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         });
       },
       error: () => {
-        this.notify.error('Erro ao carregar usuários');
+        this.notify.error(this.i18n.t('admin.errorLoadUsers'));
         this.loading.set(false);
       },
     });
@@ -58,7 +61,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         );
         this.notify.success(`Role de ${user.name} alterada para ${role}`);
       },
-      error: () => this.notify.error('Erro ao alterar role'),
+      error: () => this.notify.error(this.i18n.t('admin.errorChangeRole')),
     });
   }
 
@@ -71,7 +74,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         );
         this.notify.success(`${user.name} ${isActive ? 'ativado' : 'desativado'}`);
       },
-      error: () => this.notify.error('Erro ao alterar status'),
+      error: () => this.notify.error(this.i18n.t('admin.errorChangeStatus')),
     });
   }
 
@@ -83,7 +86,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         );
         this.notify.success(`Plano de ${user.name} alterado para ${plan}`);
       },
-      error: () => this.notify.error('Erro ao alterar plano'),
+      error: () => this.notify.error(this.i18n.t('admin.errorChangePlan')),
     });
   }
 

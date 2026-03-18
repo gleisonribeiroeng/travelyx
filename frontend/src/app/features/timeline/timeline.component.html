@@ -2,15 +2,15 @@
   <!-- Page header -->
   <div class="page-header">
     <div class="header-text">
-      <h1>Linha do Tempo</h1>
-      <p>Planeje cada dia da sua viagem</p>
+      <h1>{{ 'timeline.title' | translate }}</h1>
+      <p>{{ 'timeline.subtitle' | translate }}</p>
     </div>
     <div class="header-actions">
       <button mat-button (click)="expandAll()" class="bulk-action">
-        <mat-icon>unfold_more</mat-icon> Expandir
+        <mat-icon>unfold_more</mat-icon> {{ 'timeline.expand' | translate }}
       </button>
       <button mat-button (click)="collapseAll()" class="bulk-action">
-        <mat-icon>unfold_less</mat-icon> Colapsar
+        <mat-icon>unfold_less</mat-icon> {{ 'timeline.collapse' | translate }}
       </button>
 
       <!-- Google Calendar sync -->
@@ -20,28 +20,28 @@
         } @else {
           <mat-icon>event</mat-icon>
         }
-        Google Calendar
+        {{ 'timeline.googleCalendar' | translate }}
       </button>
 
       <!-- Quick add menu -->
       <button mat-flat-button color="primary" [matMenuTriggerFor]="addMenu" class="add-btn">
-        <mat-icon>add</mat-icon> Novo Item
+        <mat-icon>add</mat-icon> {{ 'timeline.newItem' | translate }}
       </button>
       <mat-menu #addMenu="matMenu">
         <button mat-menu-item (click)="openAddDialog('flight')">
-          <mat-icon class="type-flight">flight</mat-icon> Voo
+          <mat-icon class="type-flight">flight</mat-icon> {{ 'timeline.flight' | translate }}
         </button>
         <button mat-menu-item (click)="openAddDialog('stay')">
-          <mat-icon class="type-stay">hotel</mat-icon> Hotel
+          <mat-icon class="type-stay">hotel</mat-icon> {{ 'timeline.hotel' | translate }}
         </button>
         <button mat-menu-item (click)="openAddDialog('activity')">
-          <mat-icon class="type-activity">local_activity</mat-icon> Atividade
+          <mat-icon class="type-activity">local_activity</mat-icon> {{ 'timeline.activity' | translate }}
         </button>
         <button mat-menu-item (click)="openAddDialog('transport')">
-          <mat-icon class="type-transport">directions_bus</mat-icon> Transporte
+          <mat-icon class="type-transport">directions_bus</mat-icon> {{ 'timeline.transport' | translate }}
         </button>
         <button mat-menu-item (click)="openAddDialog('custom')">
-          <mat-icon class="type-custom">edit_note</mat-icon> Item personalizado
+          <mat-icon class="type-custom">edit_note</mat-icon> {{ 'timeline.customItem' | translate }}
         </button>
       </mat-menu>
     </div>
@@ -50,8 +50,8 @@
   @if (!hasDates()) {
     <div class="empty-state">
       <mat-icon>date_range</mat-icon>
-      <h3>Defina as datas da viagem</h3>
-      <p>A timeline será gerada automaticamente com base nas datas do seu roteiro.</p>
+      <h3>{{ 'timeline.setDatesTitle' | translate }}</h3>
+      <p>{{ 'timeline.setDatesDesc' | translate }}</p>
     </div>
   } @else {
     <!-- Timeline rail -->
@@ -120,9 +120,9 @@
                 @if (day.isEmpty) {
                   <div class="empty-day-msg">
                     <mat-icon>wb_sunny</mat-icon>
-                    <span>Dia livre — nenhuma atividade planejada</span>
+                    <span>{{ 'timeline.freeDay' | translate }}</span>
                     <button mat-stroked-button class="add-day-btn" (click)="$event.stopPropagation(); openAddDialog(undefined, day.date)">
-                      <mat-icon>add</mat-icon> Adicionar
+                      <mat-icon>add</mat-icon> {{ 'timeline.add' | translate }}
                     </button>
                   </div>
                 } @else {
@@ -137,7 +137,7 @@
                       <div class="card-body">
                         <div class="card-top">
                           <span class="card-type-label">{{ getTypeLabel(item.type) }}</span>
-                          <span class="card-all-day">Dia inteiro</span>
+                          <span class="card-all-day">{{ 'timeline.allDay' | translate }}</span>
                         </div>
                         <div class="card-title">{{ item.label }}</div>
                         @if (getItemLocation(item)) {
@@ -155,11 +155,11 @@
                         }
                         <div class="card-actions">
                           <mat-icon class="action-icon" [class.is-paid]="item.isPaid"
-                                    [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
+                                    [matTooltip]="item.isPaid ? ('timeline.markUnpaid' | translate) : ('timeline.markPaid' | translate)"
                                     (click)="togglePaid(item, $event)">
                             {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
                           </mat-icon>
-                          <mat-icon class="action-icon delete" matTooltip="Remover"
+                          <mat-icon class="action-icon delete" [matTooltip]="'timeline.remove' | translate"
                                     (click)="removeItem(item.id, $event)">close</mat-icon>
                         </div>
                       </div>
@@ -201,12 +201,12 @@
                           }
                           <div class="card-actions">
                             <mat-icon class="action-icon" [class.is-paid]="item.isPaid"
-                                      [matTooltip]="item.isPaid ? 'Pago' : 'Marcar como pago'"
+                                      [matTooltip]="item.isPaid ? ('timeline.markUnpaid' | translate) : ('timeline.markPaid' | translate)"
                                       (click)="togglePaid(item, $event)">
                               {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
                             </mat-icon>
-                            <mat-icon class="action-icon drag-handle" cdkDragHandle matTooltip="Arrastar">drag_indicator</mat-icon>
-                            <mat-icon class="action-icon delete" matTooltip="Remover"
+                            <mat-icon class="action-icon drag-handle" cdkDragHandle [matTooltip]="'timeline.drag' | translate">drag_indicator</mat-icon>
+                            <mat-icon class="action-icon delete" [matTooltip]="'timeline.remove' | translate"
                                       (click)="removeItem(item.id, $event)">close</mat-icon>
                           </div>
                         </div>
@@ -218,7 +218,7 @@
                   @for (slot of day.freeSlots; track slot.startTime) {
                     <div class="free-slot">
                       <mat-icon>hourglass_empty</mat-icon>
-                      <span>Tempo livre — {{ formatDuration(slot.durationMinutes) }} disponíveis ({{ slot.startTime }} – {{ slot.endTime }})</span>
+                      <span>{{ 'timeline.freeSlot' | translate }} — {{ formatDuration(slot.durationMinutes) }} {{ 'timeline.available' | translate }} ({{ slot.startTime }} – {{ slot.endTime }})</span>
                     </div>
                   }
                 }
@@ -242,7 +242,7 @@
 
                 <!-- Add to this day -->
                 <button mat-stroked-button class="add-day-btn" (click)="$event.stopPropagation(); openAddDialog(undefined, day.date)">
-                  <mat-icon>add</mat-icon> Adicionar ao {{ day.dayLabel.split(' — ')[0] }}
+                  <mat-icon>add</mat-icon> {{ 'timeline.addToDay' | translate }} {{ day.dayLabel.split(' — ')[0] }}
                 </button>
               </div>
             }

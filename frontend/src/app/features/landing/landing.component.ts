@@ -9,10 +9,12 @@ import {
   NgZone,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TransitionService } from '../../core/services/transition.service';
 import {
@@ -23,7 +25,7 @@ import {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, CurrencyPipe, DecimalPipe],
+  imports: [MATERIAL_IMPORTS, RouterLink, DynamicCurrencyPipe, DecimalPipe, TranslatePipe],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
 })

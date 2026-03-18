@@ -1,13 +1,14 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CurrencyPipe, DatePipe],
+  imports: [MATERIAL_IMPORTS, DynamicCurrencyPipe, DatePipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

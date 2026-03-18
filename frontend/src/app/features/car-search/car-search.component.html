@@ -1,16 +1,16 @@
 <div class="view-header">
-  <h1>Carros</h1>
-  <p>Encontre o carro perfeito para sua viagem</p>
+  <h1>{{ 'cars.title' | translate }}</h1>
+  <p>{{ 'cars.subtitle' | translate }}</p>
 </div>
 
 @if (formCollapsed()) {
   <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
     <div class="toggle-info">
       <mat-icon>directions_car</mat-icon>
-      <span>Busca de Carros</span>
+      <span>{{ 'cars.searchToggle' | translate }}</span>
     </div>
     <div class="toggle-action">
-      <span>Editar busca</span>
+      <span>{{ 'cars.editSearch' | translate }}</span>
       <mat-icon>expand_more</mat-icon>
     </div>
   </div>
@@ -21,7 +21,7 @@
     <form [formGroup]="carSearchForm" (ngSubmit)="searchCars()">
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Local de Retirada</mat-label>
+          <mat-label>{{ 'cars.pickupLocation' | translate }}</mat-label>
           <input matInput [formControl]="pickupLocationControl" [matAutocomplete]="autoPickup" />
           <mat-icon matPrefix>location_on</mat-icon>
           <mat-autocomplete #autoPickup [displayWith]="displayLocation">
@@ -29,13 +29,13 @@
               <mat-option [value]="loc">{{ loc.label }}</mat-option>
             }
           </mat-autocomplete>
-          @if (pickupLocationControl.hasError('required')) { <mat-error>Local de retirada é obrigatório</mat-error> }
-          @if (pickupLocationControl.hasError('invalidLocation')) { <mat-error>Selecione um local da lista</mat-error> }
+          @if (pickupLocationControl.hasError('required')) { <mat-error>{{ 'cars.pickupRequired' | translate }}</mat-error> }
+          @if (pickupLocationControl.hasError('invalidLocation')) { <mat-error>{{ 'cars.selectLocation' | translate }}</mat-error> }
         </mat-form-field>
 
         @if (!sameDropOff()) {
           <mat-form-field appearance="outline" class="dropoff-field">
-            <mat-label>Local de Devolução</mat-label>
+            <mat-label>{{ 'cars.dropoffLocation' | translate }}</mat-label>
             <input matInput [formControl]="dropoffLocationControl" [matAutocomplete]="autoDropoff" />
             <mat-icon matPrefix>location_on</mat-icon>
             <mat-autocomplete #autoDropoff [displayWith]="displayLocation">
@@ -43,22 +43,22 @@
                 <mat-option [value]="loc">{{ loc.label }}</mat-option>
               }
             </mat-autocomplete>
-            @if (dropoffLocationControl.hasError('required')) { <mat-error>Local de devolução é obrigatório</mat-error> }
-            @if (dropoffLocationControl.hasError('invalidLocation')) { <mat-error>Selecione um local da lista</mat-error> }
+            @if (dropoffLocationControl.hasError('required')) { <mat-error>{{ 'cars.dropoffRequired' | translate }}</mat-error> }
+            @if (dropoffLocationControl.hasError('invalidLocation')) { <mat-error>{{ 'cars.selectLocation' | translate }}</mat-error> }
           </mat-form-field>
         }
       </div>
 
       <div class="same-location-row">
-        <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">Devolver no mesmo local da retirada</mat-checkbox>
+        <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">{{ 'cars.sameDropOff' | translate }}</mat-checkbox>
       </div>
 
       <div class="form-row" formGroupName="dateRange">
         <mat-form-field appearance="outline">
-          <mat-label>Retirada — Devolução</mat-label>
+          <mat-label>{{ 'cars.pickupDropoff' | translate }}</mat-label>
           <mat-date-range-input [rangePicker]="rangePicker" [min]="minPickupDate" (click)="rangePicker.open()">
-            <input matStartDate formControlName="start" placeholder="Retirada">
-            <input matEndDate formControlName="end" placeholder="Devolução">
+            <input matStartDate formControlName="start" [placeholder]="'cars.pickup' | translate">
+            <input matEndDate formControlName="end" [placeholder]="'cars.dropoff' | translate">
           </mat-date-range-input>
           <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
           <mat-date-range-picker #rangePicker></mat-date-range-picker>
@@ -67,13 +67,13 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Horário de Retirada</mat-label>
+          <mat-label>{{ 'cars.pickupTime' | translate }}</mat-label>
           <input matInput type="time" formControlName="pickupTime" />
           <mat-icon matPrefix>schedule</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Horário de Devolução</mat-label>
+          <mat-label>{{ 'cars.dropoffTime' | translate }}</mat-label>
           <input matInput type="time" formControlName="dropoffTime" />
           <mat-icon matPrefix>schedule</mat-icon>
         </mat-form-field>
@@ -81,23 +81,23 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Idade do Motorista</mat-label>
+          <mat-label>{{ 'cars.driverAge' | translate }}</mat-label>
           <input matInput type="number" formControlName="driverAge" min="18" max="99" />
           <mat-icon matPrefix>person</mat-icon>
-          @if (carSearchForm.get('driverAge')?.hasError('required')) { <mat-error>Idade do motorista é obrigatória</mat-error> }
-          @if (carSearchForm.get('driverAge')?.hasError('min') || carSearchForm.get('driverAge')?.hasError('max')) { <mat-error>Idade deve ser entre 18 e 99</mat-error> }
+          @if (carSearchForm.get('driverAge')?.hasError('required')) { <mat-error>{{ 'cars.driverAgeRequired' | translate }}</mat-error> }
+          @if (carSearchForm.get('driverAge')?.hasError('min') || carSearchForm.get('driverAge')?.hasError('max')) { <mat-error>{{ 'cars.driverAgeRange' | translate }}</mat-error> }
         </mat-form-field>
       </div>
 
       @if (isSearching()) {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
           <mat-spinner diameter="20"></mat-spinner>
-          <span>Buscando...</span>
+          <span>{{ 'cars.searching' | translate }}</span>
         </button>
       } @else {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="carSearchForm.invalid">
           <mat-icon>search</mat-icon>
-          <span>Buscar Carros</span>
+          <span>{{ 'cars.searchCars' | translate }}</span>
         </button>
       }
     </form>
@@ -105,27 +105,27 @@
     <div class="manual-entry-section">
       <button mat-stroked-button (click)="openManualCarDialog()">
         <mat-icon>edit_note</mat-icon>
-        Adicionar carro manualmente
+        {{ 'cars.addManually' | translate }}
       </button>
-      <span class="manual-hint">Ja tem uma reserva? Insira os dados do aluguel.</span>
+      <span class="manual-hint">{{ 'cars.manualHint' | translate }}</span>
     </div>
   </mat-card-content>
 </mat-card>
 
 @if (errorMessage()) {
-  <app-error-banner [source]="errorSource() ?? 'Carros'" [message]="errorMessage()!" (dismiss)="dismissError()" />
+  <app-error-banner [source]="errorSource() ?? ('cars.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
 }
 
 @if (searchResults().length > 0) {
   <div class="results-section">
     <div class="results-header">
-      <h2>{{ filteredCars().length }} carro{{ filteredCars().length !== 1 ? 's' : '' }} encontrado{{ filteredCars().length !== 1 ? 's' : '' }}</h2>
+      <h2>{{ filteredCars().length }} {{ 'cars.carsFound' | translate }}</h2>
 
       <div class="filter-controls">
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Tipo de Veículo</mat-label>
+          <mat-label>{{ 'cars.vehicleType' | translate }}</mat-label>
           <mat-select (selectionChange)="setVehicleTypeFilter($any($event).value)" [value]="vehicleTypeFilter()">
-            <mat-option value="">Todos</mat-option>
+            <mat-option value="">{{ 'cars.allTypes' | translate }}</mat-option>
             @for (type of vehicleTypes; track type) {
               <mat-option [value]="type">{{ type }}</mat-option>
             }
@@ -133,7 +133,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Preço Máximo</mat-label>
+          <mat-label>{{ 'cars.maxPrice' | translate }}</mat-label>
           <input matInput type="number" (input)="setMaxPriceFilter($any($event.target).value)" />
           <mat-icon matPrefix>attach_money</mat-icon>
         </mat-form-field>
@@ -155,7 +155,7 @@
   <mat-card class="empty-state">
     <mat-card-content>
       <mat-icon>directions_car</mat-icon>
-      <p>Nenhum carro encontrado. Tente outros locais ou datas.</p>
+      <p>{{ 'cars.emptyState' | translate }}</p>
     </mat-card-content>
   </mat-card>
 }

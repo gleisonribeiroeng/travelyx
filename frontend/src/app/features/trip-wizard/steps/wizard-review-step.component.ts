@@ -4,23 +4,25 @@ import { Router } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TripStateService } from '../../../core/services/trip-state.service';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-wizard-review-step',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, TranslatePipe],
   template: `
     <div class="wizard-step">
       <div class="step-header">
-        <h2>Revisão da viagem</h2>
-        <p>Confira tudo o que você adicionou antes de finalizar</p>
+        <h2>{{ 'wizard.reviewTitle' | translate }}</h2>
+        <p>{{ 'wizard.reviewSubtitle' | translate }}</p>
       </div>
 
       @if (isEmpty()) {
         <div class="empty-state">
           <mat-icon>luggage</mat-icon>
-          <h3>Nenhum item adicionado</h3>
-          <p>Você pulou todas as etapas. Volte e adicione pelo menos um item para montar seu roteiro.</p>
+          <h3>{{ 'wizard.emptyTitle' | translate }}</h3>
+          <p>{{ 'wizard.emptyDesc' | translate }}</p>
         </div>
       } @else {
         <!-- Summary stats -->
@@ -28,37 +30,37 @@ import { TripStateService } from '../../../core/services/trip-state.service';
           @if (flightCount() > 0) {
             <div class="stat-chip">
               <mat-icon>flight</mat-icon>
-              <span>{{ flightCount() }} voo(s)</span>
+              <span>{{ flightCount() }} {{ 'wizard.flightCount' | translate }}</span>
             </div>
           }
           @if (hotelCount() > 0) {
             <div class="stat-chip">
               <mat-icon>hotel</mat-icon>
-              <span>{{ hotelCount() }} hotel(is)</span>
+              <span>{{ hotelCount() }} {{ 'wizard.hotelCount' | translate }}</span>
             </div>
           }
           @if (carCount() > 0) {
             <div class="stat-chip">
               <mat-icon>directions_car</mat-icon>
-              <span>{{ carCount() }} carro(s)</span>
+              <span>{{ carCount() }} {{ 'wizard.carCount' | translate }}</span>
             </div>
           }
           @if (transportCount() > 0) {
             <div class="stat-chip">
               <mat-icon>directions_bus</mat-icon>
-              <span>{{ transportCount() }} transporte(s)</span>
+              <span>{{ transportCount() }} {{ 'wizard.transportCount' | translate }}</span>
             </div>
           }
           @if (tourCount() > 0) {
             <div class="stat-chip">
               <mat-icon>local_activity</mat-icon>
-              <span>{{ tourCount() }} atividade(s)</span>
+              <span>{{ tourCount() }} {{ 'wizard.tourCount' | translate }}</span>
             </div>
           }
           @if (attractionCount() > 0) {
             <div class="stat-chip">
               <mat-icon>museum</mat-icon>
-              <span>{{ attractionCount() }} atividade(s)</span>
+              <span>{{ attractionCount() }} {{ 'wizard.attractionCount' | translate }}</span>
             </div>
           }
         </div>
@@ -67,7 +69,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (flightCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>flight</mat-icon> Voos</h3>
+              <h3><mat-icon>flight</mat-icon> {{ 'wizard.flights' | translate }}</h3>
               @for (flight of tripState.flights(); track flight.id) {
                 <div class="review-item">
                   <div class="review-item-info">
@@ -88,14 +90,14 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (hotelCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>hotel</mat-icon> Hotéis</h3>
+              <h3><mat-icon>hotel</mat-icon> {{ 'wizard.hotels' | translate }}</h3>
               @for (hotel of tripState.stays(); track hotel.id) {
                 <div class="review-item">
                   <div class="review-item-info">
                     <strong>{{ hotel.name }}</strong>
                     <span>{{ hotel.checkIn }} a {{ hotel.checkOut }}</span>
                   </div>
-                  <span class="review-item-price">{{ hotel.pricePerNight.currency }} {{ hotel.pricePerNight.total | number:'1.2-2' }}/noite</span>
+                  <span class="review-item-price">{{ hotel.pricePerNight.currency }} {{ hotel.pricePerNight.total | number:'1.2-2' }}{{ 'hotels.perNight' | translate }}</span>
                   <button mat-icon-button color="warn" (click)="removeHotel(hotel.id)">
                     <mat-icon>delete_outline</mat-icon>
                   </button>
@@ -109,7 +111,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (carCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>directions_car</mat-icon> Carros</h3>
+              <h3><mat-icon>directions_car</mat-icon> {{ 'wizard.cars' | translate }}</h3>
               @for (car of tripState.carRentals(); track car.id) {
                 <div class="review-item">
                   <div class="review-item-info">
@@ -130,7 +132,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (transportCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>directions_bus</mat-icon> Transportes</h3>
+              <h3><mat-icon>directions_bus</mat-icon> {{ 'wizard.transports' | translate }}</h3>
               @for (t of tripState.transports(); track t.id) {
                 <div class="review-item">
                   <div class="review-item-info">
@@ -151,7 +153,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (tourCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>local_activity</mat-icon> Atividades</h3>
+              <h3><mat-icon>local_activity</mat-icon> {{ 'wizard.activities' | translate }}</h3>
               @for (tour of tripState.activities(); track tour.id) {
                 <div class="review-item">
                   <div class="review-item-info">
@@ -172,7 +174,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         @if (attractionCount() > 0) {
           <mat-card class="review-section">
             <mat-card-content>
-              <h3><mat-icon>local_activity</mat-icon> Atividades</h3>
+              <h3><mat-icon>local_activity</mat-icon> {{ 'wizard.activities' | translate }}</h3>
               @for (attr of tripState.attractions(); track attr.id) {
                 <div class="review-item">
                   <div class="review-item-info">
@@ -192,7 +194,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         <mat-card class="total-card">
           <mat-card-content>
             <div class="total-row">
-              <span class="total-label">Custo total estimado</span>
+              <span class="total-label">{{ 'wizard.totalCost' | translate }}</span>
               <span class="total-value">BRL {{ totalCost() | number:'1.2-2' }}</span>
             </div>
           </mat-card-content>
@@ -201,7 +203,7 @@ import { TripStateService } from '../../../core/services/trip-state.service';
         <!-- Finalize button -->
         <button mat-flat-button color="primary" class="finalize-btn" (click)="finalize()">
           <mat-icon>check_circle</mat-icon>
-          Finalizar e ver roteiro
+          {{ 'wizard.finalize' | translate }}
         </button>
       }
     </div>
@@ -248,6 +250,7 @@ export class WizardReviewStepComponent {
   readonly tripState = inject(TripStateService);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
+  private readonly i18n = inject(TranslationService);
 
   readonly flightCount = computed(() => this.tripState.flights().length);
   readonly hotelCount = computed(() => this.tripState.stays().length);
@@ -314,7 +317,7 @@ export class WizardReviewStepComponent {
 
   finalize(): void {
     const tripId = this.tripState.activeTripId();
-    this.notify.success('Viagem finalizada! Confira sua linha do tempo.');
+    this.notify.success(this.i18n.t('notify.tripFinalized'));
     this.router.navigate(['/viagem', tripId, 'timeline']);
   }
 }

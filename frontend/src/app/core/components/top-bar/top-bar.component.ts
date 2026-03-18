@@ -7,11 +7,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { TripStateService } from '../../services/trip-state.service';
 import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../i18n/translation.service';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, MatMenuModule, MatDividerModule],
+  imports: [MatIconModule, MatButtonModule, MatMenuModule, MatDividerModule, TranslatePipe],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.scss',
 })
@@ -55,9 +56,9 @@ export class TopBarComponent {
 
   getStatusLabel(status: string): string {
     const map: Record<string, string> = {
-      planejamento: 'Planejamento',
-      ativa: 'Em viagem',
-      concluida: 'Concluída',
+      planejamento: this.i18n.t('topbar.statusPlanning'),
+      ativa: this.i18n.t('topbar.statusActive'),
+      concluida: this.i18n.t('topbar.statusCompleted'),
     };
     return map[status] || status;
   }

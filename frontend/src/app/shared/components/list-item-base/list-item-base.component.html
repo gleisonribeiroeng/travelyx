@@ -14,10 +14,10 @@
       </div>
     }
     @if (hasMultipleImages()) {
-      <button class="carousel-btn prev" (click)="prevImage($event)" aria-label="Imagem anterior">
+      <button class="carousel-btn prev" (click)="prevImage($event)" [attr.aria-label]="'listItem.prevImage' | translate">
         <mat-icon>chevron_left</mat-icon>
       </button>
-      <button class="carousel-btn next" (click)="nextImage($event)" aria-label="Próxima imagem">
+      <button class="carousel-btn next" (click)="nextImage($event)" [attr.aria-label]="'listItem.nextImage' | translate">
         <mat-icon>chevron_right</mat-icon>
       </button>
       <div class="carousel-dots">
@@ -68,7 +68,7 @@
         }
         <span class="rating-value">{{ formatRating(rating.value) }}</span>
         @if (rating.reviewCount > 0) {
-          <span class="review-count">({{ rating.reviewCount }} avaliações)</span>
+          <span class="review-count">({{ rating.reviewCount }} {{ 'dialog.detail.reviews' | translate }})</span>
         }
       </div>
     }
@@ -97,7 +97,7 @@
         @if (price.prefix) {
           <span class="price-prefix">{{ price.prefix }}</span>
         }
-        <span class="price-amount">{{ price.amount | currency: price.currency }}</span>
+        <span class="price-amount">{{ price.amount | dynamicCurrency }}</span>
         @if (price.label) {
           <span class="price-label">{{ price.label }}</span>
         }

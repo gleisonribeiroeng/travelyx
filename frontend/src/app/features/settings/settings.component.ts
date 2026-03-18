@@ -7,6 +7,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { CurrencyService, CurrencyCode } from '../../core/i18n/currency.service';
 import { AuthService } from '../../core/services/auth.service';
 
 interface SettingToggle {
@@ -23,7 +25,7 @@ interface SettingToggle {
   imports: [
     MatCardModule, MatIconModule, MatButtonModule,
     MatDividerModule, MatSlideToggleModule, MatSelectModule,
-    FormsModule,
+    FormsModule, TranslatePipe,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -31,29 +33,30 @@ interface SettingToggle {
 export class SettingsComponent {
   protected readonly i18n = inject(TranslationService);
   protected readonly auth = inject(AuthService);
+  private readonly currencyService = inject(CurrencyService);
 
-  currency = this.loadPref('triply_currency', 'BRL');
+  currency = this.currencyService.currency();
   language = this.i18n.lang();
 
   notifications: SettingToggle[] = [
     {
       key: 'notify_trip',
-      label: 'Lembretes de viagem',
-      description: 'Receber notificações sobre viagens próximas',
+      label: this.i18n.t('settings.notifyTrip'),
+      description: this.i18n.t('settings.notifyTripDesc'),
       icon: 'flight_takeoff',
       value: this.loadBool('triply_notify_trip', true),
     },
     {
       key: 'notify_price',
-      label: 'Alertas de preço',
-      description: 'Ser notificado quando preços de voos/hotéis mudarem',
+      label: this.i18n.t('settings.notifyPrice'),
+      description: this.i18n.t('settings.notifyPriceDesc'),
       icon: 'price_change',
       value: this.loadBool('triply_notify_price', true),
     },
     {
       key: 'notify_email',
-      label: 'E-mails promocionais',
-      description: 'Receber dicas e ofertas por e-mail',
+      label: this.i18n.t('settings.notifyEmail'),
+      description: this.i18n.t('settings.notifyEmailDesc'),
       icon: 'email',
       value: this.loadBool('triply_notify_email', false),
     },
@@ -62,8 +65,8 @@ export class SettingsComponent {
   display: SettingToggle[] = [
     {
       key: 'compact_mode',
-      label: 'Modo compacto',
-      description: 'Reduzir espaçamento para ver mais conteúdo',
+      label: this.i18n.t('settings.compactMode'),
+      description: this.i18n.t('settings.compactModeDesc'),
       icon: 'view_compact',
       value: this.loadBool('triply_compact_mode', false),
     },
@@ -78,9 +81,9 @@ export class SettingsComponent {
     this.i18n.setLang(lang);
   }
 
-  onCurrencyChange(currency: string): void {
+  onCurrencyChange(currency: CurrencyCode): void {
     this.currency = currency;
-    localStorage.setItem('triply_currency', currency);
+    this.currencyService.setCurrency(currency);
   }
 
   onToggle(setting: SettingToggle): void {

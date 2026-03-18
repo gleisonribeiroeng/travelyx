@@ -31,11 +31,13 @@ import {
   ManualCarDialogData,
   ManualCarDialogResult,
 } from '../../shared/components/manual-car-dialog/manual-car-dialog.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-car-search',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CommonModule, ErrorBannerComponent, ListItemBaseComponent, TranslatePipe],
   templateUrl: './car-search.component.html',
   styleUrl: './car-search.component.scss',
 })
@@ -44,6 +46,7 @@ export class CarSearchComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly t = inject(TranslationService);
 
   // Same drop-off location toggle (default: true)
   sameDropOff = signal(true);
@@ -282,13 +285,13 @@ export class CarSearchComponent {
       date: car.pickUpAt.split('T')[0],
       timeSlot: car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
       durationMinutes: 30,
-      label: `Carro: ${car.vehicleType}`,
-      notes: `Retirada: ${car.pickUpLocation}`,
+      label: `${this.t.t('cars.carLabel')}: ${car.vehicleType}`,
+      notes: `${this.t.t('cars.pickup')}: ${car.pickUpLocation}`,
       order: 0,
       isPaid: false,
       attachment: null,
     });
-    this.notify.success('Aluguel de carro adicionado ao roteiro');
+    this.notify.success(this.t.t('cars.carAdded'));
   }
 
   // Format Date to MM/DD/YYYY for Priceline API
@@ -343,13 +346,13 @@ export class CarSearchComponent {
         date: result.car.pickUpAt.split('T')[0],
         timeSlot: result.car.pickUpAt.split('T')[1]?.substring(0, 5) || null,
         durationMinutes: 30,
-        label: `Carro: ${result.car.vehicleType}`,
-        notes: `Retirada: ${result.car.pickUpLocation}`,
+        label: `${this.t.t('cars.carLabel')}: ${result.car.vehicleType}`,
+        notes: `${this.t.t('cars.pickup')}: ${result.car.pickUpLocation}`,
         order: 0,
         isPaid: result.isPaid,
         attachment: null,
       });
-      this.notify.success('Carro manual adicionado!');
+      this.notify.success(this.t.t('cars.manualCarAdded'));
     });
   }
 

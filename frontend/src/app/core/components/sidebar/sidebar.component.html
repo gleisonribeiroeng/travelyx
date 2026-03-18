@@ -43,7 +43,7 @@
 
     @if (auth.isAdmin()) {
       <div class="nav-group admin-group">
-        <span class="group-label">Administração</span>
+        <span class="group-label">{{ 'nav.sectionAdmin' | translate }}</span>
         <a
           class="nav-item"
           routerLink="/admin/usuarios"
@@ -51,7 +51,7 @@
           (click)="closeMobile()"
         >
           <mat-icon class="nav-icon">group</mat-icon>
-          <span class="nav-label">Usuários</span>
+          <span class="nav-label">{{ 'nav.users' | translate }}</span>
         </a>
       </div>
     }
@@ -61,22 +61,22 @@
     @if (auth.isPro()) {
       <button class="manage-sub-btn" (click)="openPortal()">
         <mat-icon>credit_card</mat-icon>
-        <span>Gerenciar assinatura</span>
+        <span>{{ 'nav.manageSubscription' | translate }}</span>
       </button>
     } @else {
       <button class="upgrade-btn" (click)="openCheckout()">
         <mat-icon>rocket_launch</mat-icon>
-        <span>Upgrade PRO</span>
+        <span>{{ 'nav.upgradePro' | translate }}</span>
         <span class="pro-badge" aria-hidden="true">PRO</span>
       </button>
     }
     <button class="add-action" (click)="openNewTrip()">
       <mat-icon>add_circle_outline</mat-icon>
-      <span>Nova Viagem</span>
+      <span>{{ 'nav.newTrip' | translate }}</span>
     </button>
     <button class="logout-btn" (click)="logout()">
       <mat-icon>logout</mat-icon>
-      <span>Sair</span>
+      <span>{{ 'nav.logout' | translate }}</span>
     </button>
   </div>
 </aside>

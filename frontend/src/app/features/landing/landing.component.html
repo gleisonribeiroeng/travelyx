@@ -3,8 +3,8 @@
   <nav class="landing-nav">
     <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo">
     <div class="nav-links">
-      <a (click)="scrollToSection('how-section')">Como funciona</a>
-      <a (click)="scrollToSection('benefits-section')">Por que a Travelyx</a>
+      <a (click)="scrollToSection('how-section')">{{ 'landing.nav.howItWorks' | translate }}</a>
+      <a (click)="scrollToSection('benefits-section')">{{ 'landing.nav.whyTravelyx' | translate }}</a>
     </div>
     <div class="nav-actions">
       <button class="lang-btn" (click)="i18n.toggle()">
@@ -16,7 +16,7 @@
           <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
         </div>
         <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
-          Painel
+          {{ 'landing.nav.panel' | translate }}
         </button>
       } @else {
         <button class="google-login-btn" (click)="loginWithGoogle()">
@@ -26,7 +26,7 @@
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Entrar com Google
+          {{ 'landing.nav.loginGoogle' | translate }}
         </button>
       }
     </div>
@@ -40,16 +40,15 @@
     <div class="hero-glow" aria-hidden="true"></div>
     <div class="hero-inner">
       <div class="hero-content">
-        <span class="hero-badge">Planejamento inteligente de viagens</span>
-        <h1>Pesquise, planeje e organize sua viagem inteira aqui.</h1>
+        <span class="hero-badge">{{ 'landing.hero.badge' | translate }}</span>
+        <h1>{{ 'landing.hero.title' | translate }}</h1>
         <p class="hero-sub">
-          Voos, hotéis e passeios reunidos com um roteiro visual dia a dia.
-          Grátis, sem cadastro complicado.
+          {{ 'landing.hero.subtitle' | translate }}
         </p>
         <div class="hero-actions">
           @if (authService.isLoggedIn()) {
             <button mat-flat-button class="hero-cta-primary" (click)="navigateTo('/home')">
-              <mat-icon>dashboard</mat-icon> Ir para o Painel
+              <mat-icon>dashboard</mat-icon> {{ 'landing.hero.goToPanel' | translate }}
             </button>
           } @else {
             <button class="hero-google-btn" (click)="loginWithGoogle()">
@@ -59,11 +58,11 @@
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              Comece grátis com Google
+              {{ 'landing.hero.startFreeGoogle' | translate }}
             </button>
           }
           <button class="hero-cta-secondary" (click)="scrollToSection('how-section')">
-            Ver como funciona <mat-icon>arrow_downward</mat-icon>
+            {{ 'landing.hero.howItWorks' | translate }} <mat-icon>arrow_downward</mat-icon>
           </button>
         </div>
       </div>
@@ -107,20 +106,20 @@
   <!-- SEÇÃO 2: PROBLEM BLOCK -->
   <section class="problem-section reveal">
     <div class="problem-inner">
-      <h2>Planejar uma viagem não deveria ser um trabalho.</h2>
-      <p class="problem-lead">Mas é assim que a maioria das pessoas faz hoje:</p>
+      <h2>{{ 'landing.problem.title' | translate }}</h2>
+      <p class="problem-lead">{{ 'landing.problem.lead' | translate }}</p>
       <div class="pain-points">
         <div class="pain-card pain-tabs">
           <span class="pain-emoji">😩</span>
-          <p><strong>20+ abas abertas</strong> comparando voos, hotéis e passeios em sites diferentes.</p>
+          <p><strong>{{ 'landing.problem.tabs' | translate }}</strong> {{ 'landing.problem.tabsDesc' | translate }}</p>
         </div>
         <div class="pain-card pain-sheets">
           <span class="pain-emoji">📋</span>
-          <p><strong>Planilhas intermináveis</strong> tentando organizar datas, preços e reservas.</p>
+          <p><strong>{{ 'landing.problem.sheets' | translate }}</strong> {{ 'landing.problem.sheetsDesc' | translate }}</p>
         </div>
         <div class="pain-card pain-forget">
           <span class="pain-emoji">😰</span>
-          <p><strong>Medo de esquecer algo</strong> e descobrir no aeroporto que faltou reservar o transfer.</p>
+          <p><strong>{{ 'landing.problem.forget' | translate }}</strong> {{ 'landing.problem.forgetDesc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -130,9 +129,9 @@
   <section class="solution-section reveal">
     <div class="solution-inner">
       <div class="solution-text">
-        <span class="section-tag">A solução</span>
-        <h2>Um lugar para pesquisar, planejar e organizar.</h2>
-        <p>A Travelyx reúne busca de voos, hotéis, passeios e atrações com um planejador visual de roteiro — tudo na mesma plataforma.</p>
+        <span class="section-tag">{{ 'landing.solution.tag' | translate }}</span>
+        <h2>{{ 'landing.solution.title' | translate }}</h2>
+        <p>{{ 'landing.solution.desc' | translate }}</p>
       </div>
       <div class="solution-features">
         <div class="feature-item">
@@ -140,8 +139,8 @@
             <mat-icon>search</mat-icon>
           </div>
           <div class="feature-text">
-            <strong>Busca integrada</strong>
-            <p>Voos, hotéis, tours e atrações em uma interface só.</p>
+            <strong>{{ 'landing.solution.integratedSearch' | translate }}</strong>
+            <p>{{ 'landing.solution.integratedSearchDesc' | translate }}</p>
           </div>
         </div>
         <div class="feature-item">
@@ -149,8 +148,8 @@
             <mat-icon>calendar_month</mat-icon>
           </div>
           <div class="feature-text">
-            <strong>Roteiro visual</strong>
-            <p>Organize tudo em um calendário dia a dia, arraste e solte.</p>
+            <strong>{{ 'landing.solution.visualItinerary' | translate }}</strong>
+            <p>{{ 'landing.solution.visualItineraryDesc' | translate }}</p>
           </div>
         </div>
         <div class="feature-item">
@@ -158,8 +157,8 @@
             <mat-icon>auto_awesome</mat-icon>
           </div>
           <div class="feature-text">
-            <strong>Assistente inteligente</strong>
-            <p>Sugestões automáticas de roteiro baseadas no seu destino e datas.</p>
+            <strong>{{ 'landing.solution.smartAssistant' | translate }}</strong>
+            <p>{{ 'landing.solution.smartAssistantDesc' | translate }}</p>
           </div>
         </div>
       </div>
@@ -170,26 +169,26 @@
   <section class="how-section" id="how-section">
     <div class="how-inner reveal">
       <div class="how-header">
-        <span class="section-tag">Como funciona</span>
-        <h2>Três passos para a viagem perfeita</h2>
+        <span class="section-tag">{{ 'landing.how.tag' | translate }}</span>
+        <h2>{{ 'landing.how.title' | translate }}</h2>
       </div>
       <div class="steps-timeline">
         <div class="timeline-step">
           <div class="step-num">01</div>
-          <h3>Explore destinos</h3>
-          <p>Navegue por voos, hotéis e passeios. Compare preços e descubra ofertas.</p>
+          <h3>{{ 'landing.how.step1Title' | translate }}</h3>
+          <p>{{ 'landing.how.step1Desc' | translate }}</p>
         </div>
         <div class="timeline-connector"></div>
         <div class="timeline-step">
           <div class="step-num">02</div>
-          <h3>Monte seu roteiro</h3>
-          <p>Adicione ao seu planejador visual. Organize dia a dia no calendário.</p>
+          <h3>{{ 'landing.how.step2Title' | translate }}</h3>
+          <p>{{ 'landing.how.step2Desc' | translate }}</p>
         </div>
         <div class="timeline-connector"></div>
         <div class="timeline-step">
           <div class="step-num">03</div>
-          <h3>Viaje tranquilo</h3>
-          <p>Tudo organizado na palma da mão. Sem surpresas, sem planilhas.</p>
+          <h3>{{ 'landing.how.step3Title' | translate }}</h3>
+          <p>{{ 'landing.how.step3Desc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -199,37 +198,37 @@
   <section class="benefits-section reveal" id="benefits-section">
     <div class="benefits-inner">
       <div class="benefits-header">
-        <span class="section-tag">Por que a Travelyx</span>
-        <h2>Tudo que você precisa, nada que não precisa.</h2>
+        <span class="section-tag">{{ 'landing.benefits.tag' | translate }}</span>
+        <h2>{{ 'landing.benefits.title' | translate }}</h2>
       </div>
       <div class="benefits-grid">
         <div class="benefit-card benefit-free">
           <div class="benefit-icon-wrap">
             <mat-icon>savings</mat-icon>
           </div>
-          <h3>100% grátis</h3>
-          <p>Sem assinatura, sem taxa escondida. Planeje quantas viagens quiser.</p>
+          <h3>{{ 'landing.benefits.freeTitle' | translate }}</h3>
+          <p>{{ 'landing.benefits.freeDesc' | translate }}</p>
         </div>
         <div class="benefit-card benefit-integrated">
           <div class="benefit-icon-wrap">
             <mat-icon>bolt</mat-icon>
           </div>
-          <h3>Tudo integrado</h3>
-          <p>Busque voos, hotéis, tours e atrações sem sair da plataforma.</p>
+          <h3>{{ 'landing.benefits.integratedTitle' | translate }}</h3>
+          <p>{{ 'landing.benefits.integratedDesc' | translate }}</p>
         </div>
         <div class="benefit-card benefit-visual">
           <div class="benefit-icon-wrap">
             <mat-icon>calendar_view_day</mat-icon>
           </div>
-          <h3>Roteiro visual</h3>
-          <p>Veja sua viagem inteira organizada por dia em um calendário intuitivo.</p>
+          <h3>{{ 'landing.benefits.visualTitle' | translate }}</h3>
+          <p>{{ 'landing.benefits.visualDesc' | translate }}</p>
         </div>
         <div class="benefit-card benefit-global">
           <div class="benefit-icon-wrap">
             <mat-icon>travel_explore</mat-icon>
           </div>
-          <h3>Destinos globais</h3>
-          <p>Cobertura em mais de 190 países com dados atualizados em tempo real.</p>
+          <h3>{{ 'landing.benefits.globalTitle' | translate }}</h3>
+          <p>{{ 'landing.benefits.globalDesc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -239,9 +238,9 @@
   <section class="destinations-section">
     <div class="dest-inner">
       <div class="dest-header">
-        <span class="section-tag">Destinos populares</span>
-        <h2>Explore destinos incríveis</h2>
-        <p class="dest-sub">Os lugares mais procurados pelos viajantes na Travelyx</p>
+        <span class="section-tag">{{ 'landing.destinations.tag' | translate }}</span>
+        <h2>{{ 'landing.destinations.title' | translate }}</h2>
+        <p class="dest-sub">{{ 'landing.destinations.subtitle' | translate }}</p>
       </div>
       <div class="dest-showcase">
         @for (dest of destinations(); track dest.city) {
@@ -254,7 +253,7 @@
               <div class="dest-card-body">
                 <span class="dest-card-tag">{{ dest.tag }}</span>
                 <h3>{{ dest.city }}</h3>
-                <span class="dest-card-price">a partir de {{ dest.flightFrom | currency: 'BRL' }}</span>
+                <span class="dest-card-price">{{ 'landing.destinations.startingFrom' | translate }} {{ dest.flightFrom | dynamicCurrency }}</span>
               </div>
             </div>
           </div>
@@ -263,7 +262,7 @@
       <div class="dest-cta">
         @if (authService.isLoggedIn()) {
           <button mat-stroked-button (click)="navigateTo('/home')">
-            Ver todos os destinos <mat-icon>arrow_forward</mat-icon>
+            {{ 'landing.destinations.viewAll' | translate }} <mat-icon>arrow_forward</mat-icon>
           </button>
         } @else {
           <button class="dest-google-btn" (click)="loginWithGoogle()">
@@ -273,7 +272,7 @@
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Entre com Google para explorar mais destinos
+            {{ 'landing.destinations.loginToExplore' | translate }}
           </button>
         }
       </div>
@@ -286,17 +285,17 @@
       <div class="proof-stats">
         <div class="proof-stat">
           <span class="proof-number">190+</span>
-          <span class="proof-label">Destinos disponíveis</span>
+          <span class="proof-label">{{ 'landing.proof.destinations' | translate }}</span>
         </div>
         <div class="proof-divider"></div>
         <div class="proof-stat">
           <span class="proof-number">100%</span>
-          <span class="proof-label">Gratuito para começar</span>
+          <span class="proof-label">{{ 'landing.proof.freeToStart' | translate }}</span>
         </div>
         <div class="proof-divider"></div>
         <div class="proof-stat">
           <span class="proof-number">5 min</span>
-          <span class="proof-label">Para montar seu roteiro</span>
+          <span class="proof-label">{{ 'landing.proof.buildItinerary' | translate }}</span>
         </div>
       </div>
     </div>
@@ -305,11 +304,11 @@
   <!-- SEÇÃO 8: FINAL CTA -->
   <section class="final-cta">
     <div class="cta-inner">
-      <h2>Comece a planejar sua próxima viagem.</h2>
-      <p>É grátis, leva menos de 1 minuto, e você não precisa de cartão de crédito.</p>
+      <h2>{{ 'landing.cta.title' | translate }}</h2>
+      <p>{{ 'landing.cta.subtitle' | translate }}</p>
       @if (authService.isLoggedIn()) {
         <button mat-flat-button class="cta-btn" (click)="navigateTo('/planner')">
-          <mat-icon>auto_awesome</mat-icon> Montar meu roteiro
+          <mat-icon>auto_awesome</mat-icon> {{ 'landing.cta.buildItinerary' | translate }}
         </button>
       } @else {
         <button class="cta-google-btn" (click)="loginWithGoogle()">
@@ -319,7 +318,7 @@
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Começar agora com Google
+          {{ 'landing.cta.startWithGoogle' | translate }}
         </button>
       }
     </div>
@@ -330,25 +329,25 @@
     <div class="footer-content">
       <div class="footer-brand">
         <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
-        <p class="footer-tagline">Planeje sua viagem perfeita</p>
+        <p class="footer-tagline">{{ 'landing.footer.tagline' | translate }}</p>
       </div>
       <div class="footer-links">
         <div class="footer-col">
-          <h4>Explorar</h4>
-          <a (click)="scrollToSection('how-section')">Como funciona</a>
-          <a (click)="scrollToSection('benefits-section')">Por que a Travelyx</a>
-          <a (click)="loginWithGoogle()">Criar conta</a>
+          <h4>{{ 'landing.footer.explore' | translate }}</h4>
+          <a (click)="scrollToSection('how-section')">{{ 'landing.nav.howItWorks' | translate }}</a>
+          <a (click)="scrollToSection('benefits-section')">{{ 'landing.nav.whyTravelyx' | translate }}</a>
+          <a (click)="loginWithGoogle()">{{ 'landing.footer.createAccount' | translate }}</a>
         </div>
         <div class="footer-col">
-          <h4>Legal</h4>
-          <a routerLink="/privacidade">Política de Privacidade</a>
-          <a routerLink="/termos">Termos de Uso</a>
-          <a href="mailto:contato&#64;travelyx.com.br">Contato</a>
+          <h4>{{ 'landing.footer.legal' | translate }}</h4>
+          <a routerLink="/privacidade">{{ 'landing.footer.privacyPolicy' | translate }}</a>
+          <a routerLink="/termos">{{ 'landing.footer.termsOfUse' | translate }}</a>
+          <a href="mailto:contato&#64;travelyx.com.br">{{ 'landing.footer.contact' | translate }}</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Travelyx — Todos os direitos reservados</p>
+      <p>{{ 'landing.footer.copyright' | translate }}</p>
     </div>
   </footer>
 </div>

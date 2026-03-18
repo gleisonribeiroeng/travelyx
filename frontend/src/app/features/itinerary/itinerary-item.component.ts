@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
-import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
+import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from '../../core/services/notification.service';
@@ -21,6 +22,8 @@ import {
   AttachmentDialogData,
   AttachmentDialogResult,
 } from '../../shared/components/attachment-dialog/attachment-dialog.component';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/i18n/translation.service';
 
 function timeSlotValidator(control: any) {
   const value = control.value;
@@ -32,7 +35,7 @@ function timeSlotValidator(control: any) {
 @Component({
   selector: 'app-itinerary-item',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, CurrencyPipe, NgTemplateOutlet],
+  imports: [MATERIAL_IMPORTS, ReactiveFormsModule, DynamicCurrencyPipe, NgTemplateOutlet, TranslatePipe],
   templateUrl: './itinerary-item.component.html',
   styleUrl: './itinerary-item.component.scss',
 })
@@ -49,6 +52,7 @@ export class ItineraryItemComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly i18n = inject(TranslationService);
 
   readonly isEditing = signal(false);
   editForm!: FormGroup;
@@ -164,7 +168,7 @@ export class ItineraryItemComponent implements OnInit {
 
     this.tripState.updateItineraryItem(updated);
     this.isEditing.set(false);
-    this.notify.success('Item atualizado');
+    this.notify.success(this.i18n.t('notify.tripUpdated'));
   }
 
   togglePaid(): void {
@@ -174,7 +178,7 @@ export class ItineraryItemComponent implements OnInit {
       // Just marked as paid — offer to attach a receipt
       this.openAttachment();
     }
-    this.notify.success(wasPaid ? 'Marcado como pendente' : 'Marcado como pago');
+    this.notify.success(wasPaid ? this.i18n.t('itineraryItem.markPending') : this.i18n.t('itineraryItem.markPaid'));
   }
 
   openAttachment(): void {

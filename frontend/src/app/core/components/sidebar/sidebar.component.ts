@@ -7,6 +7,8 @@ import { TripStateService } from '../../services/trip-state.service';
 import { TripRouterService } from '../../services/trip-router.service';
 import { PlanService, PlanLimits } from '../../services/plan.service';
 import { StripeService } from '../../services/stripe.service';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { TranslationService } from '../../i18n/translation.service';
 
 interface NavItem {
   icon: string;
@@ -24,7 +26,7 @@ interface NavGroup {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, MatIconModule, MatButtonModule],
+  imports: [RouterLink, RouterLinkActive, MatIconModule, MatButtonModule, TranslatePipe],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
@@ -35,6 +37,7 @@ export class SidebarComponent {
   private readonly tripRouter = inject(TripRouterService);
   protected readonly planService = inject(PlanService);
   private readonly stripeService = inject(StripeService);
+  private readonly i18n = inject(TranslationService);
 
   mobileOpen = signal(false);
 
@@ -45,32 +48,32 @@ export class SidebarComponent {
     if (!id) {
       return [
         { label: '', items: [
-          { icon: 'luggage', label: 'Minhas Viagens', route: '/viagens' },
+          { icon: 'luggage', label: this.i18n.t('nav.myTrips'), route: '/viagens' },
         ]},
       ];
     }
 
     return [
       { label: '', items: [
-        { icon: 'luggage', label: 'Minhas Viagens', route: '/viagens' },
-        { icon: 'space_dashboard', label: 'Visão Geral', route: `${base}/home` },
+        { icon: 'luggage', label: this.i18n.t('nav.myTrips'), route: '/viagens' },
+        { icon: 'space_dashboard', label: this.i18n.t('nav.overview'), route: `${base}/home` },
       ]},
-      { label: 'Explorar', items: [
-        { icon: 'flight', label: 'Voos', route: `${base}/search` },
-        { icon: 'hotel', label: 'Hotéis', route: `${base}/hotels` },
-        { icon: 'directions_car', label: 'Carros', route: `${base}/cars` },
-        { icon: 'local_activity', label: 'Atividades', route: `${base}/tours` },
+      { label: this.i18n.t('nav.sectionExplore'), items: [
+        { icon: 'flight', label: this.i18n.t('nav.flights'), route: `${base}/search` },
+        { icon: 'hotel', label: this.i18n.t('nav.hotels'), route: `${base}/hotels` },
+        { icon: 'directions_car', label: this.i18n.t('nav.cars'), route: `${base}/cars` },
+        { icon: 'local_activity', label: this.i18n.t('nav.activities'), route: `${base}/tours` },
       ]},
-      { label: 'Roteiro', items: [
-        { icon: 'route', label: 'Assistente', route: `${base}/planner` },
-        { icon: 'event_note', label: 'Meu Roteiro', route: `${base}/itinerary` },
-        { icon: 'view_timeline', label: 'Linha do Tempo', route: `${base}/timeline` },
+      { label: this.i18n.t('nav.sectionItinerary'), items: [
+        { icon: 'route', label: this.i18n.t('nav.assistant'), route: `${base}/planner` },
+        { icon: 'event_note', label: this.i18n.t('nav.myItinerary'), route: `${base}/itinerary` },
+        { icon: 'view_timeline', label: this.i18n.t('nav.timeline'), route: `${base}/timeline` },
       ]},
-      { label: 'Organização', items: [
-        { icon: 'account_balance_wallet', label: 'Orçamento', route: `${base}/budget`, pro: true, proFeature: 'budget' },
-        { icon: 'notification_important', label: 'Alertas', route: `${base}/conflicts`, pro: true, proFeature: 'conflictDetails' },
-        { icon: 'checklist', label: 'Checklist', route: `${base}/checklist`, pro: true, proFeature: 'checklist' },
-        { icon: 'description', label: 'Documentos', route: `${base}/documents`, pro: true, proFeature: 'documents' },
+      { label: this.i18n.t('nav.sectionOrganization'), items: [
+        { icon: 'account_balance_wallet', label: this.i18n.t('nav.budget'), route: `${base}/budget`, pro: true, proFeature: 'budget' },
+        { icon: 'notification_important', label: this.i18n.t('nav.alerts'), route: `${base}/conflicts`, pro: true, proFeature: 'conflictDetails' },
+        { icon: 'checklist', label: this.i18n.t('nav.checklist'), route: `${base}/checklist`, pro: true, proFeature: 'checklist' },
+        { icon: 'description', label: this.i18n.t('nav.documents'), route: `${base}/documents`, pro: true, proFeature: 'documents' },
       ]},
     ];
   });

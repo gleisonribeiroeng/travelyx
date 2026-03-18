@@ -37,7 +37,7 @@
             (click)="prevStep()"
             [disabled]="isFirstStep()">
       <mat-icon>arrow_back</mat-icon>
-      Voltar
+      {{ 'wizard.back' | translate }}
     </button>
 
     <div class="nav-spacer"></div>
@@ -46,7 +46,7 @@
       <button mat-stroked-button
               class="skip-btn"
               (click)="skipStep()">
-        Pular etapa
+        {{ 'wizard.skipStep' | translate }}
       </button>
     }
 
@@ -54,7 +54,7 @@
       <button mat-flat-button
               color="primary"
               (click)="nextStep()">
-        Continuar
+        {{ 'wizard.continue' | translate }}
         <mat-icon iconPositionEnd>arrow_forward</mat-icon>
       </button>
     }
