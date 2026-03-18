@@ -10,7 +10,6 @@ const SUPPORTED: Lang[] = ['pt', 'en'];
 export class TranslationService {
   private readonly _lang = signal<Lang>(this.detectLanguage());
   private readonly _translations = signal<Record<string, string>>({});
-  private loaded = new Set<Lang>();
 
   readonly lang = this._lang.asReadonly();
   readonly isEn = computed(() => this._lang() === 'en');
@@ -57,12 +56,18 @@ export class TranslationService {
     return 'pt';
   }
 
+  private readonly cache = new Map<Lang, Record<string, string>>();
+
   private loadTranslations(lang: Lang): void {
-    if (this.loaded.has(lang)) return;
+    const cached = this.cache.get(lang);
+    if (cached) {
+      this._translations.set(cached);
+      return;
+    }
     this.http.get<Record<string, string>>(`assets/i18n/${lang}.json`).subscribe({
       next: (data) => {
+        this.cache.set(lang, data);
         this._translations.set(data);
-        this.loaded.add(lang);
       },
       error: () => {
         console.warn(`[i18n] Failed to load ${lang}.json`);
