@@ -25,7 +25,10 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', '../.env'],
+    }),
     // Security: Rate limiting — 100 requests per minute per IP
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     ServeStaticModule.forRoot({

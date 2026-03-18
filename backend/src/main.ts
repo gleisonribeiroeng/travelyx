@@ -60,6 +60,8 @@ async function ensureColumns() {
 }
 
 async function bootstrap() {
+  console.log('[DEBUG] JWT_SECRET exists:', !!process.env.JWT_SECRET);
+  console.log('[DEBUG] env keys:', Object.keys(process.env).filter(k => k.includes('JWT') || k.includes('DATABASE') || k.includes('GOOGLE')).join(', '));
   await ensureColumns();
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
