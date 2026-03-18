@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Logger, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService, GoogleUser } from './auth.service';
 import { GoogleAuthGuard } from './google-auth.guard';
@@ -7,6 +7,7 @@ import type { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
   private readonly frontendUrl: string;
 
   constructor(
@@ -28,18 +29,16 @@ export class AuthController {
     try {
       const user = req.user as GoogleUser;
       if (!user) {
-        console.error('[AUTH] No user from Google callback');
+        this.logger.warn('No user from Google callback');
         res.redirect(`${this.frontendUrl}/landing?auth_error=true`);
         return;
       }
-      console.log('[AUTH] Google callback user:', user.email);
       const dbUser = await this.authService.validateGoogleUser(user);
-      console.log('[AUTH] User validated in DB, id:', dbUser.id);
       const token = this.authService.generateJwt(user, dbUser);
-      console.log('[AUTH] JWT generated, redirecting to frontend');
+      this.logger.log(`User ${dbUser.id} authenticated`);
       res.redirect(`${this.frontendUrl}/auth/callback?token=${token}`);
     } catch (error) {
-      console.error('[AUTH] Google callback error:', error);
+      this.logger.error('Google callback error', (error as Error).stack);
       res.redirect(`${this.frontendUrl}/landing?auth_error=true`);
     }
   }

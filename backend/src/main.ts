@@ -12,7 +12,7 @@ async function ensureColumns() {
       `SELECT column_name FROM information_schema.columns WHERE table_name = 'User'`
     );
     const existing = new Set(rows.map((r: any) => r.column_name));
-    console.log('[DB-FIX] Existing User columns:', [...existing].join(', '));
+    // DB-FIX: Existing User columns:', [...existing].join(', '));
 
     const { rows: enums } = await client.query(
       `SELECT typname FROM pg_type WHERE typname IN ('Role', 'Plan')`
@@ -21,38 +21,38 @@ async function ensureColumns() {
 
     if (!existingEnums.has('Role')) {
       await client.query(`CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN')`);
-      console.log('[DB-FIX] Created Role enum');
+      // DB-FIX: Created Role enum');
     }
     if (!existing.has('role')) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "role" "Role" NOT NULL DEFAULT 'USER'`);
       await client.query(`UPDATE "User" SET "role" = 'ADMIN' WHERE "email" = $1`, [process.env.ADMIN_EMAIL || 'gleison423200@gmail.com']);
-      console.log('[DB-FIX] Created role column');
+      // DB-FIX: Created role column');
     }
     if (!existing.has('isActive')) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "isActive" BOOLEAN NOT NULL DEFAULT true`);
-      console.log('[DB-FIX] Created isActive column');
+      // DB-FIX: Created isActive column');
     }
     if (!existingEnums.has('Plan')) {
       await client.query(`CREATE TYPE "Plan" AS ENUM ('FREE', 'PRO', 'BUSINESS')`);
-      console.log('[DB-FIX] Created Plan enum');
+      // DB-FIX: Created Plan enum');
     }
     if (!existing.has('plan')) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "plan" "Plan" NOT NULL DEFAULT 'FREE'`);
-      console.log('[DB-FIX] Created plan column');
+      // DB-FIX: Created plan column');
     }
     if (!existing.has('planExpiresAt')) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "planExpiresAt" TIMESTAMP(3)`);
-      console.log('[DB-FIX] Created planExpiresAt column');
+      // DB-FIX: Created planExpiresAt column');
     }
     if (!existing.has('stripeCustomerId')) {
       await client.query(`ALTER TABLE "User" ADD COLUMN "stripeCustomerId" TEXT`);
       await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS "User_stripeCustomerId_key" ON "User"("stripeCustomerId")`);
-      console.log('[DB-FIX] Created stripeCustomerId column');
+      // DB-FIX: Created stripeCustomerId column');
     }
 
-    console.log('[DB-FIX] Schema OK');
+    // DB-FIX: Schema OK');
   } catch (e: any) {
-    console.error('[DB-FIX] ERROR:', e.message);
+    // DB-FIX ERROR: ERROR:', e.message);
   } finally {
     client.release();
     await pool.end();

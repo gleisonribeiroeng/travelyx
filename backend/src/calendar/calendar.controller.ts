@@ -50,7 +50,7 @@ export class CalendarController {
       const frontendUrl = this.calendarService.getFrontendUrl();
       res.redirect(`${frontendUrl}/viagem?calendar_connected=true`);
     } catch (error) {
-      console.error('[CALENDAR] Callback error:', error);
+      // Error handled by redirect below
       const frontendUrl = this.calendarService.getFrontendUrl();
       res.redirect(`${frontendUrl}/viagem?calendar_error=true`);
     }

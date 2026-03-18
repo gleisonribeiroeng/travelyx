@@ -16,16 +16,10 @@ import { PlanGuard } from './plan.guard';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const secret = configService.get<string>('JWT_SECRET');
-        if (!secret && process.env.NODE_ENV === 'production') {
-          throw new Error('JWT_SECRET must be set in production');
-        }
-        return {
-          secret: secret || 'triply-jwt-secret-dev-only',
-          signOptions: { expiresIn: '24h' },
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '24h' },
+      }),
     }),
   ],
   controllers: [AuthController],
