@@ -1,0 +1,129 @@
+:host { display: block; }
+
+.settings-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--triply-text-primary, #1a1a2e);
+    margin: 0;
+  }
+}
+
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  gap: 16px;
+
+  &.clickable {
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 14px 8px;
+    margin: 0 -8px;
+
+    &:hover {
+      background: #f9fafb;
+    }
+  }
+
+  .setting-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+
+    mat-icon {
+      color: var(--triply-text-secondary, #6b7280);
+      flex-shrink: 0;
+    }
+
+    strong {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--triply-text-primary, #1a1a2e);
+    }
+
+    p {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      color: var(--triply-text-secondary, #6b7280);
+    }
+  }
+}
+
+.setting-select {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.info-card {
+  .app-info {
+    text-align: center;
+    padding: 8px 0;
+
+    strong {
+      font-size: 1rem;
+      color: var(--triply-text-primary, #1a1a2e);
+    }
+
+    p {
+      font-size: 0.8rem;
+      color: var(--triply-text-secondary, #6b7280);
+      margin: 4px 0 8px;
+    }
+
+    .info-links {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.8rem;
+
+      a {
+        color: var(--triply-primary, #6c5ce7);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      span {
+        color: var(--triply-text-secondary, #6b7280);
+      }
+    }
+  }
+}
+
+@media (max-width: 599px) {
+  .settings-page {
+    padding: 16px 12px;
+  }
+
+  .setting-row {
+    flex-wrap: wrap;
+  }
+
+  .setting-select {
+    width: 100%;
+    margin-top: 8px;
+  }
+}

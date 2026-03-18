@@ -59,7 +59,19 @@ export const routes: Routes = [
       import('./features/checkout/checkout-cancel.component').then(m => m.CheckoutCancelComponent),
   },
 
-  // ── Trip list (authenticated, no trip context needed) ──
+  // ── User pages (authenticated, no trip context needed) ──
+  {
+    path: 'conta',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/account/account.component').then(m => m.AccountComponent),
+  },
+  {
+    path: 'configuracoes',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/settings/settings.component').then(m => m.SettingsComponent),
+  },
   {
     path: 'viagens',
     canActivate: [authGuard],

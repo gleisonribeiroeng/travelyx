@@ -40,6 +40,14 @@ export class TopBarComponent {
     this.router.navigate(['/viagens']);
   }
 
+  goToAccount(): void {
+    this.router.navigate(['/conta']);
+  }
+
+  goToSettings(): void {
+    this.router.navigate(['/configuracoes']);
+  }
+
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/landing']);

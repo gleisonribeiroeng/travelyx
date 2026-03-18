@@ -1,0 +1,108 @@
+import { Component, inject } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
+import { TranslationService } from '../../core/i18n/translation.service';
+import { AuthService } from '../../core/services/auth.service';
+
+interface SettingToggle {
+  key: string;
+  label: string;
+  description: string;
+  icon: string;
+  value: boolean;
+}
+
+@Component({
+  selector: 'app-settings',
+  standalone: true,
+  imports: [
+    MatCardModule, MatIconModule, MatButtonModule,
+    MatDividerModule, MatSlideToggleModule, MatSelectModule,
+    FormsModule,
+  ],
+  templateUrl: './settings.component.html',
+  styleUrl: './settings.component.scss',
+})
+export class SettingsComponent {
+  protected readonly i18n = inject(TranslationService);
+  protected readonly auth = inject(AuthService);
+
+  currency = this.loadPref('triply_currency', 'BRL');
+  language = this.i18n.lang();
+
+  notifications: SettingToggle[] = [
+    {
+      key: 'notify_trip',
+      label: 'Lembretes de viagem',
+      description: 'Receber notificações sobre viagens próximas',
+      icon: 'flight_takeoff',
+      value: this.loadBool('triply_notify_trip', true),
+    },
+    {
+      key: 'notify_price',
+      label: 'Alertas de preço',
+      description: 'Ser notificado quando preços de voos/hotéis mudarem',
+      icon: 'price_change',
+      value: this.loadBool('triply_notify_price', true),
+    },
+    {
+      key: 'notify_email',
+      label: 'E-mails promocionais',
+      description: 'Receber dicas e ofertas por e-mail',
+      icon: 'email',
+      value: this.loadBool('triply_notify_email', false),
+    },
+  ];
+
+  display: SettingToggle[] = [
+    {
+      key: 'compact_mode',
+      label: 'Modo compacto',
+      description: 'Reduzir espaçamento para ver mais conteúdo',
+      icon: 'view_compact',
+      value: this.loadBool('triply_compact_mode', false),
+    },
+  ];
+
+  goBack(): void {
+    window.history.back();
+  }
+
+  onLanguageChange(lang: 'pt' | 'en'): void {
+    this.language = lang;
+    this.i18n.setLang(lang);
+  }
+
+  onCurrencyChange(currency: string): void {
+    this.currency = currency;
+    localStorage.setItem('triply_currency', currency);
+  }
+
+  onToggle(setting: SettingToggle): void {
+    localStorage.setItem(setting.key, String(setting.value));
+  }
+
+  clearCache(): void {
+    const token = localStorage.getItem('triply_token');
+    const user = localStorage.getItem('triply_user');
+    localStorage.clear();
+    if (token) localStorage.setItem('triply_token', token);
+    if (user) localStorage.setItem('triply_user', user);
+    window.location.reload();
+  }
+
+  private loadPref(key: string, fallback: string): string {
+    return localStorage.getItem(key) || fallback;
+  }
+
+  private loadBool(key: string, fallback: boolean): boolean {
+    const v = localStorage.getItem(key);
+    if (v === null) return fallback;
+    return v === 'true';
+  }
+}
