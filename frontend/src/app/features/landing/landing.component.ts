@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslationService } from '../../core/i18n/translation.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TransitionService } from '../../core/services/transition.service';
 import {
@@ -31,6 +32,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly api = inject(HomeShowcaseApiService);
   private readonly el = inject(ElementRef);
   readonly authService = inject(AuthService);
+  readonly i18n = inject(TranslationService);
   private readonly tripState = inject(TripStateService);
   private readonly transition = inject(TransitionService);
 

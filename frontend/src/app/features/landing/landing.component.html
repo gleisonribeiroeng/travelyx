@@ -7,6 +7,9 @@
       <a (click)="scrollToSection('benefits-section')">Por que a Travelyx</a>
     </div>
     <div class="nav-actions">
+      <button class="lang-btn" (click)="i18n.toggle()">
+        {{ i18n.lang() === 'pt' ? '🇺🇸 EN' : '🇧🇷 PT' }}
+      </button>
       @if (authService.isLoggedIn()) {
         <div class="user-pill">
           <img [src]="authService.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
@@ -277,23 +280,23 @@
     </div>
   </section>
 
-  <!-- SEÇÃO 7: SOCIAL PROOF (always visible, fallback values) -->
+  <!-- SEÇÃO 7: VALUE PROPS -->
   <section class="proof-section reveal">
     <div class="proof-inner">
       <div class="proof-stats">
         <div class="proof-stat">
-          <span class="proof-number">{{ stats().destinations || 190 }}+</span>
-          <span class="proof-label">Destinos</span>
+          <span class="proof-number">190+</span>
+          <span class="proof-label">Destinos disponíveis</span>
         </div>
         <div class="proof-divider"></div>
         <div class="proof-stat">
-          <span class="proof-number">{{ (stats().tripsPlanned || 1200) | number }}+</span>
-          <span class="proof-label">Viagens planejadas</span>
+          <span class="proof-number">100%</span>
+          <span class="proof-label">Gratuito para começar</span>
         </div>
         <div class="proof-divider"></div>
         <div class="proof-stat">
-          <span class="proof-number">{{ stats().reviews || 4800 }}+</span>
-          <span class="proof-label">Avaliações positivas</span>
+          <span class="proof-number">5 min</span>
+          <span class="proof-label">Para montar seu roteiro</span>
         </div>
       </div>
     </div>
@@ -337,10 +340,10 @@
           <a (click)="loginWithGoogle()">Criar conta</a>
         </div>
         <div class="footer-col">
-          <h4>Produto</h4>
-          <a (click)="scrollToSection('how-section')">Como funciona</a>
-          <a routerLink="/landing">Planejador de viagem</a>
-          <a routerLink="/landing">Roteiro visual</a>
+          <h4>Legal</h4>
+          <a routerLink="/privacidade">Política de Privacidade</a>
+          <a routerLink="/termos">Termos de Uso</a>
+          <a href="mailto:contato&#64;travelyx.com.br">Contato</a>
         </div>
       </div>
     </div>

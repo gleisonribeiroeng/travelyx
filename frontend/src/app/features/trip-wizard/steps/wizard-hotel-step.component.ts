@@ -217,6 +217,7 @@ import {
     /* Manual entry */
     .manual-entry-section {
       display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+      margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.08);
     }
     .manual-hint {
       font-size: 0.8rem; color: var(--triply-text-secondary);

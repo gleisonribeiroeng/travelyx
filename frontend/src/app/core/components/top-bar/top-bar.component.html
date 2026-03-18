@@ -39,6 +39,10 @@
   <div class="topbar-spacer"></div>
 
   <div class="topbar-actions">
+    <button mat-icon-button class="lang-toggle" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'pt' ? 'Switch to English' : 'Mudar para Português'">
+      <span class="lang-flag">{{ i18n.lang() === 'pt' ? '🇧🇷' : '🇺🇸' }}</span>
+    </button>
+
     <button mat-icon-button aria-label="Notificações">
       <mat-icon>notifications_none</mat-icon>
     </button>

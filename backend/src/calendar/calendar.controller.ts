@@ -1,11 +1,25 @@
 import { Controller, Post, Get, Body, UseGuards, Req, Res, Query } from '@nestjs/common';
+import { IsString, IsArray, ValidateNested, IsOptional, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { GoogleCalendarService, CalendarEvent } from './google-calendar.service';
+import { GoogleCalendarService } from './google-calendar.service';
 import type { Response } from 'express';
 
+class CalendarEventDto {
+  @IsString() id: string;
+  @IsString() type: string;
+  @IsString() label: string;
+  @IsString() date: string;
+  @IsOptional() @IsString() timeSlot: string | null;
+  @IsOptional() @IsNumber() durationMinutes: number | null;
+  @IsString() notes: string;
+  @IsOptional() @IsString() location?: string;
+}
+
 class SyncCalendarDto {
-  tripName: string;
-  events: CalendarEvent[];
+  @IsString() tripName: string;
+  @IsArray() @ValidateNested({ each: true }) @Type(() => CalendarEventDto)
+  events: CalendarEventDto[];
 }
 
 @Controller('calendar')

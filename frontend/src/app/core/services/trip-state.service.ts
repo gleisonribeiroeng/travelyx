@@ -27,6 +27,7 @@ const DEFAULT_TRIP: Trip = {
   destination: '',
   status: 'planejamento',
   currency: 'BRL',
+  travelers: 1,
   dates: { start: '', end: '' },
   flights: [],
   stays: [],
@@ -143,13 +144,15 @@ export class TripStateService {
   // Create trip
   // ---------------------------------------------------------------------------
 
-  createTrip(data: { name: string; destination?: string; dates?: { start: string; end: string } }): Observable<Trip> {
+  createTrip(data: { name: string; destination?: string; dates?: { start: string; end: string }; currency?: string; travelers?: number }): Observable<Trip> {
     const newTrip: Trip = {
       ...DEFAULT_TRIP,
       id: crypto.randomUUID(),
       name: data.name,
       destination: data.destination ?? '',
       dates: data.dates ?? { start: '', end: '' },
+      currency: data.currency || 'BRL',
+      travelers: data.travelers || 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

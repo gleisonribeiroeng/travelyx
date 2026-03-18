@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { TripStateService } from '../../services/trip-state.service';
 import { AuthService } from '../../services/auth.service';
+import { TranslationService } from '../../i18n/translation.service';
 
 @Component({
   selector: 'app-top-bar',
@@ -17,6 +18,7 @@ import { AuthService } from '../../services/auth.service';
 export class TopBarComponent {
   protected readonly tripState = inject(TripStateService);
   protected readonly auth = inject(AuthService);
+  protected readonly i18n = inject(TranslationService);
   private readonly router = inject(Router);
   readonly hamburgerClick = output<void>();
 

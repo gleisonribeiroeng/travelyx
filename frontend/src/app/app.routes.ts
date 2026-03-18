@@ -33,6 +33,18 @@ export const routes: Routes = [
       import('./features/tours-showcase/tours-showcase.component').then(m => m.ToursShowcaseComponent),
   },
 
+  // ── Legal pages ──
+  {
+    path: 'privacidade',
+    loadComponent: () =>
+      import('./features/legal/privacy.component').then(m => m.PrivacyComponent),
+  },
+  {
+    path: 'termos',
+    loadComponent: () =>
+      import('./features/legal/terms.component').then(m => m.TermsComponent),
+  },
+
   // ── Checkout (Stripe) ──
   {
     path: 'checkout/success',

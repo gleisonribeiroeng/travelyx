@@ -9,6 +9,13 @@
   gap: 16px;
 }
 
+.lang-toggle {
+  .lang-flag {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+}
+
 // Mobile-first: hamburger visible with touch-friendly target
 .hamburger-btn {
   display: inline-flex;

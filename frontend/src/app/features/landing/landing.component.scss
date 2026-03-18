@@ -100,6 +100,19 @@
   margin-left: auto;
 }
 
+.lang-btn {
+  background: none;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  &:hover { background: rgba(0, 0, 0, 0.04); }
+}
+
 .nav-cta {
   background: var(--triply-primary) !important;
   color: #fff !important;

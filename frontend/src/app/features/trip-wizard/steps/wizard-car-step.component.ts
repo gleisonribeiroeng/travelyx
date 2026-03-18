@@ -216,6 +216,9 @@ import {
       display: flex;
       align-items: center;
       gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0,0,0,0.08);
 
       button mat-icon {
         font-size: 20px;

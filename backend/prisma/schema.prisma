@@ -7,44 +7,43 @@ datasource db {
 }
 
 model User {
-  id                 String   @id @default(uuid())
-  googleId           String   @unique
-  email              String   @unique
-  name               String
-  picture            String
-  role               String   @default("USER")
-  isActive           Boolean  @default(true)
-  plan               String   @default("FREE")
-  planExpiresAt      DateTime?
-  stripeCustomerId   String?  @unique
-  googleAccessToken  String?
-  googleRefreshToken String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  trips              Trip[]
+  id                   String                @id @default(uuid())
+  googleId             String                @unique
+  email                String                @unique
+  name                 String
+  picture              String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  isActive             Boolean               @default(true)
+  googleAccessToken    String?
+  googleRefreshToken   String?
+  planExpiresAt        DateTime?
+  stripeCustomerId     String?               @unique
+  role                 String                @default("USER")
+  plan                 String                @default("FREE")
   supportConversations SupportConversation[]
+  trips                Trip[]
 }
 
 model Trip {
-  id          String   @id @default(uuid())
-  name        String   @default("")
-  destination String   @default("")
-  dateStart   String   @default("")
-  dateEnd     String   @default("")
-  status      String   @default("planejamento")
-  currency    String   @default("BRL")
-  // Search results stored as JSON strings (complex nested objects)
-  flights     String   @default("[]")
-  stays       String   @default("[]")
-  carRentals  String   @default("[]")
-  transports  String   @default("[]")
-  activities  String   @default("[]")
-  attractions String   @default("[]")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String          @id @default(uuid())
+  name           String          @default("")
+  destination    String          @default("")
+  dateStart      String          @default("")
+  dateEnd        String          @default("")
+  status         String          @default("planejamento")
+  currency       String          @default("BRL")
+  flights        String          @default("[]")
+  stays          String          @default("[]")
+  carRentals     String          @default("[]")
+  transports     String          @default("[]")
+  activities     String          @default("[]")
+  attractions    String          @default("[]")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  userId         String
   itineraryItems ItineraryItem[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ItineraryItem {
@@ -59,8 +58,8 @@ model ItineraryItem {
   order           Int         @default(0)
   isPaid          Boolean     @default(false)
   tripId          String
-  trip            Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
   attachment      Attachment?
+  trip            Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
 }
 
 model Attachment {
@@ -75,20 +74,21 @@ model Attachment {
 }
 
 model SupportConversation {
-  id              String   @id @default(uuid())
+  id              String           @id @default(uuid())
   userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  discordThreadId String?  @unique
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  discordThreadId String?          @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages        SupportMessage[]
 }
 
 model SupportMessage {
   id             String              @id @default(uuid())
   conversationId String
-  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   content        String
   fromUser       Boolean             @default(true)
   createdAt      DateTime            @default(now())
+  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
+

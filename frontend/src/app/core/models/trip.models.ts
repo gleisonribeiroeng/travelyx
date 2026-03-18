@@ -18,6 +18,7 @@ export interface Trip {
   destination: string;
   status: TripStatus;
   currency: string;
+  travelers: number;
   dates: DateRange;
   flights: Flight[];
   stays: Stay[];
