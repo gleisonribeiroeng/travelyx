@@ -1,1 +1,205 @@
 :host { display: block; }
+
+.account-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--triply-text-primary);
+    margin: 0;
+  }
+}
+
+.account-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ── Profile Card ──
+.profile-card {
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--triply-primary, #4F46E5);
+  }
+
+  .profile-info {
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: var(--triply-text-primary);
+    }
+
+    .email {
+      font-size: 0.9rem;
+      color: var(--triply-text-secondary);
+      margin: 0 0 8px;
+    }
+  }
+}
+
+.plan-chip {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.plan-free {
+  --mdc-chip-elevated-container-color: #e5e7eb;
+  --mdc-chip-label-text-color: #6b7280;
+}
+
+.plan-pro {
+  --mdc-chip-elevated-container-color: #4F46E5;
+  --mdc-chip-label-text-color: #fff;
+}
+
+.plan-business {
+  --mdc-chip-elevated-container-color: #D4A04A;
+  --mdc-chip-label-text-color: #fff;
+}
+
+// ── Stats Card ──
+.stats-card {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    text-align: center;
+    padding: 16px 0;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--triply-primary, #4F46E5);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--triply-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ── Plan Card ──
+.plan-card {
+  .plan-details {
+    padding: 8px 0;
+  }
+
+  .plan-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--triply-primary, #4F46E5);
+    margin-bottom: 8px;
+  }
+
+  .plan-desc {
+    font-size: 0.9rem;
+    color: var(--triply-text-secondary);
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+}
+
+// ── Actions Card ──
+.actions-card {
+  .action-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .action-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 4px;
+
+    &.clickable {
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+    }
+  }
+
+  .action-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    mat-icon {
+      color: var(--triply-text-secondary);
+    }
+
+    strong {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--triply-text-primary);
+    }
+
+    p {
+      font-size: 0.8rem;
+      color: var(--triply-text-secondary);
+      margin: 2px 0 0;
+    }
+  }
+
+  .danger {
+    color: #EF4444 !important;
+  }
+}
+
+// ── Responsive ──
+@media (max-width: 600px) {
+  .account-page {
+    padding: 16px 12px;
+  }
+
+  .profile-card .profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .stats-card .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .stats-card .stat-value {
+    font-size: 1.1rem;
+  }
+}
