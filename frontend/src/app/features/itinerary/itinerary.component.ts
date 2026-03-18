@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { KeyValuePipe, DatePipe, CurrencyPipe } from '@angular/common';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { NotificationService } from '../../core/services/notification.service';
+import { CalendarApiService } from '../../core/api/calendar-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
@@ -52,8 +53,11 @@ const TYPE_COLORS: Record<string, string> = {
 export class ItineraryComponent {
   protected readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
+  private readonly calendarApi = inject(CalendarApiService);
   private readonly dialog = inject(MatDialog);
   private readonly tripRouter = inject(TripRouterService);
+
+  readonly syncing = signal(false);
 
   // ── View toggles ──
   readonly activeView = signal<'calendar' | 'list'>('calendar');
@@ -472,5 +476,57 @@ export class ItineraryComponent {
     items
       .filter(i => i.refId === refId)
       .forEach(i => this.tripState.removeItineraryItem(i.id));
+  }
+
+  syncToCalendar(): void {
+    const trip = this.tripState.trip();
+    const allItems = trip.itineraryItems;
+    if (allItems.length === 0) {
+      this.notify.info('Nenhum item no roteiro para sincronizar');
+      return;
+    }
+    this.syncing.set(true);
+    this.calendarApi.checkStatus().subscribe({
+      next: (status) => {
+        if (status.connected) {
+          this.doCalendarSync(trip.name, allItems);
+        } else {
+          this.syncing.set(false);
+          this.calendarApi.getAuthorizeUrl().subscribe({
+            next: ({ url }) => { window.location.href = url; },
+            error: () => { this.notify.error('Erro ao autorizar Google Calendar.'); },
+          });
+        }
+      },
+      error: () => {
+        this.syncing.set(false);
+        this.calendarApi.getAuthorizeUrl().subscribe({
+          next: ({ url }) => { window.location.href = url; },
+          error: () => { this.notify.error('Erro ao autorizar Google Calendar.'); },
+        });
+      },
+    });
+  }
+
+  private doCalendarSync(tripName: string, items: ItineraryItem[]): void {
+    const events = items.map(item => ({
+      id: item.id, type: item.type, label: item.label, date: item.date,
+      timeSlot: item.timeSlot, durationMinutes: item.durationMinutes,
+      notes: item.notes, location: undefined as string | undefined,
+    }));
+    this.calendarApi.syncToCalendar({ tripName: tripName || 'Viagem', events }).subscribe({
+      next: (result) => {
+        this.syncing.set(false);
+        if (result.errors.length > 0) {
+          this.notify.info(`${result.created} eventos criados, ${result.errors.length} erros`);
+        } else {
+          this.notify.success(`${result.created} eventos adicionados ao Google Calendar`);
+        }
+      },
+      error: () => {
+        this.syncing.set(false);
+        this.notify.error('Erro ao sincronizar com o Google Calendar.');
+      },
+    });
   }
 }

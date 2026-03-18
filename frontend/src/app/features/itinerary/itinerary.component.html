@@ -1,6 +1,18 @@
 <div class="view-header">
-  <h1>Agenda</h1>
-  <p>Seu roteiro de viagem organizado dia a dia</p>
+  <div class="header-row">
+    <div>
+      <h1>Agenda</h1>
+      <p>Seu roteiro de viagem organizado dia a dia</p>
+    </div>
+    <button mat-stroked-button class="calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
+      @if (syncing()) {
+        <mat-spinner diameter="16"></mat-spinner>
+      } @else {
+        <mat-icon>event</mat-icon>
+      }
+      Google Calendar
+    </button>
+  </div>
 </div>
 
 <app-manual-item-form />
