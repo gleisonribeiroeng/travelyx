@@ -11,6 +11,8 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { AddItemDialogComponent } from './add-item-dialog.component';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
+import { ExportService } from '../../core/services/export.service';
+import { PlanService } from '../../core/services/plan.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 
@@ -26,9 +28,12 @@ export class TimelineComponent {
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
   private readonly calendarApi = inject(CalendarApiService);
+  private readonly exportService = inject(ExportService);
+  private readonly planService = inject(PlanService);
   private readonly i18n = inject(TranslationService);
 
   readonly syncing = signal(false);
+  readonly exporting = signal(false);
 
   readonly expandedDays = signal<Set<string>>(new Set());
 
@@ -292,6 +297,38 @@ export class TimelineComponent {
         }
       },
     });
+  }
+
+  async exportPdf(): Promise<void> {
+    if (!this.planService.isPro()) {
+      this.planService.showPaywall('budget');
+      return;
+    }
+    this.exporting.set(true);
+    try {
+      await this.exportService.exportToPdf();
+      this.notify.success(this.i18n.t('export.pdfSuccess'));
+    } catch {
+      this.notify.error(this.i18n.t('export.pdfError'));
+    } finally {
+      this.exporting.set(false);
+    }
+  }
+
+  async exportExcel(): Promise<void> {
+    if (!this.planService.isPro()) {
+      this.planService.showPaywall('budget');
+      return;
+    }
+    this.exporting.set(true);
+    try {
+      await this.exportService.exportToExcel();
+      this.notify.success(this.i18n.t('export.excelSuccess'));
+    } catch {
+      this.notify.error(this.i18n.t('export.excelError'));
+    } finally {
+      this.exporting.set(false);
+    }
   }
 
   private removeDomainItem(type: string, refId: string): void {

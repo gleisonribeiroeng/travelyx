@@ -13,6 +13,24 @@
         <mat-icon>unfold_less</mat-icon> {{ 'timeline.collapse' | translate }}
       </button>
 
+      <!-- Export (PRO) -->
+      <button mat-stroked-button class="bulk-action export-btn" [matMenuTriggerFor]="exportMenu" [disabled]="exporting()">
+        @if (exporting()) {
+          <mat-spinner diameter="16"></mat-spinner>
+        } @else {
+          <mat-icon>download</mat-icon>
+        }
+        {{ 'export.button' | translate }}
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportPdf()">
+          <mat-icon>picture_as_pdf</mat-icon> {{ 'export.pdf' | translate }}
+        </button>
+        <button mat-menu-item (click)="exportExcel()">
+          <mat-icon>table_chart</mat-icon> {{ 'export.excel' | translate }}
+        </button>
+      </mat-menu>
+
       <!-- Google Calendar sync -->
       <button mat-stroked-button class="bulk-action calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
         @if (syncing()) {

@@ -66,6 +66,15 @@
   }
 }
 
+.export-btn {
+  border-color: #10B981 !important;
+  color: #10B981 !important;
+
+  mat-icon { color: #10B981; }
+  mat-spinner { display: inline-block; margin-right: 4px; }
+  &:hover:not(:disabled) { background: rgba(16, 185, 129, 0.06) !important; }
+}
+
 .calendar-sync-btn {
   border-color: #4285F4 !important;
   color: #4285F4 !important;
