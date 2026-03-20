@@ -1,5 +1,5 @@
 import { Component, inject, computed, signal, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { MatDialog } from '@angular/material/dialog';
@@ -33,19 +33,31 @@ export class TimelineComponent implements OnInit {
   private readonly planService = inject(PlanService);
   private readonly i18n = inject(TranslationService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private calendarJustConnected = false;
 
   readonly syncing = signal(false);
   readonly exporting = signal(false);
 
   ngOnInit(): void {
-    // Auto-sync after returning from Google Calendar authorization
     this.route.queryParams.subscribe(params => {
       if (params['calendar_connected'] === 'true') {
+        this.calendarJustConnected = true;
         this.notify.success(this.i18n.t('notify.calendarConnected'));
-        // Wait a moment for trip data to load, then auto-sync
-        setTimeout(() => this.syncToCalendar(), 1500);
+        // Remove query param from URL to prevent loop on reload
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        // Auto-sync after trip data loads
+        setTimeout(() => this.doAutoSync(), 2000);
       }
     });
+  }
+
+  private doAutoSync(): void {
+    const trip = this.tripState.trip();
+    const allItems = trip.itineraryItems;
+    if (allItems.length === 0) return;
+    this.syncing.set(true);
+    this.doSync(trip.name, allItems);
   }
 
   readonly expandedDays = signal<Set<string>>(new Set());
@@ -268,6 +280,13 @@ export class TimelineComponent implements OnInit {
   }
 
   private authorizeCalendar(): void {
+    // Don't redirect again if we just came back from authorization
+    if (this.calendarJustConnected) {
+      this.syncing.set(false);
+      this.notify.error(this.i18n.t('notify.calendarSyncError'));
+      this.calendarJustConnected = false;
+      return;
+    }
     const returnPath = window.location.pathname;
     this.calendarApi.getAuthorizeUrl(returnPath).subscribe({
       next: ({ url }) => {
