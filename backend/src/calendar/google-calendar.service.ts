@@ -43,11 +43,18 @@ export class GoogleCalendarService {
    * Generate a Google OAuth URL that requests only the Calendar scope.
    * Uses `state` param to carry the userId through the redirect.
    */
+  private getCalendarCallbackUrl(): string {
+    const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+    // In production, backend serves from same origin as frontend
+    const baseUrl = frontendUrl.replace(/\/$/, '');
+    return `${baseUrl}/api/calendar/callback`;
+  }
+
   getCalendarAuthUrl(userId: string): string {
     const oauth2 = new google.auth.OAuth2(
       this.config.get('GOOGLE_CLIENT_ID'),
       this.config.get('GOOGLE_CLIENT_SECRET'),
-      `${this.config.get('GOOGLE_CALLBACK_URL')?.replace('/auth/google/callback', '')}/api/calendar/callback`,
+      this.getCalendarCallbackUrl(),
     );
 
     return oauth2.generateAuthUrl({
@@ -65,7 +72,7 @@ export class GoogleCalendarService {
     const oauth2 = new google.auth.OAuth2(
       this.config.get('GOOGLE_CLIENT_ID'),
       this.config.get('GOOGLE_CLIENT_SECRET'),
-      `${this.config.get('GOOGLE_CALLBACK_URL')?.replace('/auth/google/callback', '')}/api/calendar/callback`,
+      this.getCalendarCallbackUrl(),
     );
 
     const { tokens } = await oauth2.getToken(code);
