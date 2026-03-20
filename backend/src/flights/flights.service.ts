@@ -54,7 +54,8 @@ export class FlightsService {
       departDate,
       adults,
       cabinClass: query['cabinClass'] || 'ECONOMY',
-      currency_code: 'BRL',
+      currency_code: query['currency_code'] || 'BRL',
+      locale: query['locale'] || 'pt-br',
     };
 
     if (returnDate) {
@@ -200,7 +201,7 @@ export class FlightsService {
         this.httpService.get(
           `${this.baseUrl}/api/v1/flights/searchDestination`,
           {
-            params: { query: keyword },
+            params: { query: keyword, locale: query['locale'] || 'pt-br' },
             headers: this.getHeaders(),
           },
         ),

@@ -32,12 +32,13 @@ export class AttractionsService {
     return { apiKey, baseUrl, isProd: useProd };
   }
 
-  private getHeaders(apiKey: string): Record<string, string> {
+  private getHeaders(apiKey: string, locale?: string): Record<string, string> {
+    const lang = locale === 'en-us' ? 'en-US' : 'pt-BR';
     return {
       'exp-api-key': apiKey,
       Accept: 'application/json;version=2.0',
       'Content-Type': 'application/json',
-      'Accept-Language': 'pt-BR',
+      'Accept-Language': lang,
     };
   }
 
@@ -48,6 +49,7 @@ export class AttractionsService {
     cityName: string,
     apiKey: string,
     baseUrl: string,
+    locale?: string,
   ): Promise<string | null> {
     if (!cityName) return null;
 
@@ -68,7 +70,7 @@ export class AttractionsService {
               },
             ],
           },
-          { headers: this.getHeaders(apiKey) },
+          { headers: this.getHeaders(apiKey, locale) },
         ),
       );
 
@@ -112,6 +114,7 @@ export class AttractionsService {
         destinationId,
         apiKey,
         baseUrl,
+        body?.locale,
       );
       if (!resolved) {
         this.logger.warn(
@@ -129,7 +132,7 @@ export class AttractionsService {
           tags: body.filtering?.tags || [21910, 21911, 21912],
           // 21910=Tickets & Passes, 21911=Attractions, 21912=Museums
         },
-        currency: 'BRL',
+        currency: body?.currency || 'BRL',
         pagination: body.pagination || { offset: 0, limit: 20 },
       };
 
@@ -137,7 +140,7 @@ export class AttractionsService {
         this.httpService.post(
           `${baseUrl}/partner/products/search`,
           viatorBody,
-          { headers: this.getHeaders(apiKey) },
+          { headers: this.getHeaders(apiKey, body?.locale) },
         ),
       );
 

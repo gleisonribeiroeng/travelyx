@@ -39,12 +39,13 @@ export class ToursService {
     return { apiKey, baseUrl, isProd: useProd };
   }
 
-  private getHeaders(apiKey: string): Record<string, string> {
+  private getHeaders(apiKey: string, locale?: string): Record<string, string> {
+    const lang = locale === 'en-us' ? 'en-US' : 'pt-BR';
     return {
       'exp-api-key': apiKey,
       Accept: 'application/json;version=2.0',
       'Content-Type': 'application/json',
-      'Accept-Language': 'pt-BR',
+      'Accept-Language': lang,
     };
   }
 
@@ -56,6 +57,7 @@ export class ToursService {
     cityName: string,
     apiKey: string,
     baseUrl: string,
+    locale?: string,
   ): Promise<string | null> {
     if (!cityName) return null;
 
@@ -76,7 +78,7 @@ export class ToursService {
               },
             ],
           },
-          { headers: this.getHeaders(apiKey) },
+          { headers: this.getHeaders(apiKey, locale) },
         ),
       );
 
@@ -129,6 +131,7 @@ export class ToursService {
         destinationId,
         apiKey,
         baseUrl,
+        body?.locale,
       );
       if (!resolved) {
         this.logger.warn(
@@ -155,7 +158,7 @@ export class ToursService {
         this.httpService.post(
           `${baseUrl}/partner/products/search`,
           searchBody,
-          { headers: this.getHeaders(apiKey) },
+          { headers: this.getHeaders(apiKey, body?.locale) },
         ),
       );
 
