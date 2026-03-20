@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
+import { TranslationService } from '../i18n/translation.service';
 import { Flight } from '../models/trip.models';
 import { ApiResult } from './api-error.utils';
 import { AppError } from './models/app-error.model';
@@ -30,6 +31,12 @@ export interface FlightSearchParams {
  */
 @Injectable({ providedIn: 'root' })
 export class FlightApiService extends BaseApiService {
+  private readonly i18n = inject(TranslationService);
+
+  private get locale(): string {
+    return this.i18n.lang() === 'en' ? 'en-us' : 'pt-br';
+  }
+
   constructor() {
     super('amadeus');
   }
@@ -40,6 +47,7 @@ export class FlightApiService extends BaseApiService {
       toId: params.toId || `${params.destination}.AIRPORT`,
       departureDate: params.departureDate,
       adults: params.adults,
+      locale: this.locale,
     };
 
     if (params.returnDate) {
@@ -74,6 +82,7 @@ export class FlightApiService extends BaseApiService {
       subType: 'AIRPORT,CITY',
       'page[limit]': 15,
       view: 'FULL',
+      locale: this.locale,
     }).pipe(
       withBackoff(),
       map((response) => (response.data || []) as AirportOption[]),

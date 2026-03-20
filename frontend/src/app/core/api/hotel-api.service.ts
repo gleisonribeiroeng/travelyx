@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { CurrencyService } from '../i18n/currency.service';
+import { TranslationService } from '../i18n/translation.service';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
@@ -39,6 +40,11 @@ export interface HotelSearchParams {
 export class HotelApiService extends BaseApiService {
   private readonly mapper = inject(HotelMapper);
   private readonly currencyService = inject(CurrencyService);
+  private readonly i18n = inject(TranslationService);
+
+  private get locale(): string {
+    return this.i18n.lang() === 'en' ? 'en-us' : 'pt-br';
+  }
 
   constructor() {
     super('hotel');
@@ -49,7 +55,7 @@ export class HotelApiService extends BaseApiService {
       return of([]);
     }
 
-    return this.get<any>('/api/v1/hotels/searchDestination', { query }).pipe(
+    return this.get<any>('/api/v1/hotels/searchDestination', { query, locale: this.locale }).pipe(
       withBackoff(),
       map((response) => {
         const results = response.data || [];
@@ -75,7 +81,7 @@ export class HotelApiService extends BaseApiService {
       adults: params.adults,
       room_qty: params.rooms,
       currency_code: this.currencyService.currency(),
-      locale: 'pt-br',
+      locale: this.locale,
     }).pipe(
       withBackoff(),
       map(
