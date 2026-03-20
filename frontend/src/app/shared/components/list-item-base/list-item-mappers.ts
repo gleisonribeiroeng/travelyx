@@ -18,6 +18,19 @@ import {
 
 // ── Helpers ──
 
+function getLang(): string {
+  return localStorage.getItem('triply_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
+}
+
+function formatDateLocale(dateStr: string): string {
+  if (!dateStr) return '';
+  // Handle both ISO (2026-03-20) and datetime (2026-03-20T10:00)
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length !== 3) return dateStr;
+  const [y, m, d] = parts;
+  return getLang() === 'pt' ? `${d}/${m}/${y}` : `${m}/${d}/${y}`;
+}
+
 function formatDuration(minutes: number | null): string {
   if (!minutes) return '';
   const h = Math.floor(minutes / 60);
@@ -28,7 +41,7 @@ function formatDuration(minutes: number | null): string {
 
 function formatDateTime(iso: string): string {
   if (!iso) return '';
-  const date = iso.split('T')[0];
+  const date = formatDateLocale(iso);
   const time = iso.split('T')[1]?.substring(0, 5);
   return time ? `${date} ${time}` : date;
 }
@@ -65,7 +78,7 @@ export function stayToListItem(
     title: hotel.name,
     infoLines: [
       { icon: 'location_on', text: hotel.address },
-      { icon: 'date_range', text: `${hotel.checkIn} — ${hotel.checkOut}` },
+      { icon: 'date_range', text: `${formatDateLocale(hotel.checkIn)} — ${formatDateLocale(hotel.checkOut)}` },
     ],
     rating: { value: hotel.rating, reviewCount: hotel.reviewCount },
     price: {
@@ -338,8 +351,13 @@ const TRIP_STATUS_TAGS: Record<TripStatus, ListItemTag> = {
 function formatDatePtBr(isoDate: string): string {
   if (!isoDate) return '';
   const [y, m, d] = isoDate.split('-');
-  const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-  return `${parseInt(d, 10)} ${months[parseInt(m, 10) - 1]} ${y}`;
+  const lang = getLang();
+  const monthsPt = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = lang === 'pt' ? monthsPt : monthsEn;
+  return lang === 'pt'
+    ? `${parseInt(d, 10)} ${months[parseInt(m, 10) - 1]} ${y}`
+    : `${months[parseInt(m, 10) - 1]} ${parseInt(d, 10)}, ${y}`;
 }
 
 function calcDays(start: string, end: string): number {

@@ -56,7 +56,9 @@ function formatTime(iso: string): string {
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+  const lang = localStorage.getItem('triply_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
+  const locale = lang === 'pt' ? 'pt-BR' : 'en-US';
+  return d.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 @Component({
