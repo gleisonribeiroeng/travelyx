@@ -86,8 +86,10 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // Security: request body size limit (1MB)
-  // Note: rawBody for Stripe webhooks is handled separately
+  // Increase body size limit for trips with cover images (base64)
+  app.use(require('express').json({ limit: '10mb' }));
+  app.use(require('express').urlencoded({ extended: true, limit: '10mb' }));
+
   app.setGlobalPrefix('api');
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
