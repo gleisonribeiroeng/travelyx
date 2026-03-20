@@ -1,4 +1,5 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,7 +24,7 @@ import { TranslationService } from '../../core/i18n/translation.service';
   templateUrl: './timeline.component.html',
   styleUrl: './timeline.component.scss',
 })
-export class TimelineComponent {
+export class TimelineComponent implements OnInit {
   protected readonly tripState = inject(TripStateService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
@@ -31,9 +32,21 @@ export class TimelineComponent {
   private readonly exportService = inject(ExportService);
   private readonly planService = inject(PlanService);
   private readonly i18n = inject(TranslationService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly syncing = signal(false);
   readonly exporting = signal(false);
+
+  ngOnInit(): void {
+    // Auto-sync after returning from Google Calendar authorization
+    this.route.queryParams.subscribe(params => {
+      if (params['calendar_connected'] === 'true') {
+        this.notify.success(this.i18n.t('notify.calendarConnected'));
+        // Wait a moment for trip data to load, then auto-sync
+        setTimeout(() => this.syncToCalendar(), 1500);
+      }
+    });
+  }
 
   readonly expandedDays = signal<Set<string>>(new Set());
 
@@ -255,7 +268,8 @@ export class TimelineComponent {
   }
 
   private authorizeCalendar(): void {
-    this.calendarApi.getAuthorizeUrl().subscribe({
+    const returnPath = window.location.pathname;
+    this.calendarApi.getAuthorizeUrl(returnPath).subscribe({
       next: ({ url }) => {
         this.notify.info(this.i18n.t('notify.authorizingCalendar'));
         window.location.href = url;

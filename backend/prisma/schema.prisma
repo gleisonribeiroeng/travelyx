@@ -39,6 +39,8 @@ model Trip {
   transports     String          @default("[]")
   activities     String          @default("[]")
   attractions    String          @default("[]")
+  coverImage     String?
+  travelers      Int             @default(1)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   userId         String

@@ -51,6 +51,8 @@ export class TripsService {
         dateEnd: data.dates?.end ?? '',
         status: data.status ?? 'planejamento',
         currency: data.currency ?? 'BRL',
+        travelers: data.travelers ?? 1,
+        coverImage: data.coverImage ?? null,
         flights: JSON.stringify(data.flights ?? []),
         stays: JSON.stringify(data.stays ?? []),
         carRentals: JSON.stringify(data.carRentals ?? []),
@@ -100,6 +102,8 @@ export class TripsService {
     if (data.destination !== undefined) updateData.destination = data.destination;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.currency !== undefined) updateData.currency = data.currency;
+    if (data.travelers !== undefined) updateData.travelers = data.travelers;
+    if (data.coverImage !== undefined) updateData.coverImage = data.coverImage;
     if (data.dates) {
       if (data.dates.start !== undefined) updateData.dateStart = data.dates.start;
       if (data.dates.end !== undefined) updateData.dateEnd = data.dates.end;
@@ -318,6 +322,8 @@ export class TripsService {
       destination: trip.destination,
       status: trip.status,
       currency: trip.currency,
+      travelers: trip.travelers ?? 1,
+      coverImage: trip.coverImage ?? null,
       dates: { start: trip.dateStart, end: trip.dateEnd },
       flights: JSON.parse(trip.flights),
       stays: JSON.parse(trip.stays),

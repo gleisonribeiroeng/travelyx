@@ -50,18 +50,20 @@ export class GoogleCalendarService {
     return `${baseUrl}/api/calendar/callback`;
   }
 
-  getCalendarAuthUrl(userId: string): string {
+  getCalendarAuthUrl(userId: string, returnPath?: string): string {
     const oauth2 = new google.auth.OAuth2(
       this.config.get('GOOGLE_CLIENT_ID'),
       this.config.get('GOOGLE_CLIENT_SECRET'),
       this.getCalendarCallbackUrl(),
     );
 
+    const state = returnPath ? `${userId}|${returnPath}` : userId;
+
     return oauth2.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
       scope: ['https://www.googleapis.com/auth/calendar.events'],
-      state: userId,
+      state,
     });
   }
 

@@ -32,9 +32,9 @@ export class CalendarController {
    */
   @Get('authorize')
   @UseGuards(JwtAuthGuard)
-  getAuthorizeUrl(@Req() req: any) {
+  getAuthorizeUrl(@Req() req: any, @Query('returnPath') returnPath?: string) {
     const userId = req.user.sub;
-    const url = this.calendarService.getCalendarAuthUrl(userId);
+    const url = this.calendarService.getCalendarAuthUrl(userId, returnPath);
     return { url };
   }
 
@@ -44,15 +44,14 @@ export class CalendarController {
    */
   @Get('callback')
   async calendarCallback(@Query('code') code: string, @Query('state') state: string, @Res() res: Response) {
+    const frontendUrl = this.calendarService.getFrontendUrl();
     try {
-      const userId = state;
+      const [userId, returnPath] = state.includes('|') ? state.split('|', 2) : [state, ''];
       await this.calendarService.handleCalendarCallback(userId, code);
-      const frontendUrl = this.calendarService.getFrontendUrl();
-      res.redirect(`${frontendUrl}/viagem?calendar_connected=true`);
-    } catch (error) {
-      // Error handled by redirect below
-      const frontendUrl = this.calendarService.getFrontendUrl();
-      res.redirect(`${frontendUrl}/viagem?calendar_error=true`);
+      const redirect = returnPath || '/viagens';
+      res.redirect(`${frontendUrl}${redirect}?calendar_connected=true`);
+    } catch {
+      res.redirect(`${frontendUrl}/viagens?calendar_error=true`);
     }
   }
 

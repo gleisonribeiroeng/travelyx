@@ -39,7 +39,8 @@ export class CalendarApiService {
     return this.http.get<CalendarStatus>(`${this.baseUrl}/status`);
   }
 
-  getAuthorizeUrl(): Observable<{ url: string }> {
-    return this.http.get<{ url: string }>(`${this.baseUrl}/authorize`);
+  getAuthorizeUrl(returnPath?: string): Observable<{ url: string }> {
+    const params = returnPath ? `?returnPath=${encodeURIComponent(returnPath)}` : '';
+    return this.http.get<{ url: string }>(`${this.baseUrl}/authorize${params}`);
   }
 }

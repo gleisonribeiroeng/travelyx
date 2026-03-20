@@ -117,6 +117,8 @@
   "trips.statusPlanning": "Planning",
   "trips.statusActive": "Active",
   "trips.statusCompleted": "Completed",
+  "trips.coverAdded": "Cover photo updated",
+  "trips.coverError": "Error updating cover photo",
 
   "tripDialog.newTrip": "New Trip",
   "tripDialog.editTrip": "Edit Trip",
@@ -708,6 +710,7 @@
   "notify.eventsCreated": "events created,",
   "notify.errors": "errors",
   "notify.eventsAddedToCalendar": "events added to Google Calendar",
+  "notify.calendarConnected": "Google Calendar connected! Syncing your events...",
   "notify.tripFinalized": "Trip finalized! Check your timeline.",
 
   "type.flight": "Flight",
