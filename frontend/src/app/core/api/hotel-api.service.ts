@@ -10,9 +10,6 @@ import { ApiResult } from './api-error.utils';
 import { AppError } from './models/app-error.model';
 import { withBackoff } from './retry.utils';
 
-/**
- * Destination autocomplete option for hotel search form.
- */
 export interface DestinationOption {
   destId: string;
   name: string;
@@ -20,9 +17,6 @@ export interface DestinationOption {
   searchType: string;
 }
 
-/**
- * Hotel search parameters for Booking.com API.
- */
 export interface HotelSearchParams {
   destId: string;
   searchType: string;
@@ -32,10 +26,13 @@ export interface HotelSearchParams {
   rooms: number;
 }
 
-/**
- * HotelApiService — calls NestJS backend which proxies Booking.com API via RapidAPI.
- * Backend passes raw Booking.com responses; frontend maps them via HotelMapper.
- */
+export interface PaginatedHotelResult {
+  data: Stay[];
+  totalCount: number;
+  hasMore: boolean;
+  error: AppError | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class HotelApiService extends BaseApiService {
   private readonly mapper = inject(HotelMapper);
@@ -51,9 +48,7 @@ export class HotelApiService extends BaseApiService {
   }
 
   searchDestinations(query: string): Observable<DestinationOption[]> {
-    if (query.length < 2) {
-      return of([]);
-    }
+    if (query.length < 2) return of([]);
 
     return this.get<any>('/api/v1/hotels/searchDestination', { query, locale: this.locale }).pipe(
       withBackoff(),
@@ -72,7 +67,13 @@ export class HotelApiService extends BaseApiService {
     );
   }
 
-  searchHotels(params: HotelSearchParams): Observable<ApiResult<Stay[]>> {
+  searchHotels(params: HotelSearchParams, pageNumber = 1): Observable<ApiResult<Stay[]>> {
+    return this.searchHotelsPaginated(params, pageNumber).pipe(
+      map(result => ({ data: result.data, error: result.error })),
+    );
+  }
+
+  searchHotelsPaginated(params: HotelSearchParams, pageNumber = 1): Observable<PaginatedHotelResult> {
     return this.get<any>('/api/v1/hotels/searchHotels', {
       dest_id: params.destId,
       search_type: params.searchType,
@@ -80,26 +81,29 @@ export class HotelApiService extends BaseApiService {
       departure_date: params.checkOut,
       adults: params.adults,
       room_qty: params.rooms,
+      page_number: pageNumber,
       currency_code: this.currencyService.currency(),
       locale: this.locale,
     }).pipe(
       withBackoff(),
-      map(
-        (response): ApiResult<Stay[]> => {
-          const results =
-            response.data?.result || response.data?.hotels || response.data || [];
-          const hotels = Array.isArray(results) ? results : [];
-          return {
-            data: hotels.map((hotel: BookingComHotel) =>
-              this.mapper.mapResponse(hotel, params.checkIn, params.checkOut),
-            ),
-            error: null,
-          };
-        },
-      ),
-      catchError(
-        (error: AppError): Observable<ApiResult<Stay[]>> =>
-          of({ data: [], error }),
+      map((response): PaginatedHotelResult => {
+        const results = response.data?.result || response.data?.hotels || response.data || [];
+        const hotels = Array.isArray(results) ? results : [];
+        const meta = response.data?.meta || response.meta || {};
+        const totalCount = meta.nbHotels || meta.totalCount || hotels.length;
+        // Booking.com typically returns 20 per page
+        const hasMore = hotels.length >= 20;
+        return {
+          data: hotels.map((hotel: BookingComHotel) =>
+            this.mapper.mapResponse(hotel, params.checkIn, params.checkOut),
+          ),
+          totalCount,
+          hasMore,
+          error: null,
+        };
+      }),
+      catchError((error: AppError): Observable<PaginatedHotelResult> =>
+        of({ data: [], totalCount: 0, hasMore: false, error }),
       ),
     );
   }

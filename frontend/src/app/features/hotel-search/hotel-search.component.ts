@@ -24,6 +24,7 @@ import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import {
   HotelApiService,
   DestinationOption,
+  HotelSearchParams,
 } from '../../core/api/hotel-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Stay } from '../../core/models/trip.models';
@@ -144,7 +145,12 @@ export class HotelSearchComponent {
   formCollapsed = signal(false);
   searchResults = signal<Stay[]>([]);
   isSearching = signal(false);
+  isLoadingMore = signal(false);
   hasSearched = signal(false);
+  hasMore = signal(false);
+  totalCount = signal(0);
+  private currentPage = 1;
+  private lastSearchParams: HotelSearchParams | null = null;
   sortBy = signal<'price' | 'rating'>('price');
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
@@ -225,6 +231,24 @@ export class HotelSearchComponent {
     }
   }
 
+  loadMore(): void {
+    if (!this.lastSearchParams || this.isLoadingMore()) return;
+    this.isLoadingMore.set(true);
+    this.hotelApi
+      .searchHotelsPaginated(this.lastSearchParams, this.currentPage)
+      .pipe(finalize(() => this.isLoadingMore.set(false)))
+      .subscribe({
+        next: (result) => {
+          if (!result.error) {
+            this.searchResults.update(current => [...current, ...result.data]);
+            this.totalCount.set(result.totalCount);
+            this.hasMore.set(result.hasMore);
+            this.currentPage++;
+          }
+        },
+      });
+  }
+
   // Dismiss error banner
   dismissError(): void {
     this.errorMessage.set(null);
@@ -287,15 +311,19 @@ export class HotelSearchComponent {
     adults: number,
     rooms: number,
   ): void {
+    this.currentPage = 1;
+    const params: HotelSearchParams = {
+      destId: destination.destId,
+      searchType: destination.searchType,
+      checkIn,
+      checkOut,
+      adults,
+      rooms,
+    };
+    this.lastSearchParams = params;
+
     this.hotelApi
-      .searchHotels({
-        destId: destination.destId,
-        searchType: destination.searchType,
-        checkIn,
-        checkOut,
-        adults,
-        rooms,
-      })
+      .searchHotelsPaginated(params, 1)
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {
@@ -303,8 +331,12 @@ export class HotelSearchComponent {
             this.errorMessage.set(result.error.message);
             this.errorSource.set(result.error.source);
             this.searchResults.set([]);
+            this.hasMore.set(false);
           } else {
             this.searchResults.set(result.data);
+            this.totalCount.set(result.totalCount);
+            this.hasMore.set(result.hasMore);
+            this.currentPage = 2;
           }
         },
       });

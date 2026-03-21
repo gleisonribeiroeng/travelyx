@@ -182,6 +182,19 @@ import {
               (cardClick)="openDetailById($event)"
             />
           }
+          @if (hasMore()) {
+            <div class="load-more-container">
+              <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+                @if (isLoadingMore()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>expand_more</mat-icon>
+                }
+                Carregar mais
+              </button>
+              <span class="load-more-count">{{ results().length }} hotéis carregados</span>
+            </div>
+          }
         </div>
       }
     </div>
@@ -243,7 +256,12 @@ export class WizardHotelStepComponent {
   readonly selectedHotels = this.tripState.stays;
   readonly results = signal<Stay[]>([]);
   readonly isSearching = signal(false);
+  readonly isLoadingMore = signal(false);
   readonly hasSearched = signal(false);
+  readonly hasMore = signal(false);
+  readonly totalCount = signal(0);
+  private currentPage = 1;
+  private lastSearchParams: any = null;
   readonly formCollapsed = signal(false);
   readonly minDate = new Date();
 
@@ -428,18 +446,43 @@ export class WizardHotelStepComponent {
     this.isSearching.set(true);
     this.hasSearched.set(true);
     this.formCollapsed.set(true);
+    this.currentPage = 1;
 
-    this.api.searchHotels({
+    const params = {
       destId: dest.destId,
       searchType: dest.searchType,
       checkIn: checkIn.toISOString().split('T')[0],
       checkOut: checkOut.toISOString().split('T')[0],
       adults: this.searchForm.value.guests ?? 2,
       rooms: 1,
-    }).pipe(finalize(() => this.isSearching.set(false)))
+    };
+    this.lastSearchParams = params;
+
+    this.api.searchHotelsPaginated(params, 1)
+      .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {
           this.results.set(result.data);
+          this.totalCount.set(result.totalCount);
+          this.hasMore.set(result.hasMore);
+          this.currentPage = 2;
+        },
+      });
+  }
+
+  loadMore(): void {
+    if (!this.lastSearchParams || this.isLoadingMore()) return;
+    this.isLoadingMore.set(true);
+    this.api.searchHotelsPaginated(this.lastSearchParams, this.currentPage)
+      .pipe(finalize(() => this.isLoadingMore.set(false)))
+      .subscribe({
+        next: (result) => {
+          if (!result.error) {
+            this.results.update(current => [...current, ...result.data]);
+            this.totalCount.set(result.totalCount);
+            this.hasMore.set(result.hasMore);
+            this.currentPage++;
+          }
         },
       });
   }

@@ -199,6 +199,20 @@
         (cardClick)="openDetailById($event)"
       />
     }
+
+    @if (hasMore()) {
+      <div class="load-more-container">
+        <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+          @if (isLoadingMore()) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>expand_more</mat-icon>
+          }
+          {{ 'common.loadMore' | translate }}
+        </button>
+        <span class="load-more-count">{{ searchResults().length }} {{ 'hotels.hotelsFound' | translate }}</span>
+      </div>
+    }
   </div>
 }
 
