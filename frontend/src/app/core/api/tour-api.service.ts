@@ -13,11 +13,13 @@ import { withBackoff } from './retry.utils';
 // Re-export TourSearchParams for convenience
 export type { TourSearchParams } from './tour.mapper';
 
-/**
- * TourApiService — calls NestJS backend which proxies Viator Partner API.
- * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
- * or raw Viator response in real mode (needs mapping).
- */
+export interface PaginatedResult<T> {
+  data: T[];
+  totalCount: number;
+  hasMore: boolean;
+  error: AppError | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TourApiService extends BaseApiService {
   private readonly mapper = inject(TourMapper);
@@ -28,33 +30,36 @@ export class TourApiService extends BaseApiService {
     super('tours');
   }
 
-  searchTours(params: TourSearchParams): Observable<ApiResult<Activity[]>> {
+  searchTours(params: TourSearchParams, offset = 0, limit = 20): Observable<ApiResult<Activity[]>> {
+    return this.searchToursPaginated(params, offset, limit).pipe(
+      map(result => ({ data: result.data, error: result.error })),
+    );
+  }
+
+  searchToursPaginated(params: TourSearchParams, offset = 0, limit = 20): Observable<PaginatedResult<Activity>> {
     return this.post<any>('/partner/products/search', {
       filtering: { destination: params.destination },
       currency: this.currencyService.currency(),
       locale: this.i18n.lang() === 'en' ? 'en-us' : 'pt-br',
-      pagination: { offset: 0, limit: 20 },
+      pagination: { offset, limit },
     }).pipe(
       withBackoff(),
-      map(
-        (response): ApiResult<Activity[]> => {
-          if (response._mock) {
-            return { data: response.data, error: null };
-          }
-          const results =
-            response.products || response.data?.products || response.data || [];
-          const products = Array.isArray(results) ? results : [];
-          return {
-            data: products.map((product: ViatorProduct) =>
-              this.mapper.mapResponse(product, params),
-            ),
-            error: null,
-          };
-        },
-      ),
-      catchError(
-        (error: AppError): Observable<ApiResult<Activity[]>> =>
-          of({ data: [], error }),
+      map((response): PaginatedResult<Activity> => {
+        if (response._mock) {
+          return { data: response.data, totalCount: response.data?.length || 0, hasMore: false, error: null };
+        }
+        const results = response.products || response.data?.products || response.data || [];
+        const products = Array.isArray(results) ? results : [];
+        const totalCount = response.totalCount ?? response.data?.totalCount ?? products.length;
+        return {
+          data: products.map((product: ViatorProduct) => this.mapper.mapResponse(product, params)),
+          totalCount,
+          hasMore: offset + products.length < totalCount,
+          error: null,
+        };
+      }),
+      catchError((error: AppError): Observable<PaginatedResult<Activity>> =>
+        of({ data: [], totalCount: 0, hasMore: false, error }),
       ),
     );
   }

@@ -744,6 +744,7 @@
   "common.cancel": "Cancel",
   "common.confirm": "Confirm",
   "common.save": "Save",
+  "common.loadMore": "Load more",
   "common.departure": "Departure",
   "common.return": "Return",
   "common.delete": "Delete",

@@ -115,6 +115,19 @@ import { attractionToListItem } from '../../../shared/components/list-item-base/
               (cardClick)="openDetailById($event)"
             />
           }
+          @if (hasMore()) {
+            <div class="load-more-container">
+              <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+                @if (isLoadingMore()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>expand_more</mat-icon>
+                }
+                Carregar mais
+              </button>
+              <span class="load-more-count">{{ results().length }} / {{ totalCount() }}</span>
+            </div>
+          }
         </div>
       }
     </div>
@@ -160,7 +173,13 @@ export class WizardAttractionStepComponent {
   readonly selectedAttractions = this.tripState.attractions;
   readonly results = signal<Attraction[]>([]);
   readonly isSearching = signal(false);
+  readonly isLoadingMore = signal(false);
   readonly hasSearched = signal(false);
+  readonly hasMore = signal(false);
+  readonly totalCount = signal(0);
+  private currentOffset = 0;
+  private readonly PAGE_SIZE = 20;
+  private lastCity = '';
   readonly formCollapsed = signal(false);
 
   readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
@@ -217,14 +236,37 @@ export class WizardAttractionStepComponent {
     this.isSearching.set(true);
     this.hasSearched.set(true);
     this.formCollapsed.set(true);
+    this.currentOffset = 0;
 
     const cityVal = this.cityControl.value;
     const city = typeof cityVal === 'string' ? cityVal : (cityVal as DestinationOption)?.label ?? '';
-    this.api.searchAttractions({ city })
+    this.lastCity = city;
+
+    this.api.searchAttractionsPaginated({ city }, 0, this.PAGE_SIZE)
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {
           this.results.set(result.data);
+          this.totalCount.set(result.totalCount);
+          this.hasMore.set(result.hasMore);
+          this.currentOffset = result.data.length;
+        },
+      });
+  }
+
+  loadMore(): void {
+    if (this.isLoadingMore() || !this.lastCity) return;
+    this.isLoadingMore.set(true);
+    this.api.searchAttractionsPaginated({ city: this.lastCity }, this.currentOffset, this.PAGE_SIZE)
+      .pipe(finalize(() => this.isLoadingMore.set(false)))
+      .subscribe({
+        next: (result) => {
+          if (!result.error) {
+            this.results.update(current => [...current, ...result.data]);
+            this.totalCount.set(result.totalCount);
+            this.hasMore.set(result.hasMore);
+            this.currentOffset += result.data.length;
+          }
         },
       });
   }

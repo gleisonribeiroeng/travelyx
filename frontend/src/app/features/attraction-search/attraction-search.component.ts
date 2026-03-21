@@ -76,15 +76,19 @@ export class AttractionSearchComponent {
   formCollapsed = signal(false);
   searchResults = signal<Attraction[]>([]);
   isSearching = signal(false);
+  isLoadingMore = signal(false);
   hasSearched = signal(false);
+  hasMore = signal(false);
+  totalCount = signal(0);
+  private currentOffset = 0;
+  private readonly PAGE_SIZE = 20;
+  private lastSearchParams: { city: string } | null = null;
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
 
   // Search attractions
   searchAttractions(): void {
-    if (this.attractionSearchForm.invalid) {
-      return;
-    }
+    if (this.attractionSearchForm.invalid) return;
 
     const cityValue = this.cityControl.value;
     const city = typeof cityValue === 'string' ? cityValue : (cityValue as DestinationOption)?.label ?? '';
@@ -93,9 +97,11 @@ export class AttractionSearchComponent {
     this.hasSearched.set(true);
     this.errorMessage.set(null);
     this.formCollapsed.set(true);
+    this.currentOffset = 0;
+    this.lastSearchParams = { city };
 
     this.attractionApi
-      .searchAttractions({ city })
+      .searchAttractionsPaginated({ city }, 0, this.PAGE_SIZE)
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {
@@ -103,8 +109,31 @@ export class AttractionSearchComponent {
             this.errorMessage.set(result.error.message);
             this.errorSource.set(result.error.source);
             this.searchResults.set([]);
+            this.hasMore.set(false);
           } else {
             this.searchResults.set(result.data);
+            this.totalCount.set(result.totalCount);
+            this.hasMore.set(result.hasMore);
+            this.currentOffset = result.data.length;
+          }
+        },
+      });
+  }
+
+  loadMore(): void {
+    if (!this.lastSearchParams || this.isLoadingMore()) return;
+
+    this.isLoadingMore.set(true);
+    this.attractionApi
+      .searchAttractionsPaginated(this.lastSearchParams, this.currentOffset, this.PAGE_SIZE)
+      .pipe(finalize(() => this.isLoadingMore.set(false)))
+      .subscribe({
+        next: (result) => {
+          if (!result.error) {
+            this.searchResults.update(current => [...current, ...result.data]);
+            this.totalCount.set(result.totalCount);
+            this.hasMore.set(result.hasMore);
+            this.currentOffset += result.data.length;
           }
         },
       });

@@ -17,11 +17,13 @@ import { withBackoff } from './retry.utils';
 // Re-export AttractionSearchParams for convenience
 export type { AttractionSearchParams } from './attraction.mapper';
 
-/**
- * AttractionApiService — calls NestJS backend which proxies Viator Partner API.
- * Backend returns { _mock: true, data: [...] } in mock mode (already mapped),
- * or raw Viator response in real mode (needs mapping).
- */
+export interface PaginatedResult<T> {
+  data: T[];
+  totalCount: number;
+  hasMore: boolean;
+  error: AppError | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AttractionApiService extends BaseApiService {
   private readonly mapper = inject(AttractionMapper);
@@ -32,30 +34,33 @@ export class AttractionApiService extends BaseApiService {
     super('attractions');
   }
 
-  searchAttractions(
-    params: AttractionSearchParams,
-  ): Observable<ApiResult<Attraction[]>> {
+  searchAttractions(params: AttractionSearchParams, offset = 0, limit = 20): Observable<ApiResult<Attraction[]>> {
+    return this.searchAttractionsPaginated(params, offset, limit).pipe(
+      map(result => ({ data: result.data, error: result.error })),
+    );
+  }
+
+  searchAttractionsPaginated(params: AttractionSearchParams, offset = 0, limit = 20): Observable<PaginatedResult<Attraction>> {
     return this.post<any>('/search', {
       filtering: { destination: params.city },
       currency: this.currencyService.currency(),
       locale: this.i18n.lang() === 'en' ? 'en-us' : 'pt-br',
-      pagination: { offset: 0, limit: 20 },
+      pagination: { offset, limit },
     }).pipe(
       withBackoff(),
-      map((response): ApiResult<Attraction[]> => {
-        const results =
-          response.products || response.data?.products || response.data || [];
+      map((response): PaginatedResult<Attraction> => {
+        const results = response.products || response.data?.products || response.data || [];
         const products = Array.isArray(results) ? results : [];
+        const totalCount = response.totalCount ?? response.data?.totalCount ?? products.length;
         return {
-          data: products.map((product: ViatorAttractionProduct) =>
-            this.mapper.mapResponse(product, params),
-          ),
+          data: products.map((product: ViatorAttractionProduct) => this.mapper.mapResponse(product, params)),
+          totalCount,
+          hasMore: offset + products.length < totalCount,
           error: null,
         };
       }),
-      catchError(
-        (error: AppError): Observable<ApiResult<Attraction[]>> =>
-          of({ data: [], error }),
+      catchError((error: AppError): Observable<PaginatedResult<Attraction>> =>
+        of({ data: [], totalCount: 0, hasMore: false, error }),
       ),
     );
   }
