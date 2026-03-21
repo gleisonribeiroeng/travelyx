@@ -12,6 +12,7 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { AddItemDialogComponent } from './add-item-dialog.component';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
+import { TimeEditorDialogComponent, TimeEditorResult } from './time-editor-dialog.component';
 import { ExportService } from '../../core/services/export.service';
 import { PlanService } from '../../core/services/plan.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
@@ -133,6 +134,29 @@ export class TimelineComponent implements OnInit {
       attraction: 'timeline.typeActivity', custom: 'timeline.typeCustom',
     };
     return this.i18n.t(map[type] || type);
+  }
+
+  openTimeEditor(item: ItineraryItem, event: Event): void {
+    event.stopPropagation();
+    const ref = this.dialog.open(TimeEditorDialogComponent, {
+      width: '380px',
+      data: {
+        label: item.label,
+        type: item.type,
+        timeSlot: item.timeSlot,
+        durationMinutes: item.durationMinutes,
+      },
+    });
+    ref.afterClosed().subscribe((result: TimeEditorResult | undefined) => {
+      if (!result) return;
+      const updated: ItineraryItem = {
+        ...item,
+        timeSlot: result.timeSlot,
+        durationMinutes: result.durationMinutes,
+      };
+      this.tripState.updateItineraryItem(updated);
+      this.notify.success(this.i18n.t('notify.timeUpdated'));
+    });
   }
 
   getEndTime(item: ItineraryItem): string {

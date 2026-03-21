@@ -190,14 +190,16 @@
                       <div class="activity-card timed" [attr.data-type]="item.type" cdkDrag [cdkDragData]="item"
                            (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
                         <div class="card-color-bar"></div>
-                        <div class="card-time">
-                          <span class="time-text">{{ item.timeSlot }}</span>
+                        <div class="card-time" (click)="openTimeEditor(item, $event)" matTooltip="Editar horário">
+                          <span class="time-start">{{ item.timeSlot }}</span>
                           @if (getEndTime(item)) {
-                            <span class="time-end">{{ getEndTime(item) }}</span>
+                            <span class="time-separator">–</span>
+                            <span class="time-end-value">{{ getEndTime(item) }}</span>
                           }
                           @if (item.durationMinutes) {
-                            <span class="time-duration">{{ formatDuration(item.durationMinutes) }}</span>
+                            <span class="time-duration-pill">{{ formatDuration(item.durationMinutes) }}</span>
                           }
+                          <mat-icon class="time-edit-icon">edit</mat-icon>
                         </div>
                         <div class="card-icon">
                           <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>

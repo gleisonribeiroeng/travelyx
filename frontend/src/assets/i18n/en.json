@@ -961,5 +961,13 @@
   "export.typeTransport": "Transport",
   "export.typeActivity": "Activity",
   "export.typeCustom": "Custom",
-  "export.itinerary": "itinerary"
+  "export.itinerary": "itinerary",
+
+  "timeEditor.title": "Edit Time",
+  "timeEditor.startTime": "Start Time",
+  "timeEditor.duration": "Duration",
+  "timeEditor.hours": "Hours",
+  "timeEditor.minutes": "Minutes",
+
+  "notify.timeUpdated": "Time updated"
 }
