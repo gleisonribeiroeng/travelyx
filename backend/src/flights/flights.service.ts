@@ -212,12 +212,14 @@ export class FlightsService {
       }
 
       const mapped = data.data
-        .filter((item: any) => item.code)
+        .filter((item: any) => item.id)
         .map((item: any) => ({
           id: item.id || '',
           iataCode: item.code || '',
           name: item.name || '',
           cityName: item.cityName || item.name || '',
+          type: item.type || (item.id?.includes('.AIRPORT') ? 'AIRPORT' : 'CITY'),
+          nearbyAirport: item.code || '',
         }));
 
       return { data: mapped };

@@ -58,6 +58,7 @@ export class TourSearchComponent {
   // Form controls
   tourSearchForm = new FormGroup({
     destination: this.destinationControl,
+    keyword: new FormControl<string>(''),
   });
 
   // Autocomplete observable
@@ -122,10 +123,11 @@ export class TourSearchComponent {
     this.errorMessage.set(null);
     this.formCollapsed.set(true);
     this.currentOffset = 0;
-    this.lastSearchParams = { destination };
+    const keyword = this.tourSearchForm.value.keyword?.trim() || '';
+    this.lastSearchParams = { destination, ...(keyword && { keyword }) };
 
     this.tourApi
-      .searchToursPaginated({ destination }, 0, this.PAGE_SIZE)
+      .searchToursPaginated(this.lastSearchParams, 0, this.PAGE_SIZE)
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {

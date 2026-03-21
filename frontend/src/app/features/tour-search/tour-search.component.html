@@ -35,6 +35,14 @@
         </mat-form-field>
       </div>
 
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'activities.filterKeyword' | translate }}</mat-label>
+          <input matInput formControlName="keyword" [placeholder]="'activities.filterKeywordPlaceholder' | translate" />
+          <mat-icon matPrefix>filter_list</mat-icon>
+        </mat-form-field>
+      </div>
+
       @if (isSearching()) {
         <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
           <mat-spinner diameter="20"></mat-spinner>

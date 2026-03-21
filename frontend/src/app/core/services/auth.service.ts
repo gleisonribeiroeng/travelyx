@@ -1,5 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
 export type Plan = 'FREE' | 'PRO' | 'BUSINESS';
@@ -37,7 +38,35 @@ export class AuthService {
     return `https://ui-avatars.com/api/?name=${name}&background=7c3aed&color=fff&size=80`;
   });
 
+  private readonly router = inject(Router);
+
   constructor(private readonly http: HttpClient) {}
+
+  /**
+   * Check if the current token is expired.
+   * Returns true if token exists but is expired.
+   */
+  isTokenExpired(): boolean {
+    const token = this._token();
+    if (!token) return false;
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return true;
+      const payload = JSON.parse(atob(parts[1]));
+      return payload.exp && payload.exp < Date.now() / 1000;
+    } catch {
+      return true;
+    }
+  }
+
+  /**
+   * Force logout and redirect to landing page.
+   * Called when a 401 response is received (expired/invalid token).
+   */
+  forceLogout(): void {
+    this.logout();
+    this.router.navigate(['/landing']);
+  }
 
   getGoogleLoginUrl(): string {
     return `${environment.apiBaseUrl}/api/auth/google`;

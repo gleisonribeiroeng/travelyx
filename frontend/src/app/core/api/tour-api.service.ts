@@ -37,12 +37,16 @@ export class TourApiService extends BaseApiService {
   }
 
   searchToursPaginated(params: TourSearchParams, offset = 0, limit = 20): Observable<PaginatedResult<Activity>> {
-    return this.post<any>('/partner/products/search', {
+    const body: any = {
       filtering: { destination: params.destination },
       currency: this.currencyService.currency(),
       locale: this.i18n.lang() === 'en' ? 'en-us' : 'pt-br',
       pagination: { offset, limit },
-    }).pipe(
+    };
+    if (params.keyword?.trim()) {
+      body.searchTerm = params.keyword.trim();
+    }
+    return this.post<any>('/partner/products/search', body).pipe(
       withBackoff(),
       map((response): PaginatedResult<Activity> => {
         if (response._mock) {

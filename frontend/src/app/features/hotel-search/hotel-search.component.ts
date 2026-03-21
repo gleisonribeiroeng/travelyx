@@ -69,6 +69,7 @@ export class HotelSearchComponent {
       start: new FormControl<Date | null>(null, Validators.required),
       end: new FormControl<Date | null>(null, Validators.required),
     }),
+    keyword: new FormControl<string>(''),
     guests: new FormControl(2, [
       Validators.required,
       Validators.min(1),
@@ -312,6 +313,7 @@ export class HotelSearchComponent {
     rooms: number,
   ): void {
     this.currentPage = 1;
+    const keyword = this.hotelSearchForm.value.keyword?.trim() || '';
     const params: HotelSearchParams = {
       destId: destination.destId,
       searchType: destination.searchType,
@@ -319,6 +321,7 @@ export class HotelSearchComponent {
       checkOut,
       adults,
       rooms,
+      ...(keyword && { keyword }),
     };
     this.lastSearchParams = params;
 
@@ -361,9 +364,13 @@ export class HotelSearchComponent {
     this.notify.success(this.t.t('hotels.hotelAdded'));
   }
 
-  // Set sort by
+  // Set sort by — reset pagination when sort changes
   setSortBy(value: string): void {
     this.sortBy.set(value as 'price' | 'rating');
+    // Reset to page 1 since client-side sort reorders all accumulated results
+    if (this.currentPage > 2) {
+      this.currentPage = 2; // keep first page loaded, allow re-loading more
+    }
   }
 
   // Map hotel to ListItemConfig

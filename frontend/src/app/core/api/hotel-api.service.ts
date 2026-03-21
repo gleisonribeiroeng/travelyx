@@ -24,6 +24,7 @@ export interface HotelSearchParams {
   checkOut: string;
   adults: number;
   rooms: number;
+  keyword?: string;
 }
 
 export interface PaginatedHotelResult {
@@ -74,7 +75,7 @@ export class HotelApiService extends BaseApiService {
   }
 
   searchHotelsPaginated(params: HotelSearchParams, pageNumber = 1): Observable<PaginatedHotelResult> {
-    return this.get<any>('/api/v1/hotels/searchHotels', {
+    const queryParams: Record<string, any> = {
       dest_id: params.destId,
       search_type: params.searchType,
       arrival_date: params.checkIn,
@@ -84,7 +85,11 @@ export class HotelApiService extends BaseApiService {
       page_number: pageNumber,
       currency_code: this.currencyService.currency(),
       locale: this.locale,
-    }).pipe(
+    };
+    if (params.keyword?.trim()) {
+      queryParams['filter_by_keyword'] = params.keyword.trim();
+    }
+    return this.get<any>('/api/v1/hotels/searchHotels', queryParams).pipe(
       withBackoff(),
       map((response): PaginatedHotelResult => {
         const results = response.data?.result || response.data?.hotels || response.data || [];

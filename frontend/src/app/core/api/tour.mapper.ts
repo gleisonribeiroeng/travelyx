@@ -67,6 +67,7 @@ export interface ViatorProduct {
  */
 export interface TourSearchParams {
   destination: string; // Free text city name
+  keyword?: string;    // Filter keyword for search
 }
 
 /**
