@@ -41,12 +41,16 @@ export class AttractionApiService extends BaseApiService {
   }
 
   searchAttractionsPaginated(params: AttractionSearchParams, offset = 0, limit = 20): Observable<PaginatedResult<Attraction>> {
-    return this.post<any>('/search', {
+    const body: any = {
       filtering: { destination: params.city },
       currency: this.currencyService.currency(),
       locale: this.i18n.lang() === 'en' ? 'en-us' : 'pt-br',
       pagination: { offset, limit },
-    }).pipe(
+    };
+    if (params.keyword?.trim()) {
+      body.searchTerm = params.keyword.trim();
+    }
+    return this.post<any>('/search', body).pipe(
       withBackoff(),
       map((response): PaginatedResult<Attraction> => {
         const results = response.products || response.data?.products || response.data || [];

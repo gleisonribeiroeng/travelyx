@@ -39,6 +39,7 @@ export interface ViatorAttractionProduct {
  */
 export interface AttractionSearchParams {
   city: string;
+  keyword?: string;
 }
 
 /**

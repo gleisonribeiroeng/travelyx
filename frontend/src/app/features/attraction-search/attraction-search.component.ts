@@ -56,6 +56,7 @@ export class AttractionSearchComponent {
   // Form controls
   attractionSearchForm = new FormGroup({
     city: this.cityControl,
+    keyword: new FormControl<string>(''),
   });
 
   // Autocomplete observable
@@ -98,10 +99,11 @@ export class AttractionSearchComponent {
     this.errorMessage.set(null);
     this.formCollapsed.set(true);
     this.currentOffset = 0;
-    this.lastSearchParams = { city };
+    const keyword = this.attractionSearchForm.value.keyword?.trim() || '';
+    this.lastSearchParams = { city, ...(keyword && { keyword }) };
 
     this.attractionApi
-      .searchAttractionsPaginated({ city }, 0, this.PAGE_SIZE)
+      .searchAttractionsPaginated(this.lastSearchParams, 0, this.PAGE_SIZE)
       .pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {
