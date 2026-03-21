@@ -135,6 +135,15 @@ export class TimelineComponent implements OnInit {
     return this.i18n.t(map[type] || type);
   }
 
+  getEndTime(item: ItineraryItem): string {
+    if (!item.timeSlot || !item.durationMinutes) return '';
+    const [h, m] = item.timeSlot.split(':').map(Number);
+    const total = h * 60 + m + item.durationMinutes;
+    const endH = Math.floor(total / 60) % 24;
+    const endM = total % 60;
+    return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
+  }
+
   getItemPrice(item: ItineraryItem): number {
     if (!item.refId) return 0;
     const trip = this.tripState.trip();

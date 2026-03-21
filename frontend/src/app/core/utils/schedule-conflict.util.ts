@@ -119,7 +119,7 @@ export function buildTimeBlocks(
     blocks.push({
       date: item.date,
       startTime: item.timeSlot,
-      endTime: addMinutesToTime(item.timeSlot, 60),
+      endTime: addMinutesToTime(item.timeSlot, item.durationMinutes || 60),
       label: item.label,
       type: item.type,
     });

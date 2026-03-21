@@ -192,6 +192,9 @@
                         <div class="card-color-bar"></div>
                         <div class="card-time">
                           <span class="time-text">{{ item.timeSlot }}</span>
+                          @if (getEndTime(item)) {
+                            <span class="time-end">{{ getEndTime(item) }}</span>
+                          }
                           @if (item.durationMinutes) {
                             <span class="time-duration">{{ formatDuration(item.durationMinutes) }}</span>
                           }
