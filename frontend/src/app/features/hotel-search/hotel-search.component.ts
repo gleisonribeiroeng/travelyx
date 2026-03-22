@@ -152,7 +152,7 @@ export class HotelSearchComponent {
   totalCount = signal(0);
   private currentPage = 1;
   private lastSearchParams: HotelSearchParams | null = null;
-  sortBy = signal<'price' | 'rating'>('price');
+  sortBy = signal<'price' | 'rating'>('rating');
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
 
