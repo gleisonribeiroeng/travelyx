@@ -13,7 +13,11 @@ export interface AirportOption {
   iataCode: string;
   name: string;
   cityName: string;
+  type?: 'AIRPORT' | 'CITY';
+  nearbyAirport?: string;
 }
+
+export type FlightSortBy = 'price_asc' | 'price_desc' | 'duration_asc' | 'departure_asc' | 'stops_asc';
 
 export interface FlightSearchParams {
   origin: string;
@@ -23,6 +27,7 @@ export interface FlightSearchParams {
   departureDate: string;
   returnDate?: string;
   adults: number;
+  sort?: FlightSortBy;
 }
 
 /**
@@ -48,6 +53,7 @@ export class FlightApiService extends BaseApiService {
       departureDate: params.departureDate,
       adults: params.adults,
       locale: this.locale,
+      sort: params.sort || 'price_asc',
     };
 
     if (params.returnDate) {

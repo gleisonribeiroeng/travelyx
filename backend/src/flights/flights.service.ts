@@ -85,7 +85,11 @@ export class FlightsService {
         .map((offer: any, index: number) => this.mapFlightOffer(offer, index))
         .filter(Boolean);
 
-      this.logger.log(`Booking.com flights: ${flights.length} results`);
+      // Server-side sorting
+      const sortBy = query['sort'] || 'price_asc';
+      this.sortFlights(flights, sortBy);
+
+      this.logger.log(`Booking.com flights: ${flights.length} results (sorted: ${sortBy})`);
       return { data: flights };
     } catch (error: any) {
       const status = error?.response?.status;
@@ -156,6 +160,28 @@ export class FlightsService {
         provider: 'Booking.com',
       },
     };
+  }
+
+  private sortFlights(flights: any[], sortBy: string): void {
+    switch (sortBy) {
+      case 'price_asc':
+        flights.sort((a, b) => (a.price?.total ?? 0) - (b.price?.total ?? 0));
+        break;
+      case 'price_desc':
+        flights.sort((a, b) => (b.price?.total ?? 0) - (a.price?.total ?? 0));
+        break;
+      case 'duration_asc':
+        flights.sort((a, b) => (a.durationMinutes ?? 0) - (b.durationMinutes ?? 0));
+        break;
+      case 'departure_asc':
+        flights.sort((a, b) => (a.departureAt || '').localeCompare(b.departureAt || ''));
+        break;
+      case 'stops_asc':
+        flights.sort((a, b) => (a.stops ?? 0) - (b.stops ?? 0));
+        break;
+      default:
+        flights.sort((a, b) => (a.price?.total ?? 0) - (b.price?.total ?? 0));
+    }
   }
 
   getShowcase() {

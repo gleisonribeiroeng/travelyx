@@ -411,7 +411,7 @@ interface MonthOption {
     .form-row mat-form-field { flex: 1; }
     form button[type="submit"] { width: 100%; height: 44px; }
 
-    .loading-state, .empty-results { text-align: center; padding: var(--triply-spacing-xl); }
+    .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-xl); }
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
@@ -767,6 +767,7 @@ export class WizardFlightStepComponent {
           toId: dest.id || `${dest.iataCode}.AIRPORT`,
           departureDate: date.toISOString().split('T')[0],
           adults: passengers,
+          sort: 'price_asc',
         })
       );
     }
@@ -903,6 +904,7 @@ export class WizardFlightStepComponent {
           toId,
           departureDate,
           adults: passengers,
+          sort: 'price_asc',
         }).pipe(map(result => result.data));
       });
 
@@ -931,6 +933,7 @@ export class WizardFlightStepComponent {
         toId,
         departureDate: departure.toISOString().split('T')[0],
         adults: passengers,
+        sort: 'price_asc' as const,
       };
 
       if (this.tripType() === 'roundTrip' && this.searchForm.value.dateRange?.end) {
@@ -1082,6 +1085,7 @@ export class WizardFlightStepComponent {
       toId: origin.id || `${origin.iataCode}.AIRPORT`,
       departureDate: returnDate.toISOString().split('T')[0],
       adults: this.searchForm.value.passengers ?? 1,
+      sort: 'price_asc',
     }).pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({ next: (result) => this.results.set(result.data) });
   }

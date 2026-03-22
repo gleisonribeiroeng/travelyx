@@ -265,21 +265,11 @@ export class SearchComponent {
   filteredFlights = computed(() => {
     const results = this.searchResults();
     const ft = this.filterType();
-    const sort = this.sortBy();
 
-    let filtered = results;
-    if (ft === 'direct') {
-      filtered = results.filter((f) => f.stops === 0);
-    } else if (ft === 'stopovers') {
-      filtered = results.filter((f) => f.stops > 0);
-    }
-
-    return [...filtered].sort((a, b) => {
-      if (sort === 'price') return a.price.total - b.price.total;
-      if (sort === 'duration') return a.durationMinutes - b.durationMinutes;
-      if (sort === 'stops') return a.stops - b.stops;
-      return 0;
-    });
+    // Filter only (sorting is done server-side)
+    if (ft === 'direct') return results.filter((f) => f.stops === 0);
+    if (ft === 'stopovers') return results.filter((f) => f.stops > 0);
+    return results;
   });
 
   // Date getters for date picker validation
@@ -291,14 +281,15 @@ export class SearchComponent {
     return this.flightSearchForm.value.dateRange?.start || new Date();
   }
 
-  // Airport validator
+  // Airport validator — accepts airports (with iataCode) and cities (with id)
   private airportValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) return null;
-      if (
-        typeof control.value === 'string' ||
-        !(control.value as AirportOption).iataCode
-      ) {
+      if (typeof control.value === 'string') {
+        return { invalidAirport: true };
+      }
+      const option = control.value as AirportOption;
+      if (!option.iataCode && !option.id) {
         return { invalidAirport: true };
       }
       return null;
@@ -307,7 +298,11 @@ export class SearchComponent {
 
   // Display function for autocomplete
   displayAirport(airport: AirportOption | null): string {
-    return airport ? `${airport.cityName} (${airport.iataCode})` : '';
+    if (!airport) return '';
+    if (airport.iataCode) {
+      return `${airport.cityName} (${airport.iataCode})`;
+    }
+    return airport.cityName || airport.name || '';
   }
 
   formatDuration(minutes: number): string {
@@ -548,10 +543,10 @@ export class SearchComponent {
     const destination = this.destinationControl.value as AirportOption;
     const passengers = this.flightSearchForm.value.passengers ?? 1;
 
-    const effectiveOrigin = origin.iataCode;
-    const effectiveDest = destination.iataCode;
-    const fromId = origin.id || `${effectiveOrigin}.AIRPORT`;
-    const toId = destination.id || `${effectiveDest}.AIRPORT`;
+    const effectiveOrigin = origin.iataCode || origin.id;
+    const effectiveDest = destination.iataCode || destination.id;
+    const fromId = origin.id || `${origin.iataCode}.AIRPORT`;
+    const toId = destination.id || `${destination.iataCode}.AIRPORT`;
 
     this.errorMessage.set(null);
     this.isSearching.set(true);
@@ -568,6 +563,7 @@ export class SearchComponent {
           toId,
           departureDate,
           adults: passengers,
+          sort: this.getApiSort(),
         }).pipe(map(result => {
           if (result.error) throw result.error;
           return result.data;
@@ -616,6 +612,7 @@ export class SearchComponent {
         toId,
         departureDate: departure.toISOString().split('T')[0],
         adults: passengers,
+        sort: this.getApiSort(),
       };
 
       if (this.tripType() === 'roundTrip' && this.flightSearchForm.value.dateRange?.end) {
@@ -665,6 +662,7 @@ export class SearchComponent {
           toId: dest.id || `${dest.iataCode}.AIRPORT`,
           departureDate: date.toISOString().split('T')[0],
           adults: passengers,
+          sort: this.getApiSort(),
         })
       );
     }
@@ -793,6 +791,19 @@ export class SearchComponent {
 
   setSortBy(value: string): void {
     this.sortBy.set(value as 'price' | 'duration' | 'stops');
+    // Re-search with new sort if we already have results
+    if (this.hasSearched() && this.searchResults().length > 0) {
+      this.searchFlights();
+    }
+  }
+
+  private getApiSort(): 'price_asc' | 'duration_asc' | 'stops_asc' {
+    const map: Record<string, 'price_asc' | 'duration_asc' | 'stops_asc'> = {
+      price: 'price_asc',
+      duration: 'duration_asc',
+      stops: 'stops_asc',
+    };
+    return map[this.sortBy()] || 'price_asc';
   }
 
   countDirectFlights(): number {
