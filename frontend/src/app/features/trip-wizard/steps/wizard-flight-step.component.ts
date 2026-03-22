@@ -138,9 +138,9 @@ interface MonthOption {
                   <mat-icon matPrefix>flight_takeoff</mat-icon>
                   <mat-autocomplete #autoOrigin="matAutocomplete"
                                     [displayWith]="displayAirport">
-                    @for (option of filteredOrigins$ | async; track option.iataCode) {
+                    @for (option of filteredOrigins$ | async; track option.id) {
                       <mat-option [value]="option">
-                        {{ option.cityName }} — {{ option.name }} ({{ option.iataCode }})
+                        {{ option.iataCode ? option.cityName + ' — ' + option.name + ' (' + option.iataCode + ')' : option.cityName + ' — ' + option.name }}
                       </mat-option>
                     }
                   </mat-autocomplete>
@@ -153,9 +153,9 @@ interface MonthOption {
                   <mat-icon matPrefix>flight_land</mat-icon>
                   <mat-autocomplete #autoDest="matAutocomplete"
                                     [displayWith]="displayAirport">
-                    @for (option of filteredDestinations$ | async; track option.iataCode) {
+                    @for (option of filteredDestinations$ | async; track option.id) {
                       <mat-option [value]="option">
-                        {{ option.cityName }} — {{ option.name }} ({{ option.iataCode }})
+                        {{ option.iataCode ? option.cityName + ' — ' + option.name + ' (' + option.iataCode + ')' : option.cityName + ' — ' + option.name }}
                       </mat-option>
                     }
                   </mat-autocomplete>
@@ -228,8 +228,8 @@ interface MonthOption {
                         <input matInput [formControl]="getSegmentControl(i, 'origin')" [matAutocomplete]="segAutoOrigin">
                         <mat-icon matPrefix>flight_takeoff</mat-icon>
                         <mat-autocomplete #segAutoOrigin="matAutocomplete" [displayWith]="displayAirport">
-                          @for (opt of (segmentOriginStreams()[i] | async); track opt.iataCode) {
-                            <mat-option [value]="opt">{{ opt.cityName }} — {{ opt.name }} ({{ opt.iataCode }})</mat-option>
+                          @for (opt of (segmentOriginStreams()[i] | async); track opt.id) {
+                            <mat-option [value]="opt">{{ opt.iataCode ? opt.cityName + ' — ' + opt.name + ' (' + opt.iataCode + ')' : opt.cityName + ' — ' + opt.name }}</mat-option>
                           }
                         </mat-autocomplete>
                       </mat-form-field>
@@ -238,8 +238,8 @@ interface MonthOption {
                         <input matInput [formControl]="getSegmentControl(i, 'destination')" [matAutocomplete]="segAutoDest">
                         <mat-icon matPrefix>flight_land</mat-icon>
                         <mat-autocomplete #segAutoDest="matAutocomplete" [displayWith]="displayAirport">
-                          @for (opt of (segmentDestinationStreams()[i] | async); track opt.iataCode) {
-                            <mat-option [value]="opt">{{ opt.cityName }} — {{ opt.name }} ({{ opt.iataCode }})</mat-option>
+                          @for (opt of (segmentDestinationStreams()[i] | async); track opt.id) {
+                            <mat-option [value]="opt">{{ opt.iataCode ? opt.cityName + ' — ' + opt.name + ' (' + opt.iataCode + ')' : opt.cityName + ' — ' + opt.name }}</mat-option>
                           }
                         </mat-autocomplete>
                       </mat-form-field>
@@ -477,11 +477,12 @@ interface MonthOption {
 
     /* Manual entry */
     .manual-entry-section {
-      display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
       margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.08);
     }
+    .manual-entry-section button { white-space: nowrap; font-size: 0.85rem; }
     .manual-hint {
-      font-size: 0.8rem; color: var(--triply-text-secondary);
+      font-size: 0.78rem; color: var(--triply-text-secondary);
     }
     .manual-badge {
       font-size: 0.65rem; font-weight: 600; padding: 2px 8px;
@@ -816,7 +817,11 @@ export class WizardFlightStepComponent {
   }
 
   displayAirport(airport: AirportOption | null): string {
-    return airport ? `${airport.cityName} (${airport.iataCode})` : '';
+    if (!airport) return '';
+    if (airport.iataCode) {
+      return `${airport.cityName} (${airport.iataCode})`;
+    }
+    return airport.cityName || airport.name || '';
   }
 
   canSearch(): boolean {

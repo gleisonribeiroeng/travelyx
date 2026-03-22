@@ -6,18 +6,36 @@
   padding-top: 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   margin-bottom: var(--triply-spacing-md);
+  flex-wrap: wrap;
 
-  button mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    margin-right: 4px;
+  button {
+    white-space: nowrap;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+    }
   }
 }
 
 .manual-hint {
   font-size: 0.8rem;
   color: var(--triply-text-secondary);
+}
+
+@media (max-width: 639px) {
+  .manual-entry-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+
+    button {
+      width: 100%;
+      font-size: 0.82rem;
+    }
+  }
 }
 
 .same-location-row {

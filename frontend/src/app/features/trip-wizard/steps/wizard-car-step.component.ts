@@ -214,18 +214,14 @@ import {
 
     .manual-entry-section {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
       margin-top: 20px;
       padding-top: 16px;
       border-top: 1px solid rgba(0,0,0,0.08);
 
-      button mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-        margin-right: 4px;
-      }
+      button { white-space: nowrap; font-size: 0.85rem; }
     }
 
     .manual-hint {
