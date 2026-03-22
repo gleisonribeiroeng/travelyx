@@ -214,7 +214,86 @@ export class FlightsService {
   }
 
   /**
+   * Map of popular tourist cities (without airports) → nearest airport.
+   * Used as fallback when Booking.com API returns no airport results.
+   */
+  private readonly nearestAirportMap: Record<
+    string,
+    { code: string; airportName: string; city: string }
+  > = {
+    gramado: { code: 'POA', airportName: 'Salgado Filho International Airport', city: 'Porto Alegre' },
+    canela: { code: 'POA', airportName: 'Salgado Filho International Airport', city: 'Porto Alegre' },
+    'bento gonçalves': { code: 'POA', airportName: 'Salgado Filho International Airport', city: 'Porto Alegre' },
+    garibaldi: { code: 'POA', airportName: 'Salgado Filho International Airport', city: 'Porto Alegre' },
+    'campos do jordão': { code: 'VCP', airportName: 'Aeroporto de Viracopos', city: 'Campinas' },
+    'monte verde': { code: 'VCP', airportName: 'Aeroporto de Viracopos', city: 'Campinas' },
+    búzios: { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    'armação dos búzios': { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    paraty: { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    'arraial do cabo': { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    'ilha grande': { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    bonito: { code: 'CGR', airportName: 'Aeroporto de Campo Grande', city: 'Campo Grande' },
+    jericoacoara: { code: 'FOR', airportName: 'Aeroporto Pinto Martins', city: 'Fortaleza' },
+    'chapada diamantina': { code: 'SSA', airportName: 'Aeroporto de Salvador', city: 'Salvador' },
+    lençóis: { code: 'SSA', airportName: 'Aeroporto de Salvador', city: 'Salvador' },
+    'praia do forte': { code: 'SSA', airportName: 'Aeroporto de Salvador', city: 'Salvador' },
+    'morro de são paulo': { code: 'SSA', airportName: 'Aeroporto de Salvador', city: 'Salvador' },
+    trancoso: { code: 'BPS', airportName: 'Aeroporto de Porto Seguro', city: 'Porto Seguro' },
+    "arraial d'ajuda": { code: 'BPS', airportName: 'Aeroporto de Porto Seguro', city: 'Porto Seguro' },
+    pirenópolis: { code: 'BSB', airportName: 'Aeroporto JK', city: 'Brasília' },
+    'alter do chão': { code: 'STM', airportName: 'Aeroporto de Santarém', city: 'Santarém' },
+    'são thomé das letras': { code: 'VCP', airportName: 'Aeroporto de Viracopos', city: 'Campinas' },
+    'serra gaúcha': { code: 'POA', airportName: 'Salgado Filho International Airport', city: 'Porto Alegre' },
+    'costa do sauípe': { code: 'SSA', airportName: 'Aeroporto de Salvador', city: 'Salvador' },
+    itacaré: { code: 'IOS', airportName: 'Aeroporto de Ilhéus', city: 'Ilhéus' },
+    guarujá: { code: 'GRU', airportName: 'Aeroporto de Guarulhos', city: 'São Paulo' },
+    ubatuba: { code: 'GRU', airportName: 'Aeroporto de Guarulhos', city: 'São Paulo' },
+    ilhabela: { code: 'GRU', airportName: 'Aeroporto de Guarulhos', city: 'São Paulo' },
+    'são sebastião': { code: 'GRU', airportName: 'Aeroporto de Guarulhos', city: 'São Paulo' },
+    penedo: { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    petrópolis: { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    teresópolis: { code: 'GIG', airportName: 'Aeroporto do Galeão', city: 'Rio de Janeiro' },
+    tiradentes: { code: 'CNF', airportName: 'Aeroporto de Confins', city: 'Belo Horizonte' },
+    'ouro preto': { code: 'CNF', airportName: 'Aeroporto de Confins', city: 'Belo Horizonte' },
+    diamantina: { code: 'CNF', airportName: 'Aeroporto de Confins', city: 'Belo Horizonte' },
+    capitólio: { code: 'CNF', airportName: 'Aeroporto de Confins', city: 'Belo Horizonte' },
+    'fernando de noronha': { code: 'REC', airportName: 'Aeroporto do Recife', city: 'Recife' },
+    pipa: { code: 'NAT', airportName: 'Aeroporto de Natal', city: 'Natal' },
+    'praia da pipa': { code: 'NAT', airportName: 'Aeroporto de Natal', city: 'Natal' },
+    'porto de galinhas': { code: 'REC', airportName: 'Aeroporto do Recife', city: 'Recife' },
+    carneiros: { code: 'REC', airportName: 'Aeroporto do Recife', city: 'Recife' },
+    'são miguel dos milagres': { code: 'MCZ', airportName: 'Aeroporto de Maceió', city: 'Maceió' },
+    japaratinga: { code: 'MCZ', airportName: 'Aeroporto de Maceió', city: 'Maceió' },
+    bariloche: { code: 'BRC', airportName: 'Aeropuerto de Bariloche', city: 'Bariloche' },
+    mendoza: { code: 'MDZ', airportName: 'Aeropuerto de Mendoza', city: 'Mendoza' },
+    'el calafate': { code: 'FTE', airportName: 'Aeropuerto El Calafate', city: 'El Calafate' },
+    ushuaia: { code: 'USH', airportName: 'Aeropuerto de Ushuaia', city: 'Ushuaia' },
+    pucón: { code: 'ZCO', airportName: 'Aeropuerto La Araucanía', city: 'Temuco' },
+    'san pedro de atacama': { code: 'CJC', airportName: 'Aeropuerto El Loa', city: 'Calama' },
+    'machu picchu': { code: 'CUZ', airportName: 'Aeropuerto Velasco Astete', city: 'Cusco' },
+    cusco: { code: 'CUZ', airportName: 'Aeropuerto Velasco Astete', city: 'Cusco' },
+  };
+
+  /**
+   * Find nearest airport from the hardcoded map.
+   * Matches by prefix to handle partial typing (e.g. "gram" → "gramado").
+   */
+  private findNearestAirport(
+    keyword: string,
+  ): { code: string; airportName: string; city: string } | null {
+    const lower = keyword.toLowerCase().trim();
+    // Exact match first
+    if (this.nearestAirportMap[lower]) return this.nearestAirportMap[lower];
+    // Partial match: keyword is prefix of a city name
+    for (const [city, airport] of Object.entries(this.nearestAirportMap)) {
+      if (city.startsWith(lower) || lower.startsWith(city)) return airport;
+    }
+    return null;
+  }
+
+  /**
    * Search flight destinations via Booking.com API.
+   * Falls back to nearest airport mapping for cities without airports.
    */
   async searchAirports(query: Record<string, string>): Promise<any> {
     const keyword = query['keyword'] || '';
@@ -233,20 +312,42 @@ export class FlightsService {
         ),
       );
 
-      if (!data?.status || !Array.isArray(data?.data)) {
-        return { data: [] };
+      let mapped: any[] = [];
+
+      if (data?.status && Array.isArray(data?.data)) {
+        mapped = data.data
+          .filter((item: any) => item.id)
+          .map((item: any) => ({
+            id: item.id || '',
+            iataCode: item.code || '',
+            name: item.name || '',
+            cityName: item.cityName || item.name || '',
+            type: item.type || (item.id?.includes('.AIRPORT') ? 'AIRPORT' : 'CITY'),
+          }));
       }
 
-      const mapped = data.data
-        .filter((item: any) => item.id)
-        .map((item: any) => ({
-          id: item.id || '',
-          iataCode: item.code || '',
-          name: item.name || '',
-          cityName: item.cityName || item.name || '',
-          type: item.type || (item.id?.includes('.AIRPORT') ? 'AIRPORT' : 'CITY'),
-          nearbyAirport: item.code || '',
-        }));
+      // Check if we have any AIRPORT results
+      const hasAirport = mapped.some(
+        (r: any) => r.iataCode && r.type === 'AIRPORT',
+      );
+
+      // If no airport results, try the nearest airport fallback
+      if (!hasAirport) {
+        const nearest = this.findNearestAirport(keyword);
+        if (nearest) {
+          this.logger.log(
+            `No airport for "${keyword}" — suggesting nearest: ${nearest.code} (${nearest.city})`,
+          );
+          // Add nearest airport suggestion at the top
+          mapped.unshift({
+            id: `${nearest.code}.AIRPORT`,
+            iataCode: nearest.code,
+            name: `${nearest.airportName} (mais próximo)`,
+            cityName: nearest.city,
+            type: 'AIRPORT',
+          });
+        }
+      }
 
       return { data: mapped };
     } catch (error: any) {

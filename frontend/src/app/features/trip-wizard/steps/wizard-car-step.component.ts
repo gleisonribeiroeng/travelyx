@@ -240,7 +240,7 @@ import {
     }
     form button[type="submit"] { width: 100%; height: 44px; }
 
-    .loading-state, .empty-results { text-align: center; padding: var(--triply-spacing-xl); }
+    .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-xl); }
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 

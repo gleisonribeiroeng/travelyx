@@ -93,10 +93,22 @@ function formatDate(iso: string): string {
 
     <mat-dialog-content>
       <!-- Hero image -->
-      @if (images().length > 0) {
+      @if (loadingPhotos()) {
         <div class="hero-section">
-          <img [src]="images()[selectedImage()]" class="hero-image" alt=""
-               (error)="onImageError($event)">
+          <div class="hero-skeleton">
+            <mat-spinner diameter="28"></mat-spinner>
+            <span>Carregando fotos...</span>
+          </div>
+        </div>
+      } @else if (images().length > 0) {
+        <div class="hero-section">
+          <div class="hero-image-wrapper" (click)="openLightbox(selectedImage())">
+            <img [src]="images()[selectedImage()]" class="hero-image" alt=""
+                 (error)="onImageError($event)">
+            <div class="hero-zoom-hint">
+              <mat-icon>zoom_in</mat-icon>
+            </div>
+          </div>
           @if (images().length > 1) {
             <div class="thumb-strip">
               @for (img of images(); track img; let i = $index) {
@@ -106,6 +118,30 @@ function formatDate(iso: string): string {
               }
             </div>
           }
+        </div>
+      }
+
+      <!-- Lightbox overlay -->
+      @if (lightboxOpen()) {
+        <div class="lightbox" (click)="closeLightbox()">
+          <button class="lb-close" (click)="closeLightbox()">
+            <mat-icon>close</mat-icon>
+          </button>
+          <span class="lb-counter">{{ lightboxIndex() + 1 }} / {{ images().length }}</span>
+          @if (images().length > 1) {
+            <button class="lb-nav lb-prev" (click)="lbPrev($event)">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button class="lb-nav lb-next" (click)="lbNext($event)">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
+          <div class="lb-img-wrapper"
+               (click)="$event.stopPropagation()"
+               (touchstart)="onTouchStart($event)"
+               (touchend)="onTouchEnd($event)">
+            <img [src]="images()[lightboxIndex()]" class="lb-img" alt="">
+          </div>
         </div>
       }
 
@@ -434,11 +470,73 @@ function formatDate(iso: string): string {
       margin-bottom: var(--triply-spacing-md);
     }
 
+    .hero-skeleton {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 180px;
+      background: var(--triply-surface-1, #f3f4f6);
+      border-radius: var(--triply-radius-md);
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+
+      span {
+        font-size: 0.8rem;
+        color: var(--triply-text-secondary);
+      }
+    }
+
+    @keyframes skeleton-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .hero-image-wrapper {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: var(--triply-radius-md);
+
+      &:hover .hero-zoom-hint {
+        opacity: 1;
+      }
+
+      &:hover .hero-image {
+        transform: scale(1.02);
+      }
+    }
+
     .hero-image {
       width: 100%;
       max-height: 180px;
       object-fit: cover;
       border-radius: 0;
+      transition: transform 0.3s ease;
+      display: block;
+    }
+
+    .hero-zoom-hint {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     }
 
     .thumb-strip {
@@ -463,6 +561,98 @@ function formatDate(iso: string): string {
       &.active, &:hover {
         opacity: 1;
       }
+    }
+
+    /* ─── Lightbox ─────────────────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      background: rgba(0, 0, 0, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: lb-fade-in 0.2s ease;
+    }
+
+    @keyframes lb-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lb-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 2;
+
+      &:hover { background: rgba(255, 255, 255, 0.3); }
+    }
+
+    .lb-counter {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 2;
+    }
+
+    .lb-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 2;
+
+      &:hover { background: rgba(255, 255, 255, 0.3); }
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    .lb-prev { left: 12px; }
+    .lb-next { right: 12px; }
+
+    .lb-img-wrapper {
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lb-img {
+      max-width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 8px;
+      user-select: none;
+      -webkit-user-drag: none;
     }
 
     /* ─── Detail body ────────────────────────────────────────────── */
@@ -576,10 +766,11 @@ function formatDate(iso: string): string {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex: 1;
+      flex: 0 0 auto;
       min-width: 0;
       transform: rotate(90deg);
-      width: 80px;
+      width: 100px;
+      margin: 8px 0;
 
       mat-icon {
         color: var(--triply-primary);
@@ -694,12 +885,16 @@ function formatDate(iso: string): string {
       gap: 8px;
       padding: 12px var(--triply-spacing-md) !important;
       border-top: 1px solid var(--triply-border);
+      max-height: none;
+      overflow: visible;
 
       .action-spacer { display: none; }
 
       button {
         min-height: 44px;
         width: 100%;
+        font-size: 0.85rem;
+        white-space: nowrap;
       }
 
       button mat-icon {
@@ -767,13 +962,57 @@ export class ItemDetailDialogComponent implements OnInit {
   readonly isPaid = signal(this.data.isPaid ?? false);
   readonly isManual = computed(() => this.data.item.source === 'manual');
   readonly extraPhotos = signal<string[]>([]);
+  readonly loadingPhotos = signal(false);
+
+  // Lightbox state
+  readonly lightboxOpen = signal(false);
+  readonly lightboxIndex = signal(0);
+  private touchStartX = 0;
 
   ngOnInit(): void {
     if (this.data.type === 'stay') {
+      this.loadingPhotos.set(true);
       const hotelId = this.data.item.id;
-      this.hotelApi.getHotelPhotos(hotelId).subscribe(photos => {
-        if (photos.length > 0) this.extraPhotos.set(photos);
+      this.hotelApi.getHotelPhotos(hotelId).subscribe({
+        next: photos => {
+          if (photos.length > 0) this.extraPhotos.set(photos);
+          this.loadingPhotos.set(false);
+        },
+        error: () => this.loadingPhotos.set(false),
       });
+    }
+  }
+
+  openLightbox(index: number): void {
+    this.lightboxIndex.set(index);
+    this.lightboxOpen.set(true);
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen.set(false);
+  }
+
+  lbPrev(e: Event): void {
+    e.stopPropagation();
+    const total = this.images().length;
+    this.lightboxIndex.update(i => (i - 1 + total) % total);
+  }
+
+  lbNext(e: Event): void {
+    e.stopPropagation();
+    const total = this.images().length;
+    this.lightboxIndex.update(i => (i + 1) % total);
+  }
+
+  onTouchStart(e: TouchEvent): void {
+    this.touchStartX = e.touches[0].clientX;
+  }
+
+  onTouchEnd(e: TouchEvent): void {
+    const diff = e.changedTouches[0].clientX - this.touchStartX;
+    if (Math.abs(diff) > 50) {
+      if (diff < 0) this.lbNext(e);
+      else this.lbPrev(e);
     }
   }
 

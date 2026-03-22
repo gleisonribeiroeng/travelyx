@@ -47,9 +47,12 @@
             <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
             <mat-icon matPrefix>flight_takeoff</mat-icon>
             <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
-              @for (airport of filteredOrigins$ | async; track airport.iataCode) {
+              @for (airport of filteredOrigins$ | async; track airport.id) {
                 <mat-option [value]="airport">
-                  {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
+                  <ng-container>
+                    <span class="option-icon">{{ airport.iataCode ? '✈' : '🏙' }}</span>
+                    {{ airport.iataCode ? airport.cityName + ' — ' + airport.name + ' (' + airport.iataCode + ')' : airport.cityName + ' — ' + airport.name }}
+                  </ng-container>
                 </mat-option>
               }
             </mat-autocomplete>
@@ -66,9 +69,12 @@
             <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
             <mat-icon matPrefix>flight_land</mat-icon>
             <mat-autocomplete #autoDestination [displayWith]="displayAirport">
-              @for (airport of filteredDestinations$ | async; track airport.iataCode) {
+              @for (airport of filteredDestinations$ | async; track airport.id) {
                 <mat-option [value]="airport">
-                  {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
+                  <ng-container>
+                    <span class="option-icon">{{ airport.iataCode ? '✈' : '🏙' }}</span>
+                    {{ airport.iataCode ? airport.cityName + ' — ' + airport.name + ' (' + airport.iataCode + ')' : airport.cityName + ' — ' + airport.name }}
+                  </ng-container>
                 </mat-option>
               }
             </mat-autocomplete>
@@ -179,9 +185,12 @@
                   <input matInput formControlName="origin" [matAutocomplete]="segOrigin">
                   <mat-icon matPrefix>flight_takeoff</mat-icon>
                   <mat-autocomplete #segOrigin [displayWith]="displayAirport">
-                    @for (airport of (segmentOriginStreams()[i] | async) ?? []; track airport.iataCode) {
+                    @for (airport of (segmentOriginStreams()[i] | async) ?? []; track airport.id) {
                       <mat-option [value]="airport">
-                        {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
+                        <ng-container>
+                          <span class="option-icon">{{ airport.iataCode ? '✈' : '🏙' }}</span>
+                          {{ airport.iataCode ? airport.cityName + ' — ' + airport.name + ' (' + airport.iataCode + ')' : airport.cityName + ' — ' + airport.name }}
+                        </ng-container>
                       </mat-option>
                     }
                   </mat-autocomplete>
@@ -199,9 +208,12 @@
                   <input matInput formControlName="destination" [matAutocomplete]="segDest">
                   <mat-icon matPrefix>flight_land</mat-icon>
                   <mat-autocomplete #segDest [displayWith]="displayAirport">
-                    @for (airport of (segmentDestinationStreams()[i] | async) ?? []; track airport.iataCode) {
+                    @for (airport of (segmentDestinationStreams()[i] | async) ?? []; track airport.id) {
                       <mat-option [value]="airport">
-                        {{ airport.cityName }} — {{ airport.name }} ({{ airport.iataCode }})
+                        <ng-container>
+                          <span class="option-icon">{{ airport.iataCode ? '✈' : '🏙' }}</span>
+                          {{ airport.iataCode ? airport.cityName + ' — ' + airport.name + ' (' + airport.iataCode + ')' : airport.cityName + ' — ' + airport.name }}
+                        </ng-container>
                       </mat-option>
                     }
                   </mat-autocomplete>
