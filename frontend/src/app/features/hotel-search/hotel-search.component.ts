@@ -161,24 +161,8 @@ export class HotelSearchComponent {
     categorizeHotels(this.searchResults())
   );
 
-  // Computed signal for sorted hotels
-  sortedHotels = computed(() => {
-    const results = this.searchResults();
-    const sort = this.sortBy();
-
-    return [...results].sort((a, b) => {
-      if (sort === 'price') {
-        return a.pricePerNight.total - b.pricePerNight.total;
-      } else if (sort === 'rating') {
-        // Sort by rating descending (highest first), nulls last
-        if (a.rating === null && b.rating === null) return 0;
-        if (a.rating === null) return 1;
-        if (b.rating === null) return -1;
-        return b.rating - a.rating;
-      }
-      return 0;
-    });
-  });
+  // Server-side sort: no client-side re-sorting needed, API returns pre-sorted
+  sortedHotels = computed(() => this.searchResults());
 
   // Date getters for date picker validation
   get minCheckInDate(): Date {
@@ -321,6 +305,7 @@ export class HotelSearchComponent {
       checkOut,
       adults,
       rooms,
+      sortBy: this.getApiSortBy(this.sortBy()),
       ...(keyword && { keyword }),
     };
     this.lastSearchParams = params;
@@ -366,11 +351,31 @@ export class HotelSearchComponent {
 
   // Set sort by — reset pagination when sort changes
   setSortBy(value: string): void {
+    const prev = this.sortBy();
     this.sortBy.set(value as 'price' | 'rating');
-    // Reset to page 1 since client-side sort reorders all accumulated results
-    if (this.currentPage > 2) {
-      this.currentPage = 2; // keep first page loaded, allow re-loading more
+    // Re-search with new sort from API (server-side sort)
+    if (prev !== value && this.lastSearchParams) {
+      this.lastSearchParams = { ...this.lastSearchParams, sortBy: this.getApiSortBy(value) };
+      this.isSearching.set(true);
+      this.currentPage = 1;
+      this.hotelApi
+        .searchHotelsPaginated(this.lastSearchParams, 1)
+        .pipe(finalize(() => this.isSearching.set(false)))
+        .subscribe({
+          next: (result) => {
+            if (!result.error) {
+              this.searchResults.set(result.data);
+              this.totalCount.set(result.totalCount);
+              this.hasMore.set(result.hasMore);
+              this.currentPage = 2;
+            }
+          },
+        });
     }
+  }
+
+  private getApiSortBy(sort: string): 'price' | 'bayesian_review_score' {
+    return sort === 'rating' ? 'bayesian_review_score' : 'price';
   }
 
   // Map hotel to ListItemConfig

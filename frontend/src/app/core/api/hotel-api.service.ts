@@ -17,6 +17,8 @@ export interface DestinationOption {
   searchType: string;
 }
 
+export type HotelSortBy = 'popularity' | 'price' | 'price_from_high_to_low' | 'bayesian_review_score' | 'class_descending' | 'distance';
+
 export interface HotelSearchParams {
   destId: string;
   searchType: string;
@@ -25,6 +27,7 @@ export interface HotelSearchParams {
   adults: number;
   rooms: number;
   keyword?: string;
+  sortBy?: HotelSortBy;
 }
 
 export interface PaginatedHotelResult {
@@ -85,6 +88,7 @@ export class HotelApiService extends BaseApiService {
       page_number: pageNumber,
       currency_code: this.currencyService.currency(),
       locale: this.locale,
+      ...(params.sortBy && { sort_by: params.sortBy }),
     };
     if (params.keyword?.trim()) {
       queryParams['filter_by_keyword'] = params.keyword.trim();
