@@ -161,7 +161,7 @@ export class HotelSearchComponent {
     categorizeHotels(this.searchResults())
   );
 
-  // Server-side sort: no client-side re-sorting needed, API returns pre-sorted
+  // Server-side sort: API returns pre-sorted results
   sortedHotels = computed(() => this.searchResults());
 
   // Date getters for date picker validation
@@ -297,7 +297,6 @@ export class HotelSearchComponent {
     rooms: number,
   ): void {
     this.currentPage = 1;
-    const keyword = this.hotelSearchForm.value.keyword?.trim() || '';
     const params: HotelSearchParams = {
       destId: destination.destId,
       searchType: destination.searchType,
@@ -306,7 +305,6 @@ export class HotelSearchComponent {
       adults,
       rooms,
       sortBy: this.getApiSortBy(this.sortBy()),
-      ...(keyword && { keyword }),
     };
     this.lastSearchParams = params;
 

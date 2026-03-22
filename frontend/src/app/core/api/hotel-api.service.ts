@@ -26,7 +26,6 @@ export interface HotelSearchParams {
   checkOut: string;
   adults: number;
   rooms: number;
-  keyword?: string;
   sortBy?: HotelSortBy;
 }
 
@@ -90,9 +89,6 @@ export class HotelApiService extends BaseApiService {
       locale: this.locale,
       ...(params.sortBy && { sort_by: params.sortBy }),
     };
-    if (params.keyword?.trim()) {
-      queryParams['filter_by_keyword'] = params.keyword.trim();
-    }
     return this.get<any>('/api/v1/hotels/searchHotels', queryParams).pipe(
       withBackoff(),
       map((response): PaginatedHotelResult => {
