@@ -236,7 +236,7 @@ export class HotelSearchComponent {
       });
   }
 
-  // Filter by star rating — re-searches from API
+  // Filter by star rating — re-searches from API with categories_filter
   filterByStars(stars: number): void {
     if (this.selectedStars() === stars) return;
     this.selectedStars.set(stars);

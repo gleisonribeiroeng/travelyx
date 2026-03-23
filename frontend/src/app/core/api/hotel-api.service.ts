@@ -89,7 +89,7 @@ export class HotelApiService extends BaseApiService {
       currency_code: this.currencyService.currency(),
       locale: this.locale,
       ...(params.sortBy && { sort_by: params.sortBy }),
-      ...(params.starClass && { selected_filter: `class=${params.starClass}` }),
+      ...(params.starClass && { categories_filter: `class::${params.starClass}` }),
     };
     return this.get<any>('/api/v1/hotels/searchHotels', queryParams).pipe(
       withBackoff(),
