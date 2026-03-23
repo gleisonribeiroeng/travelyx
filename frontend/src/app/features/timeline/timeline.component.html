@@ -70,35 +70,45 @@
 
     <!-- ═══ TRIP SUMMARY BAR ═══ -->
     <div class="summary-bar">
-      <div class="summary-pill">
-        <div class="pill-icon pill-days"><mat-icon>calendar_today</mat-icon></div>
-        <span class="pill-value">{{ tripSummary().plannedDays }}<span class="pill-faded">/{{ tripSummary().totalDays }}</span></span>
-        <span class="pill-label">{{ 'timeline.daysPlanned' | translate }}</span>
+      <div class="summary-pill pill-days">
+        <mat-icon>calendar_today</mat-icon>
+        <div class="pill-content">
+          <span class="pill-value">{{ tripSummary().plannedDays }}<span class="pill-of">/{{ tripSummary().totalDays }}</span></span>
+          <span class="pill-label">dias</span>
+        </div>
       </div>
-      <div class="summary-pill">
-        <div class="pill-icon pill-items"><mat-icon>event_note</mat-icon></div>
-        <span class="pill-value">{{ tripSummary().totalItems }}</span>
-        <span class="pill-label">{{ 'timeline.totalItems' | translate }}</span>
+      <div class="summary-pill pill-items">
+        <mat-icon>event_note</mat-icon>
+        <div class="pill-content">
+          <span class="pill-value">{{ tripSummary().totalItems }}</span>
+          <span class="pill-label">itens</span>
+        </div>
       </div>
       @if (tripSummary().totalDuration > 0) {
-        <div class="summary-pill">
-          <div class="pill-icon pill-duration"><mat-icon>schedule</mat-icon></div>
-          <span class="pill-value">{{ formatDuration(tripSummary().totalDuration) }}</span>
-          <span class="pill-label">{{ 'timeline.totalDuration' | translate }}</span>
+        <div class="summary-pill pill-duration">
+          <mat-icon>schedule</mat-icon>
+          <div class="pill-content">
+            <span class="pill-value">{{ formatDuration(tripSummary().totalDuration) }}</span>
+            <span class="pill-label">duração</span>
+          </div>
         </div>
       }
       @if (tripSummary().totalCost > 0) {
-        <div class="summary-pill">
-          <div class="pill-icon pill-cost"><mat-icon>payments</mat-icon></div>
-          <span class="pill-value">{{ formatCurrency(tripSummary().totalCost) }}</span>
-          <span class="pill-label">{{ tripSummary().paidPercent }}% {{ 'timeline.paid' | translate }}</span>
+        <div class="summary-pill pill-cost">
+          <mat-icon>payments</mat-icon>
+          <div class="pill-content">
+            <span class="pill-value">{{ formatCurrency(tripSummary().totalCost) }}</span>
+            <span class="pill-label">{{ tripSummary().paidPercent }}% pago</span>
+          </div>
         </div>
       }
       @if (tripSummary().conflictCount > 0) {
-        <div class="summary-pill summary-alert">
-          <div class="pill-icon pill-conflict"><mat-icon>warning</mat-icon></div>
-          <span class="pill-value">{{ tripSummary().conflictCount }}</span>
-          <span class="pill-label">{{ tripSummary().conflictCount === 1 ? ('timeline.conflictSingle' | translate) : ('timeline.conflictPlural' | translate) }}</span>
+        <div class="summary-pill pill-conflict">
+          <mat-icon>warning</mat-icon>
+          <div class="pill-content">
+            <span class="pill-value">{{ tripSummary().conflictCount }}</span>
+            <span class="pill-label">{{ tripSummary().conflictCount === 1 ? 'alerta' : 'alertas' }}</span>
+          </div>
         </div>
       }
     </div>
