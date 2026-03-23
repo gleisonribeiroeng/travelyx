@@ -21,7 +21,7 @@ export interface InviteDialogData {
     <div class="invite-dialog">
       <!-- Header -->
       <div class="dialog-header">
-        <mat-icon class="header-icon">group_add</mat-icon>
+        <div class="header-icon-wrap"><mat-icon class="header-icon">group_add</mat-icon></div>
         <h2>{{ 'collab.invitePeople' | translate }}</h2>
       </div>
 
@@ -124,26 +124,34 @@ export interface InviteDialogData {
     .invite-dialog {
       max-width: 480px;
       width: 100%;
+      padding: 8px;
     }
 
     .dialog-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 24px;
+
+      .header-icon-wrap {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(108,92,231,0.12), rgba(108,92,231,0.04));
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
 
       .header-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
-        color: var(--triply-primary, #6C5CE7);
+        font-size: 22px; width: 22px; height: 22px;
+        color: #6C5CE7;
       }
 
       h2 {
         margin: 0;
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        color: var(--triply-text-primary, #1a1a2e);
+        color: #1a1a2e;
+        letter-spacing: -0.01em;
       }
     }
 
@@ -151,12 +159,10 @@ export interface InviteDialogData {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
-    .email-field {
-      width: 100%;
-    }
+    .email-field { width: 100%; }
 
     .role-selector {
       display: flex;
@@ -165,9 +171,11 @@ export interface InviteDialogData {
     }
 
     .role-label {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      color: var(--triply-text-secondary, #666);
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .role-cards {
@@ -180,10 +188,10 @@ export interface InviteDialogData {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      padding: 12px 14px;
-      border: 2px solid var(--triply-border-subtle, #e0e0e0);
-      border-radius: var(--triply-radius-md, 12px);
-      background: var(--triply-surface-1, #fff);
+      padding: 14px 16px;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      background: #fff;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
@@ -191,33 +199,30 @@ export interface InviteDialogData {
       position: relative;
 
       > mat-icon:first-child {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-        color: var(--triply-text-secondary, #666);
+        font-size: 20px; width: 20px; height: 20px;
+        color: #aaa;
         margin-top: 2px;
         flex-shrink: 0;
       }
 
       &:hover {
-        border-color: var(--triply-primary, #6C5CE7);
-        background: rgba(108, 92, 231, 0.03);
+        border-color: rgba(108,92,231,0.4);
+        background: rgba(108,92,231,0.02);
       }
 
       &.selected {
-        border-color: var(--triply-primary, #6C5CE7);
-        background: rgba(108, 92, 231, 0.06);
+        border-color: #6C5CE7;
+        background: rgba(108,92,231,0.05);
+        box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
 
-        > mat-icon:first-child {
-          color: var(--triply-primary, #6C5CE7);
-        }
+        > mat-icon:first-child { color: #6C5CE7; }
       }
     }
 
     .role-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
       flex: 1;
       min-width: 0;
     }
@@ -225,176 +230,135 @@ export interface InviteDialogData {
     .role-name {
       font-size: 0.88rem;
       font-weight: 600;
-      color: var(--triply-text-primary, #1a1a2e);
+      color: #1a1a2e;
     }
 
     .role-desc {
       font-size: 0.72rem;
-      color: var(--triply-text-secondary, #666);
-      line-height: 1.3;
+      color: #888;
+      line-height: 1.35;
     }
 
     .check-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: var(--triply-primary, #6C5CE7);
+      font-size: 18px; width: 18px; height: 18px;
+      color: #6C5CE7;
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 10px; right: 10px;
     }
 
     .send-btn {
-      align-self: flex-start;
+      align-self: stretch;
       font-weight: 600;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      height: 44px;
+      border-radius: 10px !important;
+      font-size: 0.9rem;
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; }
     }
 
-    mat-divider {
-      margin: 4px 0 16px;
-    }
+    mat-divider { margin: 8px 0 20px; }
 
     .collaborators-section {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
 
       h3 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--triply-text-primary, #1a1a2e);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
         margin: 0 0 12px;
       }
     }
 
     .no-collabs {
       font-size: 0.85rem;
-      color: var(--triply-text-secondary, #999);
+      color: #bbb;
       margin: 0;
+      text-align: center;
+      padding: 16px;
+      background: #fafafa;
+      border-radius: 10px;
+      border: 1px dashed #e0e0e0;
     }
 
     .collab-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
     }
 
     .collab-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      border-radius: var(--triply-radius-sm, 8px);
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
       transition: background 0.15s ease;
 
-      &:hover {
-        background: var(--triply-surface-2, #f5f5f5);
-      }
+      &:hover { background: #f8f8f8; }
     }
 
     .collab-avatar {
-      width: 36px;
-      height: 36px;
+      width: 38px; height: 38px;
       border-radius: 50%;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, #6C5CE7, #a29bfe);
       flex-shrink: 0;
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .avatar-initial {
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.85rem;
-      }
+      img { width: 100%; height: 100%; object-fit: cover; }
+      .avatar-initial { color: #fff; font-weight: 700; font-size: 0.88rem; }
     }
 
     .collab-info {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column; gap: 1px;
     }
 
     .collab-name {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--triply-text-primary, #1a1a2e);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.88rem; font-weight: 600; color: #1a1a2e;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
     .collab-email {
-      font-size: 0.72rem;
-      color: var(--triply-text-secondary, #999);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.72rem; color: #aaa;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
     .role-badge {
-      font-size: 0.68rem;
-      font-weight: 700;
+      font-size: 0.62rem; font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 3px 10px;
+      padding: 4px 10px;
       border-radius: 20px;
       flex-shrink: 0;
     }
 
-    .badge-owner {
-      background: rgba(108, 92, 231, 0.12);
-      color: var(--triply-primary, #6C5CE7);
-    }
-
-    .badge-editor {
-      background: rgba(76, 175, 80, 0.12);
-      color: #4CAF50;
-    }
-
-    .badge-viewer {
-      background: rgba(158, 158, 158, 0.12);
-      color: #9e9e9e;
-    }
+    .badge-owner { background: rgba(108,92,231,0.1); color: #6C5CE7; }
+    .badge-editor { background: rgba(16,185,129,0.1); color: #10b981; }
+    .badge-viewer { background: rgba(158,158,158,0.1); color: #9e9e9e; }
 
     .remove-btn {
       flex-shrink: 0;
-
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        color: var(--triply-text-tertiary, #bbb);
-      }
-
-      &:hover mat-icon {
-        color: #f44336;
-      }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #ccc; }
+      &:hover mat-icon { color: #ef4444; }
     }
 
     .dialog-actions {
       display: flex;
       justify-content: flex-end;
+      padding-top: 4px;
+
+      button { color: #999; font-weight: 500; }
     }
 
     @media (max-width: 480px) {
-      .role-cards {
-        flex-direction: column;
-      }
+      .role-cards { flex-direction: column; }
     }
   `],
 })

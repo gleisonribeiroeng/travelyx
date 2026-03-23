@@ -175,11 +175,15 @@ h1, h2, h3, h4, h5, h6 {
 .cdk-overlay-pane .mat-mdc-autocomplete-panel,
 .cdk-overlay-pane .mat-mdc-select-panel {
   background: var(--triply-surface-1) !important;
-  border-radius: var(--triply-radius-md) !important;
-  box-shadow: var(--triply-shadow-xl) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06) !important;
   --mat-autocomplete-background-color: var(--triply-surface-1);
   --mat-select-panel-background-color: var(--triply-surface-1);
   --mat-menu-container-color: var(--triply-surface-1);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 28px 28px 20px !important;
 }
 
 .mat-mdc-option {

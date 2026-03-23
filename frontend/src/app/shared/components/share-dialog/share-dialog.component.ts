@@ -23,7 +23,7 @@ export interface ShareDialogData {
     <div class="share-dialog">
       <!-- Header -->
       <div class="dialog-header">
-        <mat-icon class="header-icon">share</mat-icon>
+        <div class="header-icon-wrap"><mat-icon class="header-icon">share</mat-icon></div>
         <h2>{{ 'collab.share' | translate }}</h2>
       </div>
 
@@ -87,163 +87,148 @@ export interface ShareDialogData {
     .share-dialog {
       max-width: 480px;
       width: 100%;
+      padding: 8px;
     }
 
     .dialog-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 14px;
+      margin-bottom: 28px;
+
+      .header-icon-wrap {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(108,92,231,0.12), rgba(108,92,231,0.04));
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
 
       .header-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
-        color: var(--triply-primary, #6C5CE7);
+        font-size: 22px; width: 22px; height: 22px;
+        color: #6C5CE7;
       }
 
       h2 {
         margin: 0;
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        color: var(--triply-text-primary, #1a1a2e);
+        color: #1a1a2e;
+        letter-spacing: -0.01em;
       }
     }
 
     .link-section {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      margin-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
     .link-toggle-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 14px 16px;
+      background: #fafafa;
+      border-radius: 12px;
+      border: 1px solid #eee;
     }
 
     .toggle-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: flex; align-items: center; gap: 10px;
 
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-        color: var(--triply-primary, #6C5CE7);
-      }
+      mat-icon { font-size: 20px; width: 20px; height: 20px; color: #6C5CE7; }
     }
 
     .toggle-label {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 600;
-      color: var(--triply-text-primary, #1a1a2e);
+      color: #1a1a2e;
     }
 
     .link-box {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .link-url-row {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: var(--triply-surface-2, #f5f5f5);
-      border-radius: var(--triply-radius-md, 12px);
+      display: flex; align-items: center; gap: 4px;
+      background: #f5f3ff;
+      border-radius: 10px;
       padding: 4px 4px 4px 14px;
-      border: 1px solid var(--triply-border-subtle, #e0e0e0);
+      border: 1px solid rgba(108,92,231,0.15);
     }
 
     .link-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      font-size: 0.82rem;
-      font-family: monospace;
-      color: var(--triply-text-primary, #1a1a2e);
-      outline: none;
-      min-width: 0;
+      flex: 1; border: none; background: transparent;
+      font-size: 0.8rem; font-family: 'SF Mono', 'Consolas', monospace;
+      color: #5b4ccc; outline: none; min-width: 0;
+      font-weight: 500;
     }
 
     .copy-btn {
       flex-shrink: 0;
-
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #6C5CE7; }
     }
 
     .copied-feedback {
-      font-size: 0.75rem;
-      color: #4CAF50;
-      font-weight: 600;
+      font-size: 0.75rem; color: #10b981; font-weight: 600;
       padding-left: 4px;
     }
 
     .whatsapp-btn {
-      background: #25D366 !important;
+      background: linear-gradient(135deg, #25D366, #20bd5a) !important;
       color: #fff !important;
       font-weight: 600;
-      align-self: flex-start;
+      border-radius: 10px !important;
+      padding: 0 20px !important;
+      height: 40px;
+      box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        margin-right: 6px;
-      }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 8px; }
     }
 
     .link-disabled-msg {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      color: var(--triply-text-secondary, #999);
-      margin: 0;
-      padding: 12px 16px;
-      background: var(--triply-surface-2, #f5f5f5);
-      border-radius: var(--triply-radius-md, 12px);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.84rem; color: #999; margin: 0;
+      padding: 14px 16px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      border: 1px dashed #e0e0e0;
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        opacity: 0.5;
-      }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; opacity: 0.4; }
     }
 
-    mat-divider {
-      margin: 4px 0 16px;
-    }
+    mat-divider { margin: 8px 0 20px; }
 
-    .invite-section {
-      margin-bottom: 16px;
-    }
+    .invite-section { margin-bottom: 20px; }
 
     .invite-btn {
       width: 100%;
       font-weight: 600;
-      color: var(--triply-primary, #6C5CE7);
-      border-color: var(--triply-primary, #6C5CE7);
+      color: #6C5CE7;
+      border-color: rgba(108,92,231,0.3) !important;
+      border-radius: 10px !important;
+      height: 44px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        margin-right: 6px;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 8px; }
+
+      &:hover {
+        background: rgba(108,92,231,0.06) !important;
+        border-color: #6C5CE7 !important;
       }
     }
 
     .dialog-actions {
       display: flex;
       justify-content: flex-end;
+      padding-top: 4px;
+
+      button { color: #999; font-weight: 500; }
     }
   `],
 })
