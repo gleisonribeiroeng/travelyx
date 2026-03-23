@@ -193,6 +193,46 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+// ─── User menu (rendered in CDK overlay, outside component scope) ────────────
+.user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+
+  .menu-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--triply-primary-light, #a29bfe);
+    flex-shrink: 0;
+  }
+
+  .menu-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    strong {
+      font-size: 0.9rem;
+      color: var(--triply-text-primary, #1a1a2e);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    small {
+      font-size: 0.8rem;
+      color: var(--triply-text-secondary, #666);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
 // ─── Cards ─────────────────────────────────────────────────────────────────────
 mat-card, .mat-mdc-card {
   border-radius: var(--triply-radius-md) !important;
