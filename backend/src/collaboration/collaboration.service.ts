@@ -2,10 +2,12 @@ import {
   Injectable,
   BadRequestException,
   ForbiddenException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SubscriptionService } from '../subscription/subscription.service';
+import { EmailService } from '../common/email.service';
 import * as crypto from 'crypto';
 
 const ROLE_HIERARCHY: Record<string, number> = {
@@ -16,9 +18,12 @@ const ROLE_HIERARCHY: Record<string, number> = {
 
 @Injectable()
 export class CollaborationService {
+  private readonly logger = new Logger(CollaborationService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly subscriptionService: SubscriptionService,
+    private readonly emailService: EmailService,
   ) {}
 
   // ─── Invites ────────────────────────────────────────────────────────────────
@@ -87,6 +92,20 @@ export class CollaborationService {
         invitedBy: { select: { name: true, email: true } },
       },
     });
+
+    // Send invite email (non-blocking — never fails the invite)
+    const frontendUrl =
+      process.env.FRONTEND_URL || 'https://travelyx.com.br';
+    const acceptUrl = `${frontendUrl}/convites?token=${token}`;
+    const inviterName = invite.invitedBy?.name || 'Alguém';
+    const tripName = invite.trip?.name || 'Viagem';
+    const tripDestination = invite.trip?.destination || '';
+
+    this.emailService
+      .sendInviteEmail(email, inviterName, tripName, tripDestination, role, acceptUrl)
+      .catch((err) =>
+        this.logger.error(`Failed to send invite email to ${email}`, err),
+      );
 
     return invite;
   }
