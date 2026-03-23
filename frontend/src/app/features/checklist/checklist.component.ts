@@ -29,7 +29,9 @@ export class ChecklistComponent implements OnInit {
   readonly categoryOrder: ChecklistItem['category'][] = ['documents', 'finance', 'logistics', 'packing', 'health'];
 
   ngOnInit(): void {
-    if (this.checklist.items().length === 0) {
+    // If no saved items, generate from trip rules
+    const saved = this.tripState.trip().checklist ?? [];
+    if (saved.length === 0) {
       this.checklist.regenerate();
     }
   }

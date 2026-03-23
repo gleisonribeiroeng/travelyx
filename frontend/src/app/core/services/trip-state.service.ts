@@ -16,6 +16,7 @@ import {
   Transport,
   Activity,
   Attraction,
+  ChecklistItem,
   ItineraryItem,
   AttachmentMeta,
   ManualExpense,
@@ -35,6 +36,7 @@ const DEFAULT_TRIP: Trip = {
   transports: [],
   activities: [],
   attractions: [],
+  checklist: [],
   itineraryItems: [],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -425,6 +427,19 @@ export class TripStateService {
     this.updateActiveTrip(t => ({
       ...t,
       attractions: t.attractions.filter(a => a.id !== id),
+      updatedAt: new Date().toISOString(),
+    }));
+    this.scheduleSyncToApi();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Checklist
+  // ---------------------------------------------------------------------------
+
+  setChecklist(items: ChecklistItem[]): void {
+    this.updateActiveTrip(t => ({
+      ...t,
+      checklist: items,
       updatedAt: new Date().toISOString(),
     }));
     this.scheduleSyncToApi();

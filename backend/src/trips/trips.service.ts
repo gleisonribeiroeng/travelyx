@@ -59,6 +59,7 @@ export class TripsService {
         transports: JSON.stringify(data.transports ?? []),
         activities: JSON.stringify(data.activities ?? []),
         attractions: JSON.stringify(data.attractions ?? []),
+        checklist: JSON.stringify(data.checklist ?? []),
         userId,
         itineraryItems: data.itineraryItems?.length
           ? {
@@ -114,6 +115,7 @@ export class TripsService {
     if (data.transports !== undefined) updateData.transports = JSON.stringify(data.transports);
     if (data.activities !== undefined) updateData.activities = JSON.stringify(data.activities);
     if (data.attractions !== undefined) updateData.attractions = JSON.stringify(data.attractions);
+    if (data.checklist !== undefined) updateData.checklist = JSON.stringify(data.checklist);
 
     await this.prisma.trip.update({
       where: { id, userId },
@@ -331,6 +333,7 @@ export class TripsService {
       transports: JSON.parse(trip.transports),
       activities: JSON.parse(trip.activities),
       attractions: JSON.parse(trip.attractions),
+      checklist: JSON.parse(trip.checklist || '[]'),
       itineraryItems: (trip.itineraryItems ?? []).map((item: any) => ({
         id: item.id,
         type: item.type,

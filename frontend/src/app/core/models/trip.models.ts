@@ -26,6 +26,7 @@ export interface Trip {
   transports: Transport[];
   activities: Activity[];
   attractions: Attraction[];
+  checklist: ChecklistItem[];
   itineraryItems: ItineraryItem[];
   coverImage?: string;
   /** ISO 8601 datetime string */
