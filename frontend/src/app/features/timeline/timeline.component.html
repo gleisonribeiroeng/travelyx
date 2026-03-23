@@ -70,47 +70,35 @@
 
     <!-- ═══ TRIP SUMMARY BAR ═══ -->
     <div class="summary-bar">
-      <div class="summary-item">
-        <mat-icon>calendar_today</mat-icon>
-        <div class="summary-data">
-          <span class="summary-value">{{ tripSummary().plannedDays }}<span class="summary-faded">/{{ tripSummary().totalDays }}</span></span>
-          <span class="summary-label">{{ 'timeline.daysPlanned' | translate }}</span>
-        </div>
+      <div class="summary-pill">
+        <div class="pill-icon pill-days"><mat-icon>calendar_today</mat-icon></div>
+        <span class="pill-value">{{ tripSummary().plannedDays }}<span class="pill-faded">/{{ tripSummary().totalDays }}</span></span>
+        <span class="pill-label">{{ 'timeline.daysPlanned' | translate }}</span>
       </div>
-      <div class="summary-divider"></div>
-      <div class="summary-item">
-        <mat-icon>event_note</mat-icon>
-        <div class="summary-data">
-          <span class="summary-value">{{ tripSummary().totalItems }}</span>
-          <span class="summary-label">{{ 'timeline.totalItems' | translate }}</span>
-        </div>
+      <div class="summary-pill">
+        <div class="pill-icon pill-items"><mat-icon>event_note</mat-icon></div>
+        <span class="pill-value">{{ tripSummary().totalItems }}</span>
+        <span class="pill-label">{{ 'timeline.totalItems' | translate }}</span>
       </div>
-      <div class="summary-divider"></div>
-      <div class="summary-item">
-        <mat-icon>schedule</mat-icon>
-        <div class="summary-data">
-          <span class="summary-value">{{ formatDuration(tripSummary().totalDuration) }}</span>
-          <span class="summary-label">{{ 'timeline.totalDuration' | translate }}</span>
+      @if (tripSummary().totalDuration > 0) {
+        <div class="summary-pill">
+          <div class="pill-icon pill-duration"><mat-icon>schedule</mat-icon></div>
+          <span class="pill-value">{{ formatDuration(tripSummary().totalDuration) }}</span>
+          <span class="pill-label">{{ 'timeline.totalDuration' | translate }}</span>
         </div>
-      </div>
+      }
       @if (tripSummary().totalCost > 0) {
-        <div class="summary-divider"></div>
-        <div class="summary-item">
-          <mat-icon>payments</mat-icon>
-          <div class="summary-data">
-            <span class="summary-value">{{ formatCurrency(tripSummary().totalCost) }}</span>
-            <span class="summary-label">{{ tripSummary().paidPercent }}% {{ 'timeline.paid' | translate }}</span>
-          </div>
+        <div class="summary-pill">
+          <div class="pill-icon pill-cost"><mat-icon>payments</mat-icon></div>
+          <span class="pill-value">{{ formatCurrency(tripSummary().totalCost) }}</span>
+          <span class="pill-label">{{ tripSummary().paidPercent }}% {{ 'timeline.paid' | translate }}</span>
         </div>
       }
       @if (tripSummary().conflictCount > 0) {
-        <div class="summary-divider"></div>
-        <div class="summary-item summary-alert">
-          <mat-icon>warning</mat-icon>
-          <div class="summary-data">
-            <span class="summary-value">{{ tripSummary().conflictCount }}</span>
-            <span class="summary-label">{{ tripSummary().conflictCount === 1 ? ('timeline.conflictSingle' | translate) : ('timeline.conflictPlural' | translate) }}</span>
-          </div>
+        <div class="summary-pill summary-alert">
+          <div class="pill-icon pill-conflict"><mat-icon>warning</mat-icon></div>
+          <span class="pill-value">{{ tripSummary().conflictCount }}</span>
+          <span class="pill-label">{{ tripSummary().conflictCount === 1 ? ('timeline.conflictSingle' | translate) : ('timeline.conflictPlural' | translate) }}</span>
         </div>
       }
     </div>
@@ -238,22 +226,21 @@
                     </button>
                   </div>
                 } @else {
-                  <!-- All-day items -->
+                  <!-- All-day items (same structure as timed, with placeholder time col) -->
                   @for (item of day.allDayItems; track item.id) {
                     <div class="activity-card" [attr.data-type]="item.type"
                          (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
                       <div class="card-color-bar"></div>
+                      <div class="card-time card-time-allday">
+                        <span class="time-allday-label">{{ 'timeline.allDay' | translate }}</span>
+                      </div>
                       <div class="card-icon"><mat-icon>{{ getTypeIcon(item.type) }}</mat-icon></div>
                       <div class="card-body">
-                        <div class="card-top">
-                          <span class="card-type-label">{{ getTypeLabel(item.type) }}</span>
-                          <span class="card-all-day">{{ 'timeline.allDay' | translate }}</span>
-                        </div>
+                        <div class="card-top"><span class="card-type-label">{{ getTypeLabel(item.type) }}</span></div>
                         <div class="card-title">{{ item.label }}</div>
                         @if (getItemLocation(item)) {
                           <div class="card-location"><mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}</div>
                         }
-                        @if (item.notes) { <div class="card-notes">{{ item.notes }}</div> }
                       </div>
                       <div class="card-right">
                         @if (getItemPrice(item)) { <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span> }
@@ -316,7 +303,6 @@
                           @if (getItemLocation(item)) {
                             <div class="card-location"><mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}</div>
                           }
-                          @if (item.notes) { <div class="card-notes">{{ item.notes }}</div> }
                         </div>
                         <div class="card-right">
                           @if (getItemPrice(item)) { <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span> }
