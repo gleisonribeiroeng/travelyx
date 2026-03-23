@@ -275,3 +275,20 @@
     font-size: 20px;
   }
 }
+
+// Clone button
+.clone-btn {
+  position: relative;
+
+  .pro-lock-icon {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    color: #6C5CE7;
+    background: #fff;
+    border-radius: 50%;
+  }
+}

@@ -362,6 +362,235 @@ export class TripsService {
     return { deleted: true };
   }
 
+  // --- Clone Trip ---
+
+  async cloneTrip(id: string, userId: string, newName?: string) {
+    const source = await this.prisma.trip.findFirst({
+      where: { id },
+      include: {
+        itineraryItems: true,
+        collaborators: true,
+      },
+    });
+    if (!source) throw new NotFoundException('Trip not found');
+
+    // Check access: owner or collaborator
+    const isOwner = source.userId === userId;
+    const isCollaborator = source.collaborators?.some((c: any) => c.userId === userId);
+    if (!isOwner && !isCollaborator) {
+      throw new NotFoundException('Trip not found');
+    }
+
+    const cloned = await this.prisma.trip.create({
+      data: {
+        name: newName || `${source.name} (cópia)`,
+        destination: source.destination,
+        dateStart: '',
+        dateEnd: '',
+        status: 'planejamento',
+        currency: source.currency,
+        travelers: source.travelers,
+        coverImage: source.coverImage,
+        flights: source.flights,
+        stays: source.stays,
+        carRentals: source.carRentals,
+        transports: source.transports,
+        activities: source.activities,
+        attractions: source.attractions,
+        checklist: source.checklist,
+        userId,
+        itineraryItems: source.itineraryItems.length
+          ? {
+              createMany: {
+                data: source.itineraryItems.map((item: any) => ({
+                  type: item.type,
+                  refId: item.refId,
+                  date: item.date,
+                  timeSlot: item.timeSlot,
+                  durationMinutes: item.durationMinutes,
+                  label: item.label,
+                  notes: item.notes,
+                  order: item.order,
+                  isPaid: false,
+                })),
+              },
+            }
+          : undefined,
+        collaborators: {
+          create: { userId, role: 'OWNER' },
+        },
+      },
+      include: {
+        itineraryItems: {
+          orderBy: [{ date: 'asc' }, { order: 'asc' }],
+          include: {
+            attachment: {
+              select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true },
+            },
+          },
+        },
+        collaborators: {
+          include: {
+            user: { select: { id: true, name: true, email: true, picture: true } },
+          },
+        },
+      },
+    });
+
+    return this.serialize(cloned, userId);
+  }
+
+  // --- Route Optimization (nearest-neighbor) ---
+
+  optimizeRoute(items: { id: string; lat: number; lng: number }[]): { id: string; lat: number; lng: number }[] {
+    if (items.length <= 2) return items;
+
+    const remaining = [...items];
+    const result: typeof items = [remaining.shift()!];
+
+    while (remaining.length > 0) {
+      const last = result[result.length - 1];
+      let nearestIdx = 0;
+      let nearestDist = Infinity;
+
+      for (let i = 0; i < remaining.length; i++) {
+        const d = this.haversine(last.lat, last.lng, remaining[i].lat, remaining[i].lng);
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearestIdx = i;
+        }
+      }
+
+      result.push(remaining.splice(nearestIdx, 1)[0]);
+    }
+
+    return result;
+  }
+
+  private haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // --- Trip Readiness Score ---
+
+  computeReadiness(tripData: any) {
+    const flights = JSON.parse(tripData.flights || '[]');
+    const stays = JSON.parse(tripData.stays || '[]');
+    const carRentals = JSON.parse(tripData.carRentals || '[]');
+    const transports = JSON.parse(tripData.transports || '[]');
+    const activities = JSON.parse(tripData.activities || '[]');
+    const checklist = JSON.parse(tripData.checklist || '[]');
+    const items = tripData.itineraryItems || [];
+
+    const missing: { category: string; message: string; icon: string; priority: 'high' | 'medium' | 'low' }[] = [];
+    let score = 0;
+    const maxScore = 100;
+
+    // Dates (15 pts)
+    if (tripData.dateStart && tripData.dateEnd) {
+      score += 15;
+    } else {
+      missing.push({ category: 'dates', message: 'Defina as datas da viagem', icon: 'calendar_today', priority: 'high' });
+    }
+
+    // Flights (20 pts)
+    if (flights.length >= 2) {
+      score += 20;
+    } else if (flights.length === 1) {
+      score += 10;
+      missing.push({ category: 'flights', message: 'Adicione o voo de volta', icon: 'flight', priority: 'high' });
+    } else {
+      missing.push({ category: 'flights', message: 'Busque voos para seu destino', icon: 'flight', priority: 'high' });
+    }
+
+    // Accommodation (20 pts)
+    if (tripData.dateStart && tripData.dateEnd) {
+      const start = new Date(tripData.dateStart);
+      const end = new Date(tripData.dateEnd);
+      const totalNights = Math.max(0, Math.round((end.getTime() - start.getTime()) / 86400000));
+      if (totalNights > 0) {
+        let coveredNights = 0;
+        for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+          const dayStr = d.toISOString().split('T')[0];
+          if (stays.some((s: any) => s.checkIn <= dayStr && s.checkOut > dayStr)) {
+            coveredNights++;
+          }
+        }
+        const coverage = coveredNights / totalNights;
+        score += Math.round(coverage * 20);
+        if (coverage < 1) {
+          const uncovered = totalNights - coveredNights;
+          missing.push({
+            category: 'stays',
+            message: `${uncovered} noite${uncovered > 1 ? 's' : ''} sem hospedagem`,
+            icon: 'hotel',
+            priority: uncovered > 2 ? 'high' : 'medium',
+          });
+        }
+      } else if (stays.length > 0) {
+        score += 20;
+      }
+    } else if (stays.length > 0) {
+      score += 15;
+    } else {
+      missing.push({ category: 'stays', message: 'Busque hospedagem', icon: 'hotel', priority: 'high' });
+    }
+
+    // Transport (10 pts)
+    if (transports.length > 0 || carRentals.length > 0) {
+      score += 10;
+    } else {
+      missing.push({ category: 'transport', message: 'Planeje transporte no destino', icon: 'directions_car', priority: 'low' });
+    }
+
+    // Activities (10 pts)
+    if (activities.length > 0) {
+      score += 10;
+    } else {
+      missing.push({ category: 'activities', message: 'Adicione atividades e passeios', icon: 'local_activity', priority: 'low' });
+    }
+
+    // Itinerary (15 pts)
+    if (items.length > 0) {
+      score += Math.min(15, Math.round((items.length / Math.max(1, flights.length + stays.length + activities.length)) * 15));
+    } else {
+      missing.push({ category: 'itinerary', message: 'Monte seu roteiro dia a dia', icon: 'event_note', priority: 'medium' });
+    }
+
+    // Checklist (10 pts)
+    if (checklist.length > 0) {
+      const checked = checklist.filter((c: any) => c.isChecked).length;
+      score += Math.round((checked / checklist.length) * 10);
+      const unchecked = checklist.length - checked;
+      if (unchecked > 0) {
+        missing.push({ category: 'checklist', message: `${unchecked} item${unchecked > 1 ? 'ns' : ''} pendente${unchecked > 1 ? 's' : ''} no checklist`, icon: 'checklist', priority: 'low' });
+      }
+    }
+
+    return {
+      score: Math.min(maxScore, score),
+      maxScore,
+      percentage: Math.min(100, Math.round((score / maxScore) * 100)),
+      missing,
+      label: score >= 85 ? 'ready' : score >= 60 ? 'almost' : score >= 30 ? 'progress' : 'starting',
+    };
+  }
+
+  async getReadiness(id: string, userId: string) {
+    const trip = await this.prisma.trip.findFirst({
+      where: { id },
+      include: { itineraryItems: true },
+    });
+    if (!trip) throw new NotFoundException('Trip not found');
+    return this.computeReadiness(trip);
+  }
+
   private serialize(trip: any, userId?: string) {
     // Determine the current user's role
     let myRole: string | null = null;

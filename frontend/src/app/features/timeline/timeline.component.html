@@ -13,6 +13,19 @@
         <mat-icon>unfold_less</mat-icon> {{ 'timeline.collapse' | translate }}
       </button>
 
+      <!-- Optimize Route (PRO) -->
+      <button mat-stroked-button class="bulk-action optimize-btn" (click)="optimizeRoute()" [disabled]="optimizing()">
+        @if (optimizing()) {
+          <mat-spinner diameter="16"></mat-spinner>
+        } @else {
+          <mat-icon>route</mat-icon>
+        }
+        {{ 'timeline.optimize' | translate }}
+        @if (!planService.hasFeature('routeOptimization')) {
+          <mat-icon class="pro-lock-inline">lock</mat-icon>
+        }
+      </button>
+
       <!-- Export (PRO) -->
       <button mat-stroked-button class="bulk-action export-btn" [matMenuTriggerFor]="exportMenu" [disabled]="exporting()">
         @if (exporting()) {
@@ -25,6 +38,12 @@
       <mat-menu #exportMenu="matMenu">
         <button mat-menu-item (click)="exportPdf()">
           <mat-icon>picture_as_pdf</mat-icon> {{ 'export.pdf' | translate }}
+        </button>
+        <button mat-menu-item (click)="exportBeautifulPdf()">
+          <mat-icon>auto_stories</mat-icon> {{ 'export.pdfPro' | translate }}
+          @if (!planService.hasFeature('pdfExport')) {
+            <mat-icon class="pro-lock-inline">lock</mat-icon>
+          }
         </button>
         <button mat-menu-item (click)="exportExcel()">
           <mat-icon>table_chart</mat-icon> {{ 'export.excel' | translate }}

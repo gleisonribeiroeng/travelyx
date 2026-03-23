@@ -528,6 +528,39 @@ export class TripStateService {
   }
 
   // ---------------------------------------------------------------------------
+  // Clone trip
+  // ---------------------------------------------------------------------------
+
+  cloneTrip(id: string, newName?: string): Observable<Trip> {
+    return this.http.post<Trip>(`${this.baseUrl}/${id}/clone`, { name: newName }).pipe(
+      tap((cloned) => {
+        this._trips.update(list => [...list, cloned]);
+        this.selectTrip(cloned.id);
+      })
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Route optimization
+  // ---------------------------------------------------------------------------
+
+  optimizeRoute(items: { id: string; lat: number; lng: number }[]): Observable<{ optimized: { id: string; lat: number; lng: number }[] }> {
+    const tripId = this._activeTripId();
+    if (!tripId) return of({ optimized: items });
+    return this.http.post<{ optimized: { id: string; lat: number; lng: number }[] }>(`${this.baseUrl}/${tripId}/optimize-route`, { items });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Readiness
+  // ---------------------------------------------------------------------------
+
+  getReadiness(): Observable<any> {
+    const tripId = this._activeTripId();
+    if (!tripId) return of(null);
+    return this.http.get<any>(`${this.baseUrl}/${tripId}/readiness`);
+  }
+
+  // ---------------------------------------------------------------------------
   // Reset
   // ---------------------------------------------------------------------------
 

@@ -28,7 +28,7 @@ export class TripListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
-  private readonly planService = inject(PlanService);
+  protected readonly planService = inject(PlanService);
   private readonly i18n = inject(TranslationService);
   protected readonly collabService = inject(CollaborationService);
 
@@ -130,6 +130,20 @@ export class TripListComponent implements OnInit {
       this.tripState.setTripMeta(result.name, result.destination, result.dates);
       if (prevActive && prevActive !== id) this.tripState.selectTrip(prevActive);
       this.notify.success(this.i18n.t('trips.updatedSuccess'));
+    });
+  }
+
+  cloneTrip(id: string, name: string): void {
+    if (!this.planService.hasFeature('tripClone')) {
+      this.planService.showPaywall('tripClone');
+      return;
+    }
+    this.tripState.cloneTrip(id, `${name} (cópia)`).subscribe({
+      next: (trip) => {
+        this.notify.success(this.i18n.t('trips.clonedSuccess'));
+        this.router.navigate(['/viagem', trip.id, 'home']);
+      },
+      error: () => this.notify.error(this.i18n.t('trips.cloneError')),
     });
   }
 

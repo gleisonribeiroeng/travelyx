@@ -85,6 +85,77 @@ export class HotelsService {
     }
   }
 
+  async getHotelDetails(
+    hotelId: string,
+    arrivalDate?: string,
+    departureDate?: string,
+    locale?: string,
+  ): Promise<any> {
+    if (!hotelId) return { data: null };
+
+    try {
+      const params: Record<string, string> = {
+        hotel_id: hotelId,
+        locale: locale || 'pt-br',
+      };
+      if (arrivalDate) params['arrival_date'] = arrivalDate;
+      if (departureDate) params['departure_date'] = departureDate;
+
+      const { data } = await firstValueFrom(
+        this.httpService.get(
+          `${this.baseUrl}/api/v1/hotels/getDescriptionAndInfo`,
+          { params, headers: this.getHeaders() },
+        ),
+      );
+
+      if (!data?.status || !data?.data) {
+        return { data: null };
+      }
+
+      const raw = data.data;
+      this.logger.debug(`RAW HOTEL DETAILS KEYS: ${JSON.stringify(Object.keys(raw))}`);
+      this.logger.debug(`RAW HOTEL DETAILS (first 2000 chars): ${JSON.stringify(raw).substring(0, 2000)}`);
+
+      // Extract facilities grouped by category
+      const facilities: { name: string; icon: string }[] = [];
+      const facilityGroups = raw.facility_groups || raw.facilityGroups || [];
+      for (const group of facilityGroups) {
+        for (const item of group.facilities || []) {
+          if (item.name) {
+            facilities.push({ name: item.name, icon: item.facility_name || '' });
+          }
+        }
+      }
+
+      // Extract top highlights
+      const highlights: string[] = [];
+      const topFacilities = raw.top_ufi_benefits || [];
+      for (const item of topFacilities) {
+        if (item.translated_name) highlights.push(item.translated_name);
+      }
+
+      return {
+        data: {
+          description: raw.description || '',
+          checkinFrom: raw.checkin?.from || '',
+          checkinTo: raw.checkin?.to || '',
+          checkoutFrom: raw.checkout?.from || '',
+          checkoutTo: raw.checkout?.to || '',
+          facilities,
+          highlights,
+          propertyType: raw.accommodation_type_name || '',
+          starRating: raw.class || 0,
+          address: raw.address || '',
+          city: raw.city || '',
+          country: raw.country || '',
+        },
+      };
+    } catch (error: any) {
+      this.logger.error(`Hotel details error: ${error?.message}`);
+      return { data: null };
+    }
+  }
+
   getShowcase() {
     const enrich = (hotels: any[]) =>
       hotels.map((h) => ({

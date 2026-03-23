@@ -87,6 +87,12 @@
             (iconActionClick)="handleIconAction($event)"
           />
           <div class="trip-card-collab-row">
+            <button mat-icon-button class="clone-btn" (click)="cloneTrip(trip.id, trip.name); $event.stopPropagation()" [matTooltip]="'trips.clone' | translate">
+              <mat-icon>content_copy</mat-icon>
+              @if (!planService.hasFeature('tripClone')) {
+                <mat-icon class="pro-lock-icon">lock</mat-icon>
+              }
+            </button>
             @if (isSharedTrip(trip)) {
               <span class="shared-badge">
                 <mat-icon>people</mat-icon>

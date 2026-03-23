@@ -19,4 +19,14 @@ export class HotelsController {
   getHotelPhotos(@Query('hotel_id') hotelId: string) {
     return this.hotelsService.getHotelPhotos(hotelId);
   }
+
+  @Get('api/v1/hotels/getHotelDetails')
+  getHotelDetails(
+    @Query('hotel_id') hotelId: string,
+    @Query('arrival_date') arrivalDate: string,
+    @Query('departure_date') departureDate: string,
+    @Query('locale') locale: string,
+  ) {
+    return this.hotelsService.getHotelDetails(hotelId, arrivalDate, departureDate, locale);
+  }
 }

@@ -31,7 +31,7 @@ export class TimelineComponent implements OnInit {
   private readonly notify = inject(NotificationService);
   private readonly calendarApi = inject(CalendarApiService);
   private readonly exportService = inject(ExportService);
-  private readonly planService = inject(PlanService);
+  protected readonly planService = inject(PlanService);
   private readonly i18n = inject(TranslationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -39,6 +39,7 @@ export class TimelineComponent implements OnInit {
 
   readonly syncing = signal(false);
   readonly exporting = signal(false);
+  readonly optimizing = signal(false);
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -373,6 +374,82 @@ export class TimelineComponent implements OnInit {
     this.exporting.set(true);
     try {
       await this.exportService.exportToPdf();
+      this.notify.success(this.i18n.t('export.pdfSuccess'));
+    } catch {
+      this.notify.error(this.i18n.t('export.pdfError'));
+    } finally {
+      this.exporting.set(false);
+    }
+  }
+
+  optimizeRoute(): void {
+    if (!this.planService.hasFeature('routeOptimization')) {
+      this.planService.showPaywall('routeOptimization');
+      return;
+    }
+
+    const trip = this.tripState.trip();
+    // Build items with coordinates from stays, activities, attractions
+    const itemsWithCoords: { id: string; lat: number; lng: number }[] = [];
+
+    for (const item of trip.itineraryItems) {
+      let lat: number | null = null;
+      let lng: number | null = null;
+
+      if (item.type === 'stay' && item.refId) {
+        const stay = trip.stays.find(s => s.id === item.refId);
+        if (stay?.location) { lat = stay.location.latitude; lng = stay.location.longitude; }
+      } else if (item.type === 'activity' && item.refId) {
+        const activity = trip.activities.find(a => a.id === item.refId);
+        if (activity?.location) { lat = activity.location.latitude; lng = activity.location.longitude; }
+      } else if (item.type === 'attraction' && item.refId) {
+        const attraction = trip.attractions.find(a => a.id === item.refId);
+        if (attraction?.location) { lat = attraction.location.latitude; lng = attraction.location.longitude; }
+      }
+
+      if (lat !== null && lng !== null) {
+        itemsWithCoords.push({ id: item.id, lat, lng });
+      }
+    }
+
+    if (itemsWithCoords.length < 3) {
+      this.notify.warning(this.i18n.t('timeline.optimizeMinItems'));
+      return;
+    }
+
+    this.optimizing.set(true);
+    this.tripState.optimizeRoute(itemsWithCoords).subscribe({
+      next: (result) => {
+        // Reorder the itinerary items based on optimization
+        const orderMap = new Map(result.optimized.map((item, idx) => [item.id, idx]));
+        const items = trip.itineraryItems.map(item => {
+          const newOrder = orderMap.get(item.id);
+          return newOrder !== undefined ? { ...item, order: newOrder } : item;
+        });
+        // Update items with new order
+        for (const item of items) {
+          if (orderMap.has(item.id)) {
+            this.tripState.updateItineraryItem(item);
+          }
+        }
+        this.notify.success(this.i18n.t('timeline.optimizeSuccess'));
+        this.optimizing.set(false);
+      },
+      error: () => {
+        this.notify.error(this.i18n.t('timeline.optimizeError'));
+        this.optimizing.set(false);
+      },
+    });
+  }
+
+  async exportBeautifulPdf(): Promise<void> {
+    if (!this.planService.hasFeature('pdfExport')) {
+      this.planService.showPaywall('pdfExport');
+      return;
+    }
+    this.exporting.set(true);
+    try {
+      await this.exportService.exportToBeautifulPdf();
       this.notify.success(this.i18n.t('export.pdfSuccess'));
     } catch {
       this.notify.error(this.i18n.t('export.pdfError'));

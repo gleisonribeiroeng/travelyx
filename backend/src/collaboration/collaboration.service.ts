@@ -274,7 +274,7 @@ export class CollaborationService {
     const trip = await this.prisma.trip.findFirst({
       where: { publicSlug: slug },
       include: {
-        user: { select: { name: true, picture: true } },
+        user: { select: { name: true, picture: true, plan: true } },
         itineraryItems: {
           orderBy: [{ date: 'asc' }, { order: 'asc' }],
           select: {
@@ -292,6 +292,36 @@ export class CollaborationService {
     });
     if (!trip) throw new NotFoundException('Viagem nao encontrada.');
 
+    const isPro = trip.user.plan === 'PRO' || trip.user.plan === 'BUSINESS';
+
+    // Parse JSON fields for enhanced sharing (Pro only)
+    const flights = isPro ? JSON.parse(trip.flights || '[]').map((f: any) => ({
+      origin: f.origin,
+      destination: f.destination,
+      airline: f.airline,
+      airlineLogo: f.airlineLogo,
+      departureAt: f.departureAt,
+      arrivalAt: f.arrivalAt,
+      durationMinutes: f.durationMinutes,
+      stops: f.stops,
+    })) : [];
+
+    const stays = isPro ? JSON.parse(trip.stays || '[]').map((s: any) => ({
+      name: s.name,
+      address: s.address,
+      photoUrl: s.photoUrl,
+      rating: s.rating,
+      checkIn: s.checkIn,
+      checkOut: s.checkOut,
+    })) : [];
+
+    const activities = isPro ? JSON.parse(trip.activities || '[]').map((a: any) => ({
+      name: a.name,
+      description: a.description?.substring(0, 200),
+      images: (a.images || []).slice(0, 1),
+      rating: a.rating,
+    })) : [];
+
     // Sanitized data: no user emails, no expense amounts
     return {
       id: trip.id,
@@ -303,6 +333,11 @@ export class CollaborationService {
       travelers: trip.travelers,
       owner: { name: trip.user.name, picture: trip.user.picture },
       itineraryItems: trip.itineraryItems,
+      // Enhanced data (Pro only)
+      enhanced: isPro,
+      flights,
+      stays,
+      activities,
     };
   }
 

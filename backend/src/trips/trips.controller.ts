@@ -98,6 +98,37 @@ export class TripsController {
     return this.tripsService.removeItineraryItem(tripId, itemId, req.user.sub);
   }
 
+  // --- Clone Trip ---
+
+  @Post(':id/clone')
+  @UseGuards(TripAccessGuard)
+  @MinRole('VIEWER')
+  async cloneTrip(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+    const check = await this.subscriptionService.canCreateTrip(req.user.sub);
+    if (!check.allowed) {
+      throw new BadRequestException({ message: check.reason, code: 'PLAN_LIMIT' });
+    }
+    return this.tripsService.cloneTrip(id, req.user.sub, body.name);
+  }
+
+  // --- Route Optimization ---
+
+  @Post(':id/optimize-route')
+  @UseGuards(TripAccessGuard)
+  @MinRole('EDITOR')
+  optimizeRoute(@Body() body: { items: { id: string; lat: number; lng: number }[] }) {
+    return { optimized: this.tripsService.optimizeRoute(body.items) };
+  }
+
+  // --- Trip Readiness ---
+
+  @Get(':id/readiness')
+  @UseGuards(TripAccessGuard)
+  @MinRole('VIEWER')
+  getReadiness(@Param('id') id: string, @Req() req: any) {
+    return this.tripsService.getReadiness(id, req.user.sub);
+  }
+
   // --- Attachments ---
 
   @Post(':tripId/items/:itemId/attachment')
