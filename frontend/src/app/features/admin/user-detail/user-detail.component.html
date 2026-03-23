@@ -1,0 +1,140 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (user(); as u) {
+  <div class="user-detail-page">
+    <!-- Header -->
+    <div class="page-header">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>{{ i18n.t('admin.userDetail') }}</h1>
+    </div>
+
+    <!-- User Profile Card -->
+    <mat-card class="profile-card">
+      <div class="profile-row">
+        <img [src]="u.picture" alt="" class="avatar" referrerpolicy="no-referrer" />
+        <div class="profile-info">
+          <h2>{{ u.name }}</h2>
+          <p class="email">{{ u.email }}</p>
+          <div class="badges">
+            <span class="badge" [class]="getPlanClass(u.plan)">{{ u.plan }}</span>
+            <span class="badge badge-role">{{ u.role }}</span>
+            @if (!u.isActive) {
+              <span class="badge badge-inactive">{{ i18n.t('admin.inactive') }}</span>
+            }
+          </div>
+        </div>
+        <div class="profile-meta">
+          <div class="meta-item">
+            <span class="meta-label">{{ i18n.t('admin.memberSince') }}</span>
+            <span class="meta-value">{{ formatDate(u.createdAt) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">{{ i18n.t('admin.lastUpdate') }}</span>
+            <span class="meta-value">{{ formatDate(u.updatedAt) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">{{ i18n.t('admin.totalTrips') }}</span>
+            <span class="meta-value highlight">{{ u.totalTrips }}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Trips Section -->
+    <div class="section-header">
+      <mat-icon>luggage</mat-icon>
+      <h3>{{ i18n.t('admin.userTrips') }} ({{ u.trips.length }})</h3>
+    </div>
+
+    @if (u.trips.length === 0) {
+      <mat-card class="empty-trips">
+        <mat-icon>flight_takeoff</mat-icon>
+        <p>{{ i18n.t('admin.noTrips') }}</p>
+      </mat-card>
+    } @else {
+      <div class="trips-grid">
+        @for (trip of u.trips; track trip.id) {
+          <mat-card class="trip-card">
+            <div class="trip-header">
+              <div class="trip-title">
+                <h4>{{ trip.name }}</h4>
+                <span class="trip-status" [class]="getStatusClass(trip.status)">
+                  <mat-icon>{{ getStatusIcon(trip.status) }}</mat-icon>
+                  {{ getStatusLabel(trip.status) }}
+                </span>
+              </div>
+              @if (trip.destination) {
+                <div class="trip-destination">
+                  <mat-icon>place</mat-icon> {{ trip.destination }}
+                </div>
+              }
+            </div>
+
+            <div class="trip-details">
+              @if (trip.dateStart || trip.dateEnd) {
+                <div class="detail-row">
+                  <mat-icon>date_range</mat-icon>
+                  <span>{{ formatDateRange(trip.dateStart, trip.dateEnd) }}</span>
+                </div>
+              }
+              <div class="detail-row">
+                <mat-icon>people</mat-icon>
+                <span>{{ trip.travelers }} {{ i18n.t('admin.travelers') }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>payments</mat-icon>
+                <span>{{ trip.currency }}</span>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="trip-counts">
+              @if (trip.counts.flights > 0) {
+                <div class="count-chip">
+                  <mat-icon>flight</mat-icon> {{ trip.counts.flights }}
+                </div>
+              }
+              @if (trip.counts.stays > 0) {
+                <div class="count-chip">
+                  <mat-icon>hotel</mat-icon> {{ trip.counts.stays }}
+                </div>
+              }
+              @if (trip.counts.carRentals > 0) {
+                <div class="count-chip">
+                  <mat-icon>directions_car</mat-icon> {{ trip.counts.carRentals }}
+                </div>
+              }
+              @if (trip.counts.activities > 0) {
+                <div class="count-chip">
+                  <mat-icon>local_activity</mat-icon> {{ trip.counts.activities }}
+                </div>
+              }
+              @if (trip.counts.attractions > 0) {
+                <div class="count-chip">
+                  <mat-icon>museum</mat-icon> {{ trip.counts.attractions }}
+                </div>
+              }
+              @if (trip.counts.itineraryItems > 0) {
+                <div class="count-chip">
+                  <mat-icon>event_note</mat-icon> {{ trip.counts.itineraryItems }} {{ i18n.t('admin.itineraryItems') }}
+                </div>
+              }
+              @if (getTotalItems(trip) === 0) {
+                <span class="no-items">{{ i18n.t('admin.emptyTrip') }}</span>
+              }
+            </div>
+
+            <div class="trip-footer">
+              <span class="trip-created">{{ i18n.t('admin.created') }}: {{ formatDate(trip.createdAt) }}</span>
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+}

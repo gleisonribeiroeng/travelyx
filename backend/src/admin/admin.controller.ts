@@ -24,6 +24,11 @@ export class AdminController {
     return this.adminService.findAllUsers();
   }
 
+  @Get('users/:id')
+  findUserDetail(@Param('id') id: string) {
+    return this.adminService.findUserDetail(id);
+  }
+
   @Get('online-users')
   getOnlineUsers() {
     return this.presenceGateway.getOnlineUserIds();

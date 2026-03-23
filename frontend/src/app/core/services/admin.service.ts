@@ -41,4 +41,44 @@ export class AdminService {
   updatePlan(userId: string, plan: 'FREE' | 'PRO' | 'BUSINESS'): Observable<any> {
     return this.http.patch(`${this.apiUrl}/users/${userId}/plan`, { plan });
   }
+
+  getUserDetail(userId: string): Observable<AdminUserDetail> {
+    return this.http.get<AdminUserDetail>(`${this.apiUrl}/users/${userId}`);
+  }
+}
+
+export interface AdminTripSummary {
+  id: string;
+  name: string;
+  destination: string;
+  dateStart: string;
+  dateEnd: string;
+  status: string;
+  currency: string;
+  travelers: number;
+  coverImage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  counts: {
+    flights: number;
+    stays: number;
+    carRentals: number;
+    activities: number;
+    attractions: number;
+    itineraryItems: number;
+  };
+}
+
+export interface AdminUserDetail {
+  id: string;
+  name: string;
+  email: string;
+  picture: string;
+  role: string;
+  plan: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  totalTrips: number;
+  trips: AdminTripSummary[];
 }

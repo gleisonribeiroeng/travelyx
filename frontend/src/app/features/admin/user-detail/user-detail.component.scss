@@ -1,0 +1,308 @@
+:host { display: block; }
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+}
+
+.user-detail-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--triply-text-primary);
+  }
+}
+
+// ── Profile Card ──
+.profile-card {
+  margin-bottom: 32px;
+
+  .profile-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 24px;
+    flex-wrap: wrap;
+  }
+
+  .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--triply-primary, #4F46E5);
+    flex-shrink: 0;
+  }
+
+  .profile-info {
+    flex: 1;
+    min-width: 200px;
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+
+    .email {
+      font-size: 0.9rem;
+      color: var(--triply-text-secondary);
+      margin: 0 0 10px;
+    }
+  }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .plan-free { background: #e5e7eb; color: #6b7280; }
+  .plan-pro { background: #4F46E5; color: #fff; }
+  .plan-business { background: #D4A04A; color: #fff; }
+  .badge-role { background: #dbeafe; color: #1e40af; }
+  .badge-inactive { background: #fee2e2; color: #dc2626; }
+
+  .profile-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .meta-label {
+    font-size: 0.7rem;
+    color: var(--triply-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .meta-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--triply-text-primary);
+
+    &.highlight {
+      color: var(--triply-primary, #4F46E5);
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// ── Section Header ──
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    color: var(--triply-primary, #4F46E5);
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--triply-text-primary);
+  }
+}
+
+// ── Empty Trips ──
+.empty-trips {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--triply-text-secondary);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.4;
+    margin-bottom: 12px;
+  }
+
+  p { margin: 0; font-size: 0.95rem; }
+}
+
+// ── Trips Grid ──
+.trips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.trip-card {
+  padding: 20px;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .trip-header {
+    margin-bottom: 12px;
+  }
+
+  .trip-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--triply-text-primary);
+    }
+  }
+
+  .trip-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    &.status-planejamento { background: #dbeafe; color: #1e40af; }
+    &.status-ativa { background: #dcfce7; color: #16a34a; }
+    &.status-concluida { background: #e5e7eb; color: #6b7280; }
+  }
+
+  .trip-destination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--triply-text-secondary);
+    margin-top: 4px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .trip-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .detail-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--triply-text-secondary);
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--triply-text-secondary);
+    }
+  }
+
+  mat-divider {
+    margin: 12px 0;
+  }
+
+  .trip-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 28px;
+  }
+
+  .count-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f3f4f6;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--triply-text-primary);
+
+    mat-icon {
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+      color: var(--triply-primary, #4F46E5);
+    }
+  }
+
+  .no-items {
+    font-size: 0.8rem;
+    color: var(--triply-text-secondary);
+    font-style: italic;
+  }
+
+  .trip-footer {
+    margin-top: 12px;
+
+    .trip-created {
+      font-size: 0.75rem;
+      color: var(--triply-text-secondary);
+    }
+  }
+}
+
+// ── Responsive ──
+@media (max-width: 600px) {
+  .profile-card .profile-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-card .profile-meta {
+    justify-content: center;
+  }
+
+  .trips-grid {
+    grid-template-columns: 1fr;
+  }
+}

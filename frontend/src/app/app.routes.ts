@@ -86,6 +86,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/user-management/user-management.component').then(m => m.UserManagementComponent),
   },
+  {
+    path: 'admin/usuarios/:id',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/admin/user-detail/user-detail.component').then(m => m.UserDetailComponent),
+  },
 
   // ── Trip-scoped routes ──
   {

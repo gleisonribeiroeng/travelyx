@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { AdminService, AdminUser } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -19,6 +20,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   private readonly adminService = inject(AdminService);
   private readonly notify = inject(NotificationService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   readonly presence = inject(PresenceService);
   protected readonly i18n = inject(TranslationService);
 
@@ -92,5 +94,9 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   isCurrentUser(user: AdminUser): boolean {
     return this.auth.user()?.email === user.email;
+  }
+
+  viewUserDetail(userId: string): void {
+    this.router.navigate(['/admin/usuarios', userId]);
   }
 }

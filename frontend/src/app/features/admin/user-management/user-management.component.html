@@ -73,6 +73,13 @@
               <td>
                 <button
                   mat-icon-button
+                  matTooltip="Ver detalhes"
+                  (click)="viewUserDetail(user.id)"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
                   [matTooltip]="user.isActive ? ('admin.deactivateUser' | translate) : ('admin.activateUser' | translate)"
                   (click)="onToggleActive(user)"
                   [disabled]="isCurrentUser(user)"
