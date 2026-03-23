@@ -46,15 +46,23 @@
   </script>
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com;
+    script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://www.googletagmanager.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com;
     img-src 'self' https: data:;
-    connect-src 'self' http://localhost:3000 ws://localhost:3000 https://*.railway.app wss://*.railway.app https://ui-avatars.com https://travelyx.com.br wss://travelyx.com.br https://cloudflareinsights.com;
+    connect-src 'self' http://localhost:3000 ws://localhost:3000 https://*.railway.app wss://*.railway.app https://ui-avatars.com https://travelyx.com.br wss://travelyx.com.br https://cloudflareinsights.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com;
     frame-src 'none';
     object-src 'none';
     base-uri 'self';
   ">
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y8313DCJYY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y8313DCJYY');
+  </script>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
