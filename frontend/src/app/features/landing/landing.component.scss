@@ -43,8 +43,7 @@
 // SHARED — Section tag pill
 // ════════════════════════════════════════════════════════════
 
-.section-tag,
-.hero-badge {
+.section-tag {
   display: inline-flex;
   padding: 6px 14px;
   border-radius: var(--triply-radius-full);
@@ -54,6 +53,19 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  padding: 6px 14px;
+  border-radius: var(--triply-radius-full);
+  background: rgba(108, 92, 231, 0.2);
+  color: #a78bfa;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(108, 92, 231, 0.25);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -166,16 +178,16 @@
 
 .hero {
   position: relative;
-  background: linear-gradient(145deg, #f0eef9 0%, var(--triply-surface-0) 40%, #eef6f0 100%);
+  background: linear-gradient(160deg, #1a1a2e 0%, #2d2b55 40%, #1a1a2e 100%);
   padding: 80px 16px 48px;
+  overflow: hidden;
 
   @media (min-width: 480px) {
     padding: 100px 20px 60px;
   }
-  overflow: hidden;
 }
 
-// Background travel image
+// Background travel image — visible with dark overlay
 .hero-bg {
   position: absolute;
   inset: 0;
@@ -186,26 +198,26 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
-    opacity: 0.07;
+    opacity: 0.2;
   }
 
   &::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(145deg, rgba(240, 238, 249, 0.85) 0%, rgba(245, 245, 247, 0.7) 40%, rgba(238, 246, 240, 0.85) 100%);
+    background: linear-gradient(160deg, rgba(26, 26, 46, 0.92) 0%, rgba(45, 43, 85, 0.8) 40%, rgba(26, 26, 46, 0.95) 100%);
   }
 }
 
-// Decorative glow orb
+// Decorative glow orb — more visible on dark bg
 .hero-glow {
   position: absolute;
   top: -100px;
   right: -100px;
-  width: 500px;
-  height: 500px;
+  width: 600px;
+  height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(108, 92, 231, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(108, 92, 231, 0.25) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -217,6 +229,12 @@
   gap: 40px;
   position: relative;
   z-index: 1;
+
+  @media (min-width: 960px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 48px;
+  }
 }
 
 .hero-content {
@@ -225,22 +243,50 @@
   align-items: flex-start;
   gap: 20px;
 
+  @media (min-width: 960px) {
+    flex: 1;
+    min-width: 0;
+  }
+
   h1 {
     font-size: clamp(2rem, 5vw, 3.25rem);
     font-weight: 800;
-    line-height: 1.1;
+    line-height: 1.08;
     letter-spacing: -0.03em;
-    color: var(--triply-text-primary);
+    color: #fff;
     margin: 0;
   }
 }
 
 .hero-sub {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--triply-text-secondary);
-  max-width: 480px;
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 500px;
   margin: 0;
+}
+
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #34d399;
+  }
 }
 
 .hero-actions {
@@ -287,15 +333,22 @@
   align-items: center;
   gap: 6px;
   background: none;
-  border: none;
-  color: var(--triply-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  padding: 8px 4px;
-  transition: color var(--triply-transition-fast);
+  padding: 10px 18px;
+  border-radius: var(--triply-radius-full);
+  transition: all var(--triply-transition-fast);
   mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #fff;
+  }
 }
 
 // ── Hero device showcase (Desktop monitor) ──
@@ -306,6 +359,11 @@
   align-items: center;
   gap: 0;
   perspective: 1400px;
+
+  @media (min-width: 960px) {
+    flex: 1.2;
+    min-width: 0;
+  }
 }
 
 .device-frame {

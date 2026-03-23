@@ -43,6 +43,11 @@
         <span class="hero-badge">{{ 'landing.hero.badge' | translate }}</span>
         <h1>{{ 'landing.hero.title' | translate }}</h1>
         <p class="hero-sub">{{ 'landing.hero.subtitle' | translate }}</p>
+        <div class="hero-trust">
+          <span class="trust-chip"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust1' | translate }}</span>
+          <span class="trust-chip"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust2' | translate }}</span>
+          <span class="trust-chip"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust3' | translate }}</span>
+        </div>
         <div class="hero-actions">
           @if (authService.isLoggedIn()) {
             <button mat-flat-button class="hero-cta-primary" (click)="navigateTo('/home')">
