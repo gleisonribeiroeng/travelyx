@@ -1,20 +1,4 @@
 <div class="dashboard">
-  <!-- Hero CTA Banner (only when trip already has content) -->
-  @if (hasContent()) {
-    <div class="hero-banner" (click)="navigateTo('planner')" tabindex="0" role="button">
-      <div class="hero-content">
-        <div class="hero-icon"><mat-icon>explore</mat-icon></div>
-        <div class="hero-text">
-          <h2>{{ 'dash.guidedPlanning' | translate }}</h2>
-          <p>{{ 'dash.guidedPlanningDesc' | translate }}</p>
-        </div>
-        <button mat-flat-button class="hero-cta">
-          {{ 'dash.start' | translate }} <mat-icon>arrow_forward</mat-icon>
-        </button>
-      </div>
-    </div>
-  }
-
   @if (hasTrip()) {
     <!-- ═══ Viewer Banner ═══ -->
     @if (collabService.isViewer()) {
@@ -90,7 +74,7 @@
       </div>
     }
 
-    <!-- ═══ SECTION 2: Guided Steps (empty trip) or Metrics (has content) ═══ -->
+    <!-- ═══ SECTION 2: Guided Steps (empty trip) or Dashboard content ═══ -->
     @if (!hasContent()) {
       <div class="guided-steps">
         <h3 class="guided-title">
@@ -100,11 +84,7 @@
         @for (step of guidedSteps(); track step.route; let i = $index) {
           <button class="guided-step" [class.done]="step.done" (click)="navigateTo(step.route)">
             <div class="step-number" [class.done]="step.done">
-              @if (step.done) {
-                <mat-icon>check</mat-icon>
-              } @else {
-                {{ i + 1 }}
-              }
+              @if (step.done) { <mat-icon>check</mat-icon> } @else { {{ i + 1 }} }
             </div>
             <div class="step-info">
               <span class="step-label">{{ step.label }}</span>
@@ -115,18 +95,19 @@
         }
       </div>
     } @else {
+      <!-- ═══ METRICS: Clean pill grid (like timeline summary) ═══ -->
       <div class="metrics-grid">
-        <!-- Score -->
-        <mat-card class="metric-card score-card" (click)="navigateTo('checklist')">
+        <!-- Readiness (replaces score circle) -->
+        <mat-card class="metric-card readiness-metric" (click)="navigateTo('checklist')">
           <mat-card-content>
-            <div class="score-circle" [style.--score-color]="score.scoreColor()">
+            <div class="metric-circle" [style.--score-color]="readinessColor()">
               <svg viewBox="0 0 36 36" class="score-svg">
                 <path class="score-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path class="score-fill" [attr.stroke-dasharray]="score.score().total + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="score-fill" [attr.stroke-dasharray]="(readiness()?.percentage ?? score.score().total) + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
               </svg>
-              <span class="score-value">{{ score.score().total }}</span>
+              <span class="score-value">{{ readiness()?.percentage ?? score.score().total }}</span>
             </div>
-            <span class="metric-label">{{ score.scoreLabel() }}</span>
+            <span class="metric-label">{{ readiness() ? readinessLabel() : score.scoreLabel() }}</span>
           </mat-card-content>
         </mat-card>
 
@@ -168,26 +149,48 @@
           </mat-card-content>
         </mat-card>
       </div>
-    }
 
-    <!-- ═══ SECTION 2b: Trip Readiness ═══ -->
-    @if (readiness() && hasContent()) {
-      <mat-card class="readiness-card">
-        <mat-card-content>
-          <div class="readiness-header">
-            <div class="readiness-circle" [style.--readiness-color]="readinessColor()">
-              <svg viewBox="0 0 36 36" class="readiness-svg">
-                <path class="readiness-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path class="readiness-fill" [attr.stroke-dasharray]="readiness()!.percentage + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <span class="readiness-value">{{ readiness()!.percentage }}%</span>
+      <!-- ═══ NEXT ITEMS (moved to top — most important info) ═══ -->
+      @if (nextItems().length > 0) {
+        <mat-card class="next-items-card">
+          <mat-card-content>
+            <div class="section-header">
+              <h3><mat-icon>schedule</mat-icon> {{ 'dash.nextOnItinerary' | translate }}</h3>
+              <button mat-button class="view-all-btn" (click)="navigateTo('itinerary')">
+                {{ 'dash.viewAll' | translate }} <mat-icon>arrow_forward</mat-icon>
+              </button>
             </div>
-            <div class="readiness-info">
-              <span class="readiness-title">{{ 'dash.readinessTitle' | translate }}</span>
-              <span class="readiness-label">{{ readinessLabel() }}</span>
+            <div class="next-items-list">
+              @for (item of nextItems(); track item.id; let i = $index) {
+                <div class="next-item" [class.next-item-first]="i === 0" (click)="navigateTo('timeline')">
+                  <div class="next-item-indicator" [style.--type-color]="getTypeColor(item.type)"></div>
+                  <div class="next-item-time">
+                    @if (item.timeSlot) {
+                      <span class="time-value">{{ item.timeSlot }}</span>
+                    } @else {
+                      <span class="time-value all-day">{{ 'dash.allDay' | translate }}</span>
+                    }
+                    <span class="time-date">{{ formatShortDate(item.date) }}</span>
+                  </div>
+                  <mat-icon class="next-item-icon" [style.color]="getTypeColor(item.type)">{{ getTypeIcon(item.type) }}</mat-icon>
+                  <div class="next-item-info">
+                    <span class="next-item-label">{{ item.label }}</span>
+                    <span class="next-item-type">{{ getTypeLabel(item.type) }}</span>
+                  </div>
+                  @if (i === 0) {
+                    <span class="next-badge">{{ 'dash.next' | translate }}</span>
+                  }
+                </div>
+              }
             </div>
-          </div>
-          @if (readiness()!.missing.length > 0) {
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- ═══ READINESS: What's missing (only if items exist) ═══ -->
+      @if (readiness() && readiness()!.missing.length > 0) {
+        <mat-card class="readiness-card">
+          <mat-card-content>
             <div class="readiness-missing">
               @for (item of readiness()!.missing.slice(0, planService.isPro() ? 10 : 2); track item.category) {
                 <button class="missing-item" [class]="'priority-' + item.priority" (click)="navigateTo(getMissingRoute(item.category))">
@@ -204,329 +207,224 @@
                 </button>
               }
             </div>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
+          </mat-card-content>
+        </mat-card>
+      }
 
-    <!-- ═══ SECTION 3: Progress & Stats ═══ -->
-    @if (paidProgress().total > 0) {
-      <mat-card class="paid-progress-card" (click)="navigateTo('budget')">
-        <mat-card-content>
-          <div class="paid-header">
-            <mat-icon class="paid-card-icon">payments</mat-icon>
-            <div class="paid-info">
-              <span class="paid-title">{{ 'dash.payments' | translate }}</span>
-              <span class="paid-detail">{{ paidProgress().paid }} de {{ paidProgress().total }} itens pagos</span>
-            </div>
-            <span class="paid-percentage">{{ paidProgress().percentage }}%</span>
-          </div>
-          <div class="paid-bar-track">
-            <div class="paid-bar-fill" [style.width.%]="paidProgress().percentage"></div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    }
-
-    @if (stats().length > 0) {
-      <div class="stats-row">
-        @for (stat of stats(); track stat.icon) {
-          <div class="stat-chip" (click)="navigateTo(stat.route)">
-            <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
-            <span class="stat-count">{{ stat.count }}</span>
-            <span class="stat-label">{{ stat.label }}</span>
-          </div>
-        }
-      </div>
-    }
-
-    <!-- ═══ SECTION 4: Next Items (Mini Timeline) ═══ -->
-    @if (nextItems().length > 0) {
-      <mat-card class="next-items-card">
-        <mat-card-content>
-          <div class="section-header">
-            <h3><mat-icon>schedule</mat-icon> {{ 'dash.nextOnItinerary' | translate }}</h3>
-            <button mat-button class="view-all-btn" (click)="navigateTo('itinerary')">
-              {{ 'dash.viewAll' | translate }} <mat-icon>arrow_forward</mat-icon>
-            </button>
-          </div>
-          <div class="next-items-list">
-            @for (item of nextItems(); track item.id; let i = $index) {
-              <div class="next-item" [class.next-item-first]="i === 0" (click)="navigateTo('timeline')">
-                <div class="next-item-indicator" [style.--type-color]="getTypeColor(item.type)"></div>
-                <div class="next-item-time">
-                  @if (item.timeSlot) {
-                    <span class="time-value">{{ item.timeSlot }}</span>
-                  } @else {
-                    <span class="time-value all-day">{{ 'dash.allDay' | translate }}</span>
-                  }
-                  <span class="time-date">{{ formatShortDate(item.date) }}</span>
-                </div>
-                <mat-icon class="next-item-icon" [style.color]="getTypeColor(item.type)">{{ getTypeIcon(item.type) }}</mat-icon>
-                <div class="next-item-info">
-                  <span class="next-item-label">{{ item.label }}</span>
-                  <span class="next-item-type">{{ getTypeLabel(item.type) }}</span>
-                </div>
-                @if (i === 0) {
-                  <span class="next-badge">{{ 'dash.next' | translate }}</span>
-                }
+      <!-- ═══ PAYMENTS (only when > 0%) ═══ -->
+      @if (paidProgress().total > 0 && paidProgress().percentage > 0) {
+        <mat-card class="paid-progress-card" (click)="navigateTo('budget')">
+          <mat-card-content>
+            <div class="paid-header">
+              <mat-icon class="paid-card-icon">payments</mat-icon>
+              <div class="paid-info">
+                <span class="paid-title">{{ 'dash.payments' | translate }}</span>
+                <span class="paid-detail">{{ paidProgress().paid }} de {{ paidProgress().total }} itens pagos</span>
               </div>
-            }
-          </div>
-        </mat-card-content>
-      </mat-card>
-    }
-
-    <!-- ═══ SECTION 4b: Collaboration CTA ═══ -->
-    @if (!hasCollaborators()) {
-      <mat-card class="collab-cta-card" (click)="openShareDialog()">
-        <mat-card-content>
-          <div class="collab-cta-icon">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div class="collab-cta-text">
-            <h3>{{ 'collab.planTogether' | translate }}</h3>
-            <p>{{ 'collab.planTogetherDesc' | translate }}</p>
-          </div>
-          <div class="collab-cta-action">
-            @if (!canCollab()) {
-              <span class="pro-badge">
-                <mat-icon>lock</mat-icon> Pro
-              </span>
-            }
-            <button mat-flat-button color="primary" class="collab-cta-btn">
-              {{ 'collab.invite' | translate }}
-            </button>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    }
-
-    <!-- ═══ SECTION 4c: Collaboration Panel ═══ -->
-    @if (showCollabSection()) {
-      <mat-card class="collab-panel-card">
-        <mat-card-content>
-          <div class="collab-panel-header">
-            <h3><mat-icon>groups</mat-icon> {{ 'collab.title' | translate }}</h3>
-          </div>
-
-          @if (!canCollab()) {
-            <!-- Free user lock -->
-            <div class="collab-lock">
-              <mat-icon>lock</mat-icon>
-              <p>{{ 'collab.proRequired' | translate }}</p>
-              <p class="lock-desc">{{ 'collab.proRequiredDesc' | translate }}</p>
-              <button mat-flat-button color="primary" (click)="planService.showPaywall('collaboration')">
-                <mat-icon>star</mat-icon> {{ 'collab.upgradePro' | translate }}
-              </button>
+              <span class="paid-percentage">{{ paidProgress().percentage }}%</span>
             </div>
-          } @else {
-            <mat-tab-group [selectedIndex]="collabTabIndex()" (selectedIndexChange)="onCollabTabChange($event)" animationDuration="200ms">
+            <div class="paid-bar-track">
+              <div class="paid-bar-fill" [style.width.%]="paidProgress().percentage"></div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
 
-              <!-- Tab: Atividade -->
-              <mat-tab>
-                <ng-template mat-tab-label>
-                  <mat-icon>history</mat-icon>
-                  <span>{{ 'collab.activity' | translate }}</span>
-                </ng-template>
-                <div class="collab-tab-content">
-                  <app-activity-panel [tripId]="tripState.activeTripId()!"></app-activity-panel>
-                </div>
-              </mat-tab>
+      <!-- ═══ STATS + QUICK ACTIONS ═══ -->
+      @if (stats().length > 0) {
+        <div class="stats-row">
+          @for (stat of stats(); track stat.icon) {
+            <div class="stat-chip" (click)="navigateTo(stat.route)">
+              <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+              <span class="stat-count">{{ stat.count }}</span>
+              <span class="stat-label">{{ stat.label }}</span>
+            </div>
+          }
+        </div>
+      }
 
-              <!-- Tab: Comentarios -->
-              <mat-tab>
-                <ng-template mat-tab-label>
-                  <mat-icon>chat</mat-icon>
-                  <span>{{ 'collab.comments' | translate }}</span>
-                </ng-template>
-                <div class="collab-tab-content">
-                  <app-comment-thread
-                    [tripId]="tripState.activeTripId()!"
-                    targetType="trip"
-                    [targetId]="tripState.activeTripId()!">
-                  </app-comment-thread>
-                </div>
-              </mat-tab>
+      <div class="quick-actions" role="navigation" aria-label="Ações rápidas">
+        <button class="quick-action-card" (click)="navigateTo('search')" [attr.aria-label]="'dash.searchFlights' | translate">
+          <mat-icon aria-hidden="true">flight</mat-icon>
+          <span>{{ 'dash.quickFlights' | translate }}</span>
+        </button>
+        <button class="quick-action-card" (click)="navigateTo('hotels')" [attr.aria-label]="'dash.bookHotel' | translate">
+          <mat-icon aria-hidden="true">hotel</mat-icon>
+          <span>{{ 'dash.quickHotels' | translate }}</span>
+        </button>
+        <button class="quick-action-card" (click)="navigateTo('tours')" [attr.aria-label]="'dash.addActivities' | translate">
+          <mat-icon aria-hidden="true">local_activity</mat-icon>
+          <span>{{ 'dash.quickActivities' | translate }}</span>
+        </button>
+        <button class="quick-action-card" (click)="navigateTo('itinerary')" [attr.aria-label]="'dash.buildItinerary' | translate">
+          <mat-icon aria-hidden="true">map</mat-icon>
+          <span>{{ 'dash.quickItinerary' | translate }}</span>
+        </button>
+      </div>
 
-              <!-- Tab: Enquetes -->
-              <mat-tab>
-                <ng-template mat-tab-label>
-                  <mat-icon>poll</mat-icon>
-                  <span>{{ 'collab.polls' | translate }}</span>
-                </ng-template>
-                <div class="collab-tab-content">
-                  <!-- Create poll form -->
-                  @if (showPollForm()) {
-                    <div class="poll-create-form">
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ 'collab.pollQuestion' | translate }}</mat-label>
-                        <input matInput [(ngModel)]="newPollQuestion" />
-                      </mat-form-field>
-                      @for (opt of pollOptions; track trackByIndex($index); let i = $index) {
-                        <div class="poll-option-row">
-                          <mat-form-field appearance="outline" class="option-field">
-                            <mat-label>{{ 'collab.pollOption' | translate }} {{ i + 1 }}</mat-label>
-                            <input matInput [ngModel]="pollOptions[i]" (ngModelChange)="updatePollOption(i, $event)" />
-                          </mat-form-field>
-                          @if (pollOptions.length > 2) {
-                            <button mat-icon-button (click)="removePollOption(i)">
-                              <mat-icon>close</mat-icon>
-                            </button>
+      <!-- ═══ COLLAB CTA (only if no collaborators) ═══ -->
+      @if (!hasCollaborators()) {
+        <mat-card class="collab-cta-card" (click)="openShareDialog()">
+          <mat-card-content>
+            <div class="collab-cta-icon"><mat-icon>group</mat-icon></div>
+            <div class="collab-cta-text">
+              <h3>{{ 'collab.planTogether' | translate }}</h3>
+              <p>{{ 'collab.planTogetherDesc' | translate }}</p>
+            </div>
+            <div class="collab-cta-action">
+              @if (!canCollab()) {
+                <span class="pro-badge"><mat-icon>lock</mat-icon> Pro</span>
+              }
+              <button mat-flat-button color="primary" class="collab-cta-btn">{{ 'collab.invite' | translate }}</button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- ═══ COLLAB PANEL (only if collaboration is active) ═══ -->
+      @if (showCollabSection()) {
+        <mat-card class="collab-panel-card">
+          <mat-card-content>
+            <div class="collab-panel-header">
+              <h3><mat-icon>groups</mat-icon> {{ 'collab.title' | translate }}</h3>
+            </div>
+
+            @if (!canCollab()) {
+              <div class="collab-lock">
+                <mat-icon>lock</mat-icon>
+                <p>{{ 'collab.proRequired' | translate }}</p>
+                <p class="lock-desc">{{ 'collab.proRequiredDesc' | translate }}</p>
+                <button mat-flat-button color="primary" (click)="planService.showPaywall('collaboration')">
+                  <mat-icon>star</mat-icon> {{ 'collab.upgradePro' | translate }}
+                </button>
+              </div>
+            } @else {
+              <mat-tab-group [selectedIndex]="collabTabIndex()" (selectedIndexChange)="onCollabTabChange($event)" animationDuration="200ms">
+                <mat-tab>
+                  <ng-template mat-tab-label><mat-icon>history</mat-icon><span>{{ 'collab.activity' | translate }}</span></ng-template>
+                  <div class="collab-tab-content"><app-activity-panel [tripId]="tripState.activeTripId()!"></app-activity-panel></div>
+                </mat-tab>
+                <mat-tab>
+                  <ng-template mat-tab-label><mat-icon>chat</mat-icon><span>{{ 'collab.comments' | translate }}</span></ng-template>
+                  <div class="collab-tab-content">
+                    <app-comment-thread [tripId]="tripState.activeTripId()!" targetType="trip" [targetId]="tripState.activeTripId()!"></app-comment-thread>
+                  </div>
+                </mat-tab>
+                <mat-tab>
+                  <ng-template mat-tab-label><mat-icon>poll</mat-icon><span>{{ 'collab.polls' | translate }}</span></ng-template>
+                  <div class="collab-tab-content">
+                    @if (showPollForm()) {
+                      <div class="poll-create-form">
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ 'collab.pollQuestion' | translate }}</mat-label>
+                          <input matInput [(ngModel)]="newPollQuestion" />
+                        </mat-form-field>
+                        @for (opt of pollOptions; track trackByIndex($index); let i = $index) {
+                          <div class="poll-option-row">
+                            <mat-form-field appearance="outline" class="option-field">
+                              <mat-label>{{ 'collab.pollOption' | translate }} {{ i + 1 }}</mat-label>
+                              <input matInput [ngModel]="pollOptions[i]" (ngModelChange)="updatePollOption(i, $event)" />
+                            </mat-form-field>
+                            @if (pollOptions.length > 2) {
+                              <button mat-icon-button (click)="removePollOption(i)"><mat-icon>close</mat-icon></button>
+                            }
+                          </div>
+                        }
+                        <button mat-button (click)="addPollOption()" class="add-option-btn"><mat-icon>add</mat-icon> {{ 'collab.addOption' | translate }}</button>
+                        <div class="poll-form-actions">
+                          <button mat-button (click)="showPollForm.set(false)">{{ 'collab.cancel' | translate }}</button>
+                          <button mat-raised-button color="primary" (click)="createPoll()" [disabled]="!newPollQuestion.trim()">{{ 'collab.createPoll' | translate }}</button>
+                        </div>
+                      </div>
+                    } @else {
+                      <button mat-stroked-button color="primary" (click)="showPollForm.set(true)" class="create-poll-btn"><mat-icon>add</mat-icon> {{ 'collab.createPoll' | translate }}</button>
+                    }
+                    <div class="polls-list">
+                      @for (poll of pollsService.polls(); track poll.id) {
+                        <app-poll-card [poll]="poll" [tripId]="tripState.activeTripId()!"></app-poll-card>
+                      } @empty {
+                        @if (!showPollForm()) {
+                          <div class="empty-tab"><mat-icon>poll</mat-icon><p>{{ 'collab.noPollsYet' | translate }}</p></div>
+                        }
+                      }
+                    </div>
+                  </div>
+                </mat-tab>
+                <mat-tab>
+                  <ng-template mat-tab-label><mat-icon>receipt_long</mat-icon><span>{{ 'collab.expenses' | translate }}</span></ng-template>
+                  <div class="collab-tab-content">
+                    @if (expensesService.balances().length > 0) {
+                      <div class="balance-summary">
+                        <h4>{{ 'collab.balance' | translate }}</h4>
+                        <div class="balance-list">
+                          @for (b of expensesService.balances(); track b.userId) {
+                            <div class="balance-row" [class.positive]="b.balance > 0" [class.negative]="b.balance < 0">
+                              <div class="balance-avatar">
+                                @if (b.userPicture) { <img [src]="b.userPicture" [alt]="b.userName" /> }
+                                @else { <span class="avatar-initial">{{ b.userName?.charAt(0)?.toUpperCase() }}</span> }
+                              </div>
+                              <span class="balance-name">{{ b.userName }}</span>
+                              <span class="balance-value">{{ b.balance >= 0 ? '+' : '' }}{{ b.balance | number:'1.2-2' }} {{ trip().currency || 'BRL' }}</span>
+                            </div>
                           }
                         </div>
-                      }
-                      <button mat-button (click)="addPollOption()" class="add-option-btn">
-                        <mat-icon>add</mat-icon> {{ 'collab.addOption' | translate }}
-                      </button>
-                      <div class="poll-form-actions">
-                        <button mat-button (click)="showPollForm.set(false)">{{ 'collab.cancel' | translate }}</button>
-                        <button mat-raised-button color="primary" (click)="createPoll()"
-                                [disabled]="!newPollQuestion.trim()">
-                          {{ 'collab.createPoll' | translate }}
-                        </button>
-                      </div>
-                    </div>
-                  } @else {
-                    <button mat-stroked-button color="primary" (click)="showPollForm.set(true)" class="create-poll-btn">
-                      <mat-icon>add</mat-icon> {{ 'collab.createPoll' | translate }}
-                    </button>
-                  }
-
-                  <!-- Polls list -->
-                  <div class="polls-list">
-                    @for (poll of pollsService.polls(); track poll.id) {
-                      <app-poll-card [poll]="poll" [tripId]="tripState.activeTripId()!"></app-poll-card>
-                    } @empty {
-                      @if (!showPollForm()) {
-                        <div class="empty-tab">
-                          <mat-icon>poll</mat-icon>
-                          <p>{{ 'collab.noPollsYet' | translate }}</p>
-                        </div>
-                      }
-                    }
-                  </div>
-                </div>
-              </mat-tab>
-
-              <!-- Tab: Custos -->
-              <mat-tab>
-                <ng-template mat-tab-label>
-                  <mat-icon>receipt_long</mat-icon>
-                  <span>{{ 'collab.expenses' | translate }}</span>
-                </ng-template>
-                <div class="collab-tab-content">
-                  <!-- Balance summary -->
-                  @if (expensesService.balances().length > 0) {
-                    <div class="balance-summary">
-                      <h4>{{ 'collab.balance' | translate }}</h4>
-                      <div class="balance-list">
-                        @for (b of expensesService.balances(); track b.userId) {
-                          <div class="balance-row" [class.positive]="b.balance > 0" [class.negative]="b.balance < 0">
-                            <div class="balance-avatar">
-                              @if (b.userPicture) {
-                                <img [src]="b.userPicture" [alt]="b.userName" />
-                              } @else {
-                                <span class="avatar-initial">{{ b.userName?.charAt(0)?.toUpperCase() }}</span>
-                              }
-                            </div>
-                            <span class="balance-name">{{ b.userName }}</span>
-                            <span class="balance-value">
-                              {{ b.balance >= 0 ? '+' : '' }}{{ b.balance | number:'1.2-2' }} {{ trip().currency || 'BRL' }}
-                            </span>
+                        @if (expensesService.settlements().length > 0) {
+                          <div class="settlements">
+                            <h5>{{ 'collab.settle' | translate }}</h5>
+                            @for (s of expensesService.settlements(); track s.fromUserId + s.toUserId) {
+                              <div class="settlement-row">
+                                <span>{{ s.fromUserName }}</span><mat-icon>arrow_forward</mat-icon><span>{{ s.toUserName }}</span>
+                                <strong>{{ s.amount | number:'1.2-2' }} {{ trip().currency || 'BRL' }}</strong>
+                              </div>
+                            }
                           </div>
                         }
                       </div>
-
-                      <!-- Settlements -->
-                      @if (expensesService.settlements().length > 0) {
-                        <div class="settlements">
-                          <h5>{{ 'collab.settle' | translate }}</h5>
-                          @for (s of expensesService.settlements(); track s.fromUserId + s.toUserId) {
-                            <div class="settlement-row">
-                              <span>{{ s.fromUserName }}</span>
-                              <mat-icon>arrow_forward</mat-icon>
-                              <span>{{ s.toUserName }}</span>
-                              <strong>{{ s.amount | number:'1.2-2' }} {{ trip().currency || 'BRL' }}</strong>
-                            </div>
-                          }
-                        </div>
+                      <mat-divider></mat-divider>
+                    }
+                    <button mat-stroked-button color="primary" (click)="openExpenseDialog()" class="add-expense-btn"><mat-icon>add</mat-icon> {{ 'collab.addExpense' | translate }}</button>
+                    <div class="expenses-list">
+                      @for (expense of expensesService.expenses(); track expense.id) {
+                        <mat-card class="expense-item">
+                          <div class="expense-header">
+                            <div class="expense-label-row"><mat-icon>receipt</mat-icon><span class="expense-label">{{ expense.label }}</span></div>
+                            <span class="expense-total">{{ expense.totalAmount | number:'1.2-2' }} {{ expense.currency }}</span>
+                            <button mat-icon-button class="expense-delete" (click)="removeExpense(expense.id)"><mat-icon>delete_outline</mat-icon></button>
+                          </div>
+                          <div class="expense-entries">
+                            @for (entry of expense.entries; track entry.id) {
+                              <div class="expense-entry" [class.paid]="entry.isPaid">
+                                <span class="entry-name">{{ entry.userName }}</span>
+                                <span class="entry-amount">{{ entry.amount | number:'1.2-2' }}</span>
+                                <button mat-icon-button (click)="toggleExpensePaid(expense.id, entry.id)" [matTooltip]="entry.isPaid ? ('collab.markPending' | translate) : ('collab.markPaid' | translate)">
+                                  <mat-icon>{{ entry.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                                </button>
+                              </div>
+                            }
+                          </div>
+                          <div class="expense-meta">
+                            <span class="expense-date">{{ expense.date }}</span>
+                            <span class="expense-mode">{{ expense.splitMode === 'EQUAL' ? ('collab.splitEqual' | translate) : expense.splitMode === 'PROPORTIONAL' ? ('collab.splitProportional' | translate) : ('collab.splitSinglePayer' | translate) }}</span>
+                          </div>
+                        </mat-card>
+                      } @empty {
+                        <div class="empty-tab"><mat-icon>receipt_long</mat-icon><p>{{ 'collab.noExpensesYet' | translate }}</p></div>
                       }
                     </div>
-                    <mat-divider></mat-divider>
-                  }
-
-                  <button mat-stroked-button color="primary" (click)="openExpenseDialog()" class="add-expense-btn">
-                    <mat-icon>add</mat-icon> {{ 'collab.addExpense' | translate }}
-                  </button>
-
-                  <!-- Expense list -->
-                  <div class="expenses-list">
-                    @for (expense of expensesService.expenses(); track expense.id) {
-                      <mat-card class="expense-item">
-                        <div class="expense-header">
-                          <div class="expense-label-row">
-                            <mat-icon>receipt</mat-icon>
-                            <span class="expense-label">{{ expense.label }}</span>
-                          </div>
-                          <span class="expense-total">{{ expense.totalAmount | number:'1.2-2' }} {{ expense.currency }}</span>
-                          <button mat-icon-button class="expense-delete" (click)="removeExpense(expense.id)">
-                            <mat-icon>delete_outline</mat-icon>
-                          </button>
-                        </div>
-                        <div class="expense-entries">
-                          @for (entry of expense.entries; track entry.id) {
-                            <div class="expense-entry" [class.paid]="entry.isPaid">
-                              <span class="entry-name">{{ entry.userName }}</span>
-                              <span class="entry-amount">{{ entry.amount | number:'1.2-2' }}</span>
-                              <button mat-icon-button (click)="toggleExpensePaid(expense.id, entry.id)"
-                                      [matTooltip]="entry.isPaid ? ('collab.markPending' | translate) : ('collab.markPaid' | translate)">
-                                <mat-icon>{{ entry.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-                              </button>
-                            </div>
-                          }
-                        </div>
-                        <div class="expense-meta">
-                          <span class="expense-date">{{ expense.date }}</span>
-                          <span class="expense-mode">{{ expense.splitMode === 'EQUAL' ? ('collab.splitEqual' | translate) : expense.splitMode === 'PROPORTIONAL' ? ('collab.splitProportional' | translate) : ('collab.splitSinglePayer' | translate) }}</span>
-                        </div>
-                      </mat-card>
-                    } @empty {
-                      <div class="empty-tab">
-                        <mat-icon>receipt_long</mat-icon>
-                        <p>{{ 'collab.noExpensesYet' | translate }}</p>
-                      </div>
-                    }
                   </div>
-                </div>
-              </mat-tab>
+                </mat-tab>
+              </mat-tab-group>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
 
-            </mat-tab-group>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
-
-    <!-- ═══ SECTION 5: Quick Actions (only when trip has content) ═══ -->
-    @if (hasContent()) {
-    <div class="quick-actions" role="navigation" aria-label="Ações rápidas">
-      <button class="quick-action-card" (click)="navigateTo('search')" [attr.aria-label]="'dash.searchFlights' | translate">
-        <mat-icon aria-hidden="true">flight</mat-icon>
-        <span>{{ 'dash.quickFlights' | translate }}</span>
-      </button>
-      <button class="quick-action-card" (click)="navigateTo('hotels')" [attr.aria-label]="'dash.bookHotel' | translate">
-        <mat-icon aria-hidden="true">hotel</mat-icon>
-        <span>{{ 'dash.quickHotels' | translate }}</span>
-      </button>
-      <button class="quick-action-card" (click)="navigateTo('tours')" [attr.aria-label]="'dash.addActivities' | translate">
-        <mat-icon aria-hidden="true">local_activity</mat-icon>
-        <span>{{ 'dash.quickActivities' | translate }}</span>
-      </button>
-      <button class="quick-action-card" (click)="navigateTo('itinerary')" [attr.aria-label]="'dash.buildItinerary' | translate">
-        <mat-icon aria-hidden="true">map</mat-icon>
-        <span>{{ 'dash.quickItinerary' | translate }}</span>
-      </button>
-    </div>
+      <!-- ═══ GUIDED PLANNING (small banner at bottom) ═══ -->
+      <div class="hero-banner-mini" (click)="navigateTo('planner')" tabindex="0" role="button">
+        <mat-icon>explore</mat-icon>
+        <span>{{ 'dash.guidedPlanning' | translate }}</span>
+        <mat-icon class="mini-arrow">arrow_forward</mat-icon>
+      </div>
     }
   } @else {
     <!-- Empty State -->
