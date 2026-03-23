@@ -22,6 +22,10 @@ import { CalendarModule } from './calendar/calendar.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { StripeModule } from './stripe/stripe.module';
 import { CollaborationModule } from './collaboration/collaboration.module';
+import { ActivityModule } from './activity/activity.module';
+import { CommentsModule } from './comments/comments.module';
+import { PollsModule } from './polls/polls.module';
+import { ExpensesModule } from './expenses/expenses.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PriceAlertsModule } from './price-alerts/price-alerts.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -55,6 +59,10 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
     SubscriptionModule,
     StripeModule,
     CollaborationModule,
+    ActivityModule,
+    CommentsModule,
+    PollsModule,
+    ExpensesModule,
     NotificationsModule,
     PriceAlertsModule,
     ScheduleModule.forRoot(),

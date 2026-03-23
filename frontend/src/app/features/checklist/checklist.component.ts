@@ -1,10 +1,12 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { ChecklistService } from '../../core/services/checklist.service';
 import { TripStateService } from '../../core/services/trip-state.service';
+import { CollaborationService } from '../../core/services/collaboration.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ChecklistItem } from '../../core/models/trip.models';
 
 @Component({
@@ -17,9 +19,14 @@ import { ChecklistItem } from '../../core/models/trip.models';
 export class ChecklistComponent implements OnInit {
   protected readonly checklist = inject(ChecklistService);
   protected readonly tripState = inject(TripStateService);
+  protected readonly collabService = inject(CollaborationService);
+  protected readonly auth = inject(AuthService);
 
   readonly showAddForm = signal(false);
   readonly filterCategory = signal<string>('');
+  readonly filterMyTasks = signal(false);
+
+  readonly hasCollaborators = computed(() => this.collabService.collaborators().length > 1);
 
   newLabel = '';
   newCategory: ChecklistItem['category'] = 'logistics';
@@ -65,5 +72,31 @@ export class ChecklistComponent implements OnInit {
   isOverdue(item: ChecklistItem): boolean {
     if (!item.dueDate || item.isChecked) return false;
     return item.dueDate < new Date().toISOString().split('T')[0];
+  }
+
+  toggleMyTasks(): void {
+    this.filterMyTasks.update((v) => !v);
+  }
+
+  assignItem(item: ChecklistItem, userId: string | null): void {
+    if (!userId) {
+      this.checklist.updateItem({ ...item, assigneeUserId: null, assigneeName: null, assigneePicture: null });
+      return;
+    }
+    const collab = this.collabService.collaborators().find((c) => c.userId === userId);
+    if (collab) {
+      this.checklist.updateItem({
+        ...item,
+        assigneeUserId: collab.userId,
+        assigneeName: collab.name,
+        assigneePicture: collab.picture,
+      });
+    }
+  }
+
+  getFilteredItems(items: ChecklistItem[]): ChecklistItem[] {
+    if (!this.filterMyTasks()) return items;
+    const userId = this.auth.user()?.googleId;
+    return items.filter((i) => i.assigneeUserId === userId);
   }
 }

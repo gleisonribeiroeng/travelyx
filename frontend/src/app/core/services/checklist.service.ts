@@ -73,6 +73,13 @@ export class ChecklistService {
     this.persist();
   }
 
+  updateItem(updated: ChecklistItem): void {
+    this._items.update(items =>
+      items.map(i => i.id === updated.id ? updated : i)
+    );
+    this.persist();
+  }
+
   setItems(items: ChecklistItem[]): void {
     this._items.set(items);
     this.persist();

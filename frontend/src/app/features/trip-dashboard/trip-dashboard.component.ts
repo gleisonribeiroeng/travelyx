@@ -1,5 +1,6 @@
-import { Component, inject, computed, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
@@ -11,6 +12,8 @@ import { TripScoreService } from '../../core/services/trip-score.service';
 import { ChecklistService } from '../../core/services/checklist.service';
 import { CollaborationService } from '../../core/services/collaboration.service';
 import { PlanService } from '../../core/services/plan.service';
+import { PollsService } from '../../core/services/polls.service';
+import { ExpensesService } from '../../core/services/expenses.service';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 import { ConflictAlert, TripStatus } from '../../core/models/trip.models';
 import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
@@ -18,13 +21,17 @@ import { CollaboratorAvatarsComponent } from '../../shared/components/collaborat
 import { ViewerBannerComponent } from '../../shared/components/viewer-banner/viewer-banner.component';
 import { ShareDialogComponent, ShareDialogData } from '../../shared/components/share-dialog/share-dialog.component';
 import { InviteDialogComponent, InviteDialogData } from '../../shared/components/invite-dialog/invite-dialog.component';
+import { ActivityPanelComponent } from '../../shared/components/activity-panel/activity-panel.component';
+import { CommentThreadComponent } from '../../shared/components/comment-thread/comment-thread.component';
+import { PollCardComponent } from '../../shared/components/poll-card/poll-card.component';
+import { ExpenseSplitDialogComponent, ExpenseSplitDialogData, ExpenseSplitDialogResult } from '../../shared/components/expense-split-dialog/expense-split-dialog.component';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-trip-dashboard',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe, DatePipe, TranslatePipe, CollaboratorAvatarsComponent, ViewerBannerComponent],
+  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, DynamicCurrencyPipe, DatePipe, TranslatePipe, CollaboratorAvatarsComponent, ViewerBannerComponent, ActivityPanelComponent, CommentThreadComponent, PollCardComponent],
   templateUrl: './trip-dashboard.component.html',
   styleUrl: './trip-dashboard.component.scss',
 })
@@ -39,17 +46,61 @@ export class TripDashboardComponent implements OnInit {
   protected readonly checklist = inject(ChecklistService);
   protected readonly collabService = inject(CollaborationService);
   protected readonly planService = inject(PlanService);
+  protected readonly pollsService = inject(PollsService);
+  protected readonly expensesService = inject(ExpensesService);
 
   readonly trip = this.tripState.trip;
 
   readonly hasCollaborators = computed(() => this.collabService.collaborators().length > 1);
   readonly canCollab = computed(() => this.planService.hasFeature('collaboration'));
 
+  // Readiness score
+  readonly readiness = signal<{
+    score: number;
+    percentage: number;
+    label: string;
+    missing: { category: string; message: string; icon: string; priority: string }[];
+  } | null>(null);
+
   ngOnInit(): void {
     const tripId = this.tripState.activeTripId();
     if (tripId) {
       this.collabService.loadCollaborators(tripId);
+      this.loadReadiness();
     }
+  }
+
+  private loadReadiness(): void {
+    this.tripState.getReadiness().subscribe({
+      next: (data) => this.readiness.set(data),
+      error: () => {},
+    });
+  }
+
+  readonly readinessColor = computed(() => {
+    const r = this.readiness();
+    if (!r) return '#9E9E9E';
+    if (r.percentage >= 85) return '#4CAF50';
+    if (r.percentage >= 60) return '#FF9800';
+    if (r.percentage >= 30) return '#2196F3';
+    return '#9E9E9E';
+  });
+
+  readonly readinessLabel = computed(() => {
+    const r = this.readiness();
+    if (!r) return '';
+    if (r.label === 'ready') return this.i18n.t('dash.readinessReady');
+    if (r.label === 'almost') return this.i18n.t('dash.readinessAlmost');
+    if (r.label === 'progress') return this.i18n.t('dash.readinessProgress');
+    return this.i18n.t('dash.readinessStarting');
+  });
+
+  getMissingRoute(category: string): string {
+    const routes: Record<string, string> = {
+      flights: 'search', stays: 'hotels', transport: 'transport',
+      activities: 'tours', itinerary: 'itinerary', checklist: 'checklist', dates: 'home',
+    };
+    return routes[category] || 'home';
   }
 
   readonly hasTrip = computed(() =>
@@ -225,5 +276,96 @@ export class TripDashboardComponent implements OnInit {
       panelClass: 'mobile-fullscreen-dialog',
       data: { tripId: this.tripState.activeTripId() } as InviteDialogData,
     });
+  }
+
+  // ═══ Collaboration Tab ═══
+  readonly collabTabIndex = signal(0);
+  readonly showCollabSection = computed(() => this.hasCollaborators() || this.planService.isPro());
+
+  // Polls
+  readonly showPollForm = signal(false);
+  newPollQuestion = '';
+  pollOptions: string[] = ['', ''];
+
+  addPollOption(): void {
+    this.pollOptions = [...this.pollOptions, ''];
+  }
+
+  removePollOption(index: number): void {
+    this.pollOptions = this.pollOptions.filter((_, i) => i !== index);
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  updatePollOption(index: number, value: string): void {
+    this.pollOptions = this.pollOptions.map((v, i) => i === index ? value : v);
+  }
+
+  createPoll(): void {
+    const question = this.newPollQuestion.trim();
+    const options = this.pollOptions.map((o) => o.trim()).filter((o) => o.length > 0);
+    if (!question || options.length < 2) return;
+    const tripId = this.tripState.activeTripId();
+    if (!tripId) return;
+    this.pollsService.createPoll(tripId, question, options).subscribe({
+      next: () => {
+        this.newPollQuestion = '';
+        this.pollOptions = ['', ''];
+        this.showPollForm.set(false);
+      },
+    });
+  }
+
+  // Expenses
+  openExpenseDialog(): void {
+    const tripId = this.tripState.activeTripId();
+    if (!tripId) return;
+    const ref = this.dialog.open(ExpenseSplitDialogComponent, {
+      width: '520px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: {
+        tripId,
+        collaborators: this.collabService.collaborators(),
+        currency: this.trip().currency || 'BRL',
+      } as ExpenseSplitDialogData,
+    });
+    ref.afterClosed().subscribe((result: ExpenseSplitDialogResult | undefined) => {
+      if (!result) return;
+      this.expensesService.createExpense(tripId, result).subscribe({
+        next: () => {
+          this.notify.success('Despesa adicionada');
+          this.expensesService.loadBalance(tripId);
+        },
+      });
+    });
+  }
+
+  toggleExpensePaid(expenseId: string, entryId: string): void {
+    const tripId = this.tripState.activeTripId();
+    if (!tripId) return;
+    this.expensesService.togglePaid(tripId, expenseId, entryId).subscribe();
+  }
+
+  removeExpense(expenseId: string): void {
+    const tripId = this.tripState.activeTripId();
+    if (!tripId) return;
+    this.expensesService.removeExpense(tripId, expenseId).subscribe({
+      next: () => this.expensesService.loadBalance(tripId),
+    });
+  }
+
+  onCollabTabChange(index: number): void {
+    this.collabTabIndex.set(index);
+    const tripId = this.tripState.activeTripId();
+    if (!tripId) return;
+    // Lazy-load data when switching tabs
+    if (index === 2) {
+      this.pollsService.loadPolls(tripId);
+    } else if (index === 3) {
+      this.expensesService.loadExpenses(tripId);
+      this.expensesService.loadBalance(tripId);
+    }
   }
 }

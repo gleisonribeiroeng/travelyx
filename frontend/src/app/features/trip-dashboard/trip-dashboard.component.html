@@ -170,6 +170,45 @@
       </div>
     }
 
+    <!-- ═══ SECTION 2b: Trip Readiness ═══ -->
+    @if (readiness() && hasContent()) {
+      <mat-card class="readiness-card">
+        <mat-card-content>
+          <div class="readiness-header">
+            <div class="readiness-circle" [style.--readiness-color]="readinessColor()">
+              <svg viewBox="0 0 36 36" class="readiness-svg">
+                <path class="readiness-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="readiness-fill" [attr.stroke-dasharray]="readiness()!.percentage + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <span class="readiness-value">{{ readiness()!.percentage }}%</span>
+            </div>
+            <div class="readiness-info">
+              <span class="readiness-title">{{ 'dash.readinessTitle' | translate }}</span>
+              <span class="readiness-label">{{ readinessLabel() }}</span>
+            </div>
+          </div>
+          @if (readiness()!.missing.length > 0) {
+            <div class="readiness-missing">
+              @for (item of readiness()!.missing.slice(0, planService.isPro() ? 10 : 2); track item.category) {
+                <button class="missing-item" [class]="'priority-' + item.priority" (click)="navigateTo(getMissingRoute(item.category))">
+                  <mat-icon>{{ item.icon }}</mat-icon>
+                  <span>{{ item.message }}</span>
+                  <mat-icon class="missing-arrow">chevron_right</mat-icon>
+                </button>
+              }
+              @if (!planService.isPro() && readiness()!.missing.length > 2) {
+                <button class="missing-item pro-upsell" (click)="planService.showPaywall('checklist')">
+                  <mat-icon>lock</mat-icon>
+                  <span>{{ 'dash.readinessProHint' | translate }}</span>
+                  <span class="pro-badge-sm">PRO</span>
+                </button>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+
     <!-- ═══ SECTION 3: Progress & Stats ═══ -->
     @if (paidProgress().total > 0) {
       <mat-card class="paid-progress-card" (click)="navigateTo('budget')">
@@ -259,6 +298,211 @@
               {{ 'collab.invite' | translate }}
             </button>
           </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- ═══ SECTION 4c: Collaboration Panel ═══ -->
+    @if (showCollabSection()) {
+      <mat-card class="collab-panel-card">
+        <mat-card-content>
+          <div class="collab-panel-header">
+            <h3><mat-icon>groups</mat-icon> {{ 'collab.title' | translate }}</h3>
+          </div>
+
+          @if (!canCollab()) {
+            <!-- Free user lock -->
+            <div class="collab-lock">
+              <mat-icon>lock</mat-icon>
+              <p>{{ 'collab.proRequired' | translate }}</p>
+              <p class="lock-desc">{{ 'collab.proRequiredDesc' | translate }}</p>
+              <button mat-flat-button color="primary" (click)="planService.showPaywall('collaboration')">
+                <mat-icon>star</mat-icon> Upgrade Pro
+              </button>
+            </div>
+          } @else {
+            <mat-tab-group [selectedIndex]="collabTabIndex()" (selectedIndexChange)="onCollabTabChange($event)" animationDuration="200ms">
+
+              <!-- Tab: Atividade -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>history</mat-icon>
+                  <span>{{ 'collab.activity' | translate }}</span>
+                </ng-template>
+                <div class="collab-tab-content">
+                  <app-activity-panel [tripId]="tripState.activeTripId()!"></app-activity-panel>
+                </div>
+              </mat-tab>
+
+              <!-- Tab: Comentarios -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>chat</mat-icon>
+                  <span>{{ 'collab.comments' | translate }}</span>
+                </ng-template>
+                <div class="collab-tab-content">
+                  <app-comment-thread
+                    [tripId]="tripState.activeTripId()!"
+                    targetType="trip"
+                    [targetId]="tripState.activeTripId()!">
+                  </app-comment-thread>
+                </div>
+              </mat-tab>
+
+              <!-- Tab: Enquetes -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>poll</mat-icon>
+                  <span>{{ 'collab.polls' | translate }}</span>
+                </ng-template>
+                <div class="collab-tab-content">
+                  <!-- Create poll form -->
+                  @if (showPollForm()) {
+                    <div class="poll-create-form">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'collab.pollQuestion' | translate }}</mat-label>
+                        <input matInput [(ngModel)]="newPollQuestion" />
+                      </mat-form-field>
+                      @for (opt of pollOptions; track trackByIndex($index); let i = $index) {
+                        <div class="poll-option-row">
+                          <mat-form-field appearance="outline" class="option-field">
+                            <mat-label>{{ 'collab.pollOption' | translate }} {{ i + 1 }}</mat-label>
+                            <input matInput [ngModel]="pollOptions[i]" (ngModelChange)="updatePollOption(i, $event)" />
+                          </mat-form-field>
+                          @if (pollOptions.length > 2) {
+                            <button mat-icon-button (click)="removePollOption(i)">
+                              <mat-icon>close</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      }
+                      <button mat-button (click)="addPollOption()" class="add-option-btn">
+                        <mat-icon>add</mat-icon> {{ 'collab.addOption' | translate }}
+                      </button>
+                      <div class="poll-form-actions">
+                        <button mat-button (click)="showPollForm.set(false)">Cancelar</button>
+                        <button mat-raised-button color="primary" (click)="createPoll()"
+                                [disabled]="!newPollQuestion.trim()">
+                          {{ 'collab.createPoll' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <button mat-stroked-button color="primary" (click)="showPollForm.set(true)" class="create-poll-btn">
+                      <mat-icon>add</mat-icon> {{ 'collab.createPoll' | translate }}
+                    </button>
+                  }
+
+                  <!-- Polls list -->
+                  <div class="polls-list">
+                    @for (poll of pollsService.polls(); track poll.id) {
+                      <app-poll-card [poll]="poll" [tripId]="tripState.activeTripId()!"></app-poll-card>
+                    } @empty {
+                      @if (!showPollForm()) {
+                        <div class="empty-tab">
+                          <mat-icon>poll</mat-icon>
+                          <p>Nenhuma enquete ainda. Crie uma para decidir junto!</p>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              </mat-tab>
+
+              <!-- Tab: Custos -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>receipt_long</mat-icon>
+                  <span>{{ 'collab.expenses' | translate }}</span>
+                </ng-template>
+                <div class="collab-tab-content">
+                  <!-- Balance summary -->
+                  @if (expensesService.balances().length > 0) {
+                    <div class="balance-summary">
+                      <h4>{{ 'collab.balance' | translate }}</h4>
+                      <div class="balance-list">
+                        @for (b of expensesService.balances(); track b.userId) {
+                          <div class="balance-row" [class.positive]="b.balance > 0" [class.negative]="b.balance < 0">
+                            <div class="balance-avatar">
+                              @if (b.userPicture) {
+                                <img [src]="b.userPicture" [alt]="b.userName" />
+                              } @else {
+                                <span class="avatar-initial">{{ b.userName?.charAt(0)?.toUpperCase() }}</span>
+                              }
+                            </div>
+                            <span class="balance-name">{{ b.userName }}</span>
+                            <span class="balance-value">
+                              {{ b.balance >= 0 ? '+' : '' }}{{ b.balance | number:'1.2-2' }} {{ trip().currency || 'BRL' }}
+                            </span>
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Settlements -->
+                      @if (expensesService.settlements().length > 0) {
+                        <div class="settlements">
+                          <h5>{{ 'collab.settle' | translate }}</h5>
+                          @for (s of expensesService.settlements(); track s.fromUserId + s.toUserId) {
+                            <div class="settlement-row">
+                              <span>{{ s.fromUserName }}</span>
+                              <mat-icon>arrow_forward</mat-icon>
+                              <span>{{ s.toUserName }}</span>
+                              <strong>{{ s.amount | number:'1.2-2' }} {{ trip().currency || 'BRL' }}</strong>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <mat-divider></mat-divider>
+                  }
+
+                  <button mat-stroked-button color="primary" (click)="openExpenseDialog()" class="add-expense-btn">
+                    <mat-icon>add</mat-icon> {{ 'collab.addExpense' | translate }}
+                  </button>
+
+                  <!-- Expense list -->
+                  <div class="expenses-list">
+                    @for (expense of expensesService.expenses(); track expense.id) {
+                      <mat-card class="expense-item">
+                        <div class="expense-header">
+                          <div class="expense-label-row">
+                            <mat-icon>receipt</mat-icon>
+                            <span class="expense-label">{{ expense.label }}</span>
+                          </div>
+                          <span class="expense-total">{{ expense.totalAmount | number:'1.2-2' }} {{ expense.currency }}</span>
+                          <button mat-icon-button class="expense-delete" (click)="removeExpense(expense.id)">
+                            <mat-icon>delete_outline</mat-icon>
+                          </button>
+                        </div>
+                        <div class="expense-entries">
+                          @for (entry of expense.entries; track entry.id) {
+                            <div class="expense-entry" [class.paid]="entry.isPaid">
+                              <span class="entry-name">{{ entry.userName }}</span>
+                              <span class="entry-amount">{{ entry.amount | number:'1.2-2' }}</span>
+                              <button mat-icon-button (click)="toggleExpensePaid(expense.id, entry.id)"
+                                      [matTooltip]="entry.isPaid ? 'Marcar como pendente' : 'Marcar como pago'">
+                                <mat-icon>{{ entry.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                        <div class="expense-meta">
+                          <span class="expense-date">{{ expense.date }}</span>
+                          <span class="expense-mode">{{ expense.splitMode === 'EQUAL' ? ('collab.splitEqual' | translate) : expense.splitMode === 'PROPORTIONAL' ? ('collab.splitProportional' | translate) : ('collab.splitSinglePayer' | translate) }}</span>
+                        </div>
+                      </mat-card>
+                    } @empty {
+                      <div class="empty-tab">
+                        <mat-icon>receipt_long</mat-icon>
+                        <p>Nenhuma despesa compartilhada ainda.</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </mat-tab>
+
+            </mat-tab-group>
+          }
         </mat-card-content>
       </mat-card>
     }

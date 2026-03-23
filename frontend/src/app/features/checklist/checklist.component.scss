@@ -176,3 +176,89 @@
 @media (min-width: 600px) {
   .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
 }
+
+// ─── Assignee / collaboration ───
+
+.my-tasks-toggle {
+  margin-left: auto;
+  font-size: 0.82rem;
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.assignee-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--triply-border-subtle, #ccc);
+  background: var(--triply-surface-1, #fff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  transition: all 0.15s ease;
+  overflow: hidden;
+
+  &:hover {
+    border-color: var(--triply-primary, #6C5CE7);
+    border-style: solid;
+  }
+
+  .assignee-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .assignee-initial {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+  }
+
+  .assignee-placeholder {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--triply-text-tertiary, #bbb);
+  }
+}
+
+.assign-menu-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+  margin-right: 8px;
+  flex-shrink: 0;
+  vertical-align: middle;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  span {
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+  }
+}
