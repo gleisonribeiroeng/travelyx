@@ -3,8 +3,8 @@
   <nav class="landing-nav">
     <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo">
     <div class="nav-links">
+      <a (click)="scrollToSection('features-section')">{{ 'landing.nav.features' | translate }}</a>
       <a (click)="scrollToSection('how-section')">{{ 'landing.nav.howItWorks' | translate }}</a>
-      <a (click)="scrollToSection('benefits-section')">{{ 'landing.nav.whyTravelyx' | translate }}</a>
     </div>
     <div class="nav-actions">
       <button class="lang-btn" (click)="i18n.toggle()">
@@ -32,7 +32,7 @@
     </div>
   </nav>
 
-  <!-- SEÇÃO 1: HERO -->
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-bg" aria-hidden="true">
       <img src="assets/hero-travel.jpg" alt="">
@@ -42,9 +42,7 @@
       <div class="hero-content">
         <span class="hero-badge">{{ 'landing.hero.badge' | translate }}</span>
         <h1>{{ 'landing.hero.title' | translate }}</h1>
-        <p class="hero-sub">
-          {{ 'landing.hero.subtitle' | translate }}
-        </p>
+        <p class="hero-sub">{{ 'landing.hero.subtitle' | translate }}</p>
         <div class="hero-actions">
           @if (authService.isLoggedIn()) {
             <button mat-flat-button class="hero-cta-primary" (click)="navigateTo('/home')">
@@ -61,8 +59,8 @@
               {{ 'landing.hero.startFreeGoogle' | translate }}
             </button>
           }
-          <button class="hero-cta-secondary" (click)="scrollToSection('how-section')">
-            {{ 'landing.hero.howItWorks' | translate }} <mat-icon>arrow_downward</mat-icon>
+          <button class="hero-cta-secondary" (click)="scrollToSection('features-section')">
+            {{ 'landing.hero.seeFeatures' | translate }} <mat-icon>arrow_downward</mat-icon>
           </button>
         </div>
       </div>
@@ -103,7 +101,7 @@
     </div>
   </section>
 
-  <!-- SEÇÃO 2: PROBLEM BLOCK -->
+  <!-- PROBLEM -->
   <section class="problem-section reveal">
     <div class="problem-inner">
       <h2>{{ 'landing.problem.title' | translate }}</h2>
@@ -125,47 +123,108 @@
     </div>
   </section>
 
-  <!-- SEÇÃO 3: SOLUTION BLOCK -->
-  <section class="solution-section reveal">
-    <div class="solution-inner">
-      <div class="solution-text">
-        <span class="section-tag">{{ 'landing.solution.tag' | translate }}</span>
-        <h2>{{ 'landing.solution.title' | translate }}</h2>
-        <p>{{ 'landing.solution.desc' | translate }}</p>
+  <!-- FEATURES SHOWCASE -->
+  <section class="features-section reveal" id="features-section">
+    <div class="features-inner">
+      <div class="features-header">
+        <span class="section-tag">{{ 'landing.features.tag' | translate }}</span>
+        <h2>{{ 'landing.features.title' | translate }}</h2>
+        <p class="features-lead">{{ 'landing.features.lead' | translate }}</p>
       </div>
-      <div class="solution-features">
-        <div class="feature-item">
-          <div class="feature-icon icon-search">
-            <mat-icon>search</mat-icon>
-          </div>
-          <div class="feature-text">
-            <strong>{{ 'landing.solution.integratedSearch' | translate }}</strong>
-            <p>{{ 'landing.solution.integratedSearchDesc' | translate }}</p>
-          </div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon icon-calendar">
-            <mat-icon>calendar_month</mat-icon>
-          </div>
-          <div class="feature-text">
-            <strong>{{ 'landing.solution.visualItinerary' | translate }}</strong>
-            <p>{{ 'landing.solution.visualItineraryDesc' | translate }}</p>
-          </div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon icon-smart">
-            <mat-icon>auto_awesome</mat-icon>
-          </div>
-          <div class="feature-text">
-            <strong>{{ 'landing.solution.smartAssistant' | translate }}</strong>
-            <p>{{ 'landing.solution.smartAssistantDesc' | translate }}</p>
+
+      <!-- Feature Grid: 2 columns, alternating layout -->
+      <div class="features-grid">
+
+        <!-- 1: Timeline Command Center -->
+        <div class="feature-showcase-card reveal">
+          <div class="fsc-icon fsc-purple"><mat-icon>view_timeline</mat-icon></div>
+          <div class="fsc-content">
+            <h3>{{ 'landing.features.timelineTitle' | translate }}</h3>
+            <p>{{ 'landing.features.timelineDesc' | translate }}</p>
+            <div class="fsc-chips">
+              <span class="fsc-chip"><mat-icon>schedule</mat-icon> {{ 'landing.features.timelineChip1' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>wb_sunny</mat-icon> {{ 'landing.features.timelineChip2' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>route</mat-icon> {{ 'landing.features.timelineChip3' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>sticky_note_2</mat-icon> {{ 'landing.features.timelineChip4' | translate }}</span>
+            </div>
           </div>
         </div>
+
+        <!-- 2: Smart Search -->
+        <div class="feature-showcase-card reveal">
+          <div class="fsc-icon fsc-blue"><mat-icon>travel_explore</mat-icon></div>
+          <div class="fsc-content">
+            <h3>{{ 'landing.features.searchTitle' | translate }}</h3>
+            <p>{{ 'landing.features.searchDesc' | translate }}</p>
+            <div class="fsc-chips">
+              <span class="fsc-chip"><mat-icon>flight</mat-icon> {{ 'landing.features.searchChip1' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>hotel</mat-icon> {{ 'landing.features.searchChip2' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>directions_car</mat-icon> {{ 'landing.features.searchChip3' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>local_activity</mat-icon> {{ 'landing.features.searchChip4' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3: Price Tracking -->
+        <div class="feature-showcase-card reveal">
+          <div class="fsc-icon fsc-green"><mat-icon>trending_down</mat-icon></div>
+          <div class="fsc-content">
+            <h3>{{ 'landing.features.priceTitle' | translate }}</h3>
+            <p>{{ 'landing.features.priceDesc' | translate }}</p>
+            <div class="fsc-chips">
+              <span class="fsc-chip"><mat-icon>notifications</mat-icon> {{ 'landing.features.priceChip1' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>show_chart</mat-icon> {{ 'landing.features.priceChip2' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4: Collaboration -->
+        <div class="feature-showcase-card reveal">
+          <div class="fsc-icon fsc-pink"><mat-icon>group</mat-icon></div>
+          <div class="fsc-content">
+            <h3>{{ 'landing.features.collabTitle' | translate }}</h3>
+            <p>{{ 'landing.features.collabDesc' | translate }}</p>
+            <div class="fsc-chips">
+              <span class="fsc-chip"><mat-icon>edit</mat-icon> {{ 'landing.features.collabChip1' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>poll</mat-icon> {{ 'landing.features.collabChip2' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>receipt_long</mat-icon> {{ 'landing.features.collabChip3' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5: Export & Share -->
+        <div class="feature-showcase-card reveal">
+          <div class="fsc-icon fsc-amber"><mat-icon>share</mat-icon></div>
+          <div class="fsc-content">
+            <h3>{{ 'landing.features.exportTitle' | translate }}</h3>
+            <p>{{ 'landing.features.exportDesc' | translate }}</p>
+            <div class="fsc-chips">
+              <span class="fsc-chip"><mat-icon>picture_as_pdf</mat-icon> {{ 'landing.features.exportChip1' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>link</mat-icon> {{ 'landing.features.exportChip2' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>event</mat-icon> {{ 'landing.features.exportChip3' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6: Smart Alerts -->
+        <div class="feature-showcase-card reveal">
+          <div class="fsc-icon fsc-red"><mat-icon>security</mat-icon></div>
+          <div class="fsc-content">
+            <h3>{{ 'landing.features.alertsTitle' | translate }}</h3>
+            <p>{{ 'landing.features.alertsDesc' | translate }}</p>
+            <div class="fsc-chips">
+              <span class="fsc-chip"><mat-icon>warning</mat-icon> {{ 'landing.features.alertsChip1' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>checklist</mat-icon> {{ 'landing.features.alertsChip2' | translate }}</span>
+              <span class="fsc-chip"><mat-icon>account_balance_wallet</mat-icon> {{ 'landing.features.alertsChip3' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 
-  <!-- SEÇÃO 4: HOW IT WORKS -->
+  <!-- HOW IT WORKS -->
   <section class="how-section" id="how-section">
     <div class="how-inner reveal">
       <div class="how-header">
@@ -194,47 +253,29 @@
     </div>
   </section>
 
-  <!-- SEÇÃO 5: BENEFITS -->
-  <section class="benefits-section reveal" id="benefits-section">
-    <div class="benefits-inner">
-      <div class="benefits-header">
-        <span class="section-tag">{{ 'landing.benefits.tag' | translate }}</span>
-        <h2>{{ 'landing.benefits.title' | translate }}</h2>
-      </div>
-      <div class="benefits-grid">
-        <div class="benefit-card benefit-free">
-          <div class="benefit-icon-wrap">
-            <mat-icon>savings</mat-icon>
-          </div>
-          <h3>{{ 'landing.benefits.freeTitle' | translate }}</h3>
-          <p>{{ 'landing.benefits.freeDesc' | translate }}</p>
+  <!-- SOCIAL PROOF -->
+  <section class="proof-section reveal">
+    <div class="proof-inner">
+      <div class="proof-stats">
+        <div class="proof-stat">
+          <span class="proof-number">190+</span>
+          <span class="proof-label">{{ 'landing.proof.destinations' | translate }}</span>
         </div>
-        <div class="benefit-card benefit-integrated">
-          <div class="benefit-icon-wrap">
-            <mat-icon>bolt</mat-icon>
-          </div>
-          <h3>{{ 'landing.benefits.integratedTitle' | translate }}</h3>
-          <p>{{ 'landing.benefits.integratedDesc' | translate }}</p>
+        <div class="proof-divider"></div>
+        <div class="proof-stat">
+          <span class="proof-number">100%</span>
+          <span class="proof-label">{{ 'landing.proof.freeToStart' | translate }}</span>
         </div>
-        <div class="benefit-card benefit-visual">
-          <div class="benefit-icon-wrap">
-            <mat-icon>calendar_view_day</mat-icon>
-          </div>
-          <h3>{{ 'landing.benefits.visualTitle' | translate }}</h3>
-          <p>{{ 'landing.benefits.visualDesc' | translate }}</p>
-        </div>
-        <div class="benefit-card benefit-global">
-          <div class="benefit-icon-wrap">
-            <mat-icon>travel_explore</mat-icon>
-          </div>
-          <h3>{{ 'landing.benefits.globalTitle' | translate }}</h3>
-          <p>{{ 'landing.benefits.globalDesc' | translate }}</p>
+        <div class="proof-divider"></div>
+        <div class="proof-stat">
+          <span class="proof-number">5 min</span>
+          <span class="proof-label">{{ 'landing.proof.buildItinerary' | translate }}</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SEÇÃO 6: DESTINATIONS -->
+  <!-- DESTINATIONS -->
   <section class="destinations-section">
     <div class="dest-inner">
       <div class="dest-header">
@@ -279,29 +320,7 @@
     </div>
   </section>
 
-  <!-- SEÇÃO 7: VALUE PROPS -->
-  <section class="proof-section reveal">
-    <div class="proof-inner">
-      <div class="proof-stats">
-        <div class="proof-stat">
-          <span class="proof-number">190+</span>
-          <span class="proof-label">{{ 'landing.proof.destinations' | translate }}</span>
-        </div>
-        <div class="proof-divider"></div>
-        <div class="proof-stat">
-          <span class="proof-number">100%</span>
-          <span class="proof-label">{{ 'landing.proof.freeToStart' | translate }}</span>
-        </div>
-        <div class="proof-divider"></div>
-        <div class="proof-stat">
-          <span class="proof-number">5 min</span>
-          <span class="proof-label">{{ 'landing.proof.buildItinerary' | translate }}</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SEÇÃO 8: FINAL CTA -->
+  <!-- FINAL CTA -->
   <section class="final-cta">
     <div class="cta-inner">
       <h2>{{ 'landing.cta.title' | translate }}</h2>
@@ -334,8 +353,8 @@
       <div class="footer-links">
         <div class="footer-col">
           <h4>{{ 'landing.footer.explore' | translate }}</h4>
+          <a (click)="scrollToSection('features-section')">{{ 'landing.nav.features' | translate }}</a>
           <a (click)="scrollToSection('how-section')">{{ 'landing.nav.howItWorks' | translate }}</a>
-          <a (click)="scrollToSection('benefits-section')">{{ 'landing.nav.whyTravelyx' | translate }}</a>
           <a (click)="loginWithGoogle()">{{ 'landing.footer.createAccount' | translate }}</a>
         </div>
         <div class="footer-col">
