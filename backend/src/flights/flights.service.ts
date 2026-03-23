@@ -131,7 +131,7 @@ export class FlightsService {
     const arrCode = outbound.arrivalAirport?.code || '';
     const depDate = (outbound.departureTime || '').split('T')[0];
 
-    const bookingUrl = `https://flights.booking.com/flights/${depCode}.AIRPORT-${arrCode}.AIRPORT/?type=ONEWAY&depart=${depDate}&adults=1&cabinClass=ECONOMY`;
+    const bookingUrl = `https://www.booking.com/flights/search?fromId=${depCode}.AIRPORT&toId=${arrCode}.AIRPORT&departDate=${depDate}&adults=1&cabinClass=ECONOMY&sort=BEST`;
 
     return {
       id: `bkf-${Date.now()}-${index}`,

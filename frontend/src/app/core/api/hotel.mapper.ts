@@ -78,7 +78,7 @@ export class HotelMapper implements Mapper<BookingComHotel, Stay> {
       photoUrl: prop.photoUrls?.[0] || null,
       images: this.deduplicatePhotos(prop.photoUrls || []),
       link: {
-        url: `https://www.booking.com/hotel/searchresults.html?aid=304142&dest_id=${hotelId}`,
+        url: `https://www.booking.com/searchresults.html?aid=304142&ss=${encodeURIComponent(prop.name || '')}&checkin=${ci}&checkout=${co}`,
         provider: 'Booking.com',
       },
       addedToItinerary: false,
