@@ -116,52 +116,9 @@
     </div>
   }
 
-  <!-- Add Form -->
-  @if (showAddForm()) {
-    <mat-card class="add-form-card">
-      <mat-card-content>
-        <h3>{{ 'checklist.addManualItem' | translate }}</h3>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'checklist.description' | translate }}</mat-label>
-          <input matInput [(ngModel)]="newLabel">
-        </mat-form-field>
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'checklist.category' | translate }}</mat-label>
-            <mat-select [(ngModel)]="newCategory">
-              @for (cat of categoryOrder; track cat) {
-                <mat-option [value]="cat">{{ checklist.getCategoryLabel(cat) }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'checklist.priority' | translate }}</mat-label>
-            <mat-select [(ngModel)]="newPriority">
-              <mat-option value="high">{{ 'checklist.priorityHigh' | translate }}</mat-option>
-              <mat-option value="medium">{{ 'checklist.priorityMedium' | translate }}</mat-option>
-              <mat-option value="low">{{ 'checklist.priorityLow' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'checklist.dueDate' | translate }}</mat-label>
-          <input matInput type="date" [(ngModel)]="newDueDate">
-        </mat-form-field>
-        <div class="form-actions">
-          <button mat-button (click)="showAddForm.set(false)">{{ 'checklist.cancel' | translate }}</button>
-          <button mat-flat-button color="primary" (click)="addItem()" [disabled]="!newLabel.trim()">
-            <mat-icon>add</mat-icon> {{ 'checklist.addItem' | translate }}
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
-  @if (!showAddForm()) {
-    <button mat-fab color="primary" class="add-fab" (click)="showAddForm.set(true)" [matTooltip]="'checklist.addItemBtn' | translate">
-      <mat-icon>add</mat-icon>
-    </button>
-  }
+  <button mat-fab color="primary" class="add-fab" (click)="openAddDialog()" [matTooltip]="'checklist.addItemBtn' | translate">
+    <mat-icon>add</mat-icon>
+  </button>
 
   @if (checklist.items().length === 0) {
     <mat-card class="empty-state">

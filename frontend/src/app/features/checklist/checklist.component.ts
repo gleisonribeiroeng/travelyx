@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { ChecklistService } from '../../core/services/checklist.service';
@@ -8,6 +9,7 @@ import { TripStateService } from '../../core/services/trip-state.service';
 import { CollaborationService } from '../../core/services/collaboration.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ChecklistItem } from '../../core/models/trip.models';
+import { ChecklistAddDialogComponent, ChecklistAddDialogResult } from '../../shared/components/checklist-add-dialog/checklist-add-dialog.component';
 
 @Component({
   selector: 'app-checklist',
@@ -21,17 +23,12 @@ export class ChecklistComponent implements OnInit {
   protected readonly tripState = inject(TripStateService);
   protected readonly collabService = inject(CollaborationService);
   protected readonly auth = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
 
-  readonly showAddForm = signal(false);
   readonly filterCategory = signal<string>('');
   readonly filterMyTasks = signal(false);
 
   readonly hasCollaborators = computed(() => this.collabService.collaborators().length > 1);
-
-  newLabel = '';
-  newCategory: ChecklistItem['category'] = 'logistics';
-  newPriority: ChecklistItem['priority'] = 'medium';
-  newDueDate = '';
 
   readonly categoryOrder: ChecklistItem['category'][] = ['documents', 'finance', 'logistics', 'packing', 'health'];
 
@@ -50,17 +47,21 @@ export class ChecklistComponent implements OnInit {
     return this.categoryOrder.filter(c => groups[c]?.length > 0);
   }
 
-  addItem(): void {
-    if (!this.newLabel.trim()) return;
-    this.checklist.addManual({
-      category: this.newCategory,
-      label: this.newLabel.trim(),
-      dueDate: this.newDueDate || null,
-      priority: this.newPriority,
+  openAddDialog(): void {
+    const ref = this.dialog.open(ChecklistAddDialogComponent, {
+      width: '480px',
+      maxWidth: '95vw',
+      panelClass: 'mobile-fullscreen-dialog',
     });
-    this.newLabel = '';
-    this.newDueDate = '';
-    this.showAddForm.set(false);
+    ref.afterClosed().subscribe((result: ChecklistAddDialogResult | undefined) => {
+      if (!result) return;
+      this.checklist.addManual({
+        category: result.category,
+        label: result.label,
+        dueDate: result.dueDate,
+        priority: result.priority,
+      });
+    });
   }
 
   formatDueDate(dateStr: string | null): string {
