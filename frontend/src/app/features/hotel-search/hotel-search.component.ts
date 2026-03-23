@@ -153,6 +153,8 @@ export class HotelSearchComponent {
   private currentPage = 1;
   private lastSearchParams: HotelSearchParams | null = null;
   sortBy = signal<'price' | 'rating'>('rating');
+  selectedStars = signal<number>(0); // 0 = all
+  starOptions = [0, 5, 4, 3, 2, 1];
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
 
@@ -232,6 +234,37 @@ export class HotelSearchComponent {
           }
         },
       });
+  }
+
+  // Filter by star rating — re-searches from API
+  filterByStars(stars: number): void {
+    if (this.selectedStars() === stars) return;
+    this.selectedStars.set(stars);
+    if (this.lastSearchParams) {
+      this.lastSearchParams = {
+        ...this.lastSearchParams,
+        starClass: stars || undefined,
+      };
+      this.currentPage = 1;
+      this.isSearching.set(true);
+      this.hotelApi
+        .searchHotelsPaginated(this.lastSearchParams, 1)
+        .pipe(finalize(() => this.isSearching.set(false)))
+        .subscribe({
+          next: (result) => {
+            if (result.error) {
+              this.errorMessage.set(result.error.message);
+              this.searchResults.set([]);
+              this.hasMore.set(false);
+            } else {
+              this.searchResults.set(result.data);
+              this.totalCount.set(result.totalCount);
+              this.hasMore.set(result.hasMore);
+              this.currentPage = 2;
+            }
+          },
+        });
+    }
   }
 
   // Dismiss error banner

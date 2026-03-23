@@ -253,6 +253,7 @@
   "hotels.sortBy": "Sort by",
   "hotels.sortPrice": "Price (lowest)",
   "hotels.sortRating": "Rating (highest)",
+  "hotels.allStars": "All",
   "hotels.emptyState": "No hotels found. Try a different destination or dates.",
   "hotels.destinationNotFound": "Destination not found. Select a destination from the list.",
   "hotels.errorSearchDestination": "Error searching destination. Try again.",

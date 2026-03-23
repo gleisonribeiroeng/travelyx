@@ -27,6 +27,7 @@ export interface HotelSearchParams {
   adults: number;
   rooms: number;
   sortBy?: HotelSortBy;
+  starClass?: number;
 }
 
 export interface PaginatedHotelResult {
@@ -88,6 +89,7 @@ export class HotelApiService extends BaseApiService {
       currency_code: this.currencyService.currency(),
       locale: this.locale,
       ...(params.sortBy && { sort_by: params.sortBy }),
+      ...(params.starClass && { selected_filter: `class=${params.starClass}` }),
     };
     return this.get<any>('/api/v1/hotels/searchHotels', queryParams).pipe(
       withBackoff(),
@@ -119,4 +121,33 @@ export class HotelApiService extends BaseApiService {
       catchError(() => of([])),
     );
   }
+
+  getHotelDetails(hotelId: string, checkIn?: string, checkOut?: string): Observable<HotelDetails | null> {
+    const params: Record<string, string> = {
+      hotel_id: hotelId,
+      locale: this.locale,
+    };
+    if (checkIn) params['arrival_date'] = checkIn;
+    if (checkOut) params['departure_date'] = checkOut;
+
+    return this.get<any>('/api/v1/hotels/getHotelDetails', params).pipe(
+      map((response) => response.data || null),
+      catchError(() => of(null)),
+    );
+  }
+}
+
+export interface HotelDetails {
+  description: string;
+  checkinFrom: string;
+  checkinTo: string;
+  checkoutFrom: string;
+  checkoutTo: string;
+  facilities: { name: string; icon: string }[];
+  highlights: string[];
+  propertyType: string;
+  starRating: number;
+  address: string;
+  city: string;
+  country: string;
 }
