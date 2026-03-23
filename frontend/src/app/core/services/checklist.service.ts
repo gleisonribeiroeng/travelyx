@@ -31,10 +31,13 @@ export class ChecklistService {
     return groups;
   });
 
+  private syncing = false;
+
   constructor() {
     // Load checklist from trip state whenever the active trip changes
     effect(() => {
       const trip = this.tripState.trip();
+      if (this.syncing) return;
       const saved = trip.checklist ?? [];
       this._items.set(saved);
     });
@@ -76,7 +79,10 @@ export class ChecklistService {
   }
 
   private persist(): void {
+    this.syncing = true;
     this.tripState.setChecklist(this._items());
+    // Allow the effect to process the current change, then re-enable sync
+    setTimeout(() => this.syncing = false);
   }
 
   getCategoryIcon(cat: string): string {
