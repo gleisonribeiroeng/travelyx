@@ -2,6 +2,7 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 import { PollsService } from '../../../core/services/polls.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TripPoll } from '../../../core/models/collaboration.models';
@@ -17,7 +18,7 @@ import { TripPoll } from '../../../core/models/collaboration.models';
         <mat-icon class="poll-icon">poll</mat-icon>
         <h4>{{ poll.question }}</h4>
         @if (poll.closedAt) {
-          <span class="closed-badge">Encerrada</span>
+          <span class="closed-badge">{{ 'collab.pollClosed' | translate }}</span>
         }
       </div>
 
@@ -267,6 +268,7 @@ export class PollCardComponent {
 
   private readonly pollsService = inject(PollsService);
   private readonly auth = inject(AuthService);
+  private readonly i18n = inject(TranslationService);
 
   get totalVotes(): number {
     return this.poll.options.reduce((sum, o) => sum + o.voteCount, 0);
@@ -296,12 +298,13 @@ export class PollCardComponent {
     const date = new Date(dateStr).getTime();
     const diff = now - date;
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return 'agora';
-    if (minutes < 60) return `${minutes}min`;
+    if (minutes < 1) return this.i18n.t('collab.timeAgo.now');
+    if (minutes < 60) return `${minutes}${this.i18n.t('collab.timeAgo.min')}`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h`;
+    if (hours < 24) return `${hours}${this.i18n.t('collab.timeAgo.hours')}`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d`;
-    return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    if (days < 7) return `${days}${this.i18n.t('collab.timeAgo.days')}`;
+    const locale = this.i18n.lang() === 'en' ? 'en-US' : 'pt-BR';
+    return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: 'short' });
   }
 }

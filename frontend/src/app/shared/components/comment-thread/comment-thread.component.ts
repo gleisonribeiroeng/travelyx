@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 import { CommentsService } from '../../../core/services/comments.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TripComment } from '../../../core/models/collaboration.models';
@@ -70,7 +71,7 @@ import { TripComment } from '../../../core/models/collaboration.models';
               @if (replyingTo() === comment.id) {
                 <div class="reply-input-row">
                   <mat-form-field appearance="outline" class="reply-field">
-                    <input matInput [(ngModel)]="replyText" placeholder="Responder..."
+                    <input matInput [(ngModel)]="replyText" [placeholder]="i18n.t('collab.replyPlaceholder')"
                            (keydown.enter)="submitReply(comment.id)" />
                   </mat-form-field>
                   <button mat-icon-button color="primary" [disabled]="!replyText.trim()"
@@ -343,6 +344,7 @@ export class CommentThreadComponent implements OnInit {
 
   readonly commentsService = inject(CommentsService);
   readonly auth = inject(AuthService);
+  readonly i18n = inject(TranslationService);
 
   readonly reactionEmojis = ['\u{1F44D}', '\u{2764}\u{FE0F}', '\u{2753}'];
   readonly sending = signal(false);
@@ -404,12 +406,13 @@ export class CommentThreadComponent implements OnInit {
     const date = new Date(dateStr).getTime();
     const diff = now - date;
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return 'agora';
-    if (minutes < 60) return `${minutes}min`;
+    if (minutes < 1) return this.i18n.t('collab.timeAgo.now');
+    if (minutes < 60) return `${minutes}${this.i18n.t('collab.timeAgo.min')}`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h`;
+    if (hours < 24) return `${hours}${this.i18n.t('collab.timeAgo.hours')}`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d`;
-    return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    if (days < 7) return `${days}${this.i18n.t('collab.timeAgo.days')}`;
+    const locale = this.i18n.lang() === 'en' ? 'en-US' : 'pt-BR';
+    return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: 'short' });
   }
 }

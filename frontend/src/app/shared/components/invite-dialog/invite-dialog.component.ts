@@ -104,7 +104,7 @@ export interface InviteDialogData {
                 </span>
                 @if (collab.role !== 'OWNER' && collabService.isOwner()) {
                   <button mat-icon-button class="remove-btn"
-                          (click)="removeCollaborator(collab)" [matTooltip]="'Remover'">
+                          (click)="removeCollaborator(collab)" [matTooltip]="i18n.t('collab.remove')">
                     <mat-icon>close</mat-icon>
                   </button>
                 }
@@ -403,7 +403,7 @@ export class InviteDialogComponent {
   private readonly data: InviteDialogData = inject(MAT_DIALOG_DATA);
   readonly collabService = inject(CollaborationService);
   private readonly notify = inject(NotificationService);
-  private readonly i18n = inject(TranslationService);
+  readonly i18n = inject(TranslationService);
 
   email = '';
   readonly selectedRole = signal<CollaboratorRole>('EDITOR');
@@ -426,7 +426,7 @@ export class InviteDialogComponent {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      this.emailError.set('E-mail inválido');
+      this.emailError.set(this.i18n.t('collab.invalidEmail'));
       return;
     }
 

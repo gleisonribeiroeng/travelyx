@@ -317,7 +317,7 @@
               <p>{{ 'collab.proRequired' | translate }}</p>
               <p class="lock-desc">{{ 'collab.proRequiredDesc' | translate }}</p>
               <button mat-flat-button color="primary" (click)="planService.showPaywall('collaboration')">
-                <mat-icon>star</mat-icon> Upgrade Pro
+                <mat-icon>star</mat-icon> {{ 'collab.upgradePro' | translate }}
               </button>
             </div>
           } @else {
@@ -380,7 +380,7 @@
                         <mat-icon>add</mat-icon> {{ 'collab.addOption' | translate }}
                       </button>
                       <div class="poll-form-actions">
-                        <button mat-button (click)="showPollForm.set(false)">Cancelar</button>
+                        <button mat-button (click)="showPollForm.set(false)">{{ 'collab.cancel' | translate }}</button>
                         <button mat-raised-button color="primary" (click)="createPoll()"
                                 [disabled]="!newPollQuestion.trim()">
                           {{ 'collab.createPoll' | translate }}
@@ -401,7 +401,7 @@
                       @if (!showPollForm()) {
                         <div class="empty-tab">
                           <mat-icon>poll</mat-icon>
-                          <p>Nenhuma enquete ainda. Crie uma para decidir junto!</p>
+                          <p>{{ 'collab.noPollsYet' | translate }}</p>
                         </div>
                       }
                     }
@@ -480,7 +480,7 @@
                               <span class="entry-name">{{ entry.userName }}</span>
                               <span class="entry-amount">{{ entry.amount | number:'1.2-2' }}</span>
                               <button mat-icon-button (click)="toggleExpensePaid(expense.id, entry.id)"
-                                      [matTooltip]="entry.isPaid ? 'Marcar como pendente' : 'Marcar como pago'">
+                                      [matTooltip]="entry.isPaid ? ('collab.markPending' | translate) : ('collab.markPaid' | translate)">
                                 <mat-icon>{{ entry.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
                               </button>
                             </div>
@@ -494,7 +494,7 @@
                     } @empty {
                       <div class="empty-tab">
                         <mat-icon>receipt_long</mat-icon>
-                        <p>Nenhuma despesa compartilhada ainda.</p>
+                        <p>{{ 'collab.noExpensesYet' | translate }}</p>
                       </div>
                     }
                   </div>

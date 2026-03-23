@@ -2,6 +2,7 @@ import { Component, Input, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 import { ActivityService } from '../../../core/services/activity.service';
 import { CollaborationService } from '../../../core/services/collaboration.service';
 import { TripActivity } from '../../../core/models/collaboration.models';
@@ -59,7 +60,7 @@ import { TripActivity } from '../../../core/models/collaboration.models';
         } @empty {
           <div class="empty-timeline">
             <mat-icon>history</mat-icon>
-            <p>{{ 'collab.activity' | translate }} - vazio</p>
+            <p>{{ 'collab.activity' | translate }} - {{ 'collab.activityEmpty' | translate }}</p>
           </div>
         }
       </div>
@@ -242,6 +243,7 @@ export class ActivityPanelComponent implements OnInit {
   @Input() tripId!: string;
 
   private readonly activityService = inject(ActivityService);
+  private readonly i18n = inject(TranslationService);
   readonly collabService = inject(CollaborationService);
 
   filterUser = '';
@@ -284,12 +286,12 @@ export class ActivityPanelComponent implements OnInit {
 
   getActionLabel(activity: TripActivity): string {
     const actionMap: Record<string, string> = {
-      added: 'adicionou',
-      updated: 'atualizou',
-      removed: 'removeu',
-      joined: 'entrou na viagem',
-      commented: 'comentou em',
-      voted: 'votou em',
+      added: this.i18n.t('collab.actionAdded'),
+      updated: this.i18n.t('collab.actionUpdated'),
+      removed: this.i18n.t('collab.actionRemoved'),
+      joined: this.i18n.t('collab.actionJoined'),
+      commented: this.i18n.t('collab.actionCommented'),
+      voted: this.i18n.t('collab.actionVoted'),
     };
     const actionText = actionMap[activity.action] || activity.action;
     const target = activity.metadata?.label || activity.metadata?.targetName || '';
@@ -301,12 +303,13 @@ export class ActivityPanelComponent implements OnInit {
     const date = new Date(dateStr).getTime();
     const diff = now - date;
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return 'agora';
-    if (minutes < 60) return `${minutes}min`;
+    if (minutes < 1) return this.i18n.t('collab.timeAgo.now');
+    if (minutes < 60) return `${minutes}${this.i18n.t('collab.timeAgo.min')}`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h`;
+    if (hours < 24) return `${hours}${this.i18n.t('collab.timeAgo.hours')}`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d`;
-    return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    if (days < 7) return `${days}${this.i18n.t('collab.timeAgo.days')}`;
+    const locale = this.i18n.lang() === 'en' ? 'en-US' : 'pt-BR';
+    return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: 'short' });
   }
 }

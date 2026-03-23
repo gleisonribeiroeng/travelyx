@@ -303,7 +303,7 @@ export class ShareDialogComponent implements OnInit {
 
   shareWhatsApp(): void {
     const text = encodeURIComponent(
-      `Veja meu roteiro de viagem para ${this.data.destination}: ${this.publicUrl()}`
+      this.i18n.t('collab.whatsAppMessage', { destination: this.data.destination, url: this.publicUrl() })
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 import { Collaborator } from '../../../core/models/collaboration.models';
 
 export interface ExpenseSplitDialogData {
@@ -36,14 +37,14 @@ export interface ExpenseSplitDialogResult {
       <!-- Form -->
       <div class="expense-form">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Label</mat-label>
-          <input matInput [(ngModel)]="label" placeholder="Ex: Jantar, Uber, Hotel..." />
+          <mat-label>{{ 'collab.expenseLabel' | translate }}</mat-label>
+          <input matInput [(ngModel)]="label" [placeholder]="i18n.t('collab.expenseLabelPlaceholder')" />
           <mat-icon matPrefix>label</mat-icon>
         </mat-form-field>
 
         <div class="amount-row">
           <mat-form-field appearance="outline" class="amount-field">
-            <mat-label>Valor</mat-label>
+            <mat-label>{{ 'collab.expenseAmount' | translate }}</mat-label>
             <input matInput type="number" [(ngModel)]="totalAmount" min="0" step="0.01" />
             <mat-icon matPrefix>payments</mat-icon>
           </mat-form-field>
@@ -52,7 +53,7 @@ export interface ExpenseSplitDialogResult {
 
         <!-- Split Mode -->
         <div class="split-mode-section">
-          <span class="section-label">Modo de divisao</span>
+          <span class="section-label">{{ 'collab.expenseSplitMode' | translate }}</span>
           <mat-chip-listbox [(ngModel)]="splitMode" (change)="onModeChange()">
             <mat-chip-option value="EQUAL">{{ 'collab.splitEqual' | translate }}</mat-chip-option>
             <mat-chip-option value="PROPORTIONAL">{{ 'collab.splitProportional' | translate }}</mat-chip-option>
@@ -63,7 +64,7 @@ export interface ExpenseSplitDialogResult {
         <!-- EQUAL mode: checkboxes -->
         @if (splitMode === 'EQUAL') {
           <div class="participants-section">
-            <span class="section-label">Participantes</span>
+            <span class="section-label">{{ 'collab.expenseParticipants' | translate }}</span>
             <div class="participants-list">
               @for (collab of data.collaborators; track collab.id) {
                 <label class="participant-row">
@@ -88,7 +89,7 @@ export interface ExpenseSplitDialogResult {
         <!-- PROPORTIONAL mode: individual inputs -->
         @if (splitMode === 'PROPORTIONAL') {
           <div class="participants-section">
-            <span class="section-label">Valores por pessoa</span>
+            <span class="section-label">{{ 'collab.expenseAmountsPerPerson' | translate }}</span>
             <div class="participants-list">
               @for (collab of data.collaborators; track collab.id) {
                 <div class="participant-row proportional">
@@ -113,7 +114,7 @@ export interface ExpenseSplitDialogResult {
         <!-- SINGLE_PAYER mode: select payer -->
         @if (splitMode === 'SINGLE_PAYER') {
           <div class="participants-section">
-            <span class="section-label">Quem paga</span>
+            <span class="section-label">{{ 'collab.expenseWhoPays' | translate }}</span>
             <mat-form-field appearance="outline" class="full-width">
               <mat-select [(ngModel)]="singlePayerId">
                 @for (collab of data.collaborators; track collab.id) {
@@ -126,7 +127,7 @@ export interface ExpenseSplitDialogResult {
 
         <!-- Date -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Data</mat-label>
+          <mat-label>{{ 'collab.expenseDate' | translate }}</mat-label>
           <input matInput type="date" [(ngModel)]="date" />
           <mat-icon matPrefix>event</mat-icon>
         </mat-form-field>
@@ -134,7 +135,7 @@ export interface ExpenseSplitDialogResult {
 
       <!-- Actions -->
       <div class="dialog-actions">
-        <button mat-button (click)="dialogRef.close()">Cancelar</button>
+        <button mat-button (click)="dialogRef.close()">{{ 'collab.cancel' | translate }}</button>
         <button mat-raised-button color="primary" [disabled]="!canSubmit()"
                 (click)="submit()">
           <mat-icon>add</mat-icon>
@@ -291,6 +292,7 @@ export interface ExpenseSplitDialogResult {
 export class ExpenseSplitDialogComponent {
   readonly dialogRef = inject(MatDialogRef<ExpenseSplitDialogComponent>);
   readonly data: ExpenseSplitDialogData = inject(MAT_DIALOG_DATA);
+  readonly i18n = inject(TranslationService);
 
   label = '';
   totalAmount = 0;
