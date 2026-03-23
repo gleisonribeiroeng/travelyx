@@ -28,6 +28,7 @@ export interface Trip {
   activities: Activity[];
   attractions: Attraction[];
   checklist: ChecklistItem[];
+  dayNotes: Record<string, string>;
   itineraryItems: ItineraryItem[];
   coverImage?: string;
   collaborators?: Collaborator[];

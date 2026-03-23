@@ -50,6 +50,7 @@ model Trip {
   activities     String             @default("[]")
   attractions    String             @default("[]")
   checklist      String             @default("[]")
+  dayNotes       String             @default("{}")
   coverImage     String?
   travelers      Int                @default(1)
   publicSlug     String?            @unique

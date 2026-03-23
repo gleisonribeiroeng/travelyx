@@ -1176,5 +1176,16 @@
   "public.emptyItinerary": "Este roteiro ainda está sendo montado.",
   "public.ctaTitle": "Planeje sua viagem na Travelyx",
   "public.ctaDesc": "Crie roteiros inteligentes, compare voos e hotéis, e planeje com amigos.",
-  "public.ctaButton": "Começar agora"
+  "public.ctaButton": "Começar agora",
+
+  "timeline.daysPlanned": "dias planejados",
+  "timeline.totalItems": "itens",
+  "timeline.totalDuration": "atividades",
+  "timeline.paid": "pago",
+  "timeline.conflictSingle": "conflito",
+  "timeline.conflictPlural": "conflitos",
+  "timeline.addNote": "Adicionar nota do dia...",
+  "timeline.notePlaceholder": "Ex: dia de praia, reservar restaurante...",
+  "timeline.movedToDay": "Item movido!",
+  "timeline.itemDuplicated": "Item duplicado!"
 }

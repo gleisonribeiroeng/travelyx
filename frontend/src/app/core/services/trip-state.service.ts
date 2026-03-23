@@ -37,6 +37,7 @@ const DEFAULT_TRIP: Trip = {
   activities: [],
   attractions: [],
   checklist: [],
+  dayNotes: {},
   itineraryItems: [],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -442,6 +443,25 @@ export class TripStateService {
       checklist: items,
       updatedAt: new Date().toISOString(),
     }));
+    this.scheduleSyncToApi();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Day Notes
+  // ---------------------------------------------------------------------------
+
+  readonly dayNotes = computed(() => this.trip().dayNotes ?? {});
+
+  setDayNote(date: string, note: string): void {
+    this.updateActiveTrip(t => {
+      const notes = { ...(t.dayNotes ?? {}) };
+      if (note.trim()) {
+        notes[date] = note;
+      } else {
+        delete notes[date];
+      }
+      return { ...t, dayNotes: notes, updatedAt: new Date().toISOString() };
+    });
     this.scheduleSyncToApi();
   }
 

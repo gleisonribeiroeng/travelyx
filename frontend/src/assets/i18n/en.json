@@ -1176,5 +1176,16 @@
   "public.emptyItinerary": "This itinerary is still being built.",
   "public.ctaTitle": "Plan your trip on Travelyx",
   "public.ctaDesc": "Create smart itineraries, compare flights and hotels, and plan with friends.",
-  "public.ctaButton": "Get started"
+  "public.ctaButton": "Get started",
+
+  "timeline.daysPlanned": "days planned",
+  "timeline.totalItems": "items",
+  "timeline.totalDuration": "activities",
+  "timeline.paid": "paid",
+  "timeline.conflictSingle": "conflict",
+  "timeline.conflictPlural": "conflicts",
+  "timeline.addNote": "Add day note...",
+  "timeline.notePlaceholder": "E.g.: beach day, book restaurant...",
+  "timeline.movedToDay": "Item moved!",
+  "timeline.itemDuplicated": "Item duplicated!"
 }

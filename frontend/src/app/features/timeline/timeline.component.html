@@ -1,5 +1,5 @@
 <div class="timeline-page">
-  <!-- Page header -->
+  <!-- ═══ PAGE HEADER ═══ -->
   <div class="page-header">
     <div class="header-text">
       <h1>{{ 'timeline.title' | translate }}</h1>
@@ -26,60 +26,36 @@
         }
       </button>
 
-      <!-- Export (PRO) -->
+      <!-- Export -->
       <button mat-stroked-button class="bulk-action export-btn" [matMenuTriggerFor]="exportMenu" [disabled]="exporting()">
-        @if (exporting()) {
-          <mat-spinner diameter="16"></mat-spinner>
-        } @else {
-          <mat-icon>download</mat-icon>
-        }
+        @if (exporting()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>download</mat-icon> }
         {{ 'export.button' | translate }}
       </button>
       <mat-menu #exportMenu="matMenu">
-        <button mat-menu-item (click)="exportPdf()">
-          <mat-icon>picture_as_pdf</mat-icon> {{ 'export.pdf' | translate }}
-        </button>
+        <button mat-menu-item (click)="exportPdf()"><mat-icon>picture_as_pdf</mat-icon> {{ 'export.pdf' | translate }}</button>
         <button mat-menu-item (click)="exportBeautifulPdf()">
           <mat-icon>auto_stories</mat-icon> {{ 'export.pdfPro' | translate }}
-          @if (!planService.hasFeature('pdfExport')) {
-            <mat-icon class="pro-lock-inline">lock</mat-icon>
-          }
+          @if (!planService.hasFeature('pdfExport')) { <mat-icon class="pro-lock-inline">lock</mat-icon> }
         </button>
-        <button mat-menu-item (click)="exportExcel()">
-          <mat-icon>table_chart</mat-icon> {{ 'export.excel' | translate }}
-        </button>
+        <button mat-menu-item (click)="exportExcel()"><mat-icon>table_chart</mat-icon> {{ 'export.excel' | translate }}</button>
       </mat-menu>
 
-      <!-- Google Calendar sync -->
+      <!-- Google Calendar -->
       <button mat-stroked-button class="bulk-action calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
-        @if (syncing()) {
-          <mat-spinner diameter="16"></mat-spinner>
-        } @else {
-          <mat-icon>event</mat-icon>
-        }
+        @if (syncing()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>event</mat-icon> }
         {{ 'timeline.googleCalendar' | translate }}
       </button>
 
-      <!-- Quick add menu -->
+      <!-- Quick add -->
       <button mat-flat-button color="primary" [matMenuTriggerFor]="addMenu" class="add-btn">
         <mat-icon>add</mat-icon> {{ 'timeline.newItem' | translate }}
       </button>
       <mat-menu #addMenu="matMenu">
-        <button mat-menu-item (click)="openAddDialog('flight')">
-          <mat-icon class="type-flight">flight</mat-icon> {{ 'timeline.flight' | translate }}
-        </button>
-        <button mat-menu-item (click)="openAddDialog('stay')">
-          <mat-icon class="type-stay">hotel</mat-icon> {{ 'timeline.hotel' | translate }}
-        </button>
-        <button mat-menu-item (click)="openAddDialog('activity')">
-          <mat-icon class="type-activity">local_activity</mat-icon> {{ 'timeline.activity' | translate }}
-        </button>
-        <button mat-menu-item (click)="openAddDialog('transport')">
-          <mat-icon class="type-transport">directions_bus</mat-icon> {{ 'timeline.transport' | translate }}
-        </button>
-        <button mat-menu-item (click)="openAddDialog('custom')">
-          <mat-icon class="type-custom">edit_note</mat-icon> {{ 'timeline.customItem' | translate }}
-        </button>
+        <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> {{ 'timeline.flight' | translate }}</button>
+        <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> {{ 'timeline.hotel' | translate }}</button>
+        <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> {{ 'timeline.activity' | translate }}</button>
+        <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> {{ 'timeline.transport' | translate }}</button>
+        <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> {{ 'timeline.customItem' | translate }}</button>
       </mat-menu>
     </div>
   </div>
@@ -91,15 +67,78 @@
       <p>{{ 'timeline.setDatesDesc' | translate }}</p>
     </div>
   } @else {
-    <!-- Timeline rail -->
-    <div class="timeline-rail">
-      @for (day of timeline(); track day.date; let isLast = $last) {
-        <div class="day-section" [class.empty-day]="day.isEmpty" [class.expanded]="isDayExpanded(day.date)" [class.last-day]="isLast">
 
-          <!-- Day node on the rail -->
-          <div class="day-node" [class.has-items]="!day.isEmpty">
-            <div class="node-dot"></div>
+    <!-- ═══ TRIP SUMMARY BAR ═══ -->
+    <div class="summary-bar">
+      <div class="summary-item">
+        <mat-icon>calendar_today</mat-icon>
+        <div class="summary-data">
+          <span class="summary-value">{{ tripSummary().plannedDays }}<span class="summary-faded">/{{ tripSummary().totalDays }}</span></span>
+          <span class="summary-label">{{ 'timeline.daysPlanned' | translate }}</span>
+        </div>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">
+        <mat-icon>event_note</mat-icon>
+        <div class="summary-data">
+          <span class="summary-value">{{ tripSummary().totalItems }}</span>
+          <span class="summary-label">{{ 'timeline.totalItems' | translate }}</span>
+        </div>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">
+        <mat-icon>schedule</mat-icon>
+        <div class="summary-data">
+          <span class="summary-value">{{ formatDuration(tripSummary().totalDuration) }}</span>
+          <span class="summary-label">{{ 'timeline.totalDuration' | translate }}</span>
+        </div>
+      </div>
+      @if (tripSummary().totalCost > 0) {
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <mat-icon>payments</mat-icon>
+          <div class="summary-data">
+            <span class="summary-value">{{ formatCurrency(tripSummary().totalCost) }}</span>
+            <span class="summary-label">{{ tripSummary().paidPercent }}% {{ 'timeline.paid' | translate }}</span>
           </div>
+        </div>
+      }
+      @if (tripSummary().conflictCount > 0) {
+        <div class="summary-divider"></div>
+        <div class="summary-item summary-alert">
+          <mat-icon>warning</mat-icon>
+          <div class="summary-data">
+            <span class="summary-value">{{ tripSummary().conflictCount }}</span>
+            <span class="summary-label">{{ tripSummary().conflictCount === 1 ? ('timeline.conflictSingle' | translate) : ('timeline.conflictPlural' | translate) }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ═══ TYPE FILTERS ═══ -->
+    @if (tripSummary().totalItems > 0) {
+      <div class="filter-row">
+        @for (ft of filterTypes; track ft.value) {
+          @if (ft.value === '' || (typeCounts()[ft.value] ?? 0) > 0) {
+            <button class="filter-chip" [class.active]="activeFilter() === ft.value"
+                    (click)="activeFilter.set(ft.value)">
+              <mat-icon>{{ ft.icon }}</mat-icon>
+              <span>{{ ft.label }}</span>
+              @if (ft.value !== '' && (typeCounts()[ft.value] ?? 0) > 0) {
+                <span class="filter-count">{{ typeCounts()[ft.value] }}</span>
+              }
+            </button>
+          }
+        }
+      </div>
+    }
+
+    <!-- ═══ TIMELINE RAIL ═══ -->
+    <div class="timeline-rail">
+      @for (day of filteredTimeline(); track day.date; let isLast = $last) {
+        <div class="day-section" [class.empty-day]="day.isEmpty" [class.expanded]="isDayExpanded(day.date)" [class.last-day]="isLast">
+          <!-- Rail node -->
+          <div class="day-node" [class.has-items]="!day.isEmpty"><div class="node-dot"></div></div>
 
           <!-- Day card -->
           <div class="day-card">
@@ -110,26 +149,34 @@
                 <span class="day-date-text">{{ day.dayLabel.split(' — ')[1] }}</span>
               </div>
 
+              <!-- Weather badge -->
+              @if (getWeather(day.date); as w) {
+                <span class="weather-badge" [matTooltip]="w.label">
+                  <mat-icon class="weather-icon">{{ w.icon }}</mat-icon>
+                  <span class="weather-temp">{{ w.tempMax }}°</span>
+                  <span class="weather-temp-min">{{ w.tempMin }}°</span>
+                </span>
+              }
+
+              <!-- Day note indicator -->
+              @if (getDayNote(day.date)) {
+                <span class="note-indicator" matTooltip="Nota do dia">
+                  <mat-icon>sticky_note_2</mat-icon>
+                </span>
+              }
+
               <div class="day-meta">
                 @if (day.stats.itemCount > 0) {
-                  <span class="meta-chip items">
-                    <mat-icon>event</mat-icon> {{ day.stats.itemCount }}
-                  </span>
+                  <span class="meta-chip items"><mat-icon>event</mat-icon> {{ day.stats.itemCount }}</span>
                 }
                 @if (day.stats.totalDurationMinutes > 0) {
-                  <span class="meta-chip duration">
-                    <mat-icon>schedule</mat-icon> {{ formatDuration(day.stats.totalDurationMinutes) }}
-                  </span>
+                  <span class="meta-chip duration"><mat-icon>schedule</mat-icon> {{ formatDuration(day.stats.totalDurationMinutes) }}</span>
                 }
                 @if (day.stats.totalCost > 0) {
-                  <span class="meta-chip cost">
-                    <mat-icon>payments</mat-icon> {{ formatCurrency(day.stats.totalCost) }}
-                  </span>
+                  <span class="meta-chip cost"><mat-icon>payments</mat-icon> {{ formatCurrency(day.stats.totalCost) }}</span>
                 }
                 @if (day.conflicts.length > 0) {
-                  <span class="meta-chip conflict">
-                    <mat-icon>warning</mat-icon> {{ day.conflicts.length }}
-                  </span>
+                  <span class="meta-chip conflict"><mat-icon>warning</mat-icon> {{ day.conflicts.length }}</span>
                 }
               </div>
 
@@ -151,9 +198,37 @@
               </div>
             }
 
-            <!-- Expanded content -->
+            <!-- ═══ EXPANDED CONTENT ═══ -->
             @if (isDayExpanded(day.date)) {
-              <div class="day-body" [@.disabled]="true">
+              <div class="day-body">
+
+                <!-- Day note -->
+                <div class="day-note-section">
+                  @if (editingNoteDate() === day.date) {
+                    <div class="day-note-editor">
+                      <mat-icon class="note-icon">edit_note</mat-icon>
+                      <input class="note-input" [(ngModel)]="editingNoteText"
+                             [placeholder]="'timeline.notePlaceholder' | translate"
+                             (keydown.enter)="saveNote()" (keydown.escape)="cancelEditNote()" autofocus />
+                      <button mat-icon-button class="note-action-btn" (click)="saveNote()" matTooltip="Salvar">
+                        <mat-icon>check</mat-icon>
+                      </button>
+                      <button mat-icon-button class="note-action-btn" (click)="cancelEditNote()" matTooltip="Cancelar">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  } @else {
+                    <button class="day-note-btn" (click)="startEditNote(day.date)">
+                      <mat-icon>{{ getDayNote(day.date) ? 'sticky_note_2' : 'add_comment' }}</mat-icon>
+                      @if (getDayNote(day.date)) {
+                        <span class="note-text">{{ getDayNote(day.date) }}</span>
+                      } @else {
+                        <span class="note-placeholder">{{ 'timeline.addNote' | translate }}</span>
+                      }
+                    </button>
+                  }
+                </div>
+
                 @if (day.isEmpty) {
                   <div class="empty-day-msg">
                     <mat-icon>wb_sunny</mat-icon>
@@ -168,9 +243,7 @@
                     <div class="activity-card" [attr.data-type]="item.type"
                          (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
                       <div class="card-color-bar"></div>
-                      <div class="card-icon">
-                        <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
-                      </div>
+                      <div class="card-icon"><mat-icon>{{ getTypeIcon(item.type) }}</mat-icon></div>
                       <div class="card-body">
                         <div class="card-top">
                           <span class="card-type-label">{{ getTypeLabel(item.type) }}</span>
@@ -178,24 +251,25 @@
                         </div>
                         <div class="card-title">{{ item.label }}</div>
                         @if (getItemLocation(item)) {
-                          <div class="card-location">
-                            <mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}
-                          </div>
+                          <div class="card-location"><mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}</div>
                         }
-                        @if (item.notes) {
-                          <div class="card-notes">{{ item.notes }}</div>
-                        }
+                        @if (item.notes) { <div class="card-notes">{{ item.notes }}</div> }
                       </div>
                       <div class="card-right">
-                        @if (getItemPrice(item)) {
-                          <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span>
-                        }
+                        @if (getItemPrice(item)) { <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span> }
                         <div class="card-actions">
                           <mat-icon class="action-icon" [class.is-paid]="item.isPaid"
                                     [matTooltip]="item.isPaid ? ('timeline.markUnpaid' | translate) : ('timeline.markPaid' | translate)"
-                                    (click)="togglePaid(item, $event)">
-                            {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
-                          </mat-icon>
+                                    (click)="togglePaid(item, $event)">{{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                          <mat-icon class="action-icon" matTooltip="Duplicar" (click)="duplicateItem(item); $event.stopPropagation()">content_copy</mat-icon>
+                          <mat-icon class="action-icon" [matMenuTriggerFor]="moveMenu" (click)="$event.stopPropagation()" matTooltip="Mover para...">drive_file_move</mat-icon>
+                          <mat-menu #moveMenu="matMenu">
+                            @for (d of availableDays(); track d.date) {
+                              @if (d.date !== day.date) {
+                                <button mat-menu-item (click)="moveItemToDay(item, d.date)">{{ d.label }}</button>
+                              }
+                            }
+                          </mat-menu>
                           <mat-icon class="action-icon delete" [matTooltip]="'timeline.remove' | translate"
                                     (click)="removeItem(item.id, $event)">close</mat-icon>
                         </div>
@@ -203,9 +277,24 @@
                     </div>
                   }
 
-                  <!-- Timed items with drag-drop -->
+                  <!-- Timed items with travel time indicators -->
                   <div class="timed-items-zone" cdkDropList [cdkDropListData]="day.timedItems" (cdkDropListDropped)="onDrop($event, day.date)">
-                    @for (item of day.timedItems; track item.id) {
+                    @for (item of day.timedItems; track item.id; let idx = $index) {
+                      <!-- Travel time indicator between items -->
+                      @if (idx > 0) {
+                        @if (getTravelTime(day.timedItems[idx - 1], item); as travel) {
+                          <div class="travel-indicator">
+                            <div class="travel-line"></div>
+                            <div class="travel-badge">
+                              <mat-icon>{{ travel.km > 10 ? 'directions_car' : 'directions_walk' }}</mat-icon>
+                              <span>~{{ travel.minutes }}min</span>
+                              <span class="travel-km">{{ travel.km }}km</span>
+                            </div>
+                            <div class="travel-line"></div>
+                          </div>
+                        }
+                      }
+
                       <div class="activity-card timed" [attr.data-type]="item.type" cdkDrag [cdkDragData]="item"
                            (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
                         <div class="card-color-bar"></div>
@@ -220,33 +309,30 @@
                           }
                           <mat-icon class="time-edit-icon">edit</mat-icon>
                         </div>
-                        <div class="card-icon">
-                          <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
-                        </div>
+                        <div class="card-icon"><mat-icon>{{ getTypeIcon(item.type) }}</mat-icon></div>
                         <div class="card-body">
-                          <div class="card-top">
-                            <span class="card-type-label">{{ getTypeLabel(item.type) }}</span>
-                          </div>
+                          <div class="card-top"><span class="card-type-label">{{ getTypeLabel(item.type) }}</span></div>
                           <div class="card-title">{{ item.label }}</div>
                           @if (getItemLocation(item)) {
-                            <div class="card-location">
-                              <mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}
-                            </div>
+                            <div class="card-location"><mat-icon>location_on</mat-icon> {{ getItemLocation(item) }}</div>
                           }
-                          @if (item.notes) {
-                            <div class="card-notes">{{ item.notes }}</div>
-                          }
+                          @if (item.notes) { <div class="card-notes">{{ item.notes }}</div> }
                         </div>
                         <div class="card-right">
-                          @if (getItemPrice(item)) {
-                            <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span>
-                          }
+                          @if (getItemPrice(item)) { <span class="card-price">{{ formatCurrency(getItemPrice(item)) }}</span> }
                           <div class="card-actions">
                             <mat-icon class="action-icon" [class.is-paid]="item.isPaid"
                                       [matTooltip]="item.isPaid ? ('timeline.markUnpaid' | translate) : ('timeline.markPaid' | translate)"
-                                      (click)="togglePaid(item, $event)">
-                              {{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}
-                            </mat-icon>
+                                      (click)="togglePaid(item, $event)">{{ item.isPaid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                            <mat-icon class="action-icon" matTooltip="Duplicar" (click)="duplicateItem(item); $event.stopPropagation()">content_copy</mat-icon>
+                            <mat-icon class="action-icon" [matMenuTriggerFor]="moveTMenu" (click)="$event.stopPropagation()" matTooltip="Mover para...">drive_file_move</mat-icon>
+                            <mat-menu #moveTMenu="matMenu">
+                              @for (d of availableDays(); track d.date) {
+                                @if (d.date !== day.date) {
+                                  <button mat-menu-item (click)="moveItemToDay(item, d.date)">{{ d.label }}</button>
+                                }
+                              }
+                            </mat-menu>
                             <mat-icon class="action-icon drag-handle" cdkDragHandle [matTooltip]="'timeline.drag' | translate">drag_indicator</mat-icon>
                             <mat-icon class="action-icon delete" [matTooltip]="'timeline.remove' | translate"
                                       (click)="removeItem(item.id, $event)">close</mat-icon>
@@ -273,9 +359,7 @@
                         <mat-icon>{{ conflict.severity === 'error' ? 'error' : 'warning' }}</mat-icon>
                         <div class="conflict-text">
                           <span class="conflict-msg">{{ conflict.message }}</span>
-                          @if (conflict.suggestion) {
-                            <span class="conflict-tip">{{ conflict.suggestion }}</span>
-                          }
+                          @if (conflict.suggestion) { <span class="conflict-tip">{{ conflict.suggestion }}</span> }
                         </div>
                       </div>
                     }
