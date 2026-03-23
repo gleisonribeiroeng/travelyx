@@ -17,6 +17,7 @@ import { TranslationService } from '../../core/i18n/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TransitionService } from '../../core/services/transition.service';
+import { SeoService } from '../../core/services/seo.service';
 import {
   HomeShowcaseApiService,
   FeaturedDestination,
@@ -37,6 +38,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly i18n = inject(TranslationService);
   private readonly tripState = inject(TripStateService);
   private readonly transition = inject(TransitionService);
+  private readonly seo = inject(SeoService);
 
   private readonly fallbackDestinations: FeaturedDestination[] = [
     {
@@ -78,6 +80,13 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Travelyx - Planeje sua viagem com inteligência',
+      description: 'Planeje sua viagem completa: voos, hotéis, aluguel de carros e roteiros personalizados. Compare preços e organize tudo em um só lugar gratuitamente.',
+      url: 'https://travelyx.com.br',
+      keywords: 'planejamento de viagem, voos baratos, hotéis, aluguel de carros, roteiro de viagem, travelyx, viagem barata, passagens aéreas',
+    });
+
     this.api.getShowcase().subscribe({
       next: (res) => {
         this.stats.set(res.stats);

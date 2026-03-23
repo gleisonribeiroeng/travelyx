@@ -10,5 +10,8 @@ Disallow: /tours
 Disallow: /account
 Disallow: /settings
 Disallow: /admin
+Disallow: /voos
+Disallow: /hoteis
+Disallow: /passeios
 
 Sitemap: https://travelyx.com.br/sitemap.xml
