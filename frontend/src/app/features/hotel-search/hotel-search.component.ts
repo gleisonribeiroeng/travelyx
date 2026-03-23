@@ -43,6 +43,8 @@ import {
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
+import { PriceAlertApiService, CreatePriceAlertDto } from '../../core/api/price-alert-api.service';
+import { PlanService } from '../../core/services/plan.service';
 @Component({
   selector: 'app-hotel-search',
   standalone: true,
@@ -56,6 +58,8 @@ export class HotelSearchComponent {
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
   private readonly t = inject(TranslationService);
+  private readonly priceAlertApi = inject(PriceAlertApiService);
+  private readonly planService = inject(PlanService);
 
   // Form controls with custom destination validator
   destinationControl = new FormControl<DestinationOption | null>(null, [
@@ -388,6 +392,44 @@ export class HotelSearchComponent {
   selectById(id: string): void {
     const hotel = this.searchResults().find(h => h.id === id);
     if (hotel) this.addToItinerary(hotel);
+  }
+
+  onIconAction(event: { itemId: string; actionId: string }): void {
+    if (event.actionId !== 'price-alert') return;
+
+    if (!this.planService.hasFeature('priceAlerts')) {
+      this.planService.showPaywall('priceAlerts');
+      return;
+    }
+
+    const hotel = this.searchResults().find(h => h.id === event.itemId);
+    if (!hotel) return;
+
+    const dest = this.destinationControl.value;
+    const dateRange = this.hotelSearchForm.get('dateRange');
+    const startDate = dateRange?.get('start')?.value;
+    const endDate = dateRange?.get('end')?.value;
+
+    const dto: CreatePriceAlertDto = {
+      type: 'hotel',
+      label: hotel.name,
+      searchParams: {
+        dest_id: dest?.destId || '',
+        search_type: dest?.searchType || 'CITY',
+        arrival_date: startDate instanceof Date ? startDate.toISOString().split('T')[0] : hotel.checkIn,
+        departure_date: endDate instanceof Date ? endDate.toISOString().split('T')[0] : hotel.checkOut,
+        adults: String(this.hotelSearchForm.get('guests')?.value || 2),
+        room_qty: String(this.hotelSearchForm.get('rooms')?.value || 1),
+      },
+      currentPrice: hotel.pricePerNight.total,
+      targetPrice: Math.round(hotel.pricePerNight.total * 0.9 * 100) / 100,
+      currency: hotel.pricePerNight.currency,
+    };
+
+    this.priceAlertApi.createAlert(dto).subscribe({
+      next: () => this.notify.success('Alerta de preço criado! Avisaremos quando o preço cair.'),
+      error: () => this.notify.error('Erro ao criar alerta de preço.'),
+    });
   }
 
   // Open detail by id (secondary / card click)

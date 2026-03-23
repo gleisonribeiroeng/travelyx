@@ -19,6 +19,10 @@ export interface PlanLimits {
     advancedFilters: boolean;
     collaboration: boolean;
     priceAlerts: boolean;
+    routeOptimization: boolean;
+    pdfExport: boolean;
+    tripClone: boolean;
+    beautifulShare: boolean;
   };
 }
 
@@ -34,6 +38,10 @@ const FEATURE_LABELS: Record<keyof PlanLimits['features'], { name: string; desc:
   advancedFilters: { name: 'Filtros Avançados', desc: 'Filtre por tipo de veículo, preço máximo e mais' },
   collaboration: { name: 'Colaboração', desc: 'Convide amigos e família para planejar viagens juntos' },
   priceAlerts: { name: 'Alerta de Preço', desc: 'Receba notificações quando voos e hotéis ficarem mais baratos' },
+  routeOptimization: { name: 'Otimização de Roteiro', desc: 'Reordene atividades automaticamente para minimizar deslocamento' },
+  pdfExport: { name: 'PDF Profissional', desc: 'Exporte seu roteiro completo em PDF formatado para impressão' },
+  tripClone: { name: 'Clonar Viagem', desc: 'Duplique viagens anteriores como base para novos roteiros' },
+  beautifulShare: { name: 'Compartilhamento Premium', desc: 'Página pública estilizada do seu roteiro com fotos e detalhes' },
 };
 
 const PLAN_LIMITS: Record<Plan, PlanLimits> = {
@@ -53,6 +61,10 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
       advancedFilters: false,
       collaboration: false,
       priceAlerts: false,
+      routeOptimization: false,
+      pdfExport: false,
+      tripClone: false,
+      beautifulShare: false,
     },
   },
   PRO: {
@@ -71,6 +83,10 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
       advancedFilters: true,
       collaboration: true,
       priceAlerts: true,
+      routeOptimization: true,
+      pdfExport: true,
+      tripClone: true,
+      beautifulShare: true,
     },
   },
   BUSINESS: {
@@ -89,6 +105,10 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
       advancedFilters: true,
       collaboration: true,
       priceAlerts: true,
+      routeOptimization: true,
+      pdfExport: true,
+      tripClone: true,
+      beautifulShare: true,
     },
   },
 };

@@ -5,6 +5,8 @@
 export interface Price {
   /** Numeric total in the given currency */
   total: number;
+  /** Alias for total — used by some components */
+  amount?: number;
   /** ISO 4217 currency code, e.g. 'USD', 'BRL', 'EUR' */
   currency: string;
 }
@@ -25,6 +27,10 @@ export interface DateRange {
 export interface GeoLocation {
   latitude: number;
   longitude: number;
+  /** Alias for latitude */
+  lat?: number;
+  /** Alias for longitude */
+  lng?: number;
 }
 
 /**

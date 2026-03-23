@@ -242,18 +242,29 @@ model Notification {
 // ─── Price Alert Feature ────────────────────────────────────────────────────
 
 model PriceAlert {
-  id            String   @id @default(uuid())
+  id            String         @id @default(uuid())
   userId        String
-  type          String   // "flight" or "hotel"
-  label         String   // e.g. "GRU → CDG" or "Hotel Marais Paris"
-  searchParams  String   // JSON with search parameters to re-run
-  targetPrice   Float    // alert when price drops below this
-  currentPrice  Float    // price at time of alert creation
-  lowestPrice   Float?   // lowest price seen so far
-  currency      String   @default("BRL")
-  active        Boolean  @default(true)
+  type          String         // "flight" or "hotel"
+  label         String         // e.g. "GRU → CDG" or "Hotel Marais Paris"
+  searchParams  String         // JSON with search parameters to re-run
+  targetPrice   Float          // alert when price drops below this
+  currentPrice  Float          // price at time of alert creation
+  lowestPrice   Float?         // lowest price seen so far
+  currency      String         @default("BRL")
+  active        Boolean        @default(true)
   triggeredAt   DateTime?
   lastCheckedAt DateTime?
-  createdAt     DateTime @default(now())
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  history       PriceHistory[]
+}
+
+model PriceHistory {
+  id         String     @id @default(uuid())
+  alertId    String
+  price      Float
+  recordedAt DateTime   @default(now())
+  alert      PriceAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@index([alertId, recordedAt])
 }

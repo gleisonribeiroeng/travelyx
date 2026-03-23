@@ -48,6 +48,8 @@ import { flightToListItem, FlightTagType } from '../../shared/components/list-it
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
+import { PriceAlertApiService, CreatePriceAlertDto } from '../../core/api/price-alert-api.service';
+import { PlanService } from '../../core/services/plan.service';
 
 type TripType = 'roundTrip' | 'oneWay' | 'multi';
 
@@ -69,6 +71,8 @@ export class SearchComponent {
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
   private readonly t = inject(TranslationService);
+  private readonly priceAlertApi = inject(PriceAlertApiService);
+  private readonly planService = inject(PlanService);
 
   // Trip type & flexible dates
   readonly tripType = signal<TripType>('roundTrip');
@@ -352,6 +356,42 @@ export class SearchComponent {
   onCardItemClick(id: string): void {
     const flight = this.findFlightById(id);
     if (flight) this.openDetail(flight);
+  }
+
+  onIconAction(event: { itemId: string; actionId: string }): void {
+    if (event.actionId !== 'price-alert') return;
+
+    if (!this.planService.hasFeature('priceAlerts')) {
+      this.planService.showPaywall('priceAlerts');
+      return;
+    }
+
+    const flight = this.findFlightById(event.itemId);
+    if (!flight) return;
+
+    const origin = this.originControl.value;
+    const destination = this.destinationControl.value;
+    const dateRange = this.flightSearchForm.get('dateRange');
+    const departDate = dateRange?.get('start')?.value;
+
+    const dto: CreatePriceAlertDto = {
+      type: 'flight',
+      label: `${flight.origin} → ${flight.destination}`,
+      searchParams: {
+        fromId: origin && typeof origin === 'object' ? (origin as any).id || `${flight.origin}.AIRPORT` : `${flight.origin}.AIRPORT`,
+        toId: destination && typeof destination === 'object' ? (destination as any).id || `${flight.destination}.AIRPORT` : `${flight.destination}.AIRPORT`,
+        departureDate: departDate instanceof Date ? departDate.toISOString().split('T')[0] : flight.departureAt?.split('T')[0] || '',
+        adults: String(this.flightSearchForm.get('passengers')?.value || 1),
+      },
+      currentPrice: flight.price.total,
+      targetPrice: Math.round(flight.price.total * 0.9 * 100) / 100, // alert at 10% drop
+      currency: flight.price.currency,
+    };
+
+    this.priceAlertApi.createAlert(dto).subscribe({
+      next: () => this.notify.success('Alerta de preço criado! Avisaremos quando o preço cair.'),
+      error: () => this.notify.error('Erro ao criar alerta de preço.'),
+    });
   }
 
   onSegmentPrimaryClick(id: string, segmentIndex: number): void {

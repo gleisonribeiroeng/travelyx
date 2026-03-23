@@ -23,6 +23,10 @@ export const PLAN_LIMITS = {
       multiCity: false,
       advancedFilters: false,
       priceAlerts: false,
+      routeOptimization: false,
+      pdfExport: false,
+      tripClone: false,
+      beautifulShare: false,
     },
   },
   PRO: {
@@ -40,6 +44,10 @@ export const PLAN_LIMITS = {
       multiCity: true,
       advancedFilters: true,
       priceAlerts: true,
+      routeOptimization: true,
+      pdfExport: true,
+      tripClone: true,
+      beautifulShare: true,
     },
   },
   BUSINESS: {
@@ -57,6 +65,10 @@ export const PLAN_LIMITS = {
       multiCity: true,
       advancedFilters: true,
       priceAlerts: true,
+      routeOptimization: true,
+      pdfExport: true,
+      tripClone: true,
+      beautifulShare: true,
     },
   },
 } as const;

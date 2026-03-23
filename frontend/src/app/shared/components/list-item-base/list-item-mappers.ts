@@ -88,6 +88,9 @@ export function stayToListItem(
     },
     primaryAction: addAction(opts.isAdded, opts.isLoading),
     secondaryAction: viewDetailAction(),
+    iconActions: [
+      { id: 'price-alert', icon: 'notifications_active', tooltip: 'Alerta de preço' },
+    ],
     tags,
     isAdded: opts.isAdded,
   };
@@ -141,6 +144,9 @@ export function flightToListItem(
     },
     primaryAction: addAction(opts.isAdded, opts.isLoading),
     secondaryAction: viewDetailAction(),
+    iconActions: [
+      { id: 'price-alert', icon: 'notifications_active', tooltip: 'Alerta de preço' },
+    ],
     tags,
     isAdded: opts.isAdded,
   };
