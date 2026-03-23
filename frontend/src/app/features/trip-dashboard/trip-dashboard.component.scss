@@ -341,19 +341,7 @@
   color: var(--triply-text-tertiary, #999);
 }
 
-.conflicts-card {
-  &.has-errors {
-    border-top: 3px solid #f44336 !important;
-  }
-
-  &.has-warnings {
-    border-top: 3px solid #FF9800 !important;
-  }
-
-  &.clean {
-    border-top: 3px solid #4CAF50 !important;
-  }
-}
+// No more colored top borders — keep all cards consistent
 
 // Score circle SVG
 .score-card mat-card-content {
@@ -770,11 +758,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: var(--triply-spacing-md) var(--triply-spacing-sm);
+  gap: 5px;
+  padding: 14px 8px;
   background: var(--triply-surface-1);
   border: 1px solid var(--triply-border-subtle);
-  border-radius: var(--triply-radius-md);
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
@@ -782,9 +770,9 @@
   min-height: 44px;
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
     color: var(--triply-primary);
     transition: transform 0.2s ease;
   }
@@ -866,8 +854,8 @@
 
 .collab-cta-card {
   cursor: pointer;
-  border: 2px dashed rgba(108, 92, 231, 0.25) !important;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.04) 0%, rgba(124, 77, 255, 0.02) 100%) !important;
+  border: 1px solid rgba(108, 92, 231, 0.15) !important;
+  background: var(--triply-surface-1) !important;
   transition: all 0.2s ease;
 
   mat-card-content {
@@ -878,8 +866,9 @@
   }
 
   &:hover {
-    border-color: rgba(108, 92, 231, 0.5) !important;
-    transform: translateY(-2px);
+    border-color: rgba(108, 92, 231, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.08) !important;
+    transform: translateY(-1px);
     box-shadow: var(--triply-shadow-md);
   }
 }

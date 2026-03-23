@@ -280,7 +280,7 @@ export class TripDashboardComponent implements OnInit {
 
   // ═══ Collaboration Tab ═══
   readonly collabTabIndex = signal(0);
-  readonly showCollabSection = computed(() => this.hasCollaborators() || this.planService.isPro());
+  readonly showCollabSection = computed(() => this.hasCollaborators());
 
   // Polls
   readonly showPollForm = signal(false);

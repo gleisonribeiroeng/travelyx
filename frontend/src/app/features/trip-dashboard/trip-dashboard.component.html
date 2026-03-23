@@ -125,7 +125,6 @@
 
         <!-- Conflicts -->
         <mat-card class="metric-card conflicts-card" (click)="navigateTo('conflicts')"
-                  [class.has-errors]="errorCount() > 0" [class.has-warnings]="warningCount() > 0 && errorCount() === 0"
                   [class.clean]="conflicts().length === 0">
           <mat-card-content>
             @if (conflicts().length === 0) {
@@ -230,19 +229,7 @@
         </mat-card>
       }
 
-      <!-- ═══ STATS + QUICK ACTIONS ═══ -->
-      @if (stats().length > 0) {
-        <div class="stats-row">
-          @for (stat of stats(); track stat.icon) {
-            <div class="stat-chip" (click)="navigateTo(stat.route)">
-              <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
-              <span class="stat-count">{{ stat.count }}</span>
-              <span class="stat-label">{{ stat.label }}</span>
-            </div>
-          }
-        </div>
-      }
-
+      <!-- ═══ QUICK ACTIONS ═══ -->
       <div class="quick-actions" role="navigation" aria-label="Ações rápidas">
         <button class="quick-action-card" (click)="navigateTo('search')" [attr.aria-label]="'dash.searchFlights' | translate">
           <mat-icon aria-hidden="true">flight</mat-icon>
