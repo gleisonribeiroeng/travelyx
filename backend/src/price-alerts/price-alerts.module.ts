@@ -6,17 +6,16 @@ import { PriceCheckCron } from './price-check.cron';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { FlightsService } from '../flights/flights.service';
 import { HotelsService } from '../hotels/hotels.service';
-import { CollaborationGateway } from '../collaboration/collaboration.gateway';
+import { CollaborationModule } from '../collaboration/collaboration.module';
 
 @Module({
-  imports: [NotificationsModule, HttpModule],
+  imports: [NotificationsModule, HttpModule, CollaborationModule],
   controllers: [PriceAlertsController],
   providers: [
     PriceAlertsService,
     PriceCheckCron,
     FlightsService,
     HotelsService,
-    CollaborationGateway,
   ],
 })
 export class PriceAlertsModule {}
