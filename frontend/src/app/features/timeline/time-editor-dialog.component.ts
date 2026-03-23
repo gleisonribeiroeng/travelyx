@@ -60,9 +60,9 @@ export interface TimeEditorResult {
             <div class="spinner-group">
               <label>{{ i18n.t('timeEditor.minutes') }}</label>
               <div class="spinner">
-                <button mat-icon-button (click)="adjustMinutes(-15)"><mat-icon>remove</mat-icon></button>
+                <button mat-icon-button (click)="adjustMinutes(-5)"><mat-icon>remove</mat-icon></button>
                 <span class="spinner-value">{{ durationMins() }}</span>
-                <button mat-icon-button (click)="adjustMinutes(15)"><mat-icon>add</mat-icon></button>
+                <button mat-icon-button (click)="adjustMinutes(5)"><mat-icon>add</mat-icon></button>
               </div>
             </div>
           </div>
@@ -294,7 +294,7 @@ export class TimeEditorDialogComponent implements OnInit {
   adjustHours(delta: number): void {
     const current = this.durationMinutes();
     const newVal = current + delta * 60;
-    if (newVal >= 15 && newVal <= 1440) {
+    if (newVal >= 5 && newVal <= 1440) {
       this.durationMinutes.set(newVal);
     }
   }
@@ -302,7 +302,7 @@ export class TimeEditorDialogComponent implements OnInit {
   adjustMinutes(delta: number): void {
     const current = this.durationMinutes();
     const newVal = current + delta;
-    if (newVal >= 15 && newVal <= 1440) {
+    if (newVal >= 5 && newVal <= 1440) {
       this.durationMinutes.set(newVal);
     }
   }

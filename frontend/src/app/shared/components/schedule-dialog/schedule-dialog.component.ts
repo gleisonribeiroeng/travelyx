@@ -61,19 +61,11 @@ export interface ScheduleDialogResult {
           <div class="duration-row">
             <mat-form-field appearance="outline" class="duration-field">
               <mat-label>Horas</mat-label>
-              <mat-select formControlName="durationHours">
-                @for (h of hourOptions; track h) {
-                  <mat-option [value]="h">{{ h }}h</mat-option>
-                }
-              </mat-select>
+              <input matInput type="number" formControlName="durationHours" min="0" max="12" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="duration-field">
               <mat-label>Minutos</mat-label>
-              <mat-select formControlName="durationMins">
-                @for (m of minuteOptions; track m) {
-                  <mat-option [value]="m">{{ m }}min</mat-option>
-                }
-              </mat-select>
+              <input matInput type="number" formControlName="durationMins" min="0" max="59" />
             </mat-form-field>
           </div>
           <div class="duration-presets">
@@ -221,9 +213,6 @@ export class ScheduleDialogComponent {
   private readonly tripState = inject(TripStateService);
   private readonly fb = inject(FormBuilder);
 
-  readonly hourOptions = Array.from({ length: 13 }, (_, i) => i);  // 0–12
-  readonly minuteOptions = [0, 15, 30, 45];
-
   readonly durationPresets = [
     { label: '30min', hours: 0, mins: 30 },
     { label: '1h', hours: 1, mins: 0 },
@@ -235,16 +224,12 @@ export class ScheduleDialogComponent {
 
   private initialHours = Math.floor((this.data.durationMinutes ?? 60) / 60);
   private initialMins = (this.data.durationMinutes ?? 60) % 60;
-  // Snap to nearest valid minute option (0, 15, 30, 45)
-  private snappedMins = this.minuteOptions.reduce((prev, curr) =>
-    Math.abs(curr - this.initialMins) < Math.abs(prev - this.initialMins) ? curr : prev
-  );
 
   readonly form = this.fb.group({
     date: [this.data.defaultDate, Validators.required],
     timeSlot: [this.data.currentTimeSlot ?? '10:00', Validators.required],
     durationHours: [this.initialHours],
-    durationMins: [this.snappedMins],
+    durationMins: [this.initialMins],
   });
 
   readonly conflictResult = signal<ConflictResult | null>(null);
