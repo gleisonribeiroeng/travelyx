@@ -6,7 +6,9 @@ import {
   Flight, Stay, CarRental, Transport, Activity, Attraction,
 } from '../../../core/models/trip.models';
 import { ExternalLink } from '../../../core/models/base.model';
-import { HotelApiService } from '../../../core/api/hotel-api.service';
+import { HotelApiService, HotelDetails } from '../../../core/api/hotel-api.service';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { TranslationService } from '../../../core/i18n/translation.service';
 
 // ─── Public API ────────────────────────────────────────────────────────────────
 
@@ -64,7 +66,7 @@ function formatDate(iso: string): string {
 @Component({
   selector: 'app-item-detail-dialog',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, TranslatePipe],
   template: `
     <!-- Header -->
     <div class="detail-header">
@@ -97,7 +99,7 @@ function formatDate(iso: string): string {
         <div class="hero-section">
           <div class="hero-skeleton">
             <mat-spinner diameter="28"></mat-spinner>
-            <span>Carregando fotos...</span>
+            <span>{{ 'dialog.detail.loadingPhotos' | translate }}</span>
           </div>
         </div>
       } @else if (images().length > 0) {
@@ -219,51 +221,192 @@ function formatDate(iso: string): string {
           }
 
           @case ('stay') {
+            <!-- Star rating & property type banner -->
+            @if (hotelDetails(); as details) {
+              @if (details.starRating > 0 || details.propertyType) {
+                <div class="hotel-overview-bar">
+                  @if (details.starRating > 0) {
+                    <div class="star-rating">
+                      @for (_ of starsArray(details.starRating); track $index) {
+                        <mat-icon class="star-filled">star</mat-icon>
+                      }
+                      @for (_ of starsArray(5 - details.starRating); track $index) {
+                        <mat-icon class="star-empty">star_border</mat-icon>
+                      }
+                      <span class="star-count">{{ 'dialog.detail.stars' | translate:{ count: details.starRating } }}</span>
+                    </div>
+                  }
+                  @if (details.propertyType) {
+                    <span class="property-type-badge">{{ details.propertyType }}</span>
+                  }
+                </div>
+              }
+            }
+
+            <!-- Rating & Review summary card -->
+            @if (asH().rating) {
+              <div class="review-summary-card">
+                <div class="review-score">
+                  <span class="score-number">{{ asH().rating!.toFixed(1) }}</span>
+                  <span class="score-max">/5</span>
+                </div>
+                <div class="review-info">
+                  <span class="review-word">{{ getReviewWord(asH().rating!) }}</span>
+                  <span class="review-count">{{ asH().reviewCount | number }} {{ 'dialog.detail.reviews' | translate }}</span>
+                </div>
+                <div class="review-bar-group">
+                  <div class="review-bar">
+                    <div class="review-bar-fill" [style.width.%]="(asH().rating! / 5) * 100"></div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Key info grid -->
             <div class="info-grid">
               <div class="info-item">
                 <mat-icon>location_on</mat-icon>
-                <div><span class="label">Endereço</span><span class="value">{{ asH().address }}</span></div>
+                <div><span class="label">{{ 'dialog.detail.address' | translate }}</span><span class="value">{{ asH().address }}</span></div>
               </div>
               <div class="info-item">
                 <mat-icon>calendar_today</mat-icon>
-                <div><span class="label">Check-in</span><span class="value">{{ fmtDate(asH().checkIn) }}</span></div>
+                <div><span class="label">{{ 'dialog.detail.checkIn' | translate }}</span><span class="value">{{ fmtDate(asH().checkIn) }}</span></div>
               </div>
               <div class="info-item">
                 <mat-icon>event</mat-icon>
-                <div><span class="label">Check-out</span><span class="value">{{ fmtDate(asH().checkOut) }}</span></div>
+                <div><span class="label">{{ 'dialog.detail.checkOut' | translate }}</span><span class="value">{{ fmtDate(asH().checkOut) }}</span></div>
               </div>
-              @if (asH().rating) {
-                <div class="info-item">
-                  <mat-icon class="star">star</mat-icon>
-                  <div>
-                    <span class="label">Avaliação</span>
-                    <span class="value">{{ asH().rating!.toFixed(1) }} ({{ asH().reviewCount }} avaliações)</span>
-                  </div>
-                </div>
-              }
+              <div class="info-item">
+                <mat-icon>nights_stay</mat-icon>
+                <div><span class="label">{{ 'dialog.detail.stay' | translate }}</span><span class="value">{{ 'dialog.detail.nights' | translate:{ count: calculateNights(asH().checkIn, asH().checkOut) } }}</span></div>
+              </div>
               @if (asH().checkInTime) {
                 <div class="info-item">
                   <mat-icon>schedule</mat-icon>
-                  <div><span class="label">Hora check-in</span><span class="value">{{ asH().checkInTime }}</span></div>
+                  <div><span class="label">{{ 'dialog.detail.checkInTime' | translate }}</span><span class="value">{{ asH().checkInTime }}</span></div>
                 </div>
               }
               @if (asH().checkOutTime) {
                 <div class="info-item">
                   <mat-icon>schedule</mat-icon>
-                  <div><span class="label">Hora check-out</span><span class="value">{{ asH().checkOutTime }}</span></div>
+                  <div><span class="label">{{ 'dialog.detail.checkOutTime' | translate }}</span><span class="value">{{ asH().checkOutTime }}</span></div>
                 </div>
               }
               @if (asH().reservationNumber) {
                 <div class="info-item">
                   <mat-icon>bookmark</mat-icon>
-                  <div><span class="label">Reserva</span><span class="value">{{ asH().reservationNumber }}</span></div>
+                  <div><span class="label">{{ 'dialog.detail.reservation' | translate }}</span><span class="value">{{ asH().reservationNumber }}</span></div>
                 </div>
               }
             </div>
+
+            <!-- Price -->
             <div class="price-section">
-              <span class="price-value">{{ asH().pricePerNight.currency }} {{ asH().pricePerNight.total | number:'1.2-2' }}</span>
-              <span class="price-label">/noite</span>
+              <div class="price-main">
+                <span class="price-value">{{ asH().pricePerNight.currency }} {{ asH().pricePerNight.total | number:'1.2-2' }}</span>
+                <span class="price-label">{{ 'dialog.detail.perNight' | translate }}</span>
+              </div>
+              <span class="price-total">{{ 'dialog.detail.totalPrice' | translate }} {{ asH().pricePerNight.currency }} {{ (asH().pricePerNight.total * calculateNights(asH().checkIn, asH().checkOut)) | number:'1.2-2' }}</span>
             </div>
+
+            <!-- Hotel details from API -->
+            @if (loadingDetails()) {
+              <div class="details-skeleton">
+                <mat-spinner diameter="20"></mat-spinner>
+                <span>{{ 'dialog.detail.loadingDetails' | translate }}</span>
+              </div>
+            }
+            @if (hotelDetails(); as details) {
+              <!-- Highlights -->
+              @if (details.highlights.length > 0) {
+                <div class="hotel-section">
+                  <h3 class="section-title"><mat-icon>thumb_up</mat-icon> {{ 'dialog.detail.highlights' | translate }}</h3>
+                  <div class="highlights-list">
+                    @for (h of details.highlights; track h) {
+                      <span class="highlight-chip"><mat-icon>check_circle</mat-icon> {{ h }}</span>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Key Amenities visual grid -->
+              @if (keyAmenities().length > 0) {
+                <div class="hotel-section">
+                  <h3 class="section-title"><mat-icon>star_outline</mat-icon> {{ 'dialog.detail.keyAmenities' | translate }}</h3>
+                  <div class="amenities-grid">
+                    @for (a of keyAmenities(); track a.name) {
+                      <div class="amenity-card">
+                        <mat-icon>{{ a.icon }}</mat-icon>
+                        <span>{{ a.name }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Check-in / Check-out times -->
+              @if (details.checkinFrom || details.checkoutTo) {
+                <div class="hotel-section">
+                  <h3 class="section-title"><mat-icon>schedule</mat-icon> {{ 'dialog.detail.times' | translate }}</h3>
+                  <div class="times-grid">
+                    @if (details.checkinFrom) {
+                      <div class="time-card">
+                        <mat-icon>login</mat-icon>
+                        <div>
+                          <span class="time-label">{{ 'dialog.detail.checkIn' | translate }}</span>
+                          <span class="time-value">{{ details.checkinFrom }}{{ details.checkinTo ? ' — ' + details.checkinTo : '' }}</span>
+                        </div>
+                      </div>
+                    }
+                    @if (details.checkoutFrom || details.checkoutTo) {
+                      <div class="time-card">
+                        <mat-icon>logout</mat-icon>
+                        <div>
+                          <span class="time-label">{{ 'dialog.detail.checkOut' | translate }}</span>
+                          <span class="time-value">{{ details.checkoutFrom ? details.checkoutFrom + ' — ' : i18n.t('dialog.detail.until') + ' ' }}{{ details.checkoutTo }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- All Facilities -->
+              @if (details.facilities.length > 0) {
+                <div class="hotel-section">
+                  <h3 class="section-title"><mat-icon>room_service</mat-icon> {{ 'dialog.detail.allFacilities' | translate }}</h3>
+                  <div class="facilities-list">
+                    @for (f of details.facilities.slice(0, showAllFacilities() ? 999 : 12); track f.name) {
+                      <span class="facility-chip">{{ f.name }}</span>
+                    }
+                  </div>
+                  @if (details.facilities.length > 12) {
+                    <button class="show-more-btn" (click)="showAllFacilities.set(!showAllFacilities())">
+                      {{ showAllFacilities() ? ('dialog.detail.showLess' | translate) : ('dialog.detail.showAll' | translate:{ count: details.facilities.length }) }}
+                    </button>
+                  }
+                </div>
+              }
+
+              <!-- Description -->
+              @if (details.description) {
+                <div class="hotel-section">
+                  <h3 class="section-title"><mat-icon>info</mat-icon> {{ 'dialog.detail.aboutHotel' | translate }}</h3>
+                  <p class="hotel-description" [class.truncated]="!showFullDescription()" (click)="showFullDescription.set(true)">{{ details.description }}</p>
+                  @if (!showFullDescription() && details.description.length > 200) {
+                    <button class="show-more-btn" (click)="showFullDescription.set(true)">{{ 'dialog.detail.readMore' | translate }}</button>
+                  }
+                </div>
+              }
+
+              <!-- Address -->
+              @if (details.address) {
+                <div class="hotel-section">
+                  <h3 class="section-title"><mat-icon>place</mat-icon> {{ 'dialog.detail.location' | translate }}</h3>
+                  <p class="hotel-address">{{ details.address }}{{ details.city ? ', ' + details.city : '' }}{{ details.country ? ' — ' + details.country : '' }}</p>
+                </div>
+              }
+            }
           }
 
           @case ('car-rental') {
@@ -835,6 +978,297 @@ function formatDate(iso: string): string {
       color: var(--triply-text-secondary);
     }
 
+    /* ─── Hotel details sections ─────────────────────────────────── */
+    .details-skeleton {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      background: var(--triply-surface-1, #f3f4f6);
+      border-radius: var(--triply-radius-md);
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+      span { font-size: 0.8rem; color: var(--triply-text-secondary); }
+    }
+
+    .hotel-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--triply-text-primary);
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--triply-primary); }
+    }
+
+    .highlights-list, .facilities-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* ─── Hotel overview bar (stars + property type) ─────────── */
+    .hotel-overview-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, rgba(124, 77, 255, 0.06), rgba(124, 77, 255, 0.02));
+      border: 1px solid rgba(124, 77, 255, 0.1);
+      border-radius: var(--triply-radius-md);
+    }
+
+    .star-rating {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+
+      .star-filled {
+        color: #f59e0b;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .star-empty {
+        color: #d1d5db;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .star-count {
+        margin-left: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--triply-text-secondary);
+      }
+    }
+
+    .property-type-badge {
+      padding: 3px 10px;
+      background: var(--triply-primary-muted);
+      color: var(--triply-primary);
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* ─── Review summary card ─────────────────────────────────── */
+    .review-summary-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--triply-surface-1, #f3f4f6);
+      border-radius: var(--triply-radius-md);
+    }
+
+    .review-score {
+      display: flex;
+      align-items: baseline;
+      background: var(--triply-primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      flex-shrink: 0;
+
+      .score-number {
+        font-size: 1.2rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .score-max {
+        font-size: 0.7rem;
+        font-weight: 500;
+        opacity: 0.8;
+      }
+    }
+
+    .review-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+
+      .review-word {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--triply-text-primary);
+      }
+
+      .review-count {
+        font-size: 0.73rem;
+        color: var(--triply-text-secondary);
+      }
+    }
+
+    .review-bar-group {
+      flex: 1;
+      min-width: 40px;
+    }
+
+    .review-bar {
+      height: 6px;
+      background: rgba(0, 0, 0, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .review-bar-fill {
+      height: 100%;
+      background: var(--triply-primary);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* ─── Price section enhanced ──────────────────────────────── */
+    .price-main {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .price-total {
+      font-size: 0.78rem;
+      color: var(--triply-text-secondary);
+      margin-left: auto;
+      font-weight: 500;
+    }
+
+    /* ─── Key amenities grid ─────────────────────────────────── */
+    .amenities-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .amenity-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 6px;
+      background: var(--triply-surface-1, #f3f4f6);
+      border-radius: var(--triply-radius-md);
+      text-align: center;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: rgba(124, 77, 255, 0.06);
+      }
+
+      mat-icon {
+        color: var(--triply-primary);
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+
+      span {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--triply-text-primary);
+        line-height: 1.2;
+      }
+    }
+
+    .highlight-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    /* ─── Time cards ──────────────────────────────────────────── */
+    .times-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .time-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 140px;
+      padding: 10px 12px;
+      background: var(--triply-surface-1, #f3f4f6);
+      border-radius: var(--triply-radius-md);
+
+      mat-icon {
+        color: var(--triply-primary);
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+
+      div {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+    }
+
+    .time-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--triply-text-secondary); }
+    .time-value { font-size: 0.88rem; font-weight: 600; color: var(--triply-text-primary); }
+
+    .facility-chip {
+      padding: 4px 10px;
+      background: var(--triply-surface-1, #f3f4f6);
+      color: var(--triply-text-primary);
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .show-more-btn {
+      background: none;
+      border: none;
+      color: var(--triply-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 0;
+      align-self: flex-start;
+      &:hover { text-decoration: underline; }
+    }
+
+    .hotel-description, .hotel-address {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--triply-text-secondary);
+    }
+
+    .hotel-description.truncated {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
     /* ─── External link ──────────────────────────────────────────── */
     .external-link {
       display: inline-flex;
@@ -927,6 +1361,10 @@ function formatDate(iso: string): string {
         grid-template-columns: 1fr 1fr;
       }
 
+      .amenities-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
       .flight-route, .transport-route {
         flex-direction: row;
         gap: 12px;
@@ -957,12 +1395,17 @@ export class ItemDetailDialogComponent implements OnInit {
   readonly data = inject<ItemDetailData>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<ItemDetailDialogComponent>);
   private readonly hotelApi = inject(HotelApiService);
+  readonly i18n = inject(TranslationService);
 
   readonly selectedImage = signal(0);
   readonly isPaid = signal(this.data.isPaid ?? false);
   readonly isManual = computed(() => this.data.item.source === 'manual');
   readonly extraPhotos = signal<string[]>([]);
   readonly loadingPhotos = signal(false);
+  readonly hotelDetails = signal<HotelDetails | null>(null);
+  readonly loadingDetails = signal(false);
+  readonly showAllFacilities = signal(false);
+  readonly showFullDescription = signal(false);
 
   // Lightbox state
   readonly lightboxOpen = signal(false);
@@ -971,14 +1414,25 @@ export class ItemDetailDialogComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.data.type === 'stay') {
+      const hotel = this.data.item as Stay;
+      const hotelId = hotel.id;
+
       this.loadingPhotos.set(true);
-      const hotelId = this.data.item.id;
       this.hotelApi.getHotelPhotos(hotelId).subscribe({
         next: photos => {
           if (photos.length > 0) this.extraPhotos.set(photos);
           this.loadingPhotos.set(false);
         },
         error: () => this.loadingPhotos.set(false),
+      });
+
+      this.loadingDetails.set(true);
+      this.hotelApi.getHotelDetails(hotelId, hotel.checkIn, hotel.checkOut).subscribe({
+        next: details => {
+          this.hotelDetails.set(details);
+          this.loadingDetails.set(false);
+        },
+        error: () => this.loadingDetails.set(false),
       });
     }
   }
@@ -1073,6 +1527,63 @@ export class ItemDetailDialogComponent implements OnInit {
   fmtDuration = formatDuration;
   fmtTime = formatTime;
   fmtDate = formatDate;
+
+  starsArray(n: number): number[] {
+    return Array(Math.max(0, Math.floor(n)));
+  }
+
+  calculateNights(checkIn: string, checkOut: string): number {
+    if (!checkIn || !checkOut) return 1;
+    const diff = Math.round(
+      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24),
+    );
+    return Math.max(1, diff);
+  }
+
+  getReviewWord(rating: number): string {
+    if (rating >= 4.5) return this.i18n.t('dialog.detail.reviewWord.exceptional');
+    if (rating >= 4.0) return this.i18n.t('dialog.detail.reviewWord.excellent');
+    if (rating >= 3.5) return this.i18n.t('dialog.detail.reviewWord.veryGood');
+    if (rating >= 3.0) return this.i18n.t('dialog.detail.reviewWord.good');
+    if (rating >= 2.0) return this.i18n.t('dialog.detail.reviewWord.average');
+    return this.i18n.t('dialog.detail.reviewWord.belowAverage');
+  }
+
+  readonly keyAmenities = computed((): { name: string; icon: string }[] => {
+    const details = this.hotelDetails();
+    if (!details) return [];
+
+    const AMENITY_MAP: { keywords: string[]; icon: string; key: string }[] = [
+      { keywords: ['piscina', 'pool', 'swimming'], icon: 'pool', key: 'dialog.detail.amenity.pool' },
+      { keywords: ['wi-fi', 'wifi', 'internet', 'wi‑fi'], icon: 'wifi', key: 'dialog.detail.amenity.wifi' },
+      { keywords: ['estacionamento', 'parking', 'garagem'], icon: 'local_parking', key: 'dialog.detail.amenity.parking' },
+      { keywords: ['restaurante', 'restaurant'], icon: 'restaurant', key: 'dialog.detail.amenity.restaurant' },
+      { keywords: ['academia', 'gym', 'fitness'], icon: 'fitness_center', key: 'dialog.detail.amenity.gym' },
+      { keywords: ['spa', 'sauna', 'massagem'], icon: 'spa', key: 'dialog.detail.amenity.spa' },
+      { keywords: ['bar', 'lounge'], icon: 'local_bar', key: 'dialog.detail.amenity.bar' },
+      { keywords: ['café da manhã', 'breakfast', 'cafe da manha'], icon: 'free_breakfast', key: 'dialog.detail.amenity.breakfast' },
+      { keywords: ['ar condicionado', 'air conditioning', 'ar-condicionado'], icon: 'ac_unit', key: 'dialog.detail.amenity.airConditioning' },
+      { keywords: ['pet', 'animais', 'animal'], icon: 'pets', key: 'dialog.detail.amenity.petFriendly' },
+      { keywords: ['jogos', 'game', 'recreação', 'entretenimento'], icon: 'sports_esports', key: 'dialog.detail.amenity.gameRoom' },
+      { keywords: ['praia', 'beach'], icon: 'beach_access', key: 'dialog.detail.amenity.beach' },
+      { keywords: ['lavanderia', 'laundry'], icon: 'local_laundry_service', key: 'dialog.detail.amenity.laundry' },
+      { keywords: ['transfer', 'shuttle', 'aeroporto'], icon: 'airport_shuttle', key: 'dialog.detail.amenity.transfer' },
+      { keywords: ['recepção 24', '24-hour', 'front desk', '24 horas'], icon: 'concierge', key: 'dialog.detail.amenity.frontDesk24h' },
+      { keywords: ['cofre', 'safe'], icon: 'lock', key: 'dialog.detail.amenity.safe' },
+    ];
+
+    const allNames = details.facilities.map(f => f.name.toLowerCase());
+    const found: { name: string; icon: string }[] = [];
+
+    for (const amenity of AMENITY_MAP) {
+      if (allNames.some(n => amenity.keywords.some(k => n.includes(k)))) {
+        found.push({ name: this.i18n.t(amenity.key), icon: amenity.icon });
+      }
+      if (found.length >= 8) break;
+    }
+
+    return found;
+  });
 
   onImageError(event: Event): void {
     (event.target as HTMLImageElement).style.display = 'none';
