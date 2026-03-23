@@ -86,8 +86,6 @@ export interface Stay extends SearchResultBase {
   photoUrl: string | null;
   /** Gallery image URLs */
   images: string[];
-  /** Star class (1-5); null if unavailable */
-  starClass: number | null;
   link: ExternalLink;
   /** Check-in time as HH:MM (manual entry only) */
   checkInTime?: string;

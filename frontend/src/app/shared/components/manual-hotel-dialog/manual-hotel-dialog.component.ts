@@ -393,7 +393,6 @@ export class ManualHotelDialogComponent {
       reviewCount: 0,
       photoUrl: null,
       images: [],
-      starClass: null,
       link: { url: '', provider: 'manual' },
       checkInTime: v.checkInTime || undefined,
       checkOutTime: v.checkOutTime || undefined,

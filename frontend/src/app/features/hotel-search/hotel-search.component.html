@@ -190,23 +190,6 @@
       </mat-form-field>
     </div>
 
-    <!-- Star Filter Tags -->
-    <div class="star-filter">
-      @for (star of starOptions; track star) {
-        <button
-          mat-stroked-button
-          class="star-tag"
-          [class.active]="selectedStars() === star"
-          (click)="filterByStars(star)">
-          @if (star === 0) {
-            {{ 'hotels.allStars' | translate }}
-          } @else {
-            {{ star }} <mat-icon class="star-icon-sm">star</mat-icon>
-          }
-        </button>
-      }
-    </div>
-
     <!-- Hotel Result Cards -->
     @for (hotel of sortedHotels(); track hotel.id) {
       <app-list-item-base

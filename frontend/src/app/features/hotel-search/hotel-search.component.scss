@@ -38,43 +38,6 @@
   }
 }
 
-// ── Star Filter Tags ──
-
-.star-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.star-tag {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 2px;
-  font-size: 0.82rem !important;
-  padding: 0 14px !important;
-  border-radius: 20px !important;
-  min-height: 34px !important;
-  transition: all 0.2s ease;
-
-  .star-icon-sm {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    color: #f59e0b;
-  }
-
-  &.active {
-    background: var(--triply-primary, #6c5ce7) !important;
-    color: #fff !important;
-    border-color: var(--triply-primary, #6c5ce7) !important;
-
-    .star-icon-sm {
-      color: #fff;
-    }
-  }
-}
-
 .results-section {
   margin-top: var(--triply-spacing-xl);
 }

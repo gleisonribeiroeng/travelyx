@@ -149,7 +149,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/paris-hotel1b/800/600',
       'https://picsum.photos/seed/paris-hotel1c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
   {
@@ -165,7 +164,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/paris-hotel2b/800/600',
       'https://picsum.photos/seed/paris-hotel2c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
   {
@@ -181,7 +179,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/paris-hotel3b/800/600',
       'https://picsum.photos/seed/paris-hotel3c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
   {
@@ -197,7 +194,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/paris-hotel4b/800/600',
       'https://picsum.photos/seed/paris-hotel4c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
   // === Bruxelas ===
@@ -214,7 +210,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/bru-hotel1b/800/600',
       'https://picsum.photos/seed/bru-hotel1c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
   {
@@ -230,7 +225,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/bru-hotel2b/800/600',
       'https://picsum.photos/seed/bru-hotel2c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
   {
@@ -246,7 +240,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/bru-hotel3b/800/600',
       'https://picsum.photos/seed/bru-hotel3c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
   {
@@ -262,7 +255,6 @@ export const MOCK_STAYS: Stay[] = [
       'https://picsum.photos/seed/bru-hotel4b/800/600',
       'https://picsum.photos/seed/bru-hotel4c/800/600',
     ],
-    starClass: null,
     link: { url: 'https://www.booking.com', provider: 'Booking.com' },
   },
 ];
