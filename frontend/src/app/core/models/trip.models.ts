@@ -5,6 +5,7 @@ import {
   Price,
   SearchResultBase,
 } from './base.model';
+import { Collaborator, CollaboratorRole } from './collaboration.models';
 
 export type TripStatus = 'planejamento' | 'ativa' | 'concluida';
 
@@ -29,6 +30,9 @@ export interface Trip {
   checklist: ChecklistItem[];
   itineraryItems: ItineraryItem[];
   coverImage?: string;
+  collaborators?: Collaborator[];
+  myRole?: CollaboratorRole;
+  publicSlug?: string | null;
   /** ISO 8601 datetime string */
   createdAt: string;
   /** ISO 8601 datetime string */

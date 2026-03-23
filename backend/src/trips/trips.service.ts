@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -7,7 +7,12 @@ export class TripsService {
 
   async findAllByUser(userId: string) {
     const trips = await this.prisma.trip.findMany({
-      where: { userId },
+      where: {
+        OR: [
+          { userId },
+          { collaborators: { some: { userId } } },
+        ],
+      },
       include: {
         itineraryItems: {
           orderBy: [{ date: 'asc' }, { order: 'asc' }],
@@ -15,17 +20,22 @@ export class TripsService {
             attachment: {
               select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true },
             },
+          },
+        },
+        collaborators: {
+          include: {
+            user: { select: { id: true, name: true, email: true, picture: true } },
           },
         },
       },
       orderBy: { updatedAt: 'desc' },
     });
-    return trips.map((t) => this.serialize(t));
+    return trips.map((t) => this.serialize(t, userId));
   }
 
   async findOne(id: string, userId: string) {
     const trip = await this.prisma.trip.findFirst({
-      where: { id, userId },
+      where: { id },
       include: {
         itineraryItems: {
           orderBy: [{ date: 'asc' }, { order: 'asc' }],
@@ -35,10 +45,23 @@ export class TripsService {
             },
           },
         },
+        collaborators: {
+          include: {
+            user: { select: { id: true, name: true, email: true, picture: true } },
+          },
+        },
       },
     });
     if (!trip) throw new NotFoundException('Trip not found');
-    return this.serialize(trip);
+
+    // Check access: owner or collaborator
+    const isOwner = trip.userId === userId;
+    const isCollaborator = trip.collaborators?.some((c: any) => c.userId === userId);
+    if (!isOwner && !isCollaborator) {
+      throw new NotFoundException('Trip not found');
+    }
+
+    return this.serialize(trip, userId);
   }
 
   async create(userId: string, data: any) {
@@ -79,6 +102,12 @@ export class TripsService {
               },
             }
           : undefined,
+        collaborators: {
+          create: {
+            userId,
+            role: 'OWNER',
+          },
+        },
       },
       include: {
         itineraryItems: {
@@ -89,13 +118,18 @@ export class TripsService {
             },
           },
         },
+        collaborators: {
+          include: {
+            user: { select: { id: true, name: true, email: true, picture: true } },
+          },
+        },
       },
     });
-    return this.serialize(trip);
+    return this.serialize(trip, userId);
   }
 
   async update(id: string, userId: string, data: any) {
-    const existing = await this.prisma.trip.findFirst({ where: { id, userId } });
+    const existing = await this.prisma.trip.findFirst({ where: { id } });
     if (!existing) throw new NotFoundException('Trip not found');
 
     const updateData: any = {};
@@ -118,7 +152,7 @@ export class TripsService {
     if (data.checklist !== undefined) updateData.checklist = JSON.stringify(data.checklist);
 
     await this.prisma.trip.update({
-      where: { id, userId },
+      where: { id },
       data: updateData,
     });
 
@@ -168,7 +202,7 @@ export class TripsService {
     }
 
     const trip = await this.prisma.trip.findFirst({
-      where: { id, userId },
+      where: { id },
       include: {
         itineraryItems: {
           orderBy: [{ date: 'asc' }, { order: 'asc' }],
@@ -178,14 +212,25 @@ export class TripsService {
             },
           },
         },
+        collaborators: {
+          include: {
+            user: { select: { id: true, name: true, email: true, picture: true } },
+          },
+        },
       },
     });
-    return this.serialize(trip!);
+    return this.serialize(trip!, userId);
   }
 
   async remove(id: string, userId: string) {
-    const existing = await this.prisma.trip.findFirst({ where: { id, userId } });
+    const existing = await this.prisma.trip.findFirst({ where: { id } });
     if (!existing) throw new NotFoundException('Trip not found');
+
+    // Only the owner can delete
+    if (existing.userId !== userId) {
+      throw new ForbiddenException('Only the trip owner can delete this trip.');
+    }
+
     await this.prisma.trip.delete({ where: { id } });
     return { deleted: true };
   }
@@ -193,7 +238,7 @@ export class TripsService {
   // --- Itinerary Items ---
 
   async addItineraryItem(tripId: string, userId: string, data: any) {
-    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId } });
     if (!trip) throw new NotFoundException('Trip not found');
 
     const item = await this.prisma.itineraryItem.create({
@@ -217,7 +262,7 @@ export class TripsService {
   }
 
   async updateItineraryItem(tripId: string, itemId: string, userId: string, data: any) {
-    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId } });
     if (!trip) throw new NotFoundException('Trip not found');
 
     const existing = await this.prisma.itineraryItem.findFirst({ where: { id: itemId, tripId } });
@@ -243,7 +288,7 @@ export class TripsService {
   }
 
   async removeItineraryItem(tripId: string, itemId: string, userId: string) {
-    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId } });
     if (!trip) throw new NotFoundException('Trip not found');
 
     const existing = await this.prisma.itineraryItem.findFirst({ where: { id: itemId, tripId } });
@@ -257,7 +302,7 @@ export class TripsService {
   // --- Attachments ---
 
   async uploadAttachment(tripId: string, itemId: string, userId: string, file: Express.Multer.File) {
-    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId } });
     if (!trip) throw new NotFoundException('Trip not found');
 
     const item = await this.prisma.itineraryItem.findFirst({ where: { id: itemId, tripId } });
@@ -286,7 +331,7 @@ export class TripsService {
   }
 
   async getAttachment(tripId: string, itemId: string, userId: string) {
-    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId } });
     if (!trip) throw new NotFoundException('Trip not found');
 
     const attachment = await this.prisma.attachment.findFirst({
@@ -305,7 +350,7 @@ export class TripsService {
   }
 
   async removeAttachment(tripId: string, itemId: string, userId: string) {
-    const trip = await this.prisma.trip.findFirst({ where: { id: tripId, userId } });
+    const trip = await this.prisma.trip.findFirst({ where: { id: tripId } });
     if (!trip) throw new NotFoundException('Trip not found');
 
     const attachment = await this.prisma.attachment.findFirst({
@@ -317,7 +362,36 @@ export class TripsService {
     return { deleted: true };
   }
 
-  private serialize(trip: any) {
+  private serialize(trip: any, userId?: string) {
+    // Determine the current user's role
+    let myRole: string | null = null;
+    if (userId) {
+      if (trip.userId === userId) {
+        myRole = 'OWNER';
+      } else {
+        const collab = trip.collaborators?.find((c: any) => c.userId === userId);
+        if (collab) {
+          myRole = collab.role;
+        }
+      }
+    }
+
+    // Build collaborators array including the owner
+    const collaborators: any[] = [];
+    if (trip.collaborators) {
+      for (const c of trip.collaborators) {
+        collaborators.push({
+          id: c.id,
+          userId: c.user?.id ?? c.userId,
+          name: c.user?.name ?? null,
+          email: c.user?.email ?? null,
+          picture: c.user?.picture ?? null,
+          role: c.role,
+          joinedAt: c.joinedAt?.toISOString?.() ?? c.joinedAt ?? null,
+        });
+      }
+    }
+
     return {
       id: trip.id,
       name: trip.name,
@@ -355,6 +429,8 @@ export class TripsService {
             }
           : null,
       })),
+      collaborators,
+      myRole,
       createdAt: trip.createdAt.toISOString(),
       updatedAt: trip.updatedAt.toISOString(),
     };

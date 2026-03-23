@@ -22,6 +22,7 @@ export const PLAN_LIMITS = {
       flexibleDates: false,
       multiCity: false,
       advancedFilters: false,
+      priceAlerts: false,
     },
   },
   PRO: {
@@ -38,6 +39,7 @@ export const PLAN_LIMITS = {
       flexibleDates: true,
       multiCity: true,
       advancedFilters: true,
+      priceAlerts: true,
     },
   },
   BUSINESS: {
@@ -54,6 +56,7 @@ export const PLAN_LIMITS = {
       flexibleDates: true,
       multiCity: true,
       advancedFilters: true,
+      priceAlerts: true,
     },
   },
 } as const;

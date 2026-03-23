@@ -23,30 +23,47 @@ model User {
   plan                 String                @default("FREE")
   supportConversations SupportConversation[]
   trips                Trip[]
+  collaborations       TripCollaborator[]
+  invitesSent          TripInvite[]          @relation("InvitesSent")
+  comments             TripComment[]
+  tripActivities       TripActivity[]
+  pollsCreated         TripPoll[]            @relation("PollsCreated")
+  pollVotes            TripPollVote[]
+  expensesCreated      ExpenseSplit[]        @relation("ExpensesCreated")
+  expenseEntries       ExpenseSplitEntry[]
+  notifications        Notification[]
+  priceAlerts          PriceAlert[]
 }
 
 model Trip {
-  id             String          @id @default(uuid())
-  name           String          @default("")
-  destination    String          @default("")
-  dateStart      String          @default("")
-  dateEnd        String          @default("")
-  status         String          @default("planejamento")
-  currency       String          @default("BRL")
-  flights        String          @default("[]")
-  stays          String          @default("[]")
-  carRentals     String          @default("[]")
-  transports     String          @default("[]")
-  activities     String          @default("[]")
-  attractions    String          @default("[]")
-  checklist      String          @default("[]")
+  id             String             @id @default(uuid())
+  name           String             @default("")
+  destination    String             @default("")
+  dateStart      String             @default("")
+  dateEnd        String             @default("")
+  status         String             @default("planejamento")
+  currency       String             @default("BRL")
+  flights        String             @default("[]")
+  stays          String             @default("[]")
+  carRentals     String             @default("[]")
+  transports     String             @default("[]")
+  activities     String             @default("[]")
+  attractions    String             @default("[]")
+  checklist      String             @default("[]")
   coverImage     String?
-  travelers      Int             @default(1)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  travelers      Int                @default(1)
+  publicSlug     String?            @unique
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
   userId         String
   itineraryItems ItineraryItem[]
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators  TripCollaborator[]
+  invites        TripInvite[]
+  comments       TripComment[]
+  tripActivities TripActivity[]
+  polls          TripPoll[]
+  expenses       ExpenseSplit[]
 }
 
 model ItineraryItem {
@@ -95,3 +112,148 @@ model SupportMessage {
   conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
 
+// ─── Collaboration Feature Models ────────────────────────────────────────────
+
+model TripCollaborator {
+  id       String   @id @default(uuid())
+  tripId   String
+  userId   String
+  role     String   @default("EDITOR")
+  joinedAt DateTime @default(now())
+  trip     Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, userId])
+}
+
+model TripInvite {
+  id              String   @id @default(uuid())
+  tripId          String
+  invitedByUserId String
+  email           String
+  role            String   @default("EDITOR")
+  token           String   @unique
+  status          String   @default("PENDING")
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  trip            Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  invitedBy       User     @relation("InvitesSent", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+}
+
+model TripComment {
+  id         String        @id @default(uuid())
+  tripId     String
+  userId     String
+  targetType String
+  targetId   String
+  parentId   String?
+  content    String
+  reactions  String        @default("{}")
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  trip       Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent     TripComment?  @relation("CommentThread", fields: [parentId], references: [id])
+  replies    TripComment[] @relation("CommentThread")
+}
+
+model TripActivity {
+  id         String   @id @default(uuid())
+  tripId     String
+  userId     String
+  action     String
+  targetType String?
+  targetId   String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+  trip       Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TripPoll {
+  id              String           @id @default(uuid())
+  tripId          String
+  createdByUserId String
+  question        String
+  closedAt        DateTime?
+  createdAt       DateTime         @default(now())
+  trip            Trip             @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  createdBy       User             @relation("PollsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  options         TripPollOption[]
+}
+
+model TripPollOption {
+  id     String         @id @default(uuid())
+  pollId String
+  label  String
+  poll   TripPoll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  TripPollVote[]
+}
+
+model TripPollVote {
+  id        String         @id @default(uuid())
+  optionId  String
+  userId    String
+  createdAt DateTime       @default(now())
+  option    TripPollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([optionId, userId])
+}
+
+model ExpenseSplit {
+  id              String              @id @default(uuid())
+  tripId          String
+  createdByUserId String
+  label           String
+  totalAmount     Float
+  currency        String              @default("BRL")
+  splitMode       String              @default("EQUAL")
+  date            String
+  createdAt       DateTime            @default(now())
+  trip            Trip                @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  createdBy       User                @relation("ExpensesCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  entries         ExpenseSplitEntry[]
+}
+
+model ExpenseSplitEntry {
+  id             String       @id @default(uuid())
+  expenseSplitId String
+  userId         String
+  amount         Float
+  isPaid         Boolean      @default(false)
+  expenseSplit   ExpenseSplit @relation(fields: [expenseSplitId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Price Alert Feature ────────────────────────────────────────────────────
+
+model PriceAlert {
+  id            String   @id @default(uuid())
+  userId        String
+  type          String   // "flight" or "hotel"
+  label         String   // e.g. "GRU → CDG" or "Hotel Marais Paris"
+  searchParams  String   // JSON with search parameters to re-run
+  targetPrice   Float    // alert when price drops below this
+  currentPrice  Float    // price at time of alert creation
+  lowestPrice   Float?   // lowest price seen so far
+  currency      String   @default("BRL")
+  active        Boolean  @default(true)
+  triggeredAt   DateTime?
+  lastCheckedAt DateTime?
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

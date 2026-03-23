@@ -21,6 +21,10 @@ import { SupportModule } from './support/support.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { StripeModule } from './stripe/stripe.module';
+import { CollaborationModule } from './collaboration/collaboration.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { PriceAlertsModule } from './price-alerts/price-alerts.module';
+import { ScheduleModule } from '@nestjs/schedule';
 import { HomeShowcaseController } from './common/home-showcase.controller';
 
 @Module({
@@ -50,6 +54,10 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
     CalendarModule,
     SubscriptionModule,
     StripeModule,
+    CollaborationModule,
+    NotificationsModule,
+    PriceAlertsModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [HomeShowcaseController],
   providers: [

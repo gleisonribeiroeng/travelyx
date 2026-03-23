@@ -1,14 +1,17 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { CollaborationService } from '../../core/services/collaboration.service';
 import { Trip, TripStatus } from '../../core/models/trip.models';
 import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { tripToListItem } from '../../shared/components/list-item-base/list-item-mappers';
+import { PendingInvitesComponent } from '../../shared/components/pending-invites/pending-invites.component';
+import { CollaboratorAvatarsComponent } from '../../shared/components/collaborator-avatars/collaborator-avatars.component';
 import { PlanService } from '../../core/services/plan.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
@@ -16,19 +19,28 @@ import { TranslationService } from '../../core/i18n/translation.service';
 @Component({
   selector: 'app-trip-list',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DatePipe, ListItemBaseComponent, TranslatePipe],
+  imports: [MATERIAL_IMPORTS, CommonModule, DatePipe, ListItemBaseComponent, TranslatePipe, PendingInvitesComponent, CollaboratorAvatarsComponent],
   templateUrl: './trip-list.component.html',
   styleUrl: './trip-list.component.scss',
 })
-export class TripListComponent {
+export class TripListComponent implements OnInit {
   protected readonly tripState = inject(TripStateService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
   private readonly planService = inject(PlanService);
   private readonly i18n = inject(TranslationService);
+  protected readonly collabService = inject(CollaborationService);
 
   readonly statusFilter = signal<string>('');
+
+  ngOnInit(): void {
+    this.collabService.loadPendingInvites();
+  }
+
+  isSharedTrip(trip: Trip): boolean {
+    return !!trip.myRole && trip.myRole !== 'OWNER';
+  }
 
   readonly filteredTrips = computed(() => {
     const filter = this.statusFilter();

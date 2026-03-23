@@ -17,6 +17,8 @@ export interface PlanLimits {
     flexibleDates: boolean;
     multiCity: boolean;
     advancedFilters: boolean;
+    collaboration: boolean;
+    priceAlerts: boolean;
   };
 }
 
@@ -30,6 +32,8 @@ const FEATURE_LABELS: Record<keyof PlanLimits['features'], { name: string; desc:
   flexibleDates: { name: 'Datas Flexíveis', desc: 'Busque voos por mês inteiro para encontrar os melhores preços' },
   multiCity: { name: 'Multi-cidade', desc: 'Monte roteiros com até 6 trechos diferentes' },
   advancedFilters: { name: 'Filtros Avançados', desc: 'Filtre por tipo de veículo, preço máximo e mais' },
+  collaboration: { name: 'Colaboração', desc: 'Convide amigos e família para planejar viagens juntos' },
+  priceAlerts: { name: 'Alerta de Preço', desc: 'Receba notificações quando voos e hotéis ficarem mais baratos' },
 };
 
 const PLAN_LIMITS: Record<Plan, PlanLimits> = {
@@ -47,6 +51,8 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
       flexibleDates: false,
       multiCity: false,
       advancedFilters: false,
+      collaboration: false,
+      priceAlerts: false,
     },
   },
   PRO: {
@@ -63,6 +69,8 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
       flexibleDates: true,
       multiCity: true,
       advancedFilters: true,
+      collaboration: true,
+      priceAlerts: true,
     },
   },
   BUSINESS: {
@@ -79,6 +87,8 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
       flexibleDates: true,
       multiCity: true,
       advancedFilters: true,
+      collaboration: true,
+      priceAlerts: true,
     },
   },
 };

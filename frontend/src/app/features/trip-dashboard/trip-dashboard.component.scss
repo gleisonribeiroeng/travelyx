@@ -841,6 +841,120 @@
 }
 
 // ═══════════════════════════════════════════════════
+// COLLABORATION
+// ═══════════════════════════════════════════════════
+
+.identity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.share-trip-btn {
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  border-radius: var(--triply-radius-full) !important;
+  padding: 0 18px !important;
+
+  mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    margin-right: 4px;
+  }
+}
+
+.collab-cta-card {
+  cursor: pointer;
+  border: 2px dashed rgba(108, 92, 231, 0.25) !important;
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.04) 0%, rgba(124, 77, 255, 0.02) 100%) !important;
+  transition: all 0.2s ease;
+
+  mat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: var(--triply-spacing-lg) !important;
+  }
+
+  &:hover {
+    border-color: rgba(108, 92, 231, 0.5) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--triply-shadow-md);
+  }
+}
+
+.collab-cta-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    color: #fff;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.collab-cta-text {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0 0 2px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--triply-text-primary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--triply-text-secondary);
+    line-height: 1.4;
+  }
+}
+
+.collab-cta-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #FF9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 10px;
+  border-radius: 20px;
+
+  mat-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.collab-cta-btn {
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+}
+
+// ═══════════════════════════════════════════════════
 // MICRO-INTERACTIONS (hover)
 // ═══════════════════════════════════════════════════
 
@@ -921,6 +1035,21 @@
 
   .quick-actions {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .collab-cta-card mat-card-content {
+    flex-wrap: wrap;
+  }
+
+  .collab-cta-action {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .identity-row {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }
 

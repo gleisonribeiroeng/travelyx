@@ -32,6 +32,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/tours-showcase/tours-showcase.component').then(m => m.ToursShowcaseComponent),
   },
+  {
+    path: 'v/:slug',
+    loadComponent: () =>
+      import('./features/public-itinerary/public-itinerary.component').then(m => m.PublicItineraryComponent),
+  },
 
   // ── Legal pages ──
   {

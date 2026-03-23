@@ -14,6 +14,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { TripAccessGuard } from '../collaboration/collaboration.guard';
+import { MinRole } from '../collaboration/collaboration.guard';
 import { TripsService } from './trips.service';
 import { SubscriptionService } from '../subscription/subscription.service';
 
@@ -31,6 +33,8 @@ export class TripsController {
   }
 
   @Get(':id')
+  @UseGuards(TripAccessGuard)
+  @MinRole('VIEWER')
   findOne(@Param('id') id: string, @Req() req: any) {
     return this.tripsService.findOne(id, req.user.sub);
   }
@@ -45,11 +49,15 @@ export class TripsController {
   }
 
   @Put(':id')
+  @UseGuards(TripAccessGuard)
+  @MinRole('EDITOR')
   update(@Param('id') id: string, @Body() body: any, @Req() req: any) {
     return this.tripsService.update(id, req.user.sub, body);
   }
 
   @Delete(':id')
+  @UseGuards(TripAccessGuard)
+  @MinRole('OWNER')
   remove(@Param('id') id: string, @Req() req: any) {
     return this.tripsService.remove(id, req.user.sub);
   }
@@ -57,6 +65,8 @@ export class TripsController {
   // --- Itinerary Items ---
 
   @Post(':tripId/items')
+  @UseGuards(TripAccessGuard)
+  @MinRole('EDITOR')
   async addItem(@Param('tripId') tripId: string, @Body() body: any, @Req() req: any) {
     const check = await this.subscriptionService.canAddItem(req.user.sub);
     if (!check.allowed) {
@@ -66,6 +76,8 @@ export class TripsController {
   }
 
   @Put(':tripId/items/:itemId')
+  @UseGuards(TripAccessGuard)
+  @MinRole('EDITOR')
   updateItem(
     @Param('tripId') tripId: string,
     @Param('itemId') itemId: string,
@@ -76,6 +88,8 @@ export class TripsController {
   }
 
   @Delete(':tripId/items/:itemId')
+  @UseGuards(TripAccessGuard)
+  @MinRole('EDITOR')
   removeItem(
     @Param('tripId') tripId: string,
     @Param('itemId') itemId: string,
@@ -87,6 +101,8 @@ export class TripsController {
   // --- Attachments ---
 
   @Post(':tripId/items/:itemId/attachment')
+  @UseGuards(TripAccessGuard)
+  @MinRole('EDITOR')
   @UseInterceptors(FileInterceptor('file', {
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (_req: any, file: any, cb: any) => {
@@ -109,6 +125,8 @@ export class TripsController {
   }
 
   @Get(':tripId/items/:itemId/attachment')
+  @UseGuards(TripAccessGuard)
+  @MinRole('VIEWER')
   getAttachment(
     @Param('tripId') tripId: string,
     @Param('itemId') itemId: string,
@@ -118,6 +136,8 @@ export class TripsController {
   }
 
   @Delete(':tripId/items/:itemId/attachment')
+  @UseGuards(TripAccessGuard)
+  @MinRole('EDITOR')
   removeAttachment(
     @Param('tripId') tripId: string,
     @Param('itemId') itemId: string,

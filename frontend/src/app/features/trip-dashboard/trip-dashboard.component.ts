@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,20 +9,26 @@ import { NotificationService } from '../../core/services/notification.service';
 import { BudgetService } from '../../core/services/budget.service';
 import { TripScoreService } from '../../core/services/trip-score.service';
 import { ChecklistService } from '../../core/services/checklist.service';
+import { CollaborationService } from '../../core/services/collaboration.service';
+import { PlanService } from '../../core/services/plan.service';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 import { ConflictAlert, TripStatus } from '../../core/models/trip.models';
 import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
+import { CollaboratorAvatarsComponent } from '../../shared/components/collaborator-avatars/collaborator-avatars.component';
+import { ViewerBannerComponent } from '../../shared/components/viewer-banner/viewer-banner.component';
+import { ShareDialogComponent, ShareDialogData } from '../../shared/components/share-dialog/share-dialog.component';
+import { InviteDialogComponent, InviteDialogData } from '../../shared/components/invite-dialog/invite-dialog.component';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 
 @Component({
   selector: 'app-trip-dashboard',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe, DatePipe, TranslatePipe],
+  imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe, DatePipe, TranslatePipe, CollaboratorAvatarsComponent, ViewerBannerComponent],
   templateUrl: './trip-dashboard.component.html',
   styleUrl: './trip-dashboard.component.scss',
 })
-export class TripDashboardComponent {
+export class TripDashboardComponent implements OnInit {
   private readonly tripRouter = inject(TripRouterService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
@@ -31,8 +37,20 @@ export class TripDashboardComponent {
   protected readonly budget = inject(BudgetService);
   protected readonly score = inject(TripScoreService);
   protected readonly checklist = inject(ChecklistService);
+  protected readonly collabService = inject(CollaborationService);
+  protected readonly planService = inject(PlanService);
 
   readonly trip = this.tripState.trip;
+
+  readonly hasCollaborators = computed(() => this.collabService.collaborators().length > 1);
+  readonly canCollab = computed(() => this.planService.hasFeature('collaboration'));
+
+  ngOnInit(): void {
+    const tripId = this.tripState.activeTripId();
+    if (tripId) {
+      this.collabService.loadCollaborators(tripId);
+    }
+  }
 
   readonly hasTrip = computed(() =>
     !!this.trip().destination || this.tripState.flights().length > 0 ||
@@ -181,5 +199,31 @@ export class TripDashboardComponent {
 
   navigateTo(route: string): void {
     this.tripRouter.navigate(route);
+  }
+
+  openShareDialog(): void {
+    const t = this.trip();
+    this.dialog.open(ShareDialogComponent, {
+      width: '480px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: {
+        tripId: this.tripState.activeTripId(),
+        tripName: t.name,
+        destination: t.destination,
+        publicSlug: t.publicSlug ?? null,
+      } as ShareDialogData,
+    });
+  }
+
+  openInviteDialog(): void {
+    if (!this.canCollab()) {
+      this.planService.showLimitPaywall('item');
+      return;
+    }
+    this.dialog.open(InviteDialogComponent, {
+      width: '480px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: { tripId: this.tripState.activeTripId() } as InviteDialogData,
+    });
   }
 }

@@ -11,6 +11,9 @@
     </button>
   </div>
 
+  <!-- Pending Invites -->
+  <app-pending-invites></app-pending-invites>
+
   <!-- Filter Bar -->
   <div class="filter-bar">
     <mat-chip-listbox aria-label="Filtrar por status">
@@ -75,13 +78,30 @@
   @else {
     <div class="trips-list">
       @for (trip of filteredTrips(); track trip.id) {
-        <app-list-item-base
-          [config]="toListItem(trip)"
-          (primaryClick)="openTrip($event)"
-          (secondaryClick)="deleteTrip($event)"
-          (cardClick)="openTrip($event)"
-          (iconActionClick)="handleIconAction($event)"
-        />
+        <div class="trip-card-wrapper">
+          <app-list-item-base
+            [config]="toListItem(trip)"
+            (primaryClick)="openTrip($event)"
+            (secondaryClick)="deleteTrip($event)"
+            (cardClick)="openTrip($event)"
+            (iconActionClick)="handleIconAction($event)"
+          />
+          <div class="trip-card-collab-row">
+            @if (isSharedTrip(trip)) {
+              <span class="shared-badge">
+                <mat-icon>people</mat-icon>
+                {{ 'collab.share' | translate }}
+              </span>
+            }
+            @if (trip.collaborators && trip.collaborators.length > 1) {
+              <app-collaborator-avatars
+                [collaborators]="trip.collaborators"
+                [maxVisible]="3"
+                size="sm"
+              ></app-collaborator-avatars>
+            }
+          </div>
+        </div>
       }
     </div>
   }

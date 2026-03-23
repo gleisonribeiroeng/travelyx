@@ -16,13 +16,28 @@
   }
 
   @if (hasTrip()) {
+    <!-- ═══ Viewer Banner ═══ -->
+    @if (collabService.isViewer()) {
+      <app-viewer-banner></app-viewer-banner>
+    }
+
     <!-- ═══ SECTION 1: Trip Header ═══ -->
     <div class="trip-header-section">
       <div class="trip-main">
         <div class="trip-identity">
-          @if (trip().destination) {
-            <h1>{{ trip().destination }}</h1>
-          }
+          <div class="identity-row">
+            @if (trip().destination) {
+              <h1>{{ trip().destination }}</h1>
+            }
+            @if (hasCollaborators()) {
+              <app-collaborator-avatars
+                [collaborators]="collabService.collaborators()"
+                [maxVisible]="3"
+                size="sm"
+                (avatarClick)="openInviteDialog()"
+              ></app-collaborator-avatars>
+            }
+          </div>
           @if (trip().dates.start) {
             <p class="trip-dates">
               <mat-icon>calendar_today</mat-icon>
@@ -31,6 +46,9 @@
           }
         </div>
         <div class="trip-actions">
+          <button mat-flat-button color="primary" class="share-trip-btn" (click)="openShareDialog()">
+            <mat-icon>people</mat-icon> {{ 'collab.share' | translate }}
+          </button>
           <button mat-stroked-button class="edit-trip-btn" (click)="editTrip()">
             <mat-icon>edit</mat-icon> {{ 'dash.edit' | translate }}
           </button>
@@ -215,6 +233,31 @@
                 }
               </div>
             }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- ═══ SECTION 4b: Collaboration CTA ═══ -->
+    @if (!hasCollaborators()) {
+      <mat-card class="collab-cta-card" (click)="openInviteDialog()">
+        <mat-card-content>
+          <div class="collab-cta-icon">
+            <mat-icon>group</mat-icon>
+          </div>
+          <div class="collab-cta-text">
+            <h3>{{ 'collab.planTogether' | translate }}</h3>
+            <p>{{ 'collab.planTogetherDesc' | translate }}</p>
+          </div>
+          <div class="collab-cta-action">
+            @if (!canCollab()) {
+              <span class="pro-badge">
+                <mat-icon>lock</mat-icon> Pro
+              </span>
+            }
+            <button mat-flat-button color="primary" class="collab-cta-btn">
+              {{ 'collab.invite' | translate }}
+            </button>
           </div>
         </mat-card-content>
       </mat-card>
