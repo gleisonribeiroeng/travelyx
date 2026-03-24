@@ -122,24 +122,23 @@ export class PlanService {
   readonly isPro = this.auth.isPro;
   readonly plan = this.auth.plan;
 
-  hasFeature(feature: keyof PlanLimits['features']): boolean {
-    return this.limits().features[feature];
+  // TODO: Revert to real plan checks when ready to monetize.
+  // For now, all users get full access to attract users for affiliate partnerships.
+
+  hasFeature(_feature: keyof PlanLimits['features']): boolean {
+    return true; // Original: this.limits().features[feature]
   }
 
-  canCreateTrip(currentTripCount: number): boolean {
-    const max = this.limits().maxTrips;
-    return max === -1 || currentTripCount < max;
+  canCreateTrip(_currentTripCount: number): boolean {
+    return true; // Original: max === -1 || currentTripCount < max
   }
 
-  canAddItem(currentItemCount: number): boolean {
-    const max = this.limits().maxItineraryItems;
-    return max === -1 || currentItemCount < max;
+  canAddItem(_currentItemCount: number): boolean {
+    return true; // Original: max === -1 || currentItemCount < max
   }
 
-  remainingItems(currentItemCount: number): number {
-    const max = this.limits().maxItineraryItems;
-    if (max === -1) return -1;
-    return Math.max(0, max - currentItemCount);
+  remainingItems(_currentItemCount: number): number {
+    return -1; // Original: Math.max(0, max - currentItemCount)
   }
 
   /**

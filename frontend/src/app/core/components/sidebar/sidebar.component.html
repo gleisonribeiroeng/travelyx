@@ -58,18 +58,7 @@
   </nav>
 
   <div class="sidebar-footer">
-    @if (auth.isPro()) {
-      <button class="manage-sub-btn" (click)="openPortal()">
-        <mat-icon>credit_card</mat-icon>
-        <span>{{ 'nav.manageSubscription' | translate }}</span>
-      </button>
-    } @else {
-      <button class="upgrade-btn" (click)="openCheckout()">
-        <mat-icon>rocket_launch</mat-icon>
-        <span>{{ 'nav.upgradePro' | translate }}</span>
-        <span class="pro-badge" aria-hidden="true">PRO</span>
-      </button>
-    }
+    <!-- TODO: Unhide subscription buttons when ready to monetize -->
     <button class="add-action" (click)="openNewTrip()">
       <mat-icon>add_circle_outline</mat-icon>
       <span>{{ 'nav.newTrip' | translate }}</span>
