@@ -457,7 +457,7 @@ export class WizardHotelStepComponent {
 
   openDetail(hotel: Stay): void {
     const ref = this.dialog.open(ItemDetailDialogComponent, {
-      width: '600px',
+      width: '680px',
       maxWidth: '95vw',
       maxHeight: '90vh',
       data: { type: 'stay', item: hotel, isAdded: this.isAdded(hotel.id) } as ItemDetailData,

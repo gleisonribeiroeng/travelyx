@@ -619,7 +619,7 @@ function formatDate(iso: string): string {
       align-items: center;
       justify-content: center;
       gap: 10px;
-      height: 180px;
+      height: 220px;
       background: var(--triply-surface-1, #f3f4f6);
       border-radius: var(--triply-radius-md);
       animation: skeleton-pulse 1.5s ease-in-out infinite;
@@ -652,7 +652,7 @@ function formatDate(iso: string): string {
 
     .hero-image {
       width: 100%;
-      max-height: 180px;
+      max-height: 280px;
       object-fit: cover;
       border-radius: 0;
       transition: transform 0.3s ease;
@@ -1137,14 +1137,17 @@ function formatDate(iso: string): string {
     .price-main {
       display: flex;
       align-items: baseline;
-      gap: 4px;
+      gap: 6px;
     }
 
     .price-total {
-      font-size: 0.78rem;
-      color: var(--triply-text-secondary);
+      font-size: 0.82rem;
+      color: var(--triply-text-primary);
       margin-left: auto;
-      font-weight: 500;
+      font-weight: 700;
+      background: var(--triply-surface-2, #f0f0f4);
+      padding: 4px 12px;
+      border-radius: 8px;
     }
 
     /* ─── Key amenities grid ─────────────────────────────────── */
@@ -1354,7 +1357,7 @@ function formatDate(iso: string): string {
 
       .hero-image {
         border-radius: var(--triply-radius-md);
-        max-height: 240px;
+        max-height: 320px;
       }
 
       .info-grid {
