@@ -109,10 +109,20 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
                 <!-- Progress bar: how close to target -->
                 <div class="progress-section">
                   <div class="progress-bar">
-                    <div class="progress-fill" [style.width.%]="getProgress(alert)" [class.near]="getProgress(alert) >= 80"></div>
+                    <div class="progress-fill"
+                         [style.width.%]="getProgress(alert)"
+                         [class.reached]="alert.currentPrice <= alert.targetPrice"
+                         [class.close]="getDiffPercent(alert) <= 5 && alert.currentPrice > alert.targetPrice">
+                    </div>
                   </div>
-                  <span class="progress-label" [class.near]="getProgress(alert) >= 80">
-                    {{ getDiffPercent(alert) }}% {{ alert.currentPrice > alert.targetPrice ? 'acima' : 'abaixo' }} da meta
+                  <span class="progress-label"
+                        [class.reached]="alert.currentPrice <= alert.targetPrice"
+                        [class.close]="getDiffPercent(alert) <= 5 && alert.currentPrice > alert.targetPrice">
+                    @if (alert.currentPrice <= alert.targetPrice) {
+                      Meta atingida!
+                    } @else {
+                      {{ getDiffPercent(alert) }}% acima da meta
+                    }
                   </span>
                 </div>
               </div>
@@ -244,7 +254,7 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
     .alert-card {
       background: #fff;
       border: 1px solid var(--triply-border-subtle, #e8e8e8);
-      border-left: 4px solid var(--alert-color, #6c5ce7);
+      border-left: 3px solid var(--alert-color, #6c5ce7);
       border-radius: 10px;
       padding: 14px 16px;
       transition: box-shadow 0.2s, transform 0.2s;
@@ -350,10 +360,10 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
       button {
         width: 28px !important; height: 28px !important; line-height: 28px !important;
-        color: var(--triply-text-tertiary, #bbb);
+        color: var(--triply-text-secondary, #888);
 
         mat-icon { font-size: 17px; width: 17px; height: 17px; }
-        &:hover { color: var(--triply-text-primary); }
+        &:hover { color: var(--triply-text-primary); background: var(--triply-surface-2, #f0f0f0); }
       }
     }
 
@@ -457,7 +467,8 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       border-radius: 3px;
       transition: width 0.4s ease;
 
-      &.near { background: #16a34a; }
+      &.close { background: #f59e0b; }
+      &.reached { background: #16a34a; }
     }
 
     .progress-label {
@@ -467,7 +478,8 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       white-space: nowrap;
       flex-shrink: 0;
 
-      &.near { color: #16a34a; }
+      &.close { color: #d97706; }
+      &.reached { color: #16a34a; }
     }
 
     /* ── Footer ── */
