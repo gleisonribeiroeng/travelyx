@@ -46,8 +46,20 @@ import {
   template: `
     <div class="wizard-step">
       <div class="step-header">
-        <h2>Escolha seu hotel</h2>
-        <p>Encontre a hospedagem perfeita para sua viagem</p>
+        <h2>
+          @if (tripDestination()) {
+            Hotéis em {{ tripDestination() }}
+          } @else {
+            Escolha seu hotel
+          }
+        </h2>
+        <p>
+          @if (tripDates()) {
+            Encontre a hospedagem ideal para {{ tripDates() }}
+          } @else {
+            Encontre a hospedagem perfeita para sua viagem
+          }
+        </p>
       </div>
 
       @if (selectedHotels().length > 0) {
@@ -101,8 +113,8 @@ import {
       <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
-            <div class="form-row">
-              <mat-form-field appearance="outline">
+            <div class="form-row-inline">
+              <mat-form-field appearance="outline" class="field-destination">
                 <mat-label>Destino</mat-label>
                 <input matInput [formControl]="destinationControl"
                        [matAutocomplete]="autoDest">
@@ -114,29 +126,27 @@ import {
                   }
                 </mat-autocomplete>
               </mat-form-field>
-            </div>
 
-            <div class="form-row" formGroupName="dateRange">
-              <mat-form-field appearance="outline">
-                <mat-label>Check-in — Check-out</mat-label>
-                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
-                  <input matStartDate formControlName="start" placeholder="Check-in">
-                  <input matEndDate formControlName="end" placeholder="Check-out">
-                </mat-date-range-input>
-                <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
-                <mat-date-range-picker #rangePicker></mat-date-range-picker>
-              </mat-form-field>
-            </div>
+              <div formGroupName="dateRange">
+                <mat-form-field appearance="outline" class="field-dates">
+                  <mat-label>Check-in — Check-out</mat-label>
+                  <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
+                    <input matStartDate formControlName="start" placeholder="Check-in">
+                    <input matEndDate formControlName="end" placeholder="Check-out">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #rangePicker></mat-date-range-picker>
+                </mat-form-field>
+              </div>
 
-            <div class="form-row">
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" class="field-guests">
                 <mat-label>Hóspedes</mat-label>
                 <input matInput type="number" formControlName="guests" min="1" max="30">
                 <mat-icon matPrefix>person</mat-icon>
               </mat-form-field>
             </div>
 
-            <button mat-flat-button color="primary" type="submit"
+            <button mat-flat-button color="primary" type="submit" class="search-cta-btn"
                     [disabled]="searchForm.invalid || isSearching()">
               @if (isSearching()) {
                 <mat-spinner diameter="20"></mat-spinner>
@@ -200,41 +210,47 @@ import {
     </div>
   `,
   styles: [`
-    .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--triply-text-primary); letter-spacing: -0.02em; }
-    .step-header p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
+    .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-sm, 8px); }
+    .step-header { margin-bottom: 2px; }
+    .step-header h2 { margin: 0 0 4px; font-size: 1.4rem; font-weight: 800; color: var(--triply-text-primary); letter-spacing: -0.02em; }
+    .step-header p { margin: 0; font-size: 0.88rem; color: var(--triply-text-secondary); }
 
-    .current-selection { display: flex; flex-direction: column; gap: 8px; }
-    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .current-selection { display: flex; flex-direction: column; gap: 6px; }
+    .current-selection h3 { margin: 0; font-size: 0.88rem; font-weight: 600; color: var(--triply-text-primary); }
     .selected-card { border-left: 3px solid var(--triply-success) !important; box-shadow: var(--triply-shadow-sm); }
-    .selected-info { display: flex; align-items: center; gap: 12px; }
-    .selected-info mat-icon { color: var(--triply-success); font-size: 24px; }
-    .selected-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; }
+    .selected-info { display: flex; align-items: center; gap: 10px; }
+    .selected-info mat-icon { color: var(--triply-success); font-size: 22px; }
+    .selected-thumb { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
     .selected-details { flex: 1; display: flex; flex-direction: column; }
-    .selected-details strong { font-size: 0.9rem; color: var(--triply-text-primary); }
-    .selected-details span { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.95rem; white-space: nowrap; }
+    .selected-details strong { font-size: 0.85rem; color: var(--triply-text-primary); }
+    .selected-details span { font-size: 0.75rem; color: var(--triply-text-secondary); }
+    .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.88rem; white-space: nowrap; }
 
-    .search-form-card { margin-top: 8px; }
-    .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
-    .form-row mat-form-field { flex: 1; }
-    form button[type="submit"] { width: 100%; height: 44px; }
+    .search-form-card { margin-top: 4px; margin-bottom: 8px !important; }
 
-    .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-xl); }
+    .form-row-inline { display: flex; flex-direction: column; gap: 0; }
+    .form-row-inline mat-form-field { width: 100%; }
+    .field-guests { max-width: 140px; }
+
+    form button[type="submit"] { width: 100%; height: 48px; font-size: 0.95rem !important; font-weight: 700 !important; border-radius: 12px !important; box-shadow: 0 2px 10px rgba(108, 92, 231, 0.25); display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; }
+    form button[type="submit"] mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    form button[type="submit"]:not(:disabled):hover { box-shadow: 0 4px 16px rgba(108, 92, 231, 0.35); transform: translateY(-1px); }
+
+    .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-lg); }
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
-    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
+    .empty-results mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
-    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .results-list { display: flex; flex-direction: column; gap: 6px; }
+    .results-list h3 { margin: 0 0 4px; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }
 
     /* Manual entry */
     .manual-entry-section {
-      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-      margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.08);
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.06);
     }
-    .manual-entry-section button { white-space: nowrap; font-size: 0.85rem; }
+    .manual-entry-section button { white-space: nowrap; font-size: 0.82rem; color: var(--triply-text-secondary) !important; border-color: var(--triply-border-subtle) !important; }
     .manual-hint {
-      font-size: 0.78rem; color: var(--triply-text-secondary);
+      font-size: 0.75rem; color: var(--triply-text-tertiary, #999);
     }
     .manual-badge {
       font-size: 0.65rem; font-weight: 600; padding: 2px 8px;
@@ -243,8 +259,15 @@ import {
       letter-spacing: 0.3px; white-space: nowrap;
     }
 
+    .load-more-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; }
+    .load-more-btn { font-size: 0.82rem; }
+    .load-more-count { font-size: 0.72rem; color: var(--triply-text-tertiary, #999); }
+
     @media (min-width: 600px) {
-      .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
+      .form-row-inline { flex-direction: row; gap: var(--triply-spacing-sm, 8px); align-items: flex-start; }
+      .field-destination { flex: 2; }
+      .field-dates { width: 100%; }
+      .field-guests { max-width: 120px; }
     }
   `],
 })
@@ -256,6 +279,18 @@ export class WizardHotelStepComponent {
 
   readonly selectedHotels = this.tripState.stays;
   readonly results = signal<Stay[]>([]);
+
+  // Trip context for header
+  readonly tripDestination = computed(() => this.tripState.trip().destination || '');
+  readonly tripDates = computed(() => {
+    const t = this.tripState.trip();
+    if (!t.dates.start) return '';
+    const fmt = (d: string) => {
+      const date = new Date(d + 'T00:00:00');
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    };
+    return `${fmt(t.dates.start)} a ${fmt(t.dates.end || t.dates.start)}`;
+  });
   readonly isSearching = signal(false);
   readonly isLoadingMore = signal(false);
   readonly hasSearched = signal(false);
