@@ -9,7 +9,7 @@ export class PriceAlertsController {
 
   @Get()
   findAll(@Req() req: any) {
-    return this.service.findByUser(req.user.id);
+    return this.service.findByUser(req.user.sub);
   }
 
   @Post()
@@ -24,21 +24,21 @@ export class PriceAlertsController {
       currency: string;
     },
   ) {
-    return this.service.create(req.user.id, body);
+    return this.service.create(req.user.sub, body);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: any) {
-    return this.service.remove(id, req.user.id);
+    return this.service.remove(id, req.user.sub);
   }
 
   @Patch(':id/toggle')
   toggle(@Param('id') id: string, @Req() req: any) {
-    return this.service.toggleActive(id, req.user.id);
+    return this.service.toggleActive(id, req.user.sub);
   }
 
   @Get(':id/history')
   getHistory(@Param('id') id: string, @Req() req: any) {
-    return this.service.getHistory(id, req.user.id);
+    return this.service.getHistory(id, req.user.sub);
   }
 }
