@@ -196,7 +196,17 @@ import {
 
       @if (results().length > 0) {
         <div class="results-list">
-          <h3>{{ results().length }} carros encontrados</h3>
+          <div class="results-header">
+            <h3>{{ results().length }} carros encontrados</h3>
+            <mat-form-field appearance="outline" class="sort-field">
+              <mat-label>Ordenar</mat-label>
+              <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
+                <mat-option value="price">Menor preço</mat-option>
+                <mat-option value="price_desc">Maior preço</mat-option>
+                <mat-option value="name">Nome do veículo</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
           @for (car of results(); track car.id) {
             <app-list-item-base
               [config]="toListItem(car)"
@@ -256,7 +266,13 @@ import {
     .empty-results mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--triply-text-secondary); opacity: 0.5; }
 
     .results-list { display: flex; flex-direction: column; gap: 6px; }
-    .results-list h3 { margin: 0 0 4px; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }
+    .results-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+    .results-header h3 { margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }
+    .sort-field { width: 170px; }
+    :host ::ng-deep .sort-field .mat-mdc-form-field-subscript-wrapper { display: none; }
+    :host ::ng-deep .sort-field .mdc-text-field { height: 36px; }
+    :host ::ng-deep .sort-field .mat-mdc-select-value-text { font-size: 0.78rem; }
+    :host ::ng-deep .sort-field .mdc-floating-label { font-size: 0.78rem; }
 
     @media (min-width: 600px) {
       .form-row-inline { flex-direction: row; gap: var(--triply-spacing-sm, 8px); align-items: flex-start; }
@@ -290,6 +306,7 @@ export class WizardCarStepComponent {
   readonly hasSearched = signal(false);
   readonly formCollapsed = signal(false);
   readonly sameDropOff = signal(true);
+  readonly currentSort = signal<string>('price');
   readonly minDate = new Date();
 
   constructor() {
@@ -414,6 +431,21 @@ export class WizardCarStepComponent {
     if (car) this.openDetail(car);
   }
 
+  private lastSearchParams: import('../../../core/api/car.mapper').CarSearchParams | null = null;
+
+  onSortChange(sortBy: string): void {
+    this.currentSort.set(sortBy);
+    if (this.lastSearchParams) {
+      this.lastSearchParams.sortBy = sortBy;
+      this.isSearching.set(true);
+      this.api.searchCars(this.lastSearchParams)
+        .pipe(finalize(() => this.isSearching.set(false)))
+        .subscribe({
+          next: (result) => this.results.set(result.data),
+        });
+    }
+  }
+
   search(): void {
     if (this.searchForm.invalid) return;
     const pickup = this.searchForm.value.pickup as CarLocationOption;
@@ -435,7 +467,7 @@ export class WizardCarStepComponent {
       return `${m}/${dd}/${d.getFullYear()}`;
     };
 
-    this.api.searchCars({
+    this.lastSearchParams = {
       pickupLocationName: pickup.label || pickup.name,
       dropoffLocationName: dropoff.label || dropoff.name,
       pickupCityId: pickup.cityId,
@@ -446,7 +478,9 @@ export class WizardCarStepComponent {
       dropoffTime: this.searchForm.value.dropoffTime ?? '10:00',
       driverAge: 30,
       currency: this.tripState.trip().currency || 'BRL',
-    }).pipe(finalize(() => this.isSearching.set(false)))
+      sortBy: this.currentSort(),
+    };
+    this.api.searchCars(this.lastSearchParams).pipe(finalize(() => this.isSearching.set(false)))
       .subscribe({
         next: (result) => {
           this.results.set(result.data);

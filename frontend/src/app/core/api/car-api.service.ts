@@ -59,6 +59,7 @@ export class CarApiService extends BaseApiService {
       dropoff_time: params.dropoffTime,
       driver_age: params.driverAge,
       currency: params.currency || this.currencyService.currency(),
+      sort_by: params.sortBy || 'price',
     }).pipe(
       withBackoff(),
       map(

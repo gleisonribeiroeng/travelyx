@@ -127,8 +127,25 @@ export class CarsService {
         ),
       );
 
-      this.logger.log(`Priceline car search: ${mapped.filter(Boolean).length} results (currency: ${targetCurrency})`);
-      return { data: mapped.filter(Boolean) };
+      const validCars = mapped.filter(Boolean);
+
+      // Sort by price (lowest first) by default
+      const sortBy = query['sort_by'] || 'price';
+      validCars.sort((a: any, b: any) => {
+        switch (sortBy) {
+          case 'price':
+            return (a.price?.total || 0) - (b.price?.total || 0);
+          case 'price_desc':
+            return (b.price?.total || 0) - (a.price?.total || 0);
+          case 'name':
+            return (a.vehicleType || '').localeCompare(b.vehicleType || '');
+          default:
+            return (a.price?.total || 0) - (b.price?.total || 0);
+        }
+      });
+
+      this.logger.log(`Priceline car search: ${validCars.length} results (currency: ${targetCurrency}, sort: ${sortBy})`);
+      return { data: validCars };
     } catch (error: any) {
       this.logger.error(`Priceline car search error: ${error?.message}`);
       throw error;

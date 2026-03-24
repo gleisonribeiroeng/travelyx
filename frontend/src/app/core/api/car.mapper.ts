@@ -47,6 +47,7 @@ export interface CarSearchParams {
   dropoffTime: string; // HH:MM
   driverAge: number;
   currency?: string;
+  sortBy?: string;
 }
 
 /**
