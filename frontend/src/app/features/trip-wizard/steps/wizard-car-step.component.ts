@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -39,8 +39,20 @@ import {
   template: `
     <div class="wizard-step">
       <div class="step-header">
-        <h2>Aluguel de carro</h2>
-        <p>Encontre o carro ideal para se locomover no destino</p>
+        <h2>
+          @if (tripDestination()) {
+            Carros em {{ tripDestination() }}
+          } @else {
+            Aluguel de carro
+          }
+        </h2>
+        <p>
+          @if (tripDates()) {
+            Encontre o carro ideal para {{ tripDates() }}
+          } @else {
+            Encontre o carro ideal para se locomover no destino
+          }
+        </p>
       </div>
 
       @if (selectedCars().length > 0) {
@@ -87,8 +99,8 @@ import {
       <mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
         <mat-card-content>
           <form [formGroup]="searchForm" (ngSubmit)="search()">
-            <div class="form-row">
-              <mat-form-field appearance="outline">
+            <div class="form-row-inline">
+              <mat-form-field appearance="outline" class="field-location">
                 <mat-label>Local de retirada</mat-label>
                 <input matInput [formControl]="pickupControl"
                        [matAutocomplete]="autoPickup">
@@ -99,17 +111,41 @@ import {
                   }
                 </mat-autocomplete>
               </mat-form-field>
+
+              <div formGroupName="dateRange">
+                <mat-form-field appearance="outline" class="field-dates">
+                  <mat-label>Retirada — Devolução</mat-label>
+                  <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
+                    <input matStartDate formControlName="start" placeholder="Retirada">
+                    <input matEndDate formControlName="end" placeholder="Devolução">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #rangePicker></mat-date-range-picker>
+                </mat-form-field>
+              </div>
             </div>
 
-            <div class="same-location-row">
-              <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">
-                Devolver no mesmo local
-              </mat-checkbox>
+            <div class="form-row-inline">
+              <mat-form-field appearance="outline" class="field-time">
+                <mat-label>Hora retirada</mat-label>
+                <input matInput type="time" formControlName="pickupTime">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="field-time">
+                <mat-label>Hora devolução</mat-label>
+                <input matInput type="time" formControlName="dropoffTime">
+              </mat-form-field>
+
+              <div class="same-location-check">
+                <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">
+                  Devolver no mesmo local
+                </mat-checkbox>
+              </div>
             </div>
 
             @if (!sameDropOff()) {
-              <div class="form-row dropoff-field">
-                <mat-form-field appearance="outline">
+              <div class="form-row-inline dropoff-field">
+                <mat-form-field appearance="outline" style="width:100%">
                   <mat-label>Local de devolução</mat-label>
                   <input matInput [formControl]="dropoffControl"
                          [matAutocomplete]="autoDropoff">
@@ -123,31 +159,7 @@ import {
               </div>
             }
 
-            <div class="form-row" formGroupName="dateRange">
-              <mat-form-field appearance="outline">
-                <mat-label>Retirada — Devolução</mat-label>
-                <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
-                  <input matStartDate formControlName="start" placeholder="Retirada">
-                  <input matEndDate formControlName="end" placeholder="Devolução">
-                </mat-date-range-input>
-                <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
-                <mat-date-range-picker #rangePicker></mat-date-range-picker>
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Hora retirada</mat-label>
-                <input matInput type="time" formControlName="pickupTime">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Hora devolução</mat-label>
-                <input matInput type="time" formControlName="dropoffTime">
-              </mat-form-field>
-            </div>
-
-            <button mat-flat-button color="primary" type="submit"
+            <button mat-flat-button color="primary" type="submit" class="search-cta-btn"
                     [disabled]="searchForm.invalid || isSearching()">
               @if (isSearching()) {
                 <mat-spinner diameter="20"></mat-spinner>
@@ -198,57 +210,59 @@ import {
     </div>
   `,
   styles: [`
-    .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--triply-text-primary); letter-spacing: -0.02em; }
-    .step-header p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
+    .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-sm, 8px); }
+    .step-header { margin-bottom: 2px; }
+    .step-header h2 { margin: 0 0 4px; font-size: 1.4rem; font-weight: 800; color: var(--triply-text-primary); letter-spacing: -0.02em; }
+    .step-header p { margin: 0; font-size: 0.88rem; color: var(--triply-text-secondary); }
 
-    .current-selection { display: flex; flex-direction: column; gap: 8px; }
-    .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .current-selection { display: flex; flex-direction: column; gap: 6px; }
+    .current-selection h3 { margin: 0; font-size: 0.88rem; font-weight: 600; color: var(--triply-text-primary); }
     .selected-card { border-left: 3px solid var(--triply-success) !important; }
-    .selected-info { display: flex; align-items: center; gap: 12px; }
-    .selected-info mat-icon { color: var(--triply-success); }
+    .selected-info { display: flex; align-items: center; gap: 10px; }
+    .selected-info mat-icon { color: var(--triply-success); font-size: 22px; }
     .selected-details { flex: 1; display: flex; flex-direction: column; }
-    .selected-details strong { font-size: 0.9rem; color: var(--triply-text-primary); }
-    .selected-details span { font-size: 0.8rem; color: var(--triply-text-secondary); }
-    .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.95rem; }
+    .selected-details strong { font-size: 0.85rem; color: var(--triply-text-primary); }
+    .selected-details span { font-size: 0.75rem; color: var(--triply-text-secondary); }
+    .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.88rem; white-space: nowrap; }
 
     .manual-entry-section {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(0,0,0,0.08);
-
-      button { white-space: nowrap; font-size: 0.85rem; }
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.06);
     }
+    .manual-entry-section button { white-space: nowrap; font-size: 0.82rem; color: var(--triply-text-secondary) !important; border-color: var(--triply-border-subtle) !important; }
+    .manual-hint { font-size: 0.75rem; color: var(--triply-text-tertiary, #999); }
 
-    .manual-hint {
-      font-size: 0.8rem;
-      color: var(--triply-text-secondary);
-    }
+    .search-form-card { margin-top: 4px; margin-bottom: 8px !important; }
 
-    .search-form-card { margin-top: 8px; }
-    .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
-    .form-row mat-form-field { flex: 1; }
-    .same-location-row { margin-bottom: var(--triply-spacing-md); margin-top: -8px; }
+    .form-row-inline { display: flex; flex-direction: column; gap: 0; }
+    .form-row-inline mat-form-field { width: 100%; }
+    .field-time { max-width: 160px; }
+
+    .same-location-check { display: flex; align-items: center; padding-top: 6px; }
+    :host ::ng-deep .same-location-check .mdc-label { font-size: 0.8rem; }
+
     .dropoff-field { animation: slideDown 0.2s ease-out; }
     @keyframes slideDown {
       from { opacity: 0; transform: translateY(-8px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    form button[type="submit"] { width: 100%; height: 44px; }
 
-    .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-xl); }
+    form button[type="submit"] { width: 100%; height: 48px; font-size: 0.95rem !important; font-weight: 700 !important; border-radius: 12px !important; box-shadow: 0 2px 10px rgba(108, 92, 231, 0.25); display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; }
+    form button[type="submit"] mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    form button[type="submit"]:not(:disabled):hover { box-shadow: 0 4px 16px rgba(108, 92, 231, 0.35); transform: translateY(-1px); }
+
+    .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-lg); }
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
-    .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
+    .empty-results mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
-    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .results-list { display: flex; flex-direction: column; gap: 6px; }
+    .results-list h3 { margin: 0 0 4px; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }
 
     @media (min-width: 600px) {
-      .form-row { flex-direction: row; gap: var(--triply-spacing-md); }
+      .form-row-inline { flex-direction: row; gap: var(--triply-spacing-sm, 8px); align-items: flex-start; }
+      .field-location { flex: 2; }
+      .field-dates { width: 100%; }
+      .field-time { max-width: 140px; }
     }
   `],
 })
@@ -260,6 +274,18 @@ export class WizardCarStepComponent {
 
   readonly selectedCars = this.tripState.carRentals;
   readonly results = signal<CarRental[]>([]);
+
+  // Trip context for header
+  readonly tripDestination = computed(() => this.tripState.trip().destination || '');
+  readonly tripDates = computed(() => {
+    const t = this.tripState.trip();
+    if (!t.dates.start) return '';
+    const fmt = (d: string) => {
+      const date = new Date(d + 'T00:00:00');
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    };
+    return `${fmt(t.dates.start)} a ${fmt(t.dates.end || t.dates.start)}`;
+  });
   readonly isSearching = signal(false);
   readonly hasSearched = signal(false);
   readonly formCollapsed = signal(false);
