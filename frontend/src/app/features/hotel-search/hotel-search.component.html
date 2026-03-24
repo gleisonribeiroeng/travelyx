@@ -128,54 +128,6 @@
 
 <!-- Results Section -->
 @if (searchResults().length > 0) {
-  <!-- Highlight Cards -->
-  @if (categorized().cheapest || categorized().bestRated || categorized().bestValue) {
-    <div class="highlights-strip">
-      @if (categorized().cheapest; as cheapest) {
-        <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
-          <div class="hl-badge"><mat-icon>savings</mat-icon> {{ 'hotels.bestPrice' | translate }}</div>
-          <div class="hl-name">{{ cheapest.name }}</div>
-          <div class="hl-info">
-            {{ cheapest.address }}
-            @if (cheapest.rating) {
-              · <mat-icon class="hl-star">star</mat-icon> {{ cheapest.rating.toFixed(1) }}
-            }
-          </div>
-          <div class="hl-price">{{ cheapest.pricePerNight.total | dynamicCurrency }}<span class="hl-price-label">{{ 'hotels.perNight' | translate }}</span></div>
-        </div>
-      }
-      @if (categorized().bestRated; as rated) {
-        <div class="hl-card hl-rated" (click)="addToItinerary(rated)">
-          <div class="hl-badge"><mat-icon>star</mat-icon> {{ 'hotels.bestRated' | translate }}</div>
-          <div class="hl-name">{{ rated.name }}</div>
-          <div class="hl-info">
-            {{ rated.address }}
-            @if (rated.rating) {
-              · <mat-icon class="hl-star">star</mat-icon> {{ rated.rating.toFixed(1) }}
-            }
-            @if (rated.reviewCount > 0) {
-              ({{ rated.reviewCount }})
-            }
-          </div>
-          <div class="hl-price">{{ rated.pricePerNight.total | dynamicCurrency }}<span class="hl-price-label">{{ 'hotels.perNight' | translate }}</span></div>
-        </div>
-      }
-      @if (categorized().bestValue; as best) {
-        <div class="hl-card hl-value" (click)="addToItinerary(best)">
-          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> {{ 'hotels.bestValue' | translate }}</div>
-          <div class="hl-name">{{ best.name }}</div>
-          <div class="hl-info">
-            {{ best.address }}
-            @if (best.rating) {
-              · <mat-icon class="hl-star">star</mat-icon> {{ best.rating.toFixed(1) }}
-            }
-          </div>
-          <div class="hl-price">{{ best.pricePerNight.total | dynamicCurrency }}<span class="hl-price-label">{{ 'hotels.perNight' | translate }}</span></div>
-        </div>
-      }
-    </div>
-  }
-
   <div class="results-section">
     <div class="results-header">
       <h2>{{ sortedHotels().length }} {{ 'hotels.hotelsFound' | translate }}</h2>

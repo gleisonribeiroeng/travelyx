@@ -32,8 +32,7 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
 import { stayToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 import {
-  categorizeHotels,
-  CategorizedHotels,
+  // categorizeHotels removed — using API sort instead
 } from '../../core/utils/hotel-categorizer.util';
 import {
   ManualHotelDialogComponent,
@@ -160,11 +159,6 @@ export class HotelSearchComponent {
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
 
-  // Categorization
-  readonly categorized = computed((): CategorizedHotels<Stay> =>
-    categorizeHotels(this.searchResults())
-  );
-
   // Server-side sort: API returns pre-sorted results
   sortedHotels = computed(() => this.searchResults());
 
@@ -197,15 +191,6 @@ export class HotelSearchComponent {
   // Display function for autocomplete
   displayDestination(dest: DestinationOption | null): string {
     return dest ? dest.label || dest.name : '';
-  }
-
-  // Get category tag for a hotel
-  getHotelTag(hotel: Stay): 'cheapest' | 'bestRated' | 'bestValue' | null {
-    const cat = this.categorized();
-    if (cat.bestValue?.id === hotel.id) return 'bestValue';
-    if (cat.cheapest?.id === hotel.id) return 'cheapest';
-    if (cat.bestRated?.id === hotel.id) return 'bestRated';
-    return null;
   }
 
   // Check if hotel is already added to trip
@@ -389,7 +374,6 @@ export class HotelSearchComponent {
   toListItem(hotel: Stay) {
     return stayToListItem(hotel, {
       isAdded: this.isHotelAdded(hotel),
-      tag: this.getHotelTag(hotel),
     });
   }
 

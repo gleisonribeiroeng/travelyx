@@ -27,12 +27,8 @@ import {
 } from '../../../core/api/hotel-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
 import { Stay } from '../../../core/models/trip.models';
-import {
-  categorizeHotels,
-  CategorizedHotels,
-} from '../../../core/utils/hotel-categorizer.util';
 import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
-import { stayToListItem, HotelTagType } from '../../../shared/components/list-item-base/list-item-mappers';
+import { stayToListItem } from '../../../shared/components/list-item-base/list-item-mappers';
 import {
   ManualHotelDialogComponent,
   ManualHotelDialogData,
@@ -183,7 +179,20 @@ import {
 
       @if (results().length > 0 && !isSearching()) {
         <div class="results-list">
-          <h3>{{ results().length }} hotéis encontrados</h3>
+          <div class="results-header">
+            <h3>{{ results().length }} hotéis encontrados</h3>
+            <mat-form-field appearance="outline" class="sort-field">
+              <mat-label>Ordenar</mat-label>
+              <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
+                <mat-option value="popularity">Relevância</mat-option>
+                <mat-option value="price">Menor preço</mat-option>
+                <mat-option value="price_from_high_to_low">Maior preço</mat-option>
+                <mat-option value="bayesian_review_score">Melhor avaliação</mat-option>
+                <mat-option value="class_descending">Mais estrelas</mat-option>
+                <mat-option value="distance">Mais perto</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
           @for (hotel of sortedResults(); track hotel.id) {
             <app-list-item-base
               [config]="toListItem(hotel)"
@@ -241,7 +250,13 @@ import {
     .empty-results mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--triply-text-secondary); opacity: 0.5; }
 
     .results-list { display: flex; flex-direction: column; gap: 6px; }
-    .results-list h3 { margin: 0 0 4px; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }
+    .results-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+    .results-header h3 { margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }
+    .sort-field { width: 170px; }
+    :host ::ng-deep .sort-field .mat-mdc-form-field-subscript-wrapper { display: none; }
+    :host ::ng-deep .sort-field .mdc-text-field { height: 36px; }
+    :host ::ng-deep .sort-field .mat-mdc-select-value-text { font-size: 0.78rem; }
+    :host ::ng-deep .sort-field .mdc-floating-label { font-size: 0.78rem; }
 
     /* Manual entry */
     .manual-entry-section {
@@ -299,6 +314,7 @@ export class WizardHotelStepComponent {
   private currentPage = 1;
   private lastSearchParams: any = null;
   readonly formCollapsed = signal(false);
+  readonly currentSort = signal<string>('popularity');
   readonly minDate = new Date();
 
   get minCheckOut(): Date {
@@ -354,11 +370,6 @@ export class WizardHotelStepComponent {
     switchMap((keyword) => this.api.searchDestinations(keyword as string)),
   );
 
-  // Categorization
-  readonly categorized = computed((): CategorizedHotels<Stay> =>
-    categorizeHotels(this.results())
-  );
-
   // Results in API order — no frontend reordering
   readonly sortedResults = computed(() => this.results());
 
@@ -380,18 +391,9 @@ export class WizardHotelStepComponent {
     return this.selectedHotels().some((h) => h.id === id);
   }
 
-  getHotelTag(hotel: Stay): HotelTagType | null {
-    const cat = this.categorized();
-    if (cat.bestValue?.id === hotel.id) return 'bestValue';
-    if (cat.cheapest?.id === hotel.id) return 'cheapest';
-    if (cat.bestRated?.id === hotel.id) return 'bestRated';
-    return null;
-  }
-
   toListItem(hotel: Stay) {
     return stayToListItem(hotel, {
       isAdded: this.isAdded(hotel.id),
-      tag: this.getHotelTag(hotel),
     });
   }
 
@@ -467,6 +469,25 @@ export class WizardHotelStepComponent {
     });
   }
 
+  onSortChange(sortBy: string): void {
+    this.currentSort.set(sortBy);
+    if (this.lastSearchParams) {
+      this.lastSearchParams.sortBy = sortBy;
+      this.isSearching.set(true);
+      this.currentPage = 1;
+      this.api.searchHotelsPaginated(this.lastSearchParams, 1)
+        .pipe(finalize(() => this.isSearching.set(false)))
+        .subscribe({
+          next: (result) => {
+            this.results.set(result.data);
+            this.totalCount.set(result.totalCount);
+            this.hasMore.set(result.hasMore);
+            this.currentPage = 2;
+          },
+        });
+    }
+  }
+
   search(): void {
     if (this.searchForm.invalid) return;
     const dest = this.searchForm.value.destination as DestinationOption;
@@ -478,8 +499,9 @@ export class WizardHotelStepComponent {
     this.hasSearched.set(true);
     this.formCollapsed.set(true);
     this.currentPage = 1;
+    this.currentSort.set('popularity');
 
-    const params = {
+    const params: any = {
       destId: dest.destId,
       searchType: dest.searchType,
       checkIn: checkIn.toISOString().split('T')[0],
