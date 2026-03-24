@@ -47,4 +47,27 @@ export class PriceAlertApiService {
   toggleAlert(id: string): Observable<PriceAlert> {
     return this.http.patch<PriceAlert>(`${this.baseUrl}/${id}/toggle`, {});
   }
+
+  getHistory(id: string): Observable<PriceAlertHistory> {
+    return this.http.get<PriceAlertHistory>(`${this.baseUrl}/${id}/history`);
+  }
+}
+
+export interface PriceHistoryPoint {
+  price: number;
+  recordedAt: string;
+}
+
+export interface PriceAlertHistory {
+  alert: {
+    id: string;
+    label: string;
+    type: string;
+    currentPrice: number;
+    lowestPrice: number | null;
+    targetPrice: number;
+    currency: string;
+    createdAt: string;
+  };
+  history: PriceHistoryPoint[];
 }

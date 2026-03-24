@@ -92,6 +92,10 @@
 
   <!-- ═══ COLUMN 3: ACTIONS ═══ -->
   <div class="item-actions-col">
+    @if (config().sourceBadge; as badge) {
+      <span class="source-badge" [style.background]="badge.color">{{ badge.label }}</span>
+    }
+
     @if (config().price; as price) {
       <div class="price-block">
         @if (price.prefix) {

@@ -426,7 +426,7 @@ export class HotelSearchComponent {
     const hotel = this.searchResults().find(h => h.id === id);
     if (!hotel) return;
     const ref = this.dialog.open(ItemDetailDialogComponent, {
-      width: '680px',
+      width: '780px',
       maxWidth: '95vw',
       maxHeight: '90vh',
       data: { type: 'stay', item: hotel, isAdded: this.isHotelAdded(hotel) } as ItemDetailData,

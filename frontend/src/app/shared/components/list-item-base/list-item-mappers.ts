@@ -3,6 +3,7 @@ import {
   ListItemTag,
   ListItemAction,
   ListItemInfoLine,
+  ListItemSourceBadge,
 } from './list-item-base.model';
 import {
   Stay,
@@ -90,12 +91,21 @@ export function stayToListItem(
     secondaryAction: viewDetailAction(),
     tags,
     isAdded: opts.isAdded,
+    iconActions: [
+      { id: 'price-alert', icon: 'notifications_none', tooltip: 'Alerta de preço' },
+    ],
+    sourceBadge: { label: 'Booking.com', color: '#003580' },
   };
 }
 
 // ── Flight ──
 
 export type FlightTagType = 'cheapest' | 'fastest' | 'bestValue';
+
+const FLIGHT_SOURCE_BADGES: Record<string, ListItemSourceBadge> = {
+  booking: { label: 'Booking.com', color: '#003580' },
+  kiwi:    { label: 'Kiwi.com',    color: '#00a991' },
+};
 
 export function flightToListItem(
   flight: Flight,
@@ -143,6 +153,10 @@ export function flightToListItem(
     secondaryAction: viewDetailAction(),
     tags,
     isAdded: opts.isAdded,
+    sourceBadge: FLIGHT_SOURCE_BADGES[flight.source] || undefined,
+    iconActions: [
+      { id: 'price-alert', icon: 'notifications_none', tooltip: 'Alerta de preço' },
+    ],
   };
 }
 

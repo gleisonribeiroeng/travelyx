@@ -78,6 +78,12 @@ export const routes: Routes = [
       import('./features/settings/settings.component').then(m => m.SettingsComponent),
   },
   {
+    path: 'alertas-preco',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/price-alerts/price-alerts.component').then(m => m.PriceAlertsComponent),
+  },
+  {
     path: 'viagens',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -26,6 +26,8 @@ import {
   DestinationOption,
 } from '../../../core/api/hotel-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
+import { PriceAlertApiService, CreatePriceAlertDto } from '../../../core/api/price-alert-api.service';
+import { PlanService } from '../../../core/services/plan.service';
 import { Stay } from '../../../core/models/trip.models';
 import { ListItemBaseComponent } from '../../../shared/components/list-item-base/list-item-base.component';
 import { stayToListItem } from '../../../shared/components/list-item-base/list-item-mappers';
@@ -199,6 +201,7 @@ import {
               (primaryClick)="selectById($event)"
               (secondaryClick)="openDetailById($event)"
               (cardClick)="openDetailById($event)"
+              (iconActionClick)="onIconAction($event)"
             />
           }
           @if (hasMore()) {
@@ -291,6 +294,8 @@ export class WizardHotelStepComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly priceAlertApi = inject(PriceAlertApiService);
+  private readonly planService = inject(PlanService);
 
   readonly selectedHotels = this.tripState.stays;
   readonly results = signal<Stay[]>([]);
@@ -397,6 +402,32 @@ export class WizardHotelStepComponent {
     });
   }
 
+  onIconAction(event: { itemId: string; actionId: string }): void {
+    if (event.actionId !== 'price-alert') return;
+
+    if (!this.planService.hasFeature('priceAlerts')) {
+      this.planService.showPaywall('priceAlerts');
+      return;
+    }
+
+    const hotel = this.results().find(h => h.id === event.itemId);
+    if (!hotel) return;
+
+    const dto: CreatePriceAlertDto = {
+      type: 'hotel',
+      label: hotel.name,
+      searchParams: { itemId: hotel.id, name: hotel.name, address: hotel.address },
+      currentPrice: hotel.pricePerNight.total,
+      targetPrice: Math.round(hotel.pricePerNight.total * 0.9),
+      currency: hotel.pricePerNight.currency,
+    };
+
+    this.priceAlertApi.createAlert(dto).subscribe({
+      next: () => this.notify.success('Alerta de preco criado!'),
+      error: () => this.notify.error('Erro ao criar alerta'),
+    });
+  }
+
   selectById(id: string): void {
     const hotel = this.results().find(h => h.id === id);
     if (hotel) this.select(hotel);
@@ -457,7 +488,7 @@ export class WizardHotelStepComponent {
 
   openDetail(hotel: Stay): void {
     const ref = this.dialog.open(ItemDetailDialogComponent, {
-      width: '680px',
+      width: '780px',
       maxWidth: '95vw',
       maxHeight: '90vh',
       data: { type: 'stay', item: hotel, isAdded: this.isAdded(hotel.id) } as ItemDetailData,

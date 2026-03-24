@@ -28,6 +28,8 @@ import {
   AirportOption,
 } from '../../../core/api/flight-api.service';
 import { TripStateService } from '../../../core/services/trip-state.service';
+import { PriceAlertApiService, CreatePriceAlertDto } from '../../../core/api/price-alert-api.service';
+import { PlanService } from '../../../core/services/plan.service';
 import { Flight } from '../../../core/models/trip.models';
 import {
   categorizeFlights,
@@ -355,6 +357,7 @@ interface MonthOption {
               (primaryClick)="selectById($event)"
               (secondaryClick)="openDetailById($event)"
               (cardClick)="openDetailById($event)"
+              (iconActionClick)="onIconAction($event)"
             />
           }
         </div>
@@ -374,6 +377,7 @@ interface MonthOption {
                 (primaryClick)="selectSegmentById($event, si)"
                 (secondaryClick)="openDetailById($event)"
                 (cardClick)="openDetailById($event)"
+                (iconActionClick)="onIconAction($event)"
               />
             }
           </div>
@@ -530,6 +534,8 @@ export class WizardFlightStepComponent {
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly priceAlertApi = inject(PriceAlertApiService);
+  private readonly planService = inject(PlanService);
 
   readonly selectedFlights = this.tripState.flights;
   readonly results = signal<Flight[]>([]);
@@ -892,6 +898,32 @@ export class WizardFlightStepComponent {
   openDetailById(id: string): void {
     const flight = this.results().find(f => f.id === id) ?? this.selectedFlights().find(f => f.id === id);
     if (flight) this.openDetail(flight);
+  }
+
+  onIconAction(event: { itemId: string; actionId: string }): void {
+    if (event.actionId !== 'price-alert') return;
+
+    if (!this.planService.hasFeature('priceAlerts')) {
+      this.planService.showPaywall('priceAlerts');
+      return;
+    }
+
+    const flight = this.results().find(f => f.id === event.itemId);
+    if (!flight) return;
+
+    const dto: CreatePriceAlertDto = {
+      type: 'flight',
+      label: `${flight.origin} → ${flight.destination} (${flight.airline})`,
+      searchParams: { itemId: flight.id, origin: flight.origin, destination: flight.destination },
+      currentPrice: flight.price.total,
+      targetPrice: Math.round(flight.price.total * 0.9),
+      currency: flight.price.currency,
+    };
+
+    this.priceAlertApi.createAlert(dto).subscribe({
+      next: () => this.notify.success('Alerta de preco criado!'),
+      error: () => this.notify.error('Erro ao criar alerta'),
+    });
   }
 
   isMonthSelected(value: string): boolean {

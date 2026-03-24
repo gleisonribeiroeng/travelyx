@@ -37,6 +37,11 @@ export interface ListItemIconAction {
   tooltip?: string;
 }
 
+export interface ListItemSourceBadge {
+  label: string;
+  color: string;
+}
+
 export interface ListItemConfig {
   id: string;
   images?: string[];
@@ -56,4 +61,6 @@ export interface ListItemConfig {
   tags?: ListItemTag[];
   isAdded?: boolean;
   isRecommended?: boolean;
+  /** Provider badge shown next to the price (e.g. "Booking.com", "Kiwi.com") */
+  sourceBadge?: ListItemSourceBadge;
 }

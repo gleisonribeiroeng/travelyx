@@ -29,9 +29,11 @@ export class FlightsService {
     };
   }
 
+  private readonly travelpayoutsBaseUrl = 'https://api.travelpayouts.com';
+
   /**
-   * Search flights via Booking.com API (RapidAPI).
-   * Maps response to the canonical Flight model so the frontend can consume it directly.
+   * Search flights via Booking.com + Travelpayouts (Aviasales/Kiwi) in parallel.
+   * Merges results from both sources, deduplicates, and sorts.
    */
   async searchFlights(query: Record<string, string>): Promise<any> {
     const fromId = query['fromId'] || '';
@@ -39,12 +41,49 @@ export class FlightsService {
     const departDate = query['departureDate'] || query['departDate'] || '';
     const returnDate = query['returnDate'] || '';
     const adults = query['adults'] || '1';
+    const currency = query['currency_code'] || 'BRL';
 
     if (!fromId || !toId || !departDate) {
       return { data: [] };
     }
 
-    // Booking.com requires .AIRPORT suffix
+    // Extract IATA codes from IDs like "GRU.AIRPORT"
+    const fromIata = fromId.split('.')[0];
+    const toIata = toId.split('.')[0];
+
+    // Run both searches in parallel
+    const [bookingResults, tpResults] = await Promise.all([
+      this.searchBookingFlights(query, fromId, toId, departDate, returnDate, adults, currency),
+      this.searchTravelpayoutsFlights(fromIata, toIata, departDate, returnDate, currency),
+    ]);
+
+    const allFlights = [...bookingResults, ...tpResults];
+
+    // Deduplicate by similar route+time+price (within 5 min departure and same price range)
+    const deduplicated = this.deduplicateFlights(allFlights);
+
+    // Server-side sorting
+    const sortBy = query['sort'] || 'price_asc';
+    this.sortFlights(deduplicated, sortBy);
+
+    this.logger.log(
+      `Combined flights: ${deduplicated.length} results (Booking: ${bookingResults.length}, Travelpayouts: ${tpResults.length}, sorted: ${sortBy})`,
+    );
+    return { data: deduplicated };
+  }
+
+  /**
+   * Search flights via Booking.com API (RapidAPI).
+   */
+  private async searchBookingFlights(
+    query: Record<string, string>,
+    fromId: string,
+    toId: string,
+    departDate: string,
+    returnDate: string,
+    adults: string,
+    currency: string,
+  ): Promise<any[]> {
     const normalizedFrom = fromId.includes('.') ? fromId : `${fromId}.AIRPORT`;
     const normalizedTo = toId.includes('.') ? toId : `${toId}.AIRPORT`;
 
@@ -54,7 +93,7 @@ export class FlightsService {
       departDate,
       adults,
       cabinClass: query['cabinClass'] || 'ECONOMY',
-      currency_code: query['currency_code'] || 'BRL',
+      currency_code: currency,
       locale: query['locale'] || 'pt-br',
     };
 
@@ -78,26 +117,188 @@ export class FlightsService {
         this.logger.warn(
           `Booking.com flights: no results — status=${data?.status}, message=${data?.message || 'N/A'}, keys=${Object.keys(data?.data || {}).join(',')}`,
         );
-        return { data: [] };
+        return [];
       }
 
       const flights = data.data.flightOffers
         .map((offer: any, index: number) => this.mapFlightOffer(offer, index))
         .filter(Boolean);
 
-      // Server-side sorting
-      const sortBy = query['sort'] || 'price_asc';
-      this.sortFlights(flights, sortBy);
-
-      this.logger.log(`Booking.com flights: ${flights.length} results (sorted: ${sortBy})`);
-      return { data: flights };
+      this.logger.log(`Booking.com flights: ${flights.length} results`);
+      return flights;
     } catch (error: any) {
       const status = error?.response?.status;
       this.logger.error(
         `Booking.com flights error: ${error?.message} | HTTP ${status ?? 'N/A'}`,
       );
-      throw error;
+      return [];
     }
+  }
+
+  /**
+   * Search flights via Travelpayouts (Aviasales) API.
+   * Uses prices_for_dates endpoint which returns cached best prices from multiple sources (including Kiwi).
+   */
+  private async searchTravelpayoutsFlights(
+    fromIata: string,
+    toIata: string,
+    departDate: string,
+    returnDate: string,
+    currency: string,
+  ): Promise<any[]> {
+    const token = this.configService.get<string>('TRAVELPAYOUTS_TOKEN');
+    const marker = this.configService.get<string>('TRAVELPAYOUTS_MARKER');
+    if (!token) {
+      this.logger.debug('Travelpayouts token not configured — skipping');
+      return [];
+    }
+
+    const params: Record<string, string> = {
+      origin: fromIata,
+      destination: toIata,
+      departure_at: departDate,
+      currency: currency.toLowerCase(),
+      token,
+      sorting: 'price',
+      limit: '30',
+      unique: 'false',
+    };
+
+    if (returnDate) {
+      params['return_at'] = returnDate;
+    }
+
+    this.logger.log(
+      `Travelpayouts flight search: ${fromIata} → ${toIata} (${departDate}${returnDate ? ' / ' + returnDate : ''})`,
+    );
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(
+          `${this.travelpayoutsBaseUrl}/aviasales/v3/prices_for_dates`,
+          { params },
+        ),
+      );
+
+      if (!data?.success || !data?.data?.length) {
+        this.logger.warn(
+          `Travelpayouts flights: no results — success=${data?.success}`,
+        );
+        return [];
+      }
+
+      const flights = data.data
+        .map((offer: any, index: number) =>
+          this.mapTravelpayoutsOffer(offer, index, fromIata, toIata, currency, marker || ''),
+        )
+        .filter(Boolean);
+
+      this.logger.log(`Travelpayouts flights: ${flights.length} results`);
+      return flights;
+    } catch (error: any) {
+      const status = error?.response?.status;
+      this.logger.error(
+        `Travelpayouts flights error: ${error?.message} | HTTP ${status ?? 'N/A'}`,
+      );
+      return [];
+    }
+  }
+
+  /**
+   * Map a single Travelpayouts flight offer to the canonical Flight model.
+   */
+  private mapTravelpayoutsOffer(
+    offer: any,
+    index: number,
+    fromIata: string,
+    toIata: string,
+    currency: string,
+    marker: string,
+  ): any {
+    if (!offer) return null;
+
+    const airlineCode = offer.airline || '';
+    const flightNumber = offer.flight_number
+      ? `${airlineCode}${offer.flight_number}`
+      : '';
+    const stops = offer.transfers ?? 0;
+    const durationMinutes = offer.duration_to
+      ? Math.round(offer.duration_to / 60)
+      : 0;
+
+    // Build departure/arrival datetimes from the date + departure_at time
+    const departureAt = offer.departure_at || `${offer.depart_date || ''}T00:00:00`;
+    const arrivalAt = offer.arrival_at || '';
+
+    // Build Aviasales affiliate deep link
+    const deepLink = `https://www.aviasales.com/search/${fromIata}${offer.depart_date?.replace(/-/g, '').slice(2) || ''}${toIata}${offer.return_date?.replace(/-/g, '').slice(2) || ''}1?marker=${marker}`;
+
+    return {
+      id: `tp-${Date.now()}-${index}`,
+      source: 'kiwi',
+      addedToItinerary: false,
+      origin: offer.origin || fromIata,
+      destination: offer.destination || toIata,
+      departureAt,
+      arrivalAt,
+      airline: airlineCode,
+      airlineCode,
+      airlineLogo: airlineCode
+        ? `https://pics.avs.io/120/120/${airlineCode}.png`
+        : null,
+      flightNumber,
+      durationMinutes,
+      stops,
+      price: {
+        total: Math.round((offer.price || 0) * 100) / 100,
+        currency: currency.toUpperCase(),
+      },
+      link: {
+        url: deepLink,
+        provider: 'Kiwi.com',
+      },
+    };
+  }
+
+  /**
+   * Remove near-duplicate flights across providers.
+   * Two flights are considered duplicates if they have the same route,
+   * similar departure time (within 5 minutes), and similar price (within 5%).
+   * Keeps the cheapest version.
+   */
+  private deduplicateFlights(flights: any[]): any[] {
+    const kept: any[] = [];
+
+    for (const flight of flights) {
+      const depTime = new Date(flight.departureAt).getTime();
+      const isDupe = kept.some((k) => {
+        if (k.origin !== flight.origin || k.destination !== flight.destination) return false;
+        const kDepTime = new Date(k.departureAt).getTime();
+        const timeDiff = Math.abs(depTime - kDepTime);
+        if (timeDiff > 5 * 60 * 1000) return false; // > 5 min apart
+        const priceDiff = Math.abs(k.price.total - flight.price.total) / Math.max(k.price.total, 1);
+        return priceDiff < 0.05; // within 5% price
+      });
+
+      if (!isDupe) {
+        kept.push(flight);
+      } else {
+        // Replace if this one is cheaper
+        const dupeIndex = kept.findIndex((k) => {
+          if (k.origin !== flight.origin || k.destination !== flight.destination) return false;
+          const kDepTime = new Date(k.departureAt).getTime();
+          const timeDiff = Math.abs(depTime - kDepTime);
+          if (timeDiff > 5 * 60 * 1000) return false;
+          const priceDiff = Math.abs(k.price.total - flight.price.total) / Math.max(k.price.total, 1);
+          return priceDiff < 0.05 && flight.price.total < k.price.total;
+        });
+        if (dupeIndex >= 0) {
+          kept[dupeIndex] = flight;
+        }
+      }
+    }
+
+    return kept;
   }
 
   /**

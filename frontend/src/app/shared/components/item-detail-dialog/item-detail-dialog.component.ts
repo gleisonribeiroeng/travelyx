@@ -7,6 +7,7 @@ import {
 } from '../../../core/models/trip.models';
 import { ExternalLink } from '../../../core/models/base.model';
 import { HotelApiService, HotelDetails, HotelRoom } from '../../../core/api/hotel-api.service';
+import { PriceAlertApiService, PriceAlert, PriceHistoryPoint } from '../../../core/api/price-alert-api.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
 
@@ -327,37 +328,41 @@ function formatDate(iso: string): string {
                       } @else {
                         <div class="room-photo-placeholder"><mat-icon>bed</mat-icon></div>
                       }
-                      <div class="room-info">
-                        <span class="room-name">{{ room.name }}</span>
-                        @if (room.bedConfig) {
-                          <span class="room-bed"><mat-icon>king_bed</mat-icon> {{ room.bedConfig }}</span>
-                        }
-                        <div class="room-tags">
-                          @if (room.roomSize) {
-                            <span class="room-tag"><mat-icon>straighten</mat-icon> {{ room.roomSize }}</span>
+                      <div class="room-body">
+                        <div class="room-info">
+                          <span class="room-name">{{ room.name }}</span>
+                          @if (room.bedConfig) {
+                            <span class="room-bed"><mat-icon>king_bed</mat-icon> {{ room.bedConfig }}</span>
                           }
-                          @if (room.freeCancellation) {
-                            <span class="room-tag room-tag-green"><mat-icon>check_circle</mat-icon> Cancelamento grátis</span>
-                          }
-                          @if (room.mealPlan) {
-                            <span class="room-tag room-tag-blue"><mat-icon>restaurant</mat-icon> {{ room.mealPlan }}</span>
-                          }
-                          @if (room.maxOccupancy) {
-                            <span class="room-tag"><mat-icon>person</mat-icon> Até {{ room.maxOccupancy }}</span>
-                          }
+                          <div class="room-tags">
+                            @if (room.roomSize) {
+                              <span class="room-tag"><mat-icon>straighten</mat-icon> {{ room.roomSize }}</span>
+                            }
+                            @if (room.freeCancellation) {
+                              <span class="room-tag room-tag-green"><mat-icon>check_circle</mat-icon> Cancelamento grátis</span>
+                            }
+                            @if (room.mealPlan) {
+                              <span class="room-tag room-tag-blue"><mat-icon>restaurant</mat-icon> {{ room.mealPlan }}</span>
+                            }
+                            @if (room.maxOccupancy) {
+                              <span class="room-tag"><mat-icon>person</mat-icon> Até {{ room.maxOccupancy }}</span>
+                            }
+                          </div>
                         </div>
-                      </div>
-                      <div class="room-price">
-                        @if (room.price) {
-                          <span class="room-price-value">{{ room.currency }} {{ room.price | number:'1.0-0' }}</span>
-                          <span class="room-price-label">/noite</span>
-                        }
-                        @if (room.totalPrice && room.totalPrice !== room.price) {
-                          <span class="room-total">Total {{ room.currency }} {{ room.totalPrice | number:'1.0-0' }}</span>
-                        }
-                      </div>
-                      <div class="room-select-indicator">
-                        <mat-icon>{{ selectedRoom()?.id === room.id ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+                        <div class="room-footer">
+                          <div class="room-price">
+                            @if (room.price) {
+                              <span class="room-price-value">{{ room.currency }} {{ room.price | number:'1.0-0' }}</span>
+                              <span class="room-price-label">/noite</span>
+                            }
+                            @if (room.totalPrice && room.totalPrice !== room.price) {
+                              <span class="room-total">· Total {{ room.currency }} {{ room.totalPrice | number:'1.0-0' }}</span>
+                            }
+                          </div>
+                          <div class="room-select-indicator">
+                            <mat-icon>{{ selectedRoom()?.id === room.id ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   }
@@ -560,6 +565,38 @@ function formatDate(iso: string): string {
               </div>
             </div>
           }
+        }
+
+        <!-- Price history (for flights & hotels with active alert) -->
+        @if (priceAlert(); as alert) {
+          <div class="price-history-section">
+            <div class="price-history-header">
+              <mat-icon>show_chart</mat-icon>
+              <span>Historico de Preco</span>
+            </div>
+            <div class="price-history-summary">
+              <div class="ph-item">
+                <span class="ph-label">Menor preco</span>
+                <span class="ph-value lowest">{{ alert.currency }} {{ (alert.lowestPrice ?? alert.currentPrice) | number:'1.2-2' }}</span>
+              </div>
+              <div class="ph-item">
+                <span class="ph-label">Meta</span>
+                <span class="ph-value target">{{ alert.currency }} {{ alert.targetPrice | number:'1.2-2' }}</span>
+              </div>
+              <div class="ph-item">
+                <span class="ph-label">Status</span>
+                <span class="ph-value" [class.active]="alert.active">{{ alert.active ? 'Monitorando' : 'Pausado' }}</span>
+              </div>
+            </div>
+            @if (priceHistory().length > 1) {
+              <div class="mini-chart-container">
+                <svg viewBox="0 0 300 60" class="mini-chart" preserveAspectRatio="none">
+                  <polyline [attr.points]="miniChartPoints()" class="mini-line" fill="none" />
+                  <polygon [attr.points]="miniChartArea()" class="mini-area" />
+                </svg>
+              </div>
+            }
+          </div>
         }
 
         <!-- External link -->
@@ -1215,11 +1252,10 @@ function formatDate(iso: string): string {
 
     .room-card {
       display: flex;
-      align-items: center;
       gap: 12px;
-      padding: 10px 12px;
+      padding: 12px;
       border: 1px solid var(--triply-border-subtle, #e8e8ec);
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
       background: var(--triply-surface-1, #fff);
@@ -1237,17 +1273,17 @@ function formatDate(iso: string): string {
     }
 
     .room-photo {
-      width: 80px;
-      height: 60px;
-      border-radius: 6px;
+      width: 150px;
+      height: 110px;
+      border-radius: 8px;
       object-fit: cover;
       flex-shrink: 0;
     }
 
     .room-photo-placeholder {
-      width: 80px;
-      height: 60px;
-      border-radius: 6px;
+      width: 150px;
+      height: 110px;
+      border-radius: 8px;
       background: var(--triply-surface-2, #f0f0f4);
       display: flex;
       align-items: center;
@@ -1256,15 +1292,22 @@ function formatDate(iso: string): string {
     }
 
     .room-photo-placeholder mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
       color: var(--triply-text-tertiary, #999);
     }
 
-    .room-info {
+    .room-body {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .room-info {
       display: flex;
       flex-direction: column;
       gap: 3px;
@@ -1327,29 +1370,35 @@ function formatDate(iso: string): string {
       color: #2563eb;
     }
 
+    .room-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
     .room-price {
-      text-align: right;
-      flex-shrink: 0;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
     }
 
     .room-price-value {
-      display: block;
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       font-weight: 700;
       color: var(--triply-primary);
       white-space: nowrap;
     }
 
     .room-price-label {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       color: var(--triply-text-secondary);
     }
 
     .room-total {
-      display: block;
-      font-size: 0.62rem;
+      font-size: 0.68rem;
       color: var(--triply-text-tertiary, #999);
       white-space: nowrap;
+      margin-left: 6px;
     }
 
     .room-select-indicator {
@@ -1357,9 +1406,9 @@ function formatDate(iso: string): string {
     }
 
     .room-select-indicator mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
       color: var(--triply-border-subtle, #ccc);
       transition: color 0.2s ease;
     }
@@ -1532,6 +1581,75 @@ function formatDate(iso: string): string {
       }
     }
 
+    /* ─── Price history section ───────────────────────────────────── */
+    .price-history-section {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--triply-surface-1, #f9fafb);
+      border-radius: 8px;
+      border: 1px solid var(--triply-border-subtle, #e8e8e8);
+    }
+
+    .price-history-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--triply-text-primary, #1a1a2e);
+      margin-bottom: 10px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: var(--triply-primary);
+      }
+    }
+
+    .price-history-summary {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+
+      .ph-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+
+      .ph-label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: var(--triply-text-secondary, #9ca3af);
+      }
+
+      .ph-value {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--triply-text-primary);
+
+        &.lowest { color: var(--triply-success, #22c55e); }
+        &.target { color: var(--triply-primary, #6c5ce7); }
+        &.active { color: var(--triply-success, #22c55e); }
+      }
+    }
+
+    .mini-chart-container {
+      margin-top: 4px;
+    }
+
+    .mini-chart {
+      width: 100%;
+      height: 60px;
+
+      .mini-line { stroke: var(--triply-success, #22c55e); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+      .mini-area { fill: rgba(34,197,94,0.08); }
+    }
+
     /* ─── Actions ────────────────────────────────────────────────── */
     .detail-actions {
       display: flex;
@@ -1616,6 +1734,7 @@ export class ItemDetailDialogComponent implements OnInit {
   readonly data = inject<ItemDetailData>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<ItemDetailDialogComponent>);
   private readonly hotelApi = inject(HotelApiService);
+  private readonly priceAlertApi = inject(PriceAlertApiService);
   readonly i18n = inject(TranslationService);
 
   readonly selectedImage = signal(0);
@@ -1630,6 +1749,10 @@ export class ItemDetailDialogComponent implements OnInit {
   readonly selectedRoom = signal<HotelRoom | null>(null);
   readonly showAllFacilities = signal(false);
   readonly showFullDescription = signal(false);
+
+  // Price alert state
+  readonly priceAlert = signal<PriceAlert | null>(null);
+  readonly priceHistory = signal<PriceHistoryPoint[]>([]);
 
   // Lightbox state
   readonly lightboxOpen = signal(false);
@@ -1669,6 +1792,56 @@ export class ItemDetailDialogComponent implements OnInit {
         error: () => this.loadingRooms.set(false),
       });
     }
+
+    // Load price alert for flights and hotels
+    if (this.data.type === 'flight' || this.data.type === 'stay') {
+      this.priceAlertApi.getAlerts().subscribe({
+        next: alerts => {
+          const itemId = this.data.item.id;
+          const match = alerts.find(a => {
+            try {
+              const params = typeof a.searchParams === 'string' ? JSON.parse(a.searchParams) : a.searchParams;
+              return params?.itemId === itemId;
+            } catch { return false; }
+          });
+          if (match) {
+            this.priceAlert.set(match);
+            this.priceAlertApi.getHistory(match.id).subscribe({
+              next: data => {
+                if (data?.history) this.priceHistory.set(data.history);
+              },
+            });
+          }
+        },
+      });
+    }
+  }
+
+  // ── Mini chart helpers for price history in detail dialog ──
+
+  miniChartPoints(): string {
+    return this.miniChartDots().map(d => `${d.x},${d.y}`).join(' ');
+  }
+
+  miniChartArea(): string {
+    const dots = this.miniChartDots();
+    if (dots.length === 0) return '';
+    const line = dots.map(d => `${d.x},${d.y}`).join(' ');
+    return `0,58 ${line} ${dots[dots.length - 1].x},58`;
+  }
+
+  private miniChartDots(): { x: number; y: number }[] {
+    const points = this.priceHistory();
+    if (points.length < 2) return [];
+    const prices = points.map(p => p.price);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    const range = max - min || 1;
+    const pad = range * 0.1;
+    return points.map((p, i) => ({
+      x: (i / (points.length - 1)) * 300,
+      y: 56 - ((p.price - (min - pad)) / (range + pad * 2)) * 50,
+    }));
   }
 
   selectRoom(room: HotelRoom): void {
