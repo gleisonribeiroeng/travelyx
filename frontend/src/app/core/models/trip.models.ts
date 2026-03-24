@@ -118,6 +118,19 @@ export interface CarRental extends SearchResultBase {
   link: ExternalLink;
   /** Booking/reservation confirmation number (manual entry only) */
   reservationNumber?: string;
+  /** Rental company info */
+  partner?: { name: string; logo: string | null };
+  /** Vehicle details from Priceline */
+  details?: {
+    passengers?: number | null;
+    doors?: number | null;
+    bags?: number | null;
+    transmission?: string | null;
+    airConditioning?: boolean;
+    freeCancellation?: boolean;
+    mileage?: string | null;
+    rentalDays?: number | null;
+  };
 }
 
 /**

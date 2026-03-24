@@ -466,23 +466,131 @@ function formatDate(iso: string): string {
           }
 
           @case ('car-rental') {
-            <div class="info-grid">
-              <div class="info-item">
-                <mat-icon>directions_car</mat-icon>
-                <div><span class="label">Veículo</span><span class="value">{{ asCar().vehicleType }}</span></div>
+            <!-- Car hero: pickup → dropoff -->
+            <div class="car-hero">
+              <div class="car-hero-bg"></div>
+              <div class="car-hero-content">
+                <div class="ch-point">
+                  <span class="ch-label">Retirada</span>
+                  <span class="ch-time">{{ fmtTime(asCar().pickUpAt) }}</span>
+                  <span class="ch-date">{{ fmtDate(asCar().pickUpAt) }}</span>
+                </div>
+                <div class="ch-route">
+                  <div class="ch-line"></div>
+                  <div class="ch-icon">
+                    <mat-icon>directions_car</mat-icon>
+                  </div>
+                  <div class="ch-line"></div>
+                </div>
+                <div class="ch-point">
+                  <span class="ch-label">Devolução</span>
+                  <span class="ch-time">{{ fmtTime(asCar().dropOffAt) }}</span>
+                  <span class="ch-date">{{ fmtDate(asCar().dropOffAt) }}</span>
+                </div>
               </div>
-              <div class="info-item">
-                <mat-icon>pin_drop</mat-icon>
-                <div><span class="label">Retirada</span><span class="value">{{ asCar().pickUpLocation }}<br>{{ fmtDate(asCar().pickUpAt) }} {{ fmtTime(asCar().pickUpAt) }}</span></div>
-              </div>
-              <div class="info-item">
-                <mat-icon>flag</mat-icon>
-                <div><span class="label">Devolução</span><span class="value">{{ asCar().dropOffLocation }}<br>{{ fmtDate(asCar().dropOffAt) }} {{ fmtTime(asCar().dropOffAt) }}</span></div>
-              </div>
+              @if (asCar().details?.rentalDays) {
+                <div class="ch-meta">
+                  <span class="ch-chip">
+                    <mat-icon>calendar_today</mat-icon>
+                    {{ asCar().details!.rentalDays }} {{ asCar().details!.rentalDays === 1 ? 'dia' : 'dias' }}
+                  </span>
+                </div>
+              }
             </div>
-            <div class="price-section">
-              <span class="price-value">{{ asCar().price.currency }} {{ asCar().price.total | number:'1.2-2' }}</span>
-              <span class="price-label">total</span>
+
+            <!-- Locations -->
+            <div class="car-locations">
+              <div class="car-loc-item">
+                <mat-icon>pin_drop</mat-icon>
+                <span>{{ asCar().pickUpLocation }}</span>
+              </div>
+              @if (asCar().dropOffLocation && asCar().dropOffLocation !== asCar().pickUpLocation) {
+                <div class="car-loc-item">
+                  <mat-icon>flag</mat-icon>
+                  <span>{{ asCar().dropOffLocation }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Partner strip -->
+            @if (asCar().partner?.name) {
+              <div class="car-partner-strip">
+                @if (asCar().partner!.logo) {
+                  <img [src]="asCar().partner!.logo" class="partner-logo" alt="" (error)="onImageError($event)">
+                } @else {
+                  <div class="partner-logo-placeholder">
+                    <mat-icon>store</mat-icon>
+                  </div>
+                }
+                <div class="partner-details">
+                  <span class="partner-label">Locadora</span>
+                  <span class="partner-name">{{ asCar().partner!.name }}</span>
+                </div>
+              </div>
+            }
+
+            <!-- Vehicle detail chips -->
+            @if (asCar().details) {
+              <div class="car-chips">
+                @if (asCar().details!.passengers) {
+                  <div class="car-chip">
+                    <mat-icon>person</mat-icon>
+                    <span>{{ asCar().details!.passengers }} passageiros</span>
+                  </div>
+                }
+                @if (asCar().details!.doors) {
+                  <div class="car-chip">
+                    <mat-icon>sensor_door</mat-icon>
+                    <span>{{ asCar().details!.doors }} portas</span>
+                  </div>
+                }
+                @if (asCar().details!.bags) {
+                  <div class="car-chip">
+                    <mat-icon>luggage</mat-icon>
+                    <span>{{ asCar().details!.bags }} malas</span>
+                  </div>
+                }
+                @if (asCar().details!.transmission) {
+                  <div class="car-chip">
+                    <mat-icon>settings</mat-icon>
+                    <span>{{ asCar().details!.transmission }}</span>
+                  </div>
+                }
+                @if (asCar().details!.airConditioning) {
+                  <div class="car-chip">
+                    <mat-icon>ac_unit</mat-icon>
+                    <span>Ar condicionado</span>
+                  </div>
+                }
+                @if (asCar().details!.mileage) {
+                  <div class="car-chip">
+                    <mat-icon>speed</mat-icon>
+                    <span>{{ asCar().details!.mileage === 'Unlimited' ? 'Km ilimitado' : asCar().details!.mileage }}</span>
+                  </div>
+                }
+              </div>
+
+              @if (asCar().details!.freeCancellation) {
+                <div class="car-free-cancel">
+                  <mat-icon>verified</mat-icon>
+                  <span>Cancelamento grátis</span>
+                </div>
+              }
+            }
+
+            <!-- Enriched price -->
+            <div class="car-price-card">
+              <div class="car-price-main">
+                <span class="car-price-currency">{{ asCar().price.currency }}</span>
+                <span class="car-price-value">{{ asCar().price.total | number:'1.2-2' }}</span>
+                <span class="car-price-label">total</span>
+              </div>
+              @if (asCar().details?.rentalDays && asCar().details!.rentalDays! > 0) {
+                <div class="car-price-daily">
+                  <span>{{ asCar().price.currency }} {{ asCar().price.total / asCar().details!.rentalDays! | number:'1.2-2' }}</span>
+                  <span class="car-price-label">/dia</span>
+                </div>
+              }
             </div>
           }
 
@@ -1290,6 +1398,290 @@ function formatDate(iso: string): string {
       span {
         font-size: 0.75rem;
         font-weight: 600;
+      }
+    }
+
+    /* ─── Car hero banner ──────────────────────────────────────── */
+    .car-hero {
+      position: relative;
+      border-radius: var(--triply-radius-lg, 16px);
+      overflow: hidden;
+      padding: 24px 20px 14px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+    }
+
+    .car-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 120%, rgba(59, 130, 246, 0.2) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .car-hero-content {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .ch-point {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-align: center;
+      min-width: 70px;
+    }
+
+    .ch-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .ch-time {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .ch-date {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .ch-route {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .ch-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(59, 130, 246, 0.35), rgba(255,255,255,0.08));
+      border-radius: 1px;
+    }
+
+    .ch-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #3b82f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.45);
+
+      mat-icon {
+        color: #fff;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .ch-meta {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .ch-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 12px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    /* ─── Car locations ────────────────────────────────────────── */
+    .car-locations {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .car-loc-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--triply-text-secondary);
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: var(--triply-text-tertiary, #9ca3af);
+        flex-shrink: 0;
+      }
+    }
+
+    /* ─── Car partner strip ────────────────────────────────────── */
+    .car-partner-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .partner-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: var(--triply-surface-2, #f0f0f4);
+      padding: 4px;
+    }
+
+    .partner-logo-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--triply-surface-2, #f0f0f4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        color: var(--triply-primary);
+      }
+    }
+
+    .partner-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .partner-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: var(--triply-text-secondary);
+    }
+
+    .partner-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--triply-text-primary);
+    }
+
+    /* ─── Car detail chips ─────────────────────────────────────── */
+    .car-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .car-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: var(--triply-surface-2, #f0f0f4);
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--triply-text-primary);
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: var(--triply-text-secondary);
+      }
+    }
+
+    /* ─── Free cancellation badge ──────────────────────────────── */
+    .car-free-cancel {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.18);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #059669;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #10b981;
+      }
+    }
+
+    /* ─── Car price card ───────────────────────────────────────── */
+    .car-price-card {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.06));
+      border-radius: var(--triply-radius-md);
+    }
+
+    .car-price-main {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .car-price-currency {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--triply-primary);
+      opacity: 0.7;
+    }
+
+    .car-price-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--triply-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .car-price-label {
+      font-size: 0.78rem;
+      color: var(--triply-text-secondary);
+      margin-left: 2px;
+    }
+
+    .car-price-daily {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--triply-text-secondary);
+
+      .car-price-label {
+        font-size: 0.72rem;
       }
     }
 

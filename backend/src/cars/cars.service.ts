@@ -46,21 +46,56 @@ export class CarsService {
     return `https://tp.media/r?marker=${marker}&p=5765&u=${encodeURIComponent(qeeqUrl)}`;
   }
 
+  // City-to-nearest-big-city mapping for car rentals
+  private readonly nearestCityMap: Record<string, string> = {
+    gramado: 'Porto Alegre', canela: 'Porto Alegre', 'bento gonçalves': 'Porto Alegre',
+    garibaldi: 'Porto Alegre', 'campos do jordão': 'São Paulo', ilhabela: 'São Paulo',
+    ubatuba: 'São Paulo', guarujá: 'São Paulo', santos: 'São Paulo',
+    paraty: 'Rio de Janeiro', búzios: 'Rio de Janeiro', 'cabo frio': 'Rio de Janeiro',
+    petrópolis: 'Rio de Janeiro', angra: 'Rio de Janeiro', arraial: 'Rio de Janeiro',
+    tiradentes: 'Belo Horizonte', 'ouro preto': 'Belo Horizonte', capitólio: 'Belo Horizonte',
+    'fernando de noronha': 'Recife', pipa: 'Natal', 'porto de galinhas': 'Recife',
+    carneiros: 'Recife', 'são miguel dos milagres': 'Maceió', jericoacoara: 'Fortaleza',
+    'monte verde': 'São Paulo', 'serra gaúcha': 'Porto Alegre',
+    balneário: 'Florianópolis', bombinhas: 'Florianópolis', penha: 'Florianópolis',
+  };
+
+  private findNearestCity(keyword: string): string | null {
+    const lower = keyword.toLowerCase().trim();
+    if (this.nearestCityMap[lower]) return this.nearestCityMap[lower];
+    for (const [city, nearest] of Object.entries(this.nearestCityMap)) {
+      if (city.startsWith(lower) || lower.startsWith(city)) return nearest;
+    }
+    return null;
+  }
+
+  private async doAutoComplete(searchTerm: string): Promise<any[]> {
+    const { data } = await firstValueFrom(
+      this.httpService.get(`${this.baseUrl}/v2/cars/autoComplete`, {
+        params: { string: searchTerm },
+        headers: this.getHeaders(),
+      }),
+    );
+    const cityData = data?.getCarAutoComplete?.results?.city_data || {};
+    return Object.values(cityData);
+  }
+
   async autoComplete(query: Record<string, string>): Promise<any> {
     try {
-      const { data } = await firstValueFrom(
-        this.httpService.get(`${this.baseUrl}/v2/cars/autoComplete`, {
-          params: query,
-          headers: this.getHeaders(),
-        }),
-      );
+      const keyword = query['string'] || '';
+      let cities = await this.doAutoComplete(keyword);
 
-      const cityData =
-        data?.getCarAutoComplete?.results?.city_data || {};
-      const cities = Object.values(cityData);
+      // Fallback: if no results, try nearest big city
+      if (cities.length === 0) {
+        const nearest = this.findNearestCity(keyword);
+        if (nearest) {
+          this.logger.log(`Priceline autoComplete: no results for "${keyword}" — trying nearest: "${nearest}"`);
+          cities = await this.doAutoComplete(nearest);
+        }
+      }
 
       if (cities.length === 0) {
-        this.logger.warn(`Priceline autoComplete: no results for "${query['string']}"`);
+        this.logger.warn(`Priceline autoComplete: no results for "${keyword}"`);
         return { data: [] };
       }
 
@@ -75,7 +110,7 @@ export class CarsService {
         longitude: parseFloat(city.longitude) || 0,
       }));
 
-      this.logger.log(`Priceline autoComplete: ${mapped.length} results for "${query['string']}"`);
+      this.logger.log(`Priceline autoComplete: ${mapped.length} results for "${keyword}"`);
       return { data: mapped };
     } catch (error: any) {
       this.logger.error(`Car autoComplete error: ${error?.message}`);
