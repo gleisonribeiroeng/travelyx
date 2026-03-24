@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -282,7 +282,7 @@ import {
     }
   `],
 })
-export class WizardCarStepComponent {
+export class WizardCarStepComponent implements OnInit {
   private readonly api = inject(CarApiService);
   private readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
@@ -309,6 +309,19 @@ export class WizardCarStepComponent {
   readonly currentSort = signal<string>('price');
   readonly minDate = new Date();
 
+  private readonly IATA_TO_CITY: Record<string, string> = {
+    POA: 'Porto Alegre', GRU: 'São Paulo', GIG: 'Rio de Janeiro',
+    CNF: 'Belo Horizonte', BSB: 'Brasília', SSA: 'Salvador',
+    REC: 'Recife', CWB: 'Curitiba', FLN: 'Florianópolis',
+    FOR: 'Fortaleza', VCP: 'Campinas', SDU: 'Rio de Janeiro',
+    CGH: 'São Paulo', MAO: 'Manaus', BEL: 'Belém',
+    NAT: 'Natal', MCZ: 'Maceió', AJU: 'Aracaju',
+    VIX: 'Vitória', JOI: 'Joinville', IGU: 'Foz do Iguaçu',
+    LIS: 'Lisboa', CDG: 'Paris', FCO: 'Roma', MAD: 'Madrid',
+    MIA: 'Miami', JFK: 'New York', LAX: 'Los Angeles', MCO: 'Orlando',
+    EZE: 'Buenos Aires', SCL: 'Santiago', BOG: 'Bogotá', LIM: 'Lima',
+  };
+
   constructor() {
     const trip = this.tripState.trip();
     const dates = trip.dates;
@@ -320,41 +333,34 @@ export class WizardCarStepComponent {
         end: new Date(dates.end + 'T00:00:00'),
       });
     }
+  }
 
-    // Auto-fill pickup location — build a list of search terms to try
-    if (!this.hasSearched()) {
-      const iataToCity: Record<string, string> = {
-        POA: 'Porto Alegre', GRU: 'São Paulo', GIG: 'Rio de Janeiro',
-        CNF: 'Belo Horizonte', BSB: 'Brasília', SSA: 'Salvador',
-        REC: 'Recife', CWB: 'Curitiba', FLN: 'Florianópolis',
-        FOR: 'Fortaleza', VCP: 'Campinas', SDU: 'Rio de Janeiro',
-        CGH: 'São Paulo', MAO: 'Manaus', BEL: 'Belém',
-        NAT: 'Natal', MCZ: 'Maceió', AJU: 'Aracaju',
-        VIX: 'Vitória', JOI: 'Joinville', IGU: 'Foz do Iguaçu',
-        LIS: 'Lisboa', CDG: 'Paris', FCO: 'Roma', MAD: 'Madrid',
-        MIA: 'Miami', JFK: 'New York', LAX: 'Los Angeles', MCO: 'Orlando',
-        EZE: 'Buenos Aires', SCL: 'Santiago', BOG: 'Bogotá', LIM: 'Lima',
-      };
+  ngOnInit(): void {
+    if (this.hasSearched()) return;
 
-      const searchTerms: string[] = [];
+    const trip = this.tripState.trip();
+    const searchTerms: string[] = [];
 
-      // 1. Best bet: city name from flight destination IATA
-      const flights = this.tripState.flights();
-      const destFlight = flights.find(f => f.destination);
-      if (destFlight?.destination) {
-        const cityName = iataToCity[destFlight.destination];
-        if (cityName) searchTerms.push(cityName);
-      }
+    // 1. Best bet: city name from flight destination IATA
+    const flights = this.tripState.flights();
+    const destFlight = flights.find(f => f.destination);
+    if (destFlight?.destination) {
+      const cityName = this.IATA_TO_CITY[destFlight.destination];
+      if (cityName) searchTerms.push(cityName);
+    }
 
-      // 2. Trip destination itself
-      if (trip.destination) searchTerms.push(trip.destination);
+    // 2. Trip destination itself
+    if (trip.destination) searchTerms.push(trip.destination);
 
-      // 3. IATA code raw
-      if (destFlight?.destination) searchTerms.push(destFlight.destination);
+    // 3. IATA code raw
+    if (destFlight?.destination && !this.IATA_TO_CITY[destFlight.destination]) {
+      searchTerms.push(destFlight.destination);
+    }
 
-      if (searchTerms.length > 0) {
-        this.tryFallbackLocations(searchTerms, 0);
-      }
+    console.log('[CarStep] Auto-fill search terms:', searchTerms, 'flights:', flights.length);
+
+    if (searchTerms.length > 0) {
+      this.tryFallbackLocations(searchTerms, 0);
     }
   }
 
@@ -435,18 +441,27 @@ export class WizardCarStepComponent {
   }
 
   private tryFallbackLocations(terms: string[], index: number): void {
-    if (index >= terms.length) return;
-    this.api.searchLocations(terms[index]).subscribe({
+    if (index >= terms.length) {
+      console.log('[CarStep] All fallbacks exhausted, no location found');
+      return;
+    }
+    const term = terms[index];
+    console.log(`[CarStep] Trying location search: "${term}" (${index + 1}/${terms.length})`);
+    this.api.searchLocations(term).subscribe({
       next: (results) => {
+        console.log(`[CarStep] "${term}" returned ${results.length} results`);
         if (results.length > 0) {
           this.pickupControl.setValue(results[0]);
           setTimeout(() => {
             if (this.searchForm.valid) this.search();
           }, 300);
         } else {
-          // Try next fallback
           this.tryFallbackLocations(terms, index + 1);
         }
+      },
+      error: (err) => {
+        console.error(`[CarStep] "${term}" error:`, err);
+        this.tryFallbackLocations(terms, index + 1);
       },
     });
   }
