@@ -185,6 +185,136 @@ export class HotelsService {
     }
   }
 
+  async getRoomList(
+    hotelId: string,
+    arrivalDate: string,
+    departureDate: string,
+    adults: number,
+    currency: string,
+    locale?: string,
+  ): Promise<any> {
+    if (!hotelId || !arrivalDate || !departureDate) return { data: [] };
+
+    try {
+      const params: Record<string, string> = {
+        hotel_id: hotelId,
+        arrival_date: arrivalDate,
+        departure_date: departureDate,
+        adults: String(adults || 2),
+        currency_code: currency || 'BRL',
+        locale: locale || 'pt-br',
+      };
+
+      const { data } = await firstValueFrom(
+        this.httpService.get(
+          `${this.baseUrl}/api/v1/hotels/getRoomList`,
+          { params, headers: this.getHeaders() },
+        ),
+      );
+
+      this.logger.log(`Room list response status: ${data?.status}, type: ${typeof data?.data}`);
+
+      if (!data?.data) return { data: [] };
+
+      // Parse rooms from response
+      const rawRooms = Array.isArray(data.data) ? data.data : data.data.rooms || data.data.block || [];
+      if (!Array.isArray(rawRooms)) {
+        this.logger.warn(`Room list: unexpected format, keys: ${Object.keys(data.data).join(', ')}`);
+        // Try to extract from grouped structure
+        const rooms: any[] = [];
+        for (const key of Object.keys(data.data)) {
+          const val = data.data[key];
+          if (Array.isArray(val)) {
+            for (const item of val) {
+              if (item.room_name || item.name || item.room_id) {
+                rooms.push(item);
+              }
+            }
+          }
+        }
+        if (rooms.length > 0) {
+          return { data: this.mapRooms(rooms) };
+        }
+        return { data: [] };
+      }
+
+      return { data: this.mapRooms(rawRooms) };
+    } catch (error: any) {
+      this.logger.error(`Room list error for ${hotelId}: ${error?.message}`);
+      return { data: [] };
+    }
+  }
+
+  private mapRooms(rawRooms: any[]): any[] {
+    const seen = new Set<string>();
+    const rooms: any[] = [];
+
+    for (const room of rawRooms) {
+      const name = room.room_name || room.name || room.room_type || 'Quarto';
+      // Deduplicate by name
+      if (seen.has(name)) continue;
+      seen.add(name);
+
+      const photo = room.photos?.[0]?.url_original
+        || room.photos?.[0]?.url_640x200
+        || room.photo
+        || room.room_photos?.[0]?.url_original
+        || null;
+
+      const price = room.product_price_breakdown?.gross_amount?.value
+        || room.min_price?.value
+        || room.price
+        || room.composite_price_breakdown?.gross_amount?.value
+        || null;
+
+      const currency = room.product_price_breakdown?.gross_amount?.currency
+        || room.min_price?.currency
+        || room.currency
+        || 'BRL';
+
+      const highlights: string[] = [];
+      if (room.highlights) {
+        for (const h of room.highlights) {
+          if (h.translated_name || h.name) highlights.push(h.translated_name || h.name);
+        }
+      }
+
+      // Meal plan
+      const mealPlan = room.meal_plan || room.breakfast_included
+        ? 'Café da manhã incluso'
+        : null;
+
+      // Free cancellation
+      const freeCancellation = room.is_free_cancellable
+        || room.free_cancellation
+        || room.policies?.cancellation?.free_cancellation
+        || false;
+
+      const maxOccupancy = room.nr_adults || room.max_occupancy || room.occupancy || null;
+      const bedConfig = room.bed_configurations?.[0]?.bed_types?.map((b: any) => b.name_with_count || b.name).join(', ')
+        || room.bed_type
+        || null;
+
+      rooms.push({
+        id: room.room_id || room.block_id || room.id || `room-${rooms.length}`,
+        name,
+        photo,
+        price,
+        currency,
+        highlights,
+        mealPlan,
+        freeCancellation,
+        maxOccupancy,
+        bedConfig,
+        totalPrice: room.product_price_breakdown?.all_inclusive_amount?.value
+          || room.composite_price_breakdown?.all_inclusive_amount?.value
+          || price,
+      });
+    }
+
+    return rooms;
+  }
+
   getShowcase() {
     const enrich = (hotels: any[]) =>
       hotels.map((h) => ({

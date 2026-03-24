@@ -20,6 +20,18 @@ export class HotelsController {
     return this.hotelsService.getHotelPhotos(hotelId);
   }
 
+  @Get('api/v1/hotels/getRoomList')
+  getRoomList(
+    @Query('hotel_id') hotelId: string,
+    @Query('arrival_date') arrivalDate: string,
+    @Query('departure_date') departureDate: string,
+    @Query('adults') adults: string,
+    @Query('currency_code') currency: string,
+    @Query('locale') locale: string,
+  ) {
+    return this.hotelsService.getRoomList(hotelId, arrivalDate, departureDate, parseInt(adults) || 2, currency, locale);
+  }
+
   @Get('api/v1/hotels/getHotelDetails')
   getHotelDetails(
     @Query('hotel_id') hotelId: string,

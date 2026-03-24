@@ -6,7 +6,7 @@ import {
   Flight, Stay, CarRental, Transport, Activity, Attraction,
 } from '../../../core/models/trip.models';
 import { ExternalLink } from '../../../core/models/base.model';
-import { HotelApiService, HotelDetails } from '../../../core/api/hotel-api.service';
+import { HotelApiService, HotelDetails, HotelRoom } from '../../../core/api/hotel-api.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
 
@@ -308,6 +308,59 @@ function formatDate(iso: string): string {
               </div>
               <span class="price-total">{{ 'dialog.detail.totalPrice' | translate }} {{ asH().pricePerNight.currency }} {{ (asH().pricePerNight.total * calculateNights(asH().checkIn, asH().checkOut)) | number:'1.2-2' }}</span>
             </div>
+
+            <!-- Available Rooms -->
+            @if (loadingRooms()) {
+              <div class="details-skeleton">
+                <mat-spinner diameter="20"></mat-spinner>
+                <span>Buscando quartos disponíveis...</span>
+              </div>
+            }
+            @if (hotelRooms().length > 0) {
+              <div class="hotel-section">
+                <h3 class="section-title"><mat-icon>bed</mat-icon> Quartos disponíveis</h3>
+                <div class="rooms-list">
+                  @for (room of hotelRooms(); track room.id) {
+                    <div class="room-card" [class.selected]="selectedRoom()?.id === room.id" (click)="selectRoom(room)">
+                      @if (room.photo) {
+                        <img [src]="room.photo" class="room-photo" alt="" loading="lazy">
+                      } @else {
+                        <div class="room-photo-placeholder"><mat-icon>bed</mat-icon></div>
+                      }
+                      <div class="room-info">
+                        <span class="room-name">{{ room.name }}</span>
+                        @if (room.bedConfig) {
+                          <span class="room-bed"><mat-icon>king_bed</mat-icon> {{ room.bedConfig }}</span>
+                        }
+                        <div class="room-tags">
+                          @if (room.freeCancellation) {
+                            <span class="room-tag room-tag-green"><mat-icon>check_circle</mat-icon> Cancelamento grátis</span>
+                          }
+                          @if (room.mealPlan) {
+                            <span class="room-tag room-tag-blue"><mat-icon>restaurant</mat-icon> {{ room.mealPlan }}</span>
+                          }
+                          @if (room.maxOccupancy) {
+                            <span class="room-tag"><mat-icon>person</mat-icon> Até {{ room.maxOccupancy }}</span>
+                          }
+                        </div>
+                      </div>
+                      <div class="room-price">
+                        @if (room.price) {
+                          <span class="room-price-value">{{ room.currency }} {{ room.price | number:'1.0-0' }}</span>
+                          <span class="room-price-label">/noite</span>
+                        }
+                        @if (room.totalPrice && room.totalPrice !== room.price) {
+                          <span class="room-total">Total {{ room.currency }} {{ room.totalPrice | number:'1.0-0' }}</span>
+                        }
+                      </div>
+                      <div class="room-select-indicator">
+                        <mat-icon>{{ selectedRoom()?.id === room.id ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
 
             <!-- Hotel details from API -->
             @if (loadingDetails()) {
@@ -1150,6 +1203,168 @@ function formatDate(iso: string): string {
       border-radius: 8px;
     }
 
+    /* ─── Room list ──────────────────────────────────────────── */
+    .rooms-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .room-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--triply-border-subtle, #e8e8ec);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--triply-surface-1, #fff);
+    }
+
+    .room-card:hover {
+      border-color: var(--triply-primary);
+      box-shadow: 0 2px 8px rgba(108, 92, 231, 0.08);
+    }
+
+    .room-card.selected {
+      border-color: var(--triply-primary);
+      background: rgba(108, 92, 231, 0.04);
+      box-shadow: 0 0 0 1px var(--triply-primary);
+    }
+
+    .room-photo {
+      width: 80px;
+      height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .room-photo-placeholder {
+      width: 80px;
+      height: 60px;
+      border-radius: 6px;
+      background: var(--triply-surface-2, #f0f0f4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .room-photo-placeholder mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: var(--triply-text-tertiary, #999);
+    }
+
+    .room-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .room-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--triply-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .room-bed {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.72rem;
+      color: var(--triply-text-secondary);
+    }
+
+    .room-bed mat-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+    }
+
+    .room-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .room-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--triply-surface-2, #f0f0f4);
+      color: var(--triply-text-secondary);
+    }
+
+    .room-tag mat-icon {
+      font-size: 11px;
+      width: 11px;
+      height: 11px;
+    }
+
+    .room-tag-green {
+      background: rgba(34, 197, 94, 0.1);
+      color: #059669;
+    }
+
+    .room-tag-blue {
+      background: rgba(59, 130, 246, 0.1);
+      color: #2563eb;
+    }
+
+    .room-price {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .room-price-value {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--triply-primary);
+      white-space: nowrap;
+    }
+
+    .room-price-label {
+      font-size: 0.65rem;
+      color: var(--triply-text-secondary);
+    }
+
+    .room-total {
+      display: block;
+      font-size: 0.62rem;
+      color: var(--triply-text-tertiary, #999);
+      white-space: nowrap;
+    }
+
+    .room-select-indicator {
+      flex-shrink: 0;
+    }
+
+    .room-select-indicator mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--triply-border-subtle, #ccc);
+      transition: color 0.2s ease;
+    }
+
+    .room-card.selected .room-select-indicator mat-icon {
+      color: var(--triply-primary);
+    }
+
     /* ─── Key amenities grid ─────────────────────────────────── */
     .amenities-grid {
       display: grid;
@@ -1407,6 +1622,9 @@ export class ItemDetailDialogComponent implements OnInit {
   readonly loadingPhotos = signal(false);
   readonly hotelDetails = signal<HotelDetails | null>(null);
   readonly loadingDetails = signal(false);
+  readonly hotelRooms = signal<HotelRoom[]>([]);
+  readonly loadingRooms = signal(false);
+  readonly selectedRoom = signal<HotelRoom | null>(null);
   readonly showAllFacilities = signal(false);
   readonly showFullDescription = signal(false);
 
@@ -1437,7 +1655,21 @@ export class ItemDetailDialogComponent implements OnInit {
         },
         error: () => this.loadingDetails.set(false),
       });
+
+      // Load available rooms
+      this.loadingRooms.set(true);
+      this.hotelApi.getHotelRooms(hotelId, hotel.checkIn, hotel.checkOut).subscribe({
+        next: rooms => {
+          this.hotelRooms.set(rooms);
+          this.loadingRooms.set(false);
+        },
+        error: () => this.loadingRooms.set(false),
+      });
     }
+  }
+
+  selectRoom(room: HotelRoom): void {
+    this.selectedRoom.set(this.selectedRoom()?.id === room.id ? null : room);
   }
 
   openLightbox(index: number): void {

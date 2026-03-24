@@ -120,6 +120,20 @@ export class HotelApiService extends BaseApiService {
     );
   }
 
+  getHotelRooms(hotelId: string, checkIn: string, checkOut: string, adults = 2): Observable<HotelRoom[]> {
+    return this.get<any>('/api/v1/hotels/getRoomList', {
+      hotel_id: hotelId,
+      arrival_date: checkIn,
+      departure_date: checkOut,
+      adults,
+      currency_code: this.currencyService.currency(),
+      locale: this.locale,
+    }).pipe(
+      map((response) => response.data || []),
+      catchError(() => of([])),
+    );
+  }
+
   getHotelDetails(hotelId: string, checkIn?: string, checkOut?: string): Observable<HotelDetails | null> {
     const params: Record<string, string> = {
       hotel_id: hotelId,
@@ -148,4 +162,18 @@ export interface HotelDetails {
   address: string;
   city: string;
   country: string;
+}
+
+export interface HotelRoom {
+  id: string;
+  name: string;
+  photo: string | null;
+  price: number | null;
+  currency: string;
+  totalPrice: number | null;
+  highlights: string[];
+  mealPlan: string | null;
+  freeCancellation: boolean;
+  maxOccupancy: number | null;
+  bedConfig: string | null;
 }
