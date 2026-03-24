@@ -28,6 +28,7 @@ import { PollsModule } from './polls/polls.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PriceAlertsModule } from './price-alerts/price-alerts.module';
+import { UnsplashModule } from './unsplash/unsplash.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HomeShowcaseController } from './common/home-showcase.controller';
 
@@ -65,6 +66,7 @@ import { HomeShowcaseController } from './common/home-showcase.controller';
     ExpensesModule,
     NotificationsModule,
     PriceAlertsModule,
+    UnsplashModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [HomeShowcaseController],

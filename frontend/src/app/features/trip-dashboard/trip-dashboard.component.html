@@ -5,65 +5,71 @@
       <app-viewer-banner></app-viewer-banner>
     }
 
-    <!-- ═══ SECTION 1: Trip Header ═══ -->
-    <div class="trip-header-section">
-      <div class="trip-main">
-        <div class="trip-identity">
-          <div class="identity-row">
-            @if (trip().destination) {
-              <h1>{{ trip().destination }}</h1>
-            }
-            @if (hasCollaborators()) {
+    <!-- ═══ SECTION 1: Hero Banner with Destination Image ═══ -->
+    <div class="trip-hero" [class.has-image]="!!trip().coverImage">
+      @if (trip().coverImage) {
+        <div class="hero-bg" [style.background-image]="'url(' + trip().coverImage + ')'"></div>
+      }
+      <div class="hero-gradient"></div>
+      <div class="hero-content-wrapper">
+        <div class="hero-info">
+          @if (trip().destination) {
+            <h1 class="hero-destination">{{ trip().destination }}</h1>
+          }
+          @if (trip().dates.start) {
+            <p class="hero-dates">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ formatDateRange(trip().dates.start!, trip().dates.end!) }}</span>
+            </p>
+          }
+          @if (hasCollaborators()) {
+            <div class="hero-collabs">
               <app-collaborator-avatars
                 [collaborators]="collabService.collaborators()"
                 [maxVisible]="3"
                 size="sm"
                 (avatarClick)="openInviteDialog()"
               ></app-collaborator-avatars>
-            }
-          </div>
-          @if (trip().dates.start) {
-            <p class="trip-dates">
-              <mat-icon>calendar_today</mat-icon>
-              <span>{{ formatDateRange(trip().dates.start!, trip().dates.end!) }}</span>
-            </p>
+            </div>
           }
         </div>
-        <div class="trip-actions">
-          <button mat-flat-button color="primary" class="share-trip-btn" (click)="openShareDialog()">
-            <mat-icon>people</mat-icon> {{ 'collab.share' | translate }}
-          </button>
-          <button mat-stroked-button class="edit-trip-btn" (click)="editTrip()">
-            <mat-icon>edit</mat-icon> {{ 'dash.edit' | translate }}
-          </button>
-          @switch (trip().status) {
-            @case ('planejamento') {
-              <button mat-flat-button color="primary" class="status-btn" (click)="setStatus('ativa')">
-                <mat-icon>flight_takeoff</mat-icon> {{ 'dash.startTrip' | translate }}
-              </button>
-            }
-            @case ('ativa') {
-              <button mat-flat-button color="primary" class="status-btn" (click)="setStatus('concluida')">
-                <mat-icon>check_circle</mat-icon> {{ 'dash.finish' | translate }}
-              </button>
-            }
-            @case ('concluida') {
-              <span class="status-badge badge-concluida">
-                <mat-icon>check_circle</mat-icon> {{ 'dash.finished' | translate }}
-              </span>
-            }
+        <div class="hero-right">
+          @if (daysUntilTrip() !== null && daysUntilTrip()! > 0 && daysUntilTrip()! <= 30) {
+            <div class="hero-countdown" [class.imminent]="tripPhase() === 'imminent'">
+              <span class="countdown-number">{{ daysUntilTrip() }}</span>
+              <span class="countdown-label">{{ daysUntilTrip() === 1 ? ('dash.day' | translate) : ('dash.days' | translate) }}</span>
+            </div>
+          }
+          @if (tripPhase() === 'active') {
+            <div class="hero-active-badge"><mat-icon>flight_takeoff</mat-icon> {{ 'dash.traveling' | translate }}</div>
           }
         </div>
       </div>
-      @if (daysUntilTrip() !== null && daysUntilTrip()! > 0 && daysUntilTrip()! <= 30) {
-        <div class="countdown-chip" [class.imminent]="tripPhase() === 'imminent'">
-          <span class="countdown-number">{{ daysUntilTrip() }}</span>
-          <span class="countdown-label">{{ daysUntilTrip() === 1 ? ('dash.day' | translate) : ('dash.days' | translate) }}</span>
-        </div>
-      }
-      @if (tripPhase() === 'active') {
-        <div class="active-badge"><mat-icon>flight_takeoff</mat-icon> {{ 'dash.traveling' | translate }}</div>
-      }
+      <div class="hero-actions">
+        <button mat-flat-button class="hero-action-btn primary" (click)="openShareDialog()">
+          <mat-icon>people</mat-icon> {{ 'collab.share' | translate }}
+        </button>
+        <button mat-stroked-button class="hero-action-btn" (click)="editTrip()">
+          <mat-icon>edit</mat-icon> {{ 'dash.edit' | translate }}
+        </button>
+        @switch (trip().status) {
+          @case ('planejamento') {
+            <button mat-flat-button class="hero-action-btn accent" (click)="setStatus('ativa')">
+              <mat-icon>flight_takeoff</mat-icon> {{ 'dash.startTrip' | translate }}
+            </button>
+          }
+          @case ('ativa') {
+            <button mat-flat-button class="hero-action-btn accent" (click)="setStatus('concluida')">
+              <mat-icon>check_circle</mat-icon> {{ 'dash.finish' | translate }}
+            </button>
+          }
+          @case ('concluida') {
+            <span class="hero-status-badge">
+              <mat-icon>check_circle</mat-icon> {{ 'dash.finished' | translate }}
+            </span>
+          }
+        }
+      </div>
     </div>
 
     @if (!trip().dates.start) {

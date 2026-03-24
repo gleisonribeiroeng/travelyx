@@ -164,6 +164,10 @@ export class TripStateService {
       tap((saved) => {
         this._trips.update(list => [...list, saved]);
         this.selectTrip(saved.id);
+        // Auto-fetch cover image from Unsplash
+        if (saved.destination && !saved.coverImage) {
+          this.fetchDestinationImage(saved.id, saved.destination);
+        }
       })
     );
   }
@@ -254,6 +258,7 @@ export class TripStateService {
     destination: string,
     dates: { start: string; end: string }
   ): void {
+    const prev = this.activeTrip();
     this.updateActiveTrip(t => ({
       ...t,
       name,
@@ -262,6 +267,11 @@ export class TripStateService {
       updatedAt: new Date().toISOString(),
     }));
     this.scheduleSyncToApi();
+    // Auto-fetch cover image when destination changes
+    const tripId = this._activeTripId();
+    if (tripId && destination && destination !== prev?.destination) {
+      this.fetchDestinationImage(tripId, destination);
+    }
   }
 
   setTripCoverImage(tripId: string, imageUrl: string): void {
@@ -272,6 +282,21 @@ export class TripStateService {
       )
     );
     this.scheduleSyncToApi();
+  }
+
+  /** Fetch a destination image from Unsplash and set as cover (if no cover exists) */
+  fetchDestinationImage(tripId: string, destination: string): void {
+    if (!destination?.trim()) return;
+    this.http.get<{ image: { url: string; photographer: string; photographerUrl: string } | null }>(
+      `${environment.apiBaseUrl}/api/unsplash/destination-image`,
+      { params: { query: destination } }
+    ).subscribe({
+      next: (res) => {
+        if (res.image?.url) {
+          this.setTripCoverImage(tripId, res.image.url);
+        }
+      },
+    });
   }
 
   // ---------------------------------------------------------------------------

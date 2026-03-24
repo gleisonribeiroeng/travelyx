@@ -67,6 +67,11 @@ export class TripDashboardComponent implements OnInit {
     if (tripId) {
       this.collabService.loadCollaborators(tripId);
       this.loadReadiness();
+      // Auto-fetch cover image if missing
+      const t = this.trip();
+      if (!t.coverImage && t.destination) {
+        this.tripState.fetchDestinationImage(tripId, t.destination);
+      }
     }
   }
 
