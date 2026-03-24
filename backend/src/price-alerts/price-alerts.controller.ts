@@ -2,7 +2,7 @@ import { Controller, Get, Post, Delete, Patch, Param, Body, Req, UseGuards } fro
 import { AuthGuard } from '@nestjs/passport';
 import { PriceAlertsService } from './price-alerts.service';
 
-@Controller('api/price-alerts')
+@Controller('price-alerts')
 @UseGuards(AuthGuard('jwt'))
 export class PriceAlertsController {
   constructor(private readonly service: PriceAlertsService) {}
