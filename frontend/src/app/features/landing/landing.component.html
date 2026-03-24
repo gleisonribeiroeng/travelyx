@@ -238,18 +238,31 @@
       </div>
       <div class="steps-timeline">
         <div class="timeline-step">
+          <div class="step-icon step-icon-1">
+            <mat-icon>travel_explore</mat-icon>
+          </div>
           <div class="step-num">01</div>
           <h3>{{ 'landing.how.step1Title' | translate }}</h3>
           <p>{{ 'landing.how.step1Desc' | translate }}</p>
         </div>
-        <div class="timeline-connector"></div>
+        <div class="timeline-connector">
+          <mat-icon class="connector-arrow">arrow_forward</mat-icon>
+        </div>
         <div class="timeline-step">
+          <div class="step-icon step-icon-2">
+            <mat-icon>edit_calendar</mat-icon>
+          </div>
           <div class="step-num">02</div>
           <h3>{{ 'landing.how.step2Title' | translate }}</h3>
           <p>{{ 'landing.how.step2Desc' | translate }}</p>
         </div>
-        <div class="timeline-connector"></div>
+        <div class="timeline-connector">
+          <mat-icon class="connector-arrow">arrow_forward</mat-icon>
+        </div>
         <div class="timeline-step">
+          <div class="step-icon step-icon-3">
+            <mat-icon>flight_takeoff</mat-icon>
+          </div>
           <div class="step-num">03</div>
           <h3>{{ 'landing.how.step3Title' | translate }}</h3>
           <p>{{ 'landing.how.step3Desc' | translate }}</p>
@@ -327,7 +340,9 @@
 
   <!-- FINAL CTA -->
   <section class="final-cta">
+    <div class="cta-glow" aria-hidden="true"></div>
     <div class="cta-inner">
+      <mat-icon class="cta-hero-icon">flight_takeoff</mat-icon>
       <h2>{{ 'landing.cta.title' | translate }}</h2>
       <p>{{ 'landing.cta.subtitle' | translate }}</p>
       @if (authService.isLoggedIn()) {
