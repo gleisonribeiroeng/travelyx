@@ -152,72 +152,67 @@ function formatDate(iso: string): string {
       <div class="detail-body">
         @switch (data.type) {
           @case ('flight') {
-            <div class="info-section">
-              <div class="flight-route">
-                <div class="route-point">
-                  <span class="iata">{{ asF().origin }}</span>
-                  <span class="time">{{ fmtTime(asF().departureAt) }}</span>
-                  <span class="date">{{ fmtDate(asF().departureAt) }}</span>
+            <!-- Hero route banner -->
+            <div class="flight-hero">
+              <div class="flight-hero-bg"></div>
+              <div class="flight-hero-content">
+                <div class="fh-point">
+                  <span class="fh-iata">{{ asF().origin }}</span>
+                  <span class="fh-time">{{ fmtTime(asF().departureAt) }}</span>
+                  <span class="fh-date">{{ fmtDate(asF().departureAt) }}</span>
                 </div>
-                <div class="route-line">
-                  <mat-icon>flight_takeoff</mat-icon>
-                  <div class="connector"></div>
-                  <span class="duration-label">{{ fmtDuration(asF().durationMinutes) }}</span>
-                  <div class="connector"></div>
-                  <mat-icon>flight_land</mat-icon>
+                <div class="fh-route">
+                  <div class="fh-line"></div>
+                  <div class="fh-plane"><mat-icon>flight</mat-icon></div>
+                  <div class="fh-line"></div>
                 </div>
-                <div class="route-point">
-                  <span class="iata">{{ asF().destination }}</span>
-                  <span class="time">{{ fmtTime(asF().arrivalAt) }}</span>
-                  <span class="date">{{ fmtDate(asF().arrivalAt) }}</span>
+                <div class="fh-point">
+                  <span class="fh-iata">{{ asF().destination }}</span>
+                  <span class="fh-time">{{ fmtTime(asF().arrivalAt) }}</span>
+                  <span class="fh-date">{{ fmtDate(asF().arrivalAt) }}</span>
                 </div>
+              </div>
+              <div class="fh-meta">
+                <span class="fh-chip"><mat-icon>schedule</mat-icon> {{ fmtDuration(asF().durationMinutes) }}</span>
+                <span class="fh-chip"><mat-icon>{{ asF().stops === 0 ? 'check_circle' : 'connecting_airports' }}</mat-icon> {{ asF().stops === 0 ? 'Direto' : asF().stops + ' parada(s)' }}</span>
               </div>
             </div>
-            <div class="info-grid">
-              <div class="info-item">
-                <mat-icon>airlines</mat-icon>
-                <div><span class="label">Companhia</span><span class="value">{{ asF().airline }}</span></div>
-              </div>
-              <div class="info-item">
-                <mat-icon>confirmation_number</mat-icon>
-                <div><span class="label">Voo</span><span class="value">{{ asF().flightNumber }}</span></div>
-              </div>
-              <div class="info-item">
-                <mat-icon>schedule</mat-icon>
-                <div><span class="label">Duração</span><span class="value">{{ fmtDuration(asF().durationMinutes) }}</span></div>
-              </div>
-              <div class="info-item">
-                <mat-icon>connecting_airports</mat-icon>
-                <div><span class="label">Paradas</span><span class="value">{{ asF().stops === 0 ? 'Direto' : asF().stops + ' parada(s)' }}</span></div>
-              </div>
-              @if (asF().terminal) {
-                <div class="info-item">
-                  <mat-icon>door_front</mat-icon>
-                  <div><span class="label">Terminal</span><span class="value">{{ asF().terminal }}</span></div>
-                </div>
+
+            <!-- Airline + flight info -->
+            <div class="flight-info-strip">
+              @if (asF().airlineLogo) {
+                <img [src]="asF().airlineLogo" class="airline-logo-img" alt="">
+              } @else {
+                <div class="airline-logo-placeholder"><mat-icon>airlines</mat-icon></div>
               }
-              @if (asF().gate) {
-                <div class="info-item">
-                  <mat-icon>meeting_room</mat-icon>
-                  <div><span class="label">Portao</span><span class="value">{{ asF().gate }}</span></div>
-                </div>
-              }
-              @if (asF().seat) {
-                <div class="info-item">
-                  <mat-icon>airline_seat_recline_normal</mat-icon>
-                  <div><span class="label">Assento</span><span class="value">{{ asF().seat }}</span></div>
-                </div>
-              }
-              @if (asF().reservationNumber) {
-                <div class="info-item">
-                  <mat-icon>bookmark</mat-icon>
-                  <div><span class="label">Reserva</span><span class="value">{{ asF().reservationNumber }}</span></div>
+              <div class="airline-details">
+                <span class="airline-name">{{ asF().airline }}</span>
+                <span class="flight-number">{{ asF().flightNumber }}</span>
+              </div>
+              @if (asF().terminal || asF().gate || asF().seat) {
+                <div class="flight-extras">
+                  @if (asF().terminal) { <span class="extra-chip">Terminal {{ asF().terminal }}</span> }
+                  @if (asF().gate) { <span class="extra-chip">Portão {{ asF().gate }}</span> }
+                  @if (asF().seat) { <span class="extra-chip">Assento {{ asF().seat }}</span> }
                 </div>
               }
             </div>
-            <div class="price-section">
-              <span class="price-value">{{ asF().price.currency }} {{ asF().price.total | number:'1.2-2' }}</span>
-              <span class="price-label">por pessoa</span>
+
+            @if (asF().reservationNumber) {
+              <div class="reservation-strip">
+                <mat-icon>bookmark</mat-icon>
+                <span class="res-label">Reserva</span>
+                <span class="res-value">{{ asF().reservationNumber }}</span>
+              </div>
+            }
+
+            <!-- Price -->
+            <div class="flight-price-card">
+              <div class="fp-main">
+                <span class="fp-value">{{ asF().price.total | number:'1.2-2' }}</span>
+                <span class="fp-currency">{{ asF().price.currency }}</span>
+              </div>
+              <span class="fp-label">por pessoa</span>
             </div>
           }
 
@@ -961,7 +956,255 @@ function formatDate(iso: string): string {
     }
 
     /* ─── Flight route ───────────────────────────────────────────── */
-    .flight-route, .transport-route {
+    /* ─── Flight hero banner ──────────────────────────────────── */
+    .flight-hero {
+      position: relative;
+      border-radius: var(--triply-radius-lg, 16px);
+      overflow: hidden;
+      padding: 28px 24px 16px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 50%, #1a1a2e 100%);
+    }
+
+    .flight-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 120%, rgba(108, 92, 231, 0.25) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .flight-hero-content {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .fh-point {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .fh-iata {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+
+    .fh-time {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .fh-date {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .fh-route {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .fh-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(108, 92, 231, 0.4), rgba(255,255,255,0.1));
+      border-radius: 1px;
+    }
+
+    .fh-plane {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--triply-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(108, 92, 231, 0.5);
+    }
+
+    .fh-plane mat-icon {
+      color: #fff;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      transform: rotate(45deg);
+    }
+
+    .fh-meta {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .fh-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 12px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .fh-chip mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* ─── Airline info strip ───────────────────────────────────── */
+    .flight-info-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .airline-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: var(--triply-surface-2, #f0f0f4);
+      padding: 4px;
+    }
+
+    .airline-logo-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--triply-surface-2, #f0f0f4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .airline-logo-placeholder mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      color: var(--triply-primary);
+    }
+
+    .airline-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .airline-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--triply-text-primary);
+    }
+
+    .flight-number {
+      font-size: 0.75rem;
+      color: var(--triply-text-secondary);
+      font-weight: 500;
+    }
+
+    .flight-extras {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .extra-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: var(--triply-surface-2, #f0f0f4);
+      color: var(--triply-text-secondary);
+    }
+
+    /* ─── Reservation ──────────────────────────────────────────── */
+    .reservation-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--triply-surface-2, #f5f5f8);
+      border-radius: 10px;
+      margin-bottom: 4px;
+    }
+
+    .reservation-strip mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--triply-primary);
+    }
+
+    .res-label {
+      font-size: 0.75rem;
+      color: var(--triply-text-secondary);
+      font-weight: 500;
+    }
+
+    .res-value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--triply-text-primary);
+      font-family: monospace;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── Flight price card ────────────────────────────────────── */
+    .flight-price-card {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 14px 18px;
+      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.06));
+      border-radius: var(--triply-radius-md);
+    }
+
+    .fp-main {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .fp-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--triply-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .fp-currency {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--triply-primary);
+      opacity: 0.7;
+    }
+
+    .fp-label {
+      font-size: 0.78rem;
+      color: var(--triply-text-secondary);
+    }
+
+    /* ─── Transport route (keep original styles) ───────────────── */
+    .transport-route {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -981,7 +1224,7 @@ function formatDate(iso: string): string {
       text-align: center;
     }
 
-    .iata, .city-name {
+    .city-name {
       font-size: 1.1rem;
       font-weight: 700;
       color: var(--triply-text-primary);
@@ -1704,7 +1947,7 @@ function formatDate(iso: string): string {
         grid-template-columns: repeat(4, 1fr);
       }
 
-      .flight-route, .transport-route {
+      .transport-route {
         flex-direction: row;
         gap: 12px;
       }
