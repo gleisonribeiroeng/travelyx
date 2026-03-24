@@ -630,43 +630,68 @@ function formatDate(iso: string): string {
           }
 
           @case ('activity') {
-            <p class="description">{{ asTour().description }}</p>
-            <div class="info-grid">
-              <div class="info-item">
+            <!-- Quick-glance chips -->
+            <div class="tour-chips">
+              <div class="tour-chip">
                 <mat-icon>location_on</mat-icon>
-                <div><span class="label">Cidade</span><span class="value">{{ asTour().city }}</span></div>
+                <span>{{ asTour().city }}</span>
               </div>
               @if (asTour().durationMinutes) {
-                <div class="info-item">
+                <div class="tour-chip">
                   <mat-icon>schedule</mat-icon>
-                  <div><span class="label">Duração</span><span class="value">{{ fmtDuration(asTour().durationMinutes!) }}</span></div>
+                  <span>{{ fmtDuration(asTour().durationMinutes!) }}</span>
                 </div>
               }
-              @if (asTour().rating) {
-                <div class="info-item">
-                  <mat-icon class="star">star</mat-icon>
-                  <div>
-                    <span class="label">Avaliação</span>
-                    <span class="value">{{ asTour().rating!.toFixed(1) }} ({{ asTour().reviewCount }} avaliações)</span>
-                  </div>
+              @if (asTour().link?.provider) {
+                <div class="tour-chip tour-chip--provider">
+                  <mat-icon>storefront</mat-icon>
+                  <span>{{ asTour().link.provider }}</span>
                 </div>
               }
             </div>
-            <div class="price-section">
-              <span class="price-value">{{ asTour().price.currency }} {{ asTour().price.total | number:'1.2-2' }}</span>
-              <span class="price-label">por pessoa</span>
+
+            <!-- Rating bar -->
+            @if (asTour().rating) {
+              <div class="tour-rating-bar">
+                <div class="tour-stars">
+                  @for (s of [1,2,3,4,5]; track s) {
+                    <mat-icon class="tour-star" [class.filled]="s <= Math.round(asTour().rating!)">star</mat-icon>
+                  }
+                </div>
+                <span class="tour-rating-score">{{ asTour().rating!.toFixed(1) }}</span>
+                <span class="tour-rating-count">({{ asTour().reviewCount | number }} avaliações)</span>
+              </div>
+            }
+
+            <!-- Description -->
+            <p class="tour-description">{{ asTour().description }}</p>
+
+            <!-- Price card -->
+            <div class="tour-price-card">
+              <div class="tour-price-from">a partir de</div>
+              <div class="tour-price-main">
+                <span class="tour-price-currency">{{ asTour().price.currency }}</span>
+                <span class="tour-price-value">{{ asTour().price.total | number:'1.2-2' }}</span>
+              </div>
+              <div class="tour-price-unit">por pessoa</div>
             </div>
           }
 
           @case ('attraction') {
-            <div class="category-badge">{{ asAttr().category }}</div>
-            <p class="description">{{ asAttr().description }}</p>
-            <div class="info-grid">
-              <div class="info-item">
+            <!-- Category + city chips -->
+            <div class="tour-chips">
+              <div class="tour-chip tour-chip--category">
+                <mat-icon>style</mat-icon>
+                <span>{{ asAttr().category }}</span>
+              </div>
+              <div class="tour-chip">
                 <mat-icon>location_on</mat-icon>
-                <div><span class="label">Cidade</span><span class="value">{{ asAttr().city }}</span></div>
+                <span>{{ asAttr().city }}</span>
               </div>
             </div>
+
+            <!-- Description -->
+            <p class="tour-description">{{ asAttr().description }}</p>
           }
         }
 
@@ -1709,6 +1734,140 @@ function formatDate(iso: string): string {
       }
     }
 
+    /* ─── Tour/Activity chips ──────────────────────────────────── */
+    .tour-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tour-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: var(--triply-surface-2, #f0f0f4);
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--triply-text-primary);
+
+      mat-icon {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+        color: var(--triply-text-secondary);
+      }
+    }
+
+    .tour-chip--provider {
+      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.08));
+      color: var(--triply-primary);
+
+      mat-icon { color: var(--triply-primary); }
+    }
+
+    .tour-chip--category {
+      background: rgba(245, 158, 11, 0.1);
+      color: #b45309;
+
+      mat-icon { color: #f59e0b; }
+    }
+
+    /* ─── Tour rating bar ──────────────────────────────────────── */
+    .tour-rating-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--triply-surface-1, #fafafa);
+      border-radius: 10px;
+    }
+
+    .tour-stars {
+      display: flex;
+      gap: 1px;
+    }
+
+    .tour-star {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #d1d5db;
+      transition: color 0.15s ease;
+
+      &.filled {
+        color: #f59e0b;
+      }
+    }
+
+    .tour-rating-score {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--triply-text-primary);
+    }
+
+    .tour-rating-count {
+      font-size: 0.78rem;
+      color: var(--triply-text-secondary);
+    }
+
+    /* ─── Tour description ─────────────────────────────────────── */
+    .tour-description {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--triply-text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ─── Tour price card ──────────────────────────────────────── */
+    .tour-price-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 16px 20px;
+      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.06));
+      border-radius: var(--triply-radius-md);
+    }
+
+    .tour-price-from {
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--triply-text-secondary);
+    }
+
+    .tour-price-main {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .tour-price-currency {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--triply-primary);
+      opacity: 0.7;
+    }
+
+    .tour-price-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--triply-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .tour-price-unit {
+      font-size: 0.75rem;
+      color: var(--triply-text-secondary);
+    }
+
     /* ─── Price ───────────────────────────────────────────────────── */
     .price-section {
       display: flex;
@@ -2394,6 +2553,9 @@ export class ItemDetailDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ItemDetailDialogComponent>);
   private readonly hotelApi = inject(HotelApiService);
   private readonly priceAlertApi = inject(PriceAlertApiService);
+
+  /** Expose Math for template usage (e.g. Math.round in star rating) */
+  readonly Math = Math;
   readonly i18n = inject(TranslationService);
 
   readonly selectedImage = signal(0);
