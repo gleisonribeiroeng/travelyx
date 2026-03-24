@@ -1,27 +1,40 @@
 <div class="calendar-page">
-  <!-- ═══ Thin header: title + sync button ═══ -->
+  <!-- ═══ Header: title + actions ═══ -->
   <div class="calendar-header">
     <h1>{{ 'itinerary.title' | translate }}</h1>
-    <button mat-stroked-button class="calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
-      @if (syncing()) {
-        <mat-spinner diameter="16"></mat-spinner>
-      } @else {
-        <mat-icon>event</mat-icon>
-      }
-      {{ 'timeline.googleCalendar' | translate }}
-    </button>
+    <div class="header-actions">
+      <button mat-stroked-button class="calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
+        @if (syncing()) {
+          <mat-spinner diameter="14"></mat-spinner>
+        } @else {
+          <mat-icon>event</mat-icon>
+        }
+        Google Calendar
+      </button>
+      <button mat-flat-button color="primary" class="add-btn" [matMenuTriggerFor]="addMenu">
+        <mat-icon>add</mat-icon> Novo Item
+      </button>
+      <mat-menu #addMenu="matMenu">
+        <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> Voo</button>
+        <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> Hotel</button>
+        <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> Atividade</button>
+        <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> Transporte</button>
+        <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> Outro</button>
+      </mat-menu>
+    </div>
   </div>
 
-  <!-- ═══ FullCalendar — the whole page ═══ -->
-  @if (tripState.hasItems()) {
+  <!-- ═══ Calendar card ═══ -->
+  <div class="calendar-card">
     <div class="calendar-wrapper">
       <full-calendar [options]="calendarOptions()" />
     </div>
-  } @else {
-    <div class="empty-state">
-      <mat-icon>calendar_month</mat-icon>
-      <h3>{{ 'itinerary.emptyTitle' | translate }}</h3>
-      <p>{{ 'itinerary.emptyDesc' | translate }}</p>
+  </div>
+
+  @if (!tripState.hasItems()) {
+    <div class="empty-hint">
+      <mat-icon>info_outline</mat-icon>
+      <span>Adicione itens na Linha do Tempo ou clique em "+ Novo Item" para começar.</span>
     </div>
   }
 </div>

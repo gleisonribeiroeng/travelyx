@@ -20,6 +20,7 @@ import {
 
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { AddItemDialogComponent } from '../timeline/add-item-dialog.component';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -481,6 +482,18 @@ export class ItineraryComponent {
     items
       .filter(i => i.refId === refId)
       .forEach(i => this.tripState.removeItineraryItem(i.id));
+  }
+
+  openAddDialog(presetType?: string): void {
+    const ref = this.dialog.open(AddItemDialogComponent, {
+      width: '480px',
+      data: { presetType },
+    });
+    ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
+      if (!item) return;
+      this.tripState.addItineraryItem(item);
+      this.notify.success(this.i18n.t('notify.itemAdded'));
+    });
   }
 
   syncToCalendar(): void {
