@@ -333,18 +333,36 @@ export class WizardCarStepComponent {
               }
             }, 300);
           } else {
-            // Destination not found (small city) — try fallbacks
+            // Destination not found (small city like "Gramado")
+            // Try: hotel address city, stays destination, flight destination as city name
+            const fallbacks: string[] = [];
+
+            // Try from stays — hotel address often has the nearest big city
+            const stays = this.tripState.stays();
+            if (stays.length > 0) {
+              const hotelCity = stays[0].address?.split(',')[0]?.trim();
+              if (hotelCity && hotelCity !== trip.destination) fallbacks.push(hotelCity);
+            }
+
+            // Try flight destination — build "city name" from IATA code context
+            // The airline field often contains the city: "Azul Linhas Aéreas" flew to "POA" = Porto Alegre
             const flights = this.tripState.flights();
             const destFlight = flights.find(f => f.destination);
-
-            // Try multiple search terms: airport code, airline destination city name, state
-            const fallbacks: string[] = [];
-            if (destFlight?.destination) fallbacks.push(destFlight.destination); // "POA"
-            // Extract city from trip destination (e.g. "Gramado" → try "Rio Grande do Sul")
-            const destParts = trip.destination.split(',').map(s => s.trim());
-            if (destParts.length > 1) fallbacks.push(destParts[1]); // state/region
-            // Also try "Aeroporto" + destination
-            if (destFlight?.destination) fallbacks.push(`Aeroporto ${destFlight.destination}`);
+            if (destFlight?.destination) {
+              // Common Brazilian airport-to-city mapping
+              const iataToCity: Record<string, string> = {
+                POA: 'Porto Alegre', GRU: 'São Paulo', GIG: 'Rio de Janeiro',
+                CNF: 'Belo Horizonte', BSB: 'Brasília', SSA: 'Salvador',
+                REC: 'Recife', CWB: 'Curitiba', FLN: 'Florianópolis',
+                FOR: 'Fortaleza', VCP: 'Campinas', SDU: 'Rio de Janeiro',
+                CGH: 'São Paulo', MAO: 'Manaus', BEL: 'Belém',
+                NAT: 'Natal', MCZ: 'Maceió', AJU: 'Aracaju',
+                VIX: 'Vitória', JOI: 'Joinville', IGU: 'Foz do Iguaçu',
+              };
+              const cityName = iataToCity[destFlight.destination];
+              if (cityName) fallbacks.push(cityName);
+              fallbacks.push(destFlight.destination); // Try IATA code as last resort
+            }
 
             this.tryFallbackLocations(fallbacks, 0);
           }
