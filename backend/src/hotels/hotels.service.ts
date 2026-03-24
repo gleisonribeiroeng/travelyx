@@ -151,8 +151,17 @@ export class HotelsService {
         }
       }
 
-      // Try to get description from multiple paths
-      const description = raw.description || raw.description_translations?.en || raw.hotel_text || '';
+      // Try to get description — prefer locale language
+      const usedLocale = locale || 'pt-br';
+      const langKey = usedLocale.split('-')[0]; // 'pt' from 'pt-br'
+      const translations = raw.description_translations || {};
+      const description =
+        translations[usedLocale] ||
+        translations[langKey] ||
+        raw.description ||
+        translations['en'] ||
+        raw.hotel_text ||
+        '';
 
       return {
         data: {
