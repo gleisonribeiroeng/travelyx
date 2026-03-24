@@ -155,10 +155,11 @@ export class GoogleCalendarService {
       `\n— Criado por Triply`,
     ].join('');
 
-    // If has time + duration → timed event; otherwise → all-day
-    if (event.timeSlot && event.durationMinutes) {
+    // If has time → timed event (default 60min if no duration); otherwise → all-day
+    if (event.timeSlot) {
+      const duration = event.durationMinutes || 60;
       const startDT = `${event.date}T${event.timeSlot}:00`;
-      const endMinutes = this.addMinutes(event.timeSlot, event.durationMinutes);
+      const endMinutes = this.addMinutes(event.timeSlot, duration);
       const endDT = `${event.date}T${endMinutes}:00`;
 
       return {
@@ -171,13 +172,17 @@ export class GoogleCalendarService {
       };
     }
 
-    // All-day event
+    // All-day event — end date is exclusive in Google Calendar API
+    const endDate = new Date(event.date + 'T00:00:00');
+    endDate.setDate(endDate.getDate() + 1);
+    const endDateStr = endDate.toISOString().split('T')[0];
+
     return {
       summary,
       description,
       location: event.location || undefined,
       start: { date: event.date },
-      end: { date: event.date },
+      end: { date: endDateStr },
       colorId: this.getColorId(event.type),
     };
   }
