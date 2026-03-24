@@ -168,6 +168,7 @@ export interface HotelRoom {
   id: string;
   name: string;
   photo: string | null;
+  photos: string[];
   price: number | null;
   currency: string;
   totalPrice: number | null;
@@ -176,4 +177,6 @@ export interface HotelRoom {
   freeCancellation: boolean;
   maxOccupancy: number | null;
   bedConfig: string | null;
+  facilities: string[];
+  roomSize: string | null;
 }

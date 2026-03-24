@@ -216,103 +216,127 @@ export class HotelsService {
 
       if (!data?.data) return { data: [] };
 
-      // Parse rooms from response
-      const rawRooms = Array.isArray(data.data) ? data.data : data.data.rooms || data.data.block || [];
-      if (!Array.isArray(rawRooms)) {
-        this.logger.warn(`Room list: unexpected format, keys: ${Object.keys(data.data).join(', ')}`);
-        // Try to extract from grouped structure
-        const rooms: any[] = [];
-        for (const key of Object.keys(data.data)) {
-          const val = data.data[key];
-          if (Array.isArray(val)) {
-            for (const item of val) {
-              if (item.room_name || item.name || item.room_id) {
-                rooms.push(item);
-              }
-            }
-          }
-        }
-        if (rooms.length > 0) {
-          return { data: this.mapRooms(rooms) };
-        }
-        return { data: [] };
-      }
+      const raw = data.data;
 
-      return { data: this.mapRooms(rawRooms) };
+      // The Booking.com API returns:
+      // - `block`: array of bookable offers (prices, policies)
+      // - `rooms`: object keyed by room_id with room details (name, photos, facilities)
+      const blocks = Array.isArray(raw.block) ? raw.block : [];
+      const roomsMap = (raw.rooms && typeof raw.rooms === 'object') ? raw.rooms : {};
+
+      this.logger.log(`Room list: ${blocks.length} blocks, ${Object.keys(roomsMap).length} room types`);
+
+      if (blocks.length === 0) return { data: [] };
+
+      return { data: this.mapBlocksAndRooms(blocks, roomsMap) };
     } catch (error: any) {
       this.logger.error(`Room list error for ${hotelId}: ${error?.message}`);
       return { data: [] };
     }
   }
 
-  private mapRooms(rawRooms: any[]): any[] {
+  private mapBlocksAndRooms(blocks: any[], roomsMap: Record<string, any>): any[] {
     const seen = new Set<string>();
-    const rooms: any[] = [];
+    const results: any[] = [];
 
-    for (const room of rawRooms) {
-      const name = room.room_name || room.name || room.room_type || 'Quarto';
-      // Deduplicate by name
+    for (const block of blocks) {
+      const roomId = String(block.room_id || '');
+      const roomInfo = roomsMap[roomId] || {};
+
+      const name = block.room_name || roomInfo.name || 'Quarto';
+      // Deduplicate by room name — keep cheapest
       if (seen.has(name)) continue;
       seen.add(name);
 
-      const photo = room.photos?.[0]?.url_original
-        || room.photos?.[0]?.url_640x200
-        || room.photo
-        || room.room_photos?.[0]?.url_original
+      // Photos: from rooms map (room details have photos)
+      const roomPhotos = roomInfo.photos || [];
+      const photo = roomPhotos[0]?.url_original
+        || roomPhotos[0]?.url_640x200
+        || roomPhotos[0]?.url_square60
+        || roomInfo.thumbnail_url
+        || block.room_photos?.[0]?.url_original
         || null;
 
-      const price = room.product_price_breakdown?.gross_amount?.value
-        || room.min_price?.value
-        || room.price
-        || room.composite_price_breakdown?.gross_amount?.value
+      // All photos for this room
+      const photos = roomPhotos
+        .slice(0, 5)
+        .map((p: any) => p.url_original || p.url_640x200 || null)
+        .filter(Boolean);
+
+      // Price from block
+      const price = block.product_price_breakdown?.gross_amount?.value
+        || block.min_price?.value
+        || block.price_breakdown?.gross_price
         || null;
 
-      const currency = room.product_price_breakdown?.gross_amount?.currency
-        || room.min_price?.currency
-        || room.currency
+      const currency = block.product_price_breakdown?.gross_amount?.currency
+        || block.min_price?.currency
         || 'BRL';
 
+      const totalPrice = block.product_price_breakdown?.all_inclusive_amount?.value
+        || block.price_breakdown?.all_inclusive_price
+        || price;
+
+      // Highlights from block
       const highlights: string[] = [];
-      if (room.highlights) {
-        for (const h of room.highlights) {
+      if (block.highlights) {
+        for (const h of block.highlights) {
           if (h.translated_name || h.name) highlights.push(h.translated_name || h.name);
         }
       }
 
       // Meal plan
-      const mealPlan = room.meal_plan || room.breakfast_included
-        ? 'Café da manhã incluso'
-        : null;
+      const mealPlan = block.mealplan_included
+        || block.meal_plan
+        || (block.breakfast_included ? 'Café da manhã incluso' : null);
 
       // Free cancellation
-      const freeCancellation = room.is_free_cancellable
-        || room.free_cancellation
-        || room.policies?.cancellation?.free_cancellation
+      const freeCancellation = block.is_free_cancellable
+        || block.free_cancellation === 1
+        || block.refundable === true
         || false;
 
-      const maxOccupancy = room.nr_adults || room.max_occupancy || room.occupancy || null;
-      const bedConfig = room.bed_configurations?.[0]?.bed_types?.map((b: any) => b.name_with_count || b.name).join(', ')
-        || room.bed_type
+      // Bed config from rooms map
+      const bedConfig = roomInfo.bed_configurations?.[0]?.bed_types
+        ?.map((b: any) => b.name_with_count || b.name).join(', ')
+        || block.bed_type
+        || roomInfo.bed_type
         || null;
 
-      rooms.push({
-        id: room.room_id || room.block_id || room.id || `room-${rooms.length}`,
+      const maxOccupancy = block.nr_adults || roomInfo.max_occupancy || null;
+
+      // Room facilities from rooms map
+      const facilities: string[] = [];
+      if (roomInfo.facilities) {
+        for (const f of roomInfo.facilities) {
+          if (f.name) facilities.push(f.name);
+        }
+      }
+
+      // Room size
+      const roomSize = roomInfo.room_surface_in_m2
+        ? `${roomInfo.room_surface_in_m2} m²`
+        : null;
+
+      results.push({
+        id: block.block_id || block.room_id || `room-${results.length}`,
         name,
         photo,
+        photos,
         price,
         currency,
+        totalPrice,
         highlights,
         mealPlan,
         freeCancellation,
         maxOccupancy,
         bedConfig,
-        totalPrice: room.product_price_breakdown?.all_inclusive_amount?.value
-          || room.composite_price_breakdown?.all_inclusive_amount?.value
-          || price,
+        facilities: facilities.slice(0, 6),
+        roomSize,
       });
     }
 
-    return rooms;
+    return results;
   }
 
   getShowcase() {

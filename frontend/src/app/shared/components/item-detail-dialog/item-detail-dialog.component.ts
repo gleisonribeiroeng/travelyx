@@ -333,6 +333,9 @@ function formatDate(iso: string): string {
                           <span class="room-bed"><mat-icon>king_bed</mat-icon> {{ room.bedConfig }}</span>
                         }
                         <div class="room-tags">
+                          @if (room.roomSize) {
+                            <span class="room-tag"><mat-icon>straighten</mat-icon> {{ room.roomSize }}</span>
+                          }
                           @if (room.freeCancellation) {
                             <span class="room-tag room-tag-green"><mat-icon>check_circle</mat-icon> Cancelamento grátis</span>
                           }
