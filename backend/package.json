@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "npx prisma migrate deploy && node dist/main",
+    "start:prod": "npx prisma migrate resolve --applied 20260323_add_checklist_to_trip 2>/dev/null; npx prisma migrate resolve --applied 20260323_add_price_alerts 2>/dev/null; npx prisma migrate deploy && node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
