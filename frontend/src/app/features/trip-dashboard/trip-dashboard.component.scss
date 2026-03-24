@@ -107,7 +107,7 @@
   position: relative;
   border-radius: var(--triply-radius-lg);
   overflow: hidden;
-  min-height: 180px;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -116,7 +116,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 
   &.has-image {
-    min-height: 220px;
+    min-height: 280px;
   }
 }
 
@@ -276,32 +276,40 @@
   }
 
   &.primary {
-    background: rgba(255, 255, 255, 0.2) !important;
-    color: #fff !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    font-size: 0.75rem !important;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.35) !important;
+      background: rgba(255, 255, 255, 0.2) !important;
+      color: #fff !important;
     }
   }
 
   &.accent {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: #fff !important;
     color: var(--triply-primary) !important;
     font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    padding: 0 24px !important;
+    height: 38px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 
     &:hover {
-      background: #fff !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      transform: translateY(-1px);
     }
   }
 
   &:not(.primary):not(.accent) {
-    background: rgba(255, 255, 255, 0.12) !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    font-size: 0.75rem !important;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.25) !important;
+      background: rgba(255, 255, 255, 0.2) !important;
       color: #fff !important;
     }
   }
@@ -1070,11 +1078,11 @@
 // Mobile
 @media (max-width: 599px) {
   .trip-hero {
-    min-height: 160px;
+    min-height: 180px;
     border-radius: var(--triply-radius-md);
 
     &.has-image {
-      min-height: 180px;
+      min-height: 220px;
     }
   }
 

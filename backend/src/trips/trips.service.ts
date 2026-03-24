@@ -572,7 +572,7 @@ export class TripsService {
       score += Math.round((checked / checklist.length) * 10);
       const unchecked = checklist.length - checked;
       if (unchecked > 0) {
-        missing.push({ category: 'checklist', message: `${unchecked} item${unchecked > 1 ? 'ns' : ''} pendente${unchecked > 1 ? 's' : ''} no checklist`, icon: 'checklist', priority: 'low' });
+        missing.push({ category: 'checklist', message: `${unchecked} ${unchecked > 1 ? 'itens pendentes' : 'item pendente'} no checklist`, icon: 'checklist', priority: 'low' });
       }
     }
 

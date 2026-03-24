@@ -235,25 +235,7 @@
         </mat-card>
       }
 
-      <!-- ═══ QUICK ACTIONS ═══ -->
-      <div class="quick-actions" role="navigation" aria-label="Ações rápidas">
-        <button class="quick-action-card" (click)="navigateTo('search')" [attr.aria-label]="'dash.searchFlights' | translate">
-          <mat-icon aria-hidden="true">flight</mat-icon>
-          <span>{{ 'dash.quickFlights' | translate }}</span>
-        </button>
-        <button class="quick-action-card" (click)="navigateTo('hotels')" [attr.aria-label]="'dash.bookHotel' | translate">
-          <mat-icon aria-hidden="true">hotel</mat-icon>
-          <span>{{ 'dash.quickHotels' | translate }}</span>
-        </button>
-        <button class="quick-action-card" (click)="navigateTo('tours')" [attr.aria-label]="'dash.addActivities' | translate">
-          <mat-icon aria-hidden="true">local_activity</mat-icon>
-          <span>{{ 'dash.quickActivities' | translate }}</span>
-        </button>
-        <button class="quick-action-card" (click)="navigateTo('itinerary')" [attr.aria-label]="'dash.buildItinerary' | translate">
-          <mat-icon aria-hidden="true">map</mat-icon>
-          <span>{{ 'dash.quickItinerary' | translate }}</span>
-        </button>
-      </div>
+      <!-- Quick actions removed — sidebar already provides these navigation options -->
 
       <!-- ═══ COLLAB CTA (only if no collaborators) ═══ -->
       @if (!hasCollaborators()) {
