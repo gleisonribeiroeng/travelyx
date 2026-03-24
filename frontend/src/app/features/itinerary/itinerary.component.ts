@@ -27,15 +27,15 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 
-// Color map per item type (desaturated palette matching design tokens)
+// Color map per item type — aligned with timeline type colors
 const TYPE_COLORS: Record<string, string> = {
-  flight: '#D4A04A',
-  stay: '#4AAF72',
-  'car-rental': '#C8764A',
-  transport: '#5B8DC9',
-  activity: '#C46B9B',
-  attraction: '#C46B9B',
-  custom: '#9CA3AF',
+  flight: '#2196F3',
+  stay: '#7C4DFF',
+  'car-rental': '#607D8B',
+  transport: '#78909C',
+  activity: '#43A047',
+  attraction: '#FF9800',
+  custom: '#9E9E9E',
 };
 
 @Component({
