@@ -4,6 +4,7 @@
     <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo">
     <div class="nav-links">
       <a (click)="scrollToSection('features-section')">{{ 'landing.nav.features' | translate }}</a>
+      <a (click)="scrollToSection('comparison-section')">Travelyx vs Agencias</a>
       <a (click)="scrollToSection('how-section')">{{ 'landing.nav.howItWorks' | translate }}</a>
     </div>
     <div class="nav-actions">
@@ -225,6 +226,79 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON: TRAVELYX vs PACOTES TRADICIONAIS -->
+  <section class="comparison-section" id="comparison-section">
+    <div class="comparison-inner reveal">
+      <span class="section-tag">Compara e economiza</span>
+      <h2>Por que montar sua viagem no <strong>Travelyx</strong>?</h2>
+      <p class="comparison-subtitle">Pacotes de agencias incluem margens escondidas. No Travelyx voce acessa os precos direto da fonte e monta do seu jeito.</p>
+
+      <div class="comparison-table">
+        <!-- Header -->
+        <div class="ct-header">
+          <div class="ct-feature-col"></div>
+          <div class="ct-col ct-them">
+            <mat-icon>storefront</mat-icon>
+            <span>Agencias tradicionais</span>
+          </div>
+          <div class="ct-col ct-us">
+            <img src="assets/logo-icon.svg" alt="Travelyx" class="ct-logo" onerror="this.style.display='none'" />
+            <span>Travelyx</span>
+          </div>
+        </div>
+
+        <!-- Rows -->
+        <div class="ct-row">
+          <div class="ct-feature-col">Precos de voos</div>
+          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Markup de 15-30%</div>
+          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Preco direto da fonte</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-feature-col">Fontes de busca</div>
+          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Uma unica fonte</div>
+          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Booking + Kiwi + mais</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-feature-col">Hoteis</div>
+          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Hotel fixo do pacote</div>
+          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Voce escolhe o melhor</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-feature-col">Atividades e passeios</div>
+          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Pacote fechado ou sem</div>
+          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Milhares de opcoes</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-feature-col">Alerta de preco</div>
+          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Nao tem</div>
+          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Avisa quando cai</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-feature-col">Roteiro colaborativo</div>
+          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Nao tem</div>
+          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Planeje com amigos</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-feature-col">Controle do orcamento</div>
+          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> So ve o total</div>
+          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Divisao de gastos</div>
+        </div>
+        <div class="ct-row ct-row-highlight">
+          <div class="ct-feature-col">Economia media</div>
+          <div class="ct-col ct-them"><span class="ct-price-them">R$ 0</span></div>
+          <div class="ct-col ct-us"><span class="ct-price-us">Ate 30% mais barato</span></div>
+        </div>
+      </div>
+
+      <div class="comparison-cta">
+        <button mat-flat-button color="primary" class="comparison-btn" (click)="loginWithGoogle()">
+          <mat-icon>rocket_launch</mat-icon>
+          Comece a economizar agora
+        </button>
       </div>
     </div>
   </section>
