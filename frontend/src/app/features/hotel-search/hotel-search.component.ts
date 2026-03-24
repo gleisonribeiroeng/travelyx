@@ -229,7 +229,12 @@ export class HotelSearchComponent {
       .subscribe({
         next: (result) => {
           if (!result.error) {
-            this.searchResults.update(current => [...current, ...result.data]);
+            // Deduplicate: only add hotels not already in results
+            this.searchResults.update(current => {
+              const existingIds = new Set(current.map(h => h.id));
+              const newHotels = result.data.filter(h => !existingIds.has(h.id));
+              return [...current, ...newHotels];
+            });
             this.totalCount.set(result.totalCount);
             this.hasMore.set(result.hasMore);
             this.currentPage++;

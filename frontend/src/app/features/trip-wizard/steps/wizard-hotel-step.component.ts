@@ -359,13 +359,8 @@ export class WizardHotelStepComponent {
     categorizeHotels(this.results())
   );
 
-  // Sorted results: bestValue first, then rest
-  readonly sortedResults = computed(() => {
-    const cat = this.categorized();
-    const all = cat.all;
-    if (!cat.bestValue) return all;
-    return [cat.bestValue, ...all.filter(h => h.id !== cat.bestValue!.id)];
-  });
+  // Results in API order — no frontend reordering
+  readonly sortedResults = computed(() => this.results());
 
   private destinationValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -514,7 +509,12 @@ export class WizardHotelStepComponent {
       .subscribe({
         next: (result) => {
           if (!result.error) {
-            this.results.update(current => [...current, ...result.data]);
+            // Deduplicate: only add hotels not already in results
+            this.results.update(current => {
+              const existingIds = new Set(current.map(h => h.id));
+              const newHotels = result.data.filter(h => !existingIds.has(h.id));
+              return [...current, ...newHotels];
+            });
             this.totalCount.set(result.totalCount);
             this.hasMore.set(result.hasMore);
             this.currentPage++;
