@@ -333,22 +333,20 @@ export class WizardCarStepComponent {
               }
             }, 300);
           } else {
-            // Destination not found (small city) — try with broader search
-            // e.g. "Gramado" → try nearby airport/city
+            // Destination not found (small city) — try fallbacks
             const flights = this.tripState.flights();
-            const destAirport = flights.find(f => f.destination)?.destination;
-            if (destAirport) {
-              this.api.searchLocations(destAirport).subscribe({
-                next: (airportResults) => {
-                  if (airportResults.length > 0) {
-                    this.pickupControl.setValue(airportResults[0]);
-                    setTimeout(() => {
-                      if (this.searchForm.valid) this.search();
-                    }, 300);
-                  }
-                },
-              });
-            }
+            const destFlight = flights.find(f => f.destination);
+
+            // Try multiple search terms: airport code, airline destination city name, state
+            const fallbacks: string[] = [];
+            if (destFlight?.destination) fallbacks.push(destFlight.destination); // "POA"
+            // Extract city from trip destination (e.g. "Gramado" → try "Rio Grande do Sul")
+            const destParts = trip.destination.split(',').map(s => s.trim());
+            if (destParts.length > 1) fallbacks.push(destParts[1]); // state/region
+            // Also try "Aeroporto" + destination
+            if (destFlight?.destination) fallbacks.push(`Aeroporto ${destFlight.destination}`);
+
+            this.tryFallbackLocations(fallbacks, 0);
           }
         },
       });
@@ -429,6 +427,23 @@ export class WizardCarStepComponent {
   openDetailById(id: string): void {
     const car = this.results().find(c => c.id === id) ?? this.selectedCars().find(c => c.id === id);
     if (car) this.openDetail(car);
+  }
+
+  private tryFallbackLocations(terms: string[], index: number): void {
+    if (index >= terms.length) return;
+    this.api.searchLocations(terms[index]).subscribe({
+      next: (results) => {
+        if (results.length > 0) {
+          this.pickupControl.setValue(results[0]);
+          setTimeout(() => {
+            if (this.searchForm.valid) this.search();
+          }, 300);
+        } else {
+          // Try next fallback
+          this.tryFallbackLocations(terms, index + 1);
+        }
+      },
+    });
   }
 
   private lastSearchParams: import('../../../core/api/car.mapper').CarSearchParams | null = null;
