@@ -104,9 +104,9 @@ function formatDate(iso: string): string {
           </div>
         </div>
       } @else if (images().length > 0) {
-        <div class="hero-section">
-          <div class="hero-image-wrapper" (click)="openLightbox(selectedImage())">
-            <img [src]="images()[selectedImage()]" class="hero-image" alt=""
+        <div class="hero-section" [class.hero-section--car]="data.type === 'car-rental'">
+          <div class="hero-image-wrapper" [class.car-image-wrapper]="data.type === 'car-rental'" (click)="openLightbox(selectedImage())">
+            <img [src]="images()[selectedImage()]" class="hero-image" [class.car-image]="data.type === 'car-rental'" alt=""
                  (error)="onImageError($event)">
             <div class="hero-zoom-hint">
               <mat-icon>zoom_in</mat-icon>
@@ -853,6 +853,30 @@ function formatDate(iso: string): string {
       border-radius: 0;
       transition: transform 0.3s ease;
       display: block;
+    }
+
+    /* ─── Car-specific image treatment ─────────────────────────── */
+    .hero-section--car {
+      margin-bottom: var(--triply-spacing-sm);
+    }
+
+    .car-image-wrapper {
+      background: linear-gradient(145deg, #f0f4f8 0%, #e2e8f0 40%, #f8fafc 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      min-height: 200px;
+    }
+
+    .car-image {
+      object-fit: contain !important;
+      max-height: 200px !important;
+      width: auto !important;
+      max-width: 90%;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
     }
 
     .hero-zoom-hint {
