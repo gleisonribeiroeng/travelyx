@@ -36,7 +36,7 @@ const TYPE_COLORS: Record<string, string> = {
   transport: '#78909C',
   activity: '#43A047',
   attraction: '#FF9800',
-  custom: '#9E9E9E',
+  custom: '#6366f1',
 };
 
 @Component({

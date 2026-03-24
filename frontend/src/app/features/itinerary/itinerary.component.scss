@@ -10,26 +10,11 @@
   margin: 0 auto;
 }
 
-// ── Header ──
-.calendar-header {
+// ── Action bar (right-aligned, no title) ──
+.calendar-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  h1 {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--triply-text-primary);
-    margin: 0;
-    letter-spacing: -0.02em;
-  }
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
+  justify-content: flex-end;
   gap: 6px;
 }
 
@@ -143,6 +128,19 @@
 
       &:disabled { opacity: 0.4; }
       &:focus { box-shadow: none !important; }
+    }
+
+    // Nav arrows
+    .fc .fc-prev-button,
+    .fc .fc-next-button {
+      padding: 4px 8px;
+    }
+
+    // Ensure fc-icon chevrons render
+    .fc-icon {
+      font-family: 'fcicons' !important;
+      font-size: 1.1em !important;
+      line-height: 1;
     }
 
     .fc .fc-button-active {

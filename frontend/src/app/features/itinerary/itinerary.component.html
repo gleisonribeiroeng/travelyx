@@ -1,27 +1,24 @@
 <div class="calendar-page">
-  <!-- ═══ Header: title + actions ═══ -->
-  <div class="calendar-header">
-    <h1>{{ 'itinerary.title' | translate }}</h1>
-    <div class="header-actions">
-      <button mat-stroked-button class="calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
-        @if (syncing()) {
-          <mat-spinner diameter="14"></mat-spinner>
-        } @else {
-          <mat-icon>event</mat-icon>
-        }
-        Google Calendar
-      </button>
-      <button mat-flat-button color="primary" class="add-btn" [matMenuTriggerFor]="addMenu">
-        <mat-icon>add</mat-icon> Novo Item
-      </button>
-      <mat-menu #addMenu="matMenu">
-        <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> Voo</button>
-        <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> Hotel</button>
-        <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> Atividade</button>
-        <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> Transporte</button>
-        <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> Outro</button>
-      </mat-menu>
-    </div>
+  <!-- ═══ Action bar (no title — calendar shows month/year) ═══ -->
+  <div class="calendar-actions">
+    <button mat-stroked-button class="calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
+      @if (syncing()) {
+        <mat-spinner diameter="14"></mat-spinner>
+      } @else {
+        <mat-icon>event</mat-icon>
+      }
+      Google Calendar
+    </button>
+    <button mat-flat-button color="primary" class="add-btn" [matMenuTriggerFor]="addMenu">
+      <mat-icon>add</mat-icon> Novo Item
+    </button>
+    <mat-menu #addMenu="matMenu">
+      <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> Voo</button>
+      <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> Hotel</button>
+      <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> Atividade</button>
+      <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> Transporte</button>
+      <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> Outro</button>
+    </mat-menu>
   </div>
 
   <!-- ═══ Calendar card ═══ -->
