@@ -42,41 +42,37 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       } @else {
         <div class="alerts-list">
           @for (alert of alerts(); track alert.id) {
-            <div class="alert-card" [class.inactive]="!alert.active" [class.triggered]="!!alert.triggeredAt">
-              <div class="alert-header">
-                <div class="alert-type">
-                  <mat-icon>{{ alert.type === 'flight' ? 'flight' : 'hotel' }}</mat-icon>
-                  <span class="type-badge" [class.flight]="alert.type === 'flight'" [class.hotel]="alert.type === 'hotel'">
-                    {{ alert.type === 'flight' ? 'Voo' : 'Hotel' }}
+            <div class="alert-card" [class.inactive]="!alert.active" [class.triggered]="!!alert.triggeredAt"
+                 [attr.data-type]="alert.type">
+              <!-- Top row: type + label + status + actions -->
+              <div class="alert-top">
+                <div class="alert-identity">
+                  <div class="type-icon-circle">
+                    <mat-icon>{{ alert.type === 'flight' ? 'flight' : 'hotel' }}</mat-icon>
+                  </div>
+                  <div>
+                    <span class="type-badge" [class.flight]="alert.type === 'flight'" [class.hotel]="alert.type === 'hotel'">
+                      {{ alert.type === 'flight' ? 'Voo' : 'Hotel' }}
+                    </span>
+                    <h3 class="alert-label">{{ alert.label }}</h3>
+                  </div>
+                </div>
+                <div class="alert-right">
+                  <span class="status-badge" [class.active]="alert.active" [class.paused]="!alert.active">
+                    <mat-icon>{{ alert.active ? 'radio_button_checked' : 'pause' }}</mat-icon>
+                    {{ alert.active ? 'Monitorando' : 'Pausado' }}
                   </span>
-                </div>
-                <div class="alert-actions">
-                  <button mat-icon-button (click)="toggleAlert(alert)" [matTooltip]="alert.active ? 'Pausar' : 'Ativar'">
-                    <mat-icon>{{ alert.active ? 'pause_circle' : 'play_circle' }}</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="toggleHistory(alert.id)" [matTooltip]="expandedId() === alert.id ? 'Fechar histórico' : 'Ver histórico'">
-                    <mat-icon>{{ expandedId() === alert.id ? 'expand_less' : 'show_chart' }}</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" (click)="deleteAlert(alert.id)" matTooltip="Excluir">
-                    <mat-icon>delete_outline</mat-icon>
-                  </button>
-                </div>
-              </div>
-
-              <h3 class="alert-label">{{ alert.label }}</h3>
-
-              <div class="price-row">
-                <div class="price-item">
-                  <span class="price-title">Atual</span>
-                  <span class="price-value current">{{ alert.currency }} {{ alert.currentPrice | number:'1.2-2' }}</span>
-                </div>
-                <div class="price-item">
-                  <span class="price-title">Menor já visto</span>
-                  <span class="price-value lowest">{{ alert.currency }} {{ (alert.lowestPrice ?? alert.currentPrice) | number:'1.2-2' }}</span>
-                </div>
-                <div class="price-item">
-                  <span class="price-title">Meta</span>
-                  <span class="price-value target">{{ alert.currency }} {{ alert.targetPrice | number:'1.2-2' }}</span>
+                  <div class="alert-actions">
+                    <button mat-icon-button (click)="toggleAlert(alert)" [matTooltip]="alert.active ? 'Pausar' : 'Ativar'">
+                      <mat-icon>{{ alert.active ? 'pause_circle' : 'play_circle' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="toggleHistory(alert.id)" [matTooltip]="expandedId() === alert.id ? 'Fechar' : 'Histórico'">
+                      <mat-icon>{{ expandedId() === alert.id ? 'expand_less' : 'show_chart' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="deleteAlert(alert.id)" matTooltip="Excluir">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -87,11 +83,45 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
                 </div>
               }
 
+              <!-- Price section with progress bar -->
+              <div class="price-section">
+                <div class="price-main">
+                  <span class="price-label-sm">Preço atual</span>
+                  <span class="price-big">{{ alert.currency }} {{ alert.currentPrice | number:'1.2-2' }}</span>
+                </div>
+                <div class="price-details">
+                  <div class="price-detail">
+                    <mat-icon>trending_down</mat-icon>
+                    <div>
+                      <span class="detail-label">Menor já visto</span>
+                      <span class="detail-value lowest">{{ alert.currency }} {{ (alert.lowestPrice ?? alert.currentPrice) | number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                  <div class="price-detail">
+                    <mat-icon>flag</mat-icon>
+                    <div>
+                      <span class="detail-label">Meta</span>
+                      <span class="detail-value target">{{ alert.currency }} {{ alert.targetPrice | number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Progress bar: how close to target -->
+                <div class="progress-section">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="getProgress(alert)" [class.near]="getProgress(alert) >= 80"></div>
+                  </div>
+                  <span class="progress-label" [class.near]="getProgress(alert) >= 80">
+                    {{ getDiffPercent(alert) }}% {{ alert.currentPrice > alert.targetPrice ? 'acima' : 'abaixo' }} da meta
+                  </span>
+                </div>
+              </div>
+
               <div class="alert-footer">
-                @if (alert.lastCheckedAt) {
-                  <span class="last-checked">Última verificação: {{ formatDate(alert.lastCheckedAt) }}</span>
-                }
                 <span class="created-at">Criado em {{ formatDate(alert.createdAt) }}</span>
+                @if (alert.lastCheckedAt) {
+                  <span class="last-checked">Verificado {{ formatDate(alert.lastCheckedAt) }}</span>
+                }
               </div>
 
               <!-- Price History Chart -->
@@ -148,14 +178,12 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
     .page-container {
       max-width: 800px;
       margin: 0 auto;
-      padding: 24px 16px;
     }
 
     .page-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
 
       .header-left {
         display: flex;
@@ -164,22 +192,22 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       }
 
       .header-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
         color: var(--triply-primary);
       }
 
       h1 {
         margin: 0;
-        font-size: 1.3rem;
+        font-size: 1.15rem;
         font-weight: 700;
         color: var(--triply-text-primary, #1a1a2e);
       }
 
       p {
-        margin: 2px 0 0;
-        font-size: 0.82rem;
+        margin: 1px 0 0;
+        font-size: 0.78rem;
         color: var(--triply-text-secondary, #6b7280);
       }
     }
@@ -194,132 +222,260 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       color: var(--triply-text-secondary, #6b7280);
 
       mat-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        margin-bottom: 12px;
-        opacity: 0.3;
+        font-size: 48px; width: 48px; height: 48px;
+        margin-bottom: 12px; opacity: 0.3;
       }
-
-      h3 { margin: 0 0 8px; font-size: 1.05rem; color: var(--triply-text-primary, #1a1a2e); }
+      h3 { margin: 0 0 8px; font-size: 1.05rem; color: var(--triply-text-primary); }
       p { margin: 0; font-size: 0.85rem; max-width: 360px; }
     }
 
-    .loading-state {
-      flex-direction: row;
-      gap: 12px;
-      padding: 40px;
-    }
+    .loading-state { flex-direction: row; gap: 12px; padding: 40px; }
 
     .alerts-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
+
+    /* ── Alert Card ── */
+    [data-type="flight"] { --alert-color: #2196F3; }
+    [data-type="hotel"]  { --alert-color: #7C4DFF; }
 
     .alert-card {
       background: #fff;
-      border: 1px solid #e8e8e8;
+      border: 1px solid var(--triply-border-subtle, #e8e8e8);
+      border-left: 4px solid var(--alert-color, #6c5ce7);
       border-radius: 10px;
-      padding: 16px;
-      transition: box-shadow 0.2s;
+      padding: 14px 16px;
+      transition: box-shadow 0.2s, transform 0.2s;
 
-      &:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-      &.inactive { opacity: 0.6; }
-      &.triggered { border-color: var(--triply-success, #22c55e); background: linear-gradient(135deg, rgba(34,197,94,0.03), #fff); }
+      &:hover {
+        box-shadow: 0 3px 14px rgba(0,0,0,0.06);
+        transform: translateY(-1px);
+      }
+      &.inactive { opacity: 0.55; }
+      &.triggered {
+        border-left-color: var(--triply-success, #22c55e);
+        background: linear-gradient(135deg, rgba(34,197,94,0.03), #fff);
+      }
     }
 
-    .alert-header {
+    /* ── Top row ── */
+    .alert-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .alert-identity {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+    }
 
-      .alert-type {
-        display: flex;
-        align-items: center;
-        gap: 6px;
+    .type-icon-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--alert-color, #6c5ce7) 10%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
 
-        mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--triply-text-secondary); }
+      mat-icon {
+        font-size: 17px; width: 17px; height: 17px;
+        color: var(--alert-color, #6c5ce7);
       }
-
-      .alert-actions {
-        display: flex;
-        gap: 0;
-      }
-
-      button { color: var(--triply-text-secondary); }
     }
 
     .type-badge {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 1px 6px;
       border-radius: 3px;
       text-transform: uppercase;
       letter-spacing: 0.4px;
       color: #fff;
+      display: inline-block;
+      margin-bottom: 2px;
 
-      &.flight { background: #003580; }
-      &.hotel { background: #c4570a; }
+      &.flight { background: #2196F3; }
+      &.hotel { background: #7C4DFF; }
     }
 
     .alert-label {
-      margin: 8px 0 12px;
-      font-size: 0.95rem;
+      margin: 0;
+      font-size: 0.88rem;
       font-weight: 600;
       color: var(--triply-text-primary, #1a1a2e);
+      line-height: 1.3;
     }
 
-    .price-row {
+    .alert-right {
       display: flex;
-      gap: 16px;
-      margin-bottom: 12px;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
 
-      .price-item {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
 
-        .price-title {
-          font-size: 0.65rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-          color: var(--triply-text-secondary, #9ca3af);
-        }
+      mat-icon { font-size: 10px; width: 10px; height: 10px; }
 
-        .price-value {
-          font-size: 0.95rem;
-          font-weight: 700;
-
-          &.current { color: var(--triply-text-primary, #1a1a2e); }
-          &.lowest { color: var(--triply-success, #22c55e); }
-          &.target { color: var(--triply-primary, #6c5ce7); }
-        }
+      &.active {
+        background: rgba(34, 197, 94, 0.08);
+        color: #16a34a;
+      }
+      &.paused {
+        background: rgba(156, 163, 175, 0.1);
+        color: #9ca3af;
       }
     }
 
+    .alert-actions {
+      display: flex;
+      gap: 0;
+
+      button {
+        width: 28px !important; height: 28px !important; line-height: 28px !important;
+        color: var(--triply-text-tertiary, #bbb);
+
+        mat-icon { font-size: 17px; width: 17px; height: 17px; }
+        &:hover { color: var(--triply-text-primary); }
+      }
+    }
+
+    /* ── Triggered banner ── */
     .triggered-banner {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 8px 12px;
+      padding: 7px 12px;
       background: rgba(34,197,94,0.08);
-      border-radius: 6px;
-      font-size: 0.8rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
       font-weight: 600;
-      color: var(--triply-success, #22c55e);
-      margin-bottom: 8px;
+      color: #16a34a;
+      margin-bottom: 10px;
 
-      mat-icon { font-size: 18px; width: 18px; height: 18px; }
+      mat-icon { font-size: 17px; width: 17px; height: 17px; }
     }
 
+    /* ── Price section ── */
+    .price-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .price-main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-label-sm {
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--triply-text-tertiary, #9ca3af);
+    }
+
+    .price-big {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--triply-text-primary, #1a1a2e);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .price-details {
+      display: flex;
+      gap: 20px;
+    }
+
+    .price-detail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      mat-icon {
+        font-size: 15px; width: 15px; height: 15px;
+        color: var(--triply-text-tertiary, #bbb);
+      }
+
+      .detail-label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: var(--triply-text-tertiary, #9ca3af);
+        display: block;
+      }
+
+      .detail-value {
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: block;
+
+        &.lowest { color: #16a34a; }
+        &.target { color: var(--triply-primary, #6c5ce7); }
+      }
+    }
+
+    /* ── Progress bar ── */
+    .progress-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 5px;
+      background: var(--triply-surface-2, #f0f0f0);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--triply-primary, #6c5ce7);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+
+      &.near { background: #16a34a; }
+    }
+
+    .progress-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--triply-text-tertiary, #9ca3af);
+      white-space: nowrap;
+      flex-shrink: 0;
+
+      &.near { color: #16a34a; }
+    }
+
+    /* ── Footer ── */
     .alert-footer {
       display: flex;
       justify-content: space-between;
-      font-size: 0.7rem;
-      color: var(--triply-text-secondary, #9ca3af);
+      font-size: 0.65rem;
+      color: var(--triply-text-tertiary, #bbb);
     }
 
     /* ── History Section ── */
@@ -440,6 +596,24 @@ export class PriceAlertsComponent implements OnInit {
       },
       error: () => this.historyLoading.set(false),
     });
+  }
+
+  // ── Progress helpers ──
+
+  getProgress(alert: PriceAlert): number {
+    if (alert.currentPrice <= alert.targetPrice) return 100;
+    const initial = alert.currentPrice;
+    const target = alert.targetPrice;
+    const diff = initial - target;
+    if (diff <= 0) return 100;
+    const progress = ((initial - alert.currentPrice) / diff) * 100;
+    return Math.max(0, Math.min(100, 100 - this.getDiffPercent(alert)));
+  }
+
+  getDiffPercent(alert: PriceAlert): number {
+    if (alert.targetPrice === 0) return 0;
+    const diff = Math.abs(alert.currentPrice - alert.targetPrice) / alert.targetPrice * 100;
+    return Math.round(diff);
   }
 
   // ── Chart helpers ──
