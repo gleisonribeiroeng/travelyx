@@ -424,7 +424,8 @@ interface MonthOption {
 
     .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
     .form-row mat-form-field { flex: 1; }
-    form button[type="submit"] { width: 100%; height: 48px; font-size: 0.95rem !important; font-weight: 700 !important; border-radius: 12px !important; letter-spacing: 0.01em; box-shadow: 0 2px 10px rgba(108, 92, 231, 0.25); }
+    form button[type="submit"] { width: 100%; height: 48px; font-size: 0.95rem !important; font-weight: 700 !important; border-radius: 12px !important; letter-spacing: 0.01em; box-shadow: 0 2px 10px rgba(108, 92, 231, 0.25); display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; }
+    form button[type="submit"] mat-icon { font-size: 20px; width: 20px; height: 20px; }
     form button[type="submit"]:not(:disabled):hover { box-shadow: 0 4px 16px rgba(108, 92, 231, 0.35); transform: translateY(-1px); }
 
     .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-xl); }
