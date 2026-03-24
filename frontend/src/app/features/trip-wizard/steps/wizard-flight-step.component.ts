@@ -382,8 +382,8 @@ interface MonthOption {
     </div>
   `,
   styles: [`
-    .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header { margin-bottom: 4px; }
+    .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-sm, 8px); }
+    .step-header { margin-bottom: 2px; }
     .step-header h2 { margin: 0 0 4px; font-size: 1.4rem; font-weight: 800; color: var(--triply-text-primary); letter-spacing: -0.02em; }
     .step-header p { margin: 0; font-size: 0.88rem; color: var(--triply-text-secondary); }
 
@@ -397,7 +397,7 @@ interface MonthOption {
     .selected-details span { font-size: 0.8rem; color: var(--triply-text-secondary); }
     .selected-price { font-weight: 700; color: var(--triply-primary); font-size: 0.95rem; }
 
-    .search-form-card { margin-top: 8px; }
+    .search-form-card { margin-top: 4px; margin-bottom: 8px !important; }
 
     .trip-type-row { margin-bottom: var(--triply-spacing-md); }
     .trip-type-toggle { width: 100%; }
@@ -432,13 +432,13 @@ interface MonthOption {
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
     .empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
 
-    .results-list { display: flex; flex-direction: column; gap: var(--triply-spacing-sm); }
-    .results-list h3 { margin: 0 0 var(--triply-spacing-sm); font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
+    .results-list { display: flex; flex-direction: column; gap: 6px; }
+    .results-list h3 { margin: 0 0 4px; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }
 
     /* Segment indicator */
     .segment-indicator {
       text-align: center;
-      margin-bottom: var(--triply-spacing-md);
+      margin-bottom: 4px;
     }
     .segment-tabs {
       display: inline-flex;
