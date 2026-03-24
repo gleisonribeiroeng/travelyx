@@ -321,53 +321,40 @@ export class WizardCarStepComponent {
       });
     }
 
-    // Auto-fill pickup location from trip destination
-    if (trip.destination && !this.hasSearched()) {
-      this.api.searchLocations(trip.destination).subscribe({
-        next: (results) => {
-          if (results.length > 0) {
-            this.pickupControl.setValue(results[0]);
-            setTimeout(() => {
-              if (this.searchForm.valid) {
-                this.search();
-              }
-            }, 300);
-          } else {
-            // Destination not found (small city like "Gramado")
-            // Try: hotel address city, stays destination, flight destination as city name
-            const fallbacks: string[] = [];
+    // Auto-fill pickup location — build a list of search terms to try
+    if (!this.hasSearched()) {
+      const iataToCity: Record<string, string> = {
+        POA: 'Porto Alegre', GRU: 'São Paulo', GIG: 'Rio de Janeiro',
+        CNF: 'Belo Horizonte', BSB: 'Brasília', SSA: 'Salvador',
+        REC: 'Recife', CWB: 'Curitiba', FLN: 'Florianópolis',
+        FOR: 'Fortaleza', VCP: 'Campinas', SDU: 'Rio de Janeiro',
+        CGH: 'São Paulo', MAO: 'Manaus', BEL: 'Belém',
+        NAT: 'Natal', MCZ: 'Maceió', AJU: 'Aracaju',
+        VIX: 'Vitória', JOI: 'Joinville', IGU: 'Foz do Iguaçu',
+        LIS: 'Lisboa', CDG: 'Paris', FCO: 'Roma', MAD: 'Madrid',
+        MIA: 'Miami', JFK: 'New York', LAX: 'Los Angeles', MCO: 'Orlando',
+        EZE: 'Buenos Aires', SCL: 'Santiago', BOG: 'Bogotá', LIM: 'Lima',
+      };
 
-            // Try from stays — hotel address often has the nearest big city
-            const stays = this.tripState.stays();
-            if (stays.length > 0) {
-              const hotelCity = stays[0].address?.split(',')[0]?.trim();
-              if (hotelCity && hotelCity !== trip.destination) fallbacks.push(hotelCity);
-            }
+      const searchTerms: string[] = [];
 
-            // Try flight destination — build "city name" from IATA code context
-            // The airline field often contains the city: "Azul Linhas Aéreas" flew to "POA" = Porto Alegre
-            const flights = this.tripState.flights();
-            const destFlight = flights.find(f => f.destination);
-            if (destFlight?.destination) {
-              // Common Brazilian airport-to-city mapping
-              const iataToCity: Record<string, string> = {
-                POA: 'Porto Alegre', GRU: 'São Paulo', GIG: 'Rio de Janeiro',
-                CNF: 'Belo Horizonte', BSB: 'Brasília', SSA: 'Salvador',
-                REC: 'Recife', CWB: 'Curitiba', FLN: 'Florianópolis',
-                FOR: 'Fortaleza', VCP: 'Campinas', SDU: 'Rio de Janeiro',
-                CGH: 'São Paulo', MAO: 'Manaus', BEL: 'Belém',
-                NAT: 'Natal', MCZ: 'Maceió', AJU: 'Aracaju',
-                VIX: 'Vitória', JOI: 'Joinville', IGU: 'Foz do Iguaçu',
-              };
-              const cityName = iataToCity[destFlight.destination];
-              if (cityName) fallbacks.push(cityName);
-              fallbacks.push(destFlight.destination); // Try IATA code as last resort
-            }
+      // 1. Best bet: city name from flight destination IATA
+      const flights = this.tripState.flights();
+      const destFlight = flights.find(f => f.destination);
+      if (destFlight?.destination) {
+        const cityName = iataToCity[destFlight.destination];
+        if (cityName) searchTerms.push(cityName);
+      }
 
-            this.tryFallbackLocations(fallbacks, 0);
-          }
-        },
-      });
+      // 2. Trip destination itself
+      if (trip.destination) searchTerms.push(trip.destination);
+
+      // 3. IATA code raw
+      if (destFlight?.destination) searchTerms.push(destFlight.destination);
+
+      if (searchTerms.length > 0) {
+        this.tryFallbackLocations(searchTerms, 0);
+      }
     }
   }
 
