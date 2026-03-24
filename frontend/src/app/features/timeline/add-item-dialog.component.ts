@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
@@ -59,7 +59,7 @@ export interface AddItemDialogData {
           </mat-form-field>
         </div>
 
-        <!-- Duration: presets first, custom toggle -->
+        <!-- Duration: presets + always-visible custom -->
         <div class="duration-section">
           <span class="section-label">Duração</span>
           <div class="duration-presets">
@@ -70,32 +70,25 @@ export interface AddItemDialogData {
                 {{ p.label }}
               </button>
             }
-            <button type="button" class="preset-chip custom-toggle"
-                    [class.active]="showCustomDuration()"
-                    (click)="showCustomDuration.set(!showCustomDuration())">
-              <mat-icon>tune</mat-icon>
-            </button>
           </div>
-          @if (showCustomDuration()) {
-            <div class="duration-custom">
-              <mat-form-field appearance="outline" class="compact-field duration-field" subscriptSizing="dynamic">
-                <mat-label>Horas</mat-label>
-                <mat-select formControlName="durationHours">
-                  @for (h of hourOptions; track h) {
-                    <mat-option [value]="h">{{ h }}h</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="compact-field duration-field" subscriptSizing="dynamic">
-                <mat-label>Minutos</mat-label>
-                <mat-select formControlName="durationMins">
-                  @for (m of minuteOptions; track m) {
-                    <mat-option [value]="m">{{ m }}min</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-          }
+          <div class="duration-custom">
+            <mat-form-field appearance="outline" class="compact-field duration-field" subscriptSizing="dynamic">
+              <mat-label>Horas</mat-label>
+              <mat-select formControlName="durationHours">
+                @for (h of hourOptions; track h) {
+                  <mat-option [value]="h">{{ h }}h</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="compact-field duration-field" subscriptSizing="dynamic">
+              <mat-label>Minutos</mat-label>
+              <mat-select formControlName="durationMins">
+                @for (m of minuteOptions; track m) {
+                  <mat-option [value]="m">{{ m }}min</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
 
         <!-- Notes (compact) -->
@@ -306,29 +299,13 @@ export interface AddItemDialogData {
         box-shadow: 0 2px 6px rgba(108, 92, 231, 0.25);
       }
 
-      &.custom-toggle {
-        padding: 5px 8px;
-
-        &.active {
-          background: var(--triply-surface-2, #f0f0f0);
-          color: var(--triply-primary, #6C5CE7);
-          border-color: var(--triply-primary, #6C5CE7);
-          box-shadow: none;
-        }
-      }
     }
 
     .duration-custom {
       display: flex;
       gap: 10px;
-      animation: fadeIn 0.15s ease;
 
       .duration-field { flex: 1; }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     /* ─── Actions ─── */
@@ -362,8 +339,6 @@ export class AddItemDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<AddItemDialogComponent>);
   private readonly dialogData = inject<AddItemDialogData>(MAT_DIALOG_DATA, { optional: true });
-
-  readonly showCustomDuration = signal(false);
 
   readonly itemTypes = [
     { value: 'flight', label: 'Voo', icon: 'flight', color: '#2196F3' },
