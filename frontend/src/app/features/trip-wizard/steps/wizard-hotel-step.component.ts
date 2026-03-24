@@ -464,8 +464,20 @@ export class WizardHotelStepComponent {
     });
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (!result) return;
-      if (result.action === 'add') this.select(hotel);
-      else if (result.action === 'remove') this.remove(hotel.id);
+      if (result.action === 'add') {
+        // If a room was selected, update the hotel price with the room price
+        if (result.selectedRoom?.price) {
+          const updated: Stay = {
+            ...hotel,
+            pricePerNight: { total: result.selectedRoom.price, currency: result.selectedRoom.currency || hotel.pricePerNight.currency },
+          };
+          this.select(updated);
+        } else {
+          this.select(hotel);
+        }
+      } else if (result.action === 'remove') {
+        this.remove(hotel.id);
+      }
     });
   }
 

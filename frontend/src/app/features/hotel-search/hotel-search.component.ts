@@ -433,8 +433,19 @@ export class HotelSearchComponent {
     });
     ref.afterClosed().subscribe((result: ItemDetailResult) => {
       if (!result) return;
-      if (result.action === 'add') this.addToItinerary(hotel);
-      else if (result.action === 'remove') this.removeFromItinerary(hotel.id);
+      if (result.action === 'add') {
+        if (result.selectedRoom?.price) {
+          const updated: Stay = {
+            ...hotel,
+            pricePerNight: { total: result.selectedRoom.price, currency: result.selectedRoom.currency || hotel.pricePerNight.currency },
+          };
+          this.addToItinerary(updated);
+        } else {
+          this.addToItinerary(hotel);
+        }
+      } else if (result.action === 'remove') {
+        this.removeFromItinerary(hotel.id);
+      }
     });
   }
 

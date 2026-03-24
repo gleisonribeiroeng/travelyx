@@ -21,7 +21,7 @@ export type ItemDetailData =
   | { type: 'attraction'; item: Attraction; isAdded: boolean; isPaid?: boolean };
 
 export type ItemDetailResult =
-  | { action: 'add' }
+  | { action: 'add'; selectedRoom?: HotelRoom | null }
   | { action: 'remove' }
   | { action: 'edit' }
   | { action: 'togglePaid' }
@@ -1832,7 +1832,7 @@ export class ItemDetailDialogComponent implements OnInit {
   }
 
   onAdd(): void {
-    this.dialogRef.close({ action: 'add' } as ItemDetailResult);
+    this.dialogRef.close({ action: 'add', selectedRoom: this.selectedRoom() } as ItemDetailResult);
   }
 
   onRemove(): void {
