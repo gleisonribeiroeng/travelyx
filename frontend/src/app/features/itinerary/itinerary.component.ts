@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild, AfterViewInit } from '@angular/core';
 import { KeyValuePipe, DatePipe } from '@angular/common';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
@@ -21,7 +21,7 @@ import {
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 import { AddItemDialogComponent } from '../timeline/add-item-dialog.component';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -65,9 +65,28 @@ export class ItineraryComponent {
 
   readonly syncing = signal(false);
 
-  // ── View toggles ──
-  readonly activeView = signal<'calendar' | 'list'>('calendar');
-  readonly overviewExpanded = signal(false);
+  // ── Calendar control ──
+  readonly calendarRef = viewChild<FullCalendarComponent>('calendarRef');
+  readonly calendarTitle = signal('');
+  readonly activeCalendarView = signal('dayGridMonth');
+
+  private get calApi() { return this.calendarRef()?.getApi(); }
+
+  calPrev(): void { this.calApi?.prev(); this.updateCalendarTitle(); }
+  calNext(): void { this.calApi?.next(); this.updateCalendarTitle(); }
+  calToday(): void { this.calApi?.today(); this.updateCalendarTitle(); }
+  calChangeView(view: string): void {
+    this.calApi?.changeView(view);
+    this.activeCalendarView.set(view);
+    this.updateCalendarTitle();
+  }
+
+  private updateCalendarTitle(): void {
+    const api = this.calApi;
+    if (api) {
+      this.calendarTitle.set(api.view.title);
+    }
+  }
 
   // ── Calendar events from itinerary items ──
   readonly calendarEvents = computed<EventInput[]>(() => {
@@ -112,18 +131,14 @@ export class ItineraryComponent {
   readonly calendarOptions = computed<CalendarOptions>(() => ({
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin],
     initialView: 'dayGridMonth',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-    },
+    headerToolbar: false, // We build our own toolbar
     locale: 'pt-br',
     height: 'auto',
     events: this.calendarEvents(),
     editable: true,
     selectable: false,
     eventDisplay: 'block',
-    dayMaxEvents: 2,
+    dayMaxEvents: 3,
     eventOverlap: (stillEvent: any) => {
       const fixedTypes = ['flight', 'car-rental', 'transport'];
       return !fixedTypes.includes(stillEvent.extendedProps?.type);
@@ -131,13 +146,7 @@ export class ItineraryComponent {
     eventDrop: (info: EventDropArg) => this.onEventDrop(info),
     eventResize: (info: any) => this.onEventResize(info),
     eventClick: (arg: EventClickArg) => this.onCalendarEventClick(arg),
-    buttonText: {
-      today: 'Hoje',
-      month: 'Mês',
-      week: 'Semana',
-      day: 'Dia',
-      list: 'Lista',
-    },
+    datesSet: () => this.updateCalendarTitle(),
     initialDate: this.calendarInitialDate(),
   }));
 

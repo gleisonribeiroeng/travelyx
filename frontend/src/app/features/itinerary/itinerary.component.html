@@ -1,30 +1,53 @@
 <div class="calendar-page">
-  <!-- ═══ Action bar (no title — calendar shows month/year) ═══ -->
-  <div class="calendar-actions">
-    <button mat-stroked-button class="calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
-      @if (syncing()) {
-        <mat-spinner diameter="14"></mat-spinner>
-      } @else {
-        <mat-icon>event</mat-icon>
-      }
-      Google Calendar
-    </button>
-    <button mat-flat-button color="primary" class="add-btn" [matMenuTriggerFor]="addMenu">
-      <mat-icon>add</mat-icon> Novo Item
-    </button>
-    <mat-menu #addMenu="matMenu">
-      <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> Voo</button>
-      <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> Hotel</button>
-      <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> Atividade</button>
-      <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> Transporte</button>
-      <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> Outro</button>
-    </mat-menu>
+  <!-- ═══ Header: title + actions ═══ -->
+  <div class="calendar-header">
+    <h1>{{ 'itinerary.title' | translate }}</h1>
+    <div class="header-actions">
+      <button mat-stroked-button class="calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
+        @if (syncing()) {
+          <mat-spinner diameter="14"></mat-spinner>
+        } @else {
+          <mat-icon>event</mat-icon>
+        }
+        Google Calendar
+      </button>
+      <button mat-flat-button color="primary" class="add-btn" [matMenuTriggerFor]="addMenu">
+        <mat-icon>add</mat-icon> Novo Item
+      </button>
+      <mat-menu #addMenu="matMenu">
+        <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> Voo</button>
+        <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> Hotel</button>
+        <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> Atividade</button>
+        <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> Transporte</button>
+        <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> Outro</button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- ═══ Custom calendar toolbar ═══ -->
+  <div class="cal-toolbar">
+    <div class="cal-nav">
+      <button mat-icon-button class="nav-btn" (click)="calPrev()" matTooltip="Anterior">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button mat-icon-button class="nav-btn" (click)="calNext()" matTooltip="Próximo">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button mat-stroked-button class="today-btn" (click)="calToday()">Hoje</button>
+      <span class="cal-title">{{ calendarTitle() }}</span>
+    </div>
+    <div class="cal-views">
+      <button mat-button class="view-btn" [class.active]="activeCalendarView() === 'dayGridMonth'" (click)="calChangeView('dayGridMonth')">Mês</button>
+      <button mat-button class="view-btn" [class.active]="activeCalendarView() === 'timeGridWeek'" (click)="calChangeView('timeGridWeek')">Semana</button>
+      <button mat-button class="view-btn" [class.active]="activeCalendarView() === 'timeGridDay'" (click)="calChangeView('timeGridDay')">Dia</button>
+      <button mat-button class="view-btn" [class.active]="activeCalendarView() === 'listWeek'" (click)="calChangeView('listWeek')">Lista</button>
+    </div>
   </div>
 
   <!-- ═══ Calendar card ═══ -->
   <div class="calendar-card">
     <div class="calendar-wrapper">
-      <full-calendar [options]="calendarOptions()" />
+      <full-calendar #calendarRef [options]="calendarOptions()" />
     </div>
   </div>
 
