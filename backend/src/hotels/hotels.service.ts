@@ -228,14 +228,24 @@ export class HotelsService {
 
       if (blocks.length === 0) return { data: [] };
 
-      return { data: this.mapBlocksAndRooms(blocks, roomsMap) };
+      // Calculate nights for price-per-night
+      const nights = this.calculateNights(arrivalDate, departureDate);
+      return { data: this.mapBlocksAndRooms(blocks, roomsMap, nights) };
     } catch (error: any) {
       this.logger.error(`Room list error for ${hotelId}: ${error?.message}`);
       return { data: [] };
     }
   }
 
-  private mapBlocksAndRooms(blocks: any[], roomsMap: Record<string, any>): any[] {
+  private calculateNights(checkIn: string, checkOut: string): number {
+    if (!checkIn || !checkOut) return 1;
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const diff = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(1, diff);
+  }
+
+  private mapBlocksAndRooms(blocks: any[], roomsMap: Record<string, any>, nights = 1): any[] {
     const seen = new Set<string>();
     const results: any[] = [];
 
@@ -263,8 +273,8 @@ export class HotelsService {
         .map((p: any) => p.url_original || p.url_640x200 || null)
         .filter(Boolean);
 
-      // Price from block
-      const price = block.product_price_breakdown?.gross_amount?.value
+      // Price from block (this is typically the TOTAL price, not per-night)
+      const grossTotal = block.product_price_breakdown?.gross_amount?.value
         || block.min_price?.value
         || block.price_breakdown?.gross_price
         || null;
@@ -273,9 +283,15 @@ export class HotelsService {
         || block.min_price?.currency
         || 'BRL';
 
-      const totalPrice = block.product_price_breakdown?.all_inclusive_amount?.value
+      const allInclTotal = block.product_price_breakdown?.all_inclusive_amount?.value
         || block.price_breakdown?.all_inclusive_price
-        || price;
+        || grossTotal;
+
+      // Calculate per-night price
+      const totalPrice = allInclTotal;
+      const price = grossTotal && nights > 0
+        ? Math.round((grossTotal / nights) * 100) / 100
+        : grossTotal;
 
       // Highlights from block
       const highlights: string[] = [];
