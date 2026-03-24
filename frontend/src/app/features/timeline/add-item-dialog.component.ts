@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
@@ -14,57 +14,54 @@ export interface AddItemDialogData {
   standalone: true,
   imports: [MATERIAL_IMPORTS, ReactiveFormsModule],
   template: `
-    <h2 mat-dialog-title>Novo Item</h2>
+    <!-- Header with type icon -->
+    <div class="dialog-header">
+      <div class="header-icon" [style.background]="selectedTypeColor() + '12'" [style.color]="selectedTypeColor()">
+        <mat-icon>{{ selectedTypeIcon() }}</mat-icon>
+      </div>
+      <div>
+        <h2>Novo Item</h2>
+        <span class="header-type">{{ selectedTypeLabel() }}</span>
+      </div>
+      <button mat-icon-button mat-dialog-close class="close-btn"><mat-icon>close</mat-icon></button>
+    </div>
+
     <mat-dialog-content>
       <form [formGroup]="form" class="dialog-form">
-        <mat-form-field appearance="outline">
-          <mat-label>Tipo</mat-label>
-          <mat-select formControlName="type">
-            @for (t of itemTypes; track t.value) {
-              <mat-option [value]="t.value">
-                <mat-icon>{{ t.icon }}</mat-icon> {{ t.label }}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+        <!-- Visual type selector -->
+        <div class="type-selector">
+          @for (t of itemTypes; track t.value) {
+            <button type="button" class="type-btn"
+                    [class.active]="form.value.type === t.value"
+                    [style.--tc]="t.color"
+                    (click)="selectType(t.value)">
+              <mat-icon>{{ t.icon }}</mat-icon>
+              <span>{{ t.label }}</span>
+            </button>
+          }
+        </div>
 
-        <mat-form-field appearance="outline">
+        <!-- Name -->
+        <mat-form-field appearance="outline" class="compact-field">
           <mat-label>Nome</mat-label>
-          <input matInput formControlName="label" />
+          <input matInput formControlName="label" placeholder="Ex: Check-in hotel, Voo para SP..." />
         </mat-form-field>
 
+        <!-- Date + Time row -->
         <div class="row-2">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="compact-field">
             <mat-label>Data</mat-label>
             <input matInput type="date" formControlName="date" />
           </mat-form-field>
-
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="compact-field">
             <mat-label>Hora</mat-label>
             <input matInput type="time" formControlName="timeSlot" />
           </mat-form-field>
         </div>
 
+        <!-- Duration: presets first, custom toggle -->
         <div class="duration-section">
-          <span class="duration-label">Duração</span>
-          <div class="duration-row">
-            <mat-form-field appearance="outline" class="duration-field">
-              <mat-label>Horas</mat-label>
-              <mat-select formControlName="durationHours">
-                @for (h of hourOptions; track h) {
-                  <mat-option [value]="h">{{ h }}h</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="duration-field">
-              <mat-label>Minutos</mat-label>
-              <mat-select formControlName="durationMins">
-                @for (m of minuteOptions; track m) {
-                  <mat-option [value]="m">{{ m }}min</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
+          <span class="section-label">Duração</span>
           <div class="duration-presets">
             @for (p of durationPresets; track p.label) {
               <button type="button" class="preset-chip"
@@ -73,44 +70,280 @@ export interface AddItemDialogData {
                 {{ p.label }}
               </button>
             }
+            <button type="button" class="preset-chip custom-toggle"
+                    [class.active]="showCustomDuration()"
+                    (click)="showCustomDuration.set(!showCustomDuration())">
+              <mat-icon>tune</mat-icon>
+            </button>
           </div>
+          @if (showCustomDuration()) {
+            <div class="duration-custom">
+              <mat-form-field appearance="outline" class="compact-field duration-field">
+                <mat-label>Horas</mat-label>
+                <mat-select formControlName="durationHours">
+                  @for (h of hourOptions; track h) {
+                    <mat-option [value]="h">{{ h }}h</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="compact-field duration-field">
+                <mat-label>Minutos</mat-label>
+                <mat-select formControlName="durationMins">
+                  @for (m of minuteOptions; track m) {
+                    <mat-option [value]="m">{{ m }}min</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
         </div>
 
-        <mat-form-field appearance="outline">
+        <!-- Notes (compact) -->
+        <mat-form-field appearance="outline" class="compact-field">
           <mat-label>Notas</mat-label>
-          <input matInput formControlName="notes" />
+          <input matInput formControlName="notes" placeholder="Opcional" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancelar</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="submit()">
+
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close class="cancel-btn">Cancelar</button>
+      <button mat-flat-button color="primary" class="submit-btn" [disabled]="form.invalid" (click)="submit()">
         <mat-icon>add</mat-icon> Adicionar
       </button>
     </mat-dialog-actions>
   `,
   styles: [`
+    /* ─── Header ─── */
+    .dialog-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px 8px;
+
+      h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--triply-text-primary, #1a1a2e);
+        line-height: 1.2;
+      }
+    }
+
+    .header-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .header-type {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--triply-text-tertiary, #999);
+    }
+
+    .close-btn {
+      margin-left: auto;
+      width: 32px !important;
+      height: 32px !important;
+      line-height: 32px !important;
+      color: var(--triply-text-tertiary, #999);
+    }
+
+    /* ─── Form ─── */
+    mat-dialog-content {
+      padding: 4px 20px 0 !important;
+    }
+
     .dialog-form {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      min-width: 340px;
+      gap: 2px;
+      min-width: 380px;
     }
+
+    .compact-field {
+      font-size: 0.88rem;
+    }
+
+    /* ─── Type selector ─── */
+    .type-selector {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .type-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 8px 6px;
+      border: 1.5px solid var(--triply-border-subtle, #e5e5e5);
+      border-radius: 10px;
+      background: var(--triply-surface-1, #fff);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      flex: 1;
+      min-width: 52px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: var(--triply-text-tertiary, #aaa);
+        transition: color 0.18s;
+      }
+
+      span {
+        font-size: 0.62rem;
+        font-weight: 600;
+        color: var(--triply-text-tertiary, #aaa);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        transition: color 0.18s;
+      }
+
+      &:hover {
+        border-color: var(--tc, #6C5CE7);
+        background: color-mix(in srgb, var(--tc, #6C5CE7) 4%, white);
+        mat-icon { color: var(--tc, #6C5CE7); }
+        span { color: var(--tc, #6C5CE7); }
+      }
+
+      &.active {
+        border-color: var(--tc, #6C5CE7);
+        background: color-mix(in srgb, var(--tc, #6C5CE7) 8%, white);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--tc, #6C5CE7) 20%, transparent);
+
+        mat-icon { color: var(--tc, #6C5CE7); }
+        span { color: var(--tc, #6C5CE7); font-weight: 700; }
+      }
+    }
+
+    /* ─── Row layout ─── */
     .row-2 {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       mat-form-field { flex: 1; }
     }
-    mat-dialog-content { padding-top: 8px !important; }
-    .duration-section { margin-bottom: 8px; }
-    .duration-label { font-size: 13px; color: #666; margin-bottom: 4px; display: block; }
-    .duration-row { display: flex; gap: 12px; .duration-field { flex: 1; } }
-    .duration-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; margin-bottom: 8px; }
+
+    /* ─── Duration ─── */
+    .duration-section {
+      margin-bottom: 4px;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--triply-text-tertiary, #888);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .duration-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
     .preset-chip {
-      border: 1px solid #ddd; border-radius: 16px; padding: 4px 12px;
-      font-size: 12px; background: #fafafa; cursor: pointer; transition: all .15s;
-      &:hover { border-color: #999; }
-      &.active { background: #1976d2; color: #fff; border-color: #1976d2; }
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      border: 1px solid var(--triply-border-subtle, #e0e0e0);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      background: var(--triply-surface-1, #fff);
+      color: var(--triply-text-secondary, #666);
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+
+      &:hover {
+        border-color: var(--triply-primary, #6C5CE7);
+        color: var(--triply-primary, #6C5CE7);
+      }
+
+      &.active {
+        background: var(--triply-primary, #6C5CE7);
+        color: #fff;
+        border-color: var(--triply-primary, #6C5CE7);
+        box-shadow: 0 2px 6px rgba(108, 92, 231, 0.25);
+      }
+
+      &.custom-toggle {
+        padding: 5px 8px;
+
+        &.active {
+          background: var(--triply-surface-2, #f0f0f0);
+          color: var(--triply-primary, #6C5CE7);
+          border-color: var(--triply-primary, #6C5CE7);
+          box-shadow: none;
+        }
+      }
+    }
+
+    .duration-custom {
+      display: flex;
+      gap: 10px;
+      animation: fadeIn 0.15s ease;
+
+      .duration-field { flex: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Actions ─── */
+    mat-dialog-actions {
+      padding: 8px 20px 16px !important;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .cancel-btn {
+      color: var(--triply-text-secondary, #888) !important;
+      font-size: 0.82rem !important;
+    }
+
+    .submit-btn {
+      font-size: 0.82rem !important;
+      min-height: 34px !important;
+      padding: 0 18px !important;
+      border-radius: 8px !important;
+
+      mat-icon {
+        font-size: 17px;
+        width: 17px;
+        height: 17px;
+        margin-right: 2px;
+      }
     }
   `],
 })
@@ -119,13 +352,15 @@ export class AddItemDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<AddItemDialogComponent>);
   private readonly dialogData = inject<AddItemDialogData>(MAT_DIALOG_DATA, { optional: true });
 
+  readonly showCustomDuration = signal(false);
+
   readonly itemTypes = [
-    { value: 'flight', label: 'Voo', icon: 'flight' },
-    { value: 'stay', label: 'Hotel', icon: 'hotel' },
-    { value: 'car-rental', label: 'Carro', icon: 'directions_car' },
-    { value: 'activity', label: 'Atividade', icon: 'local_activity' },
-    { value: 'transport', label: 'Transporte', icon: 'directions_bus' },
-    { value: 'custom', label: 'Outro', icon: 'event' },
+    { value: 'flight', label: 'Voo', icon: 'flight', color: '#2196F3' },
+    { value: 'stay', label: 'Hotel', icon: 'hotel', color: '#7C4DFF' },
+    { value: 'car-rental', label: 'Carro', icon: 'directions_car', color: '#607D8B' },
+    { value: 'activity', label: 'Atividade', icon: 'local_activity', color: '#43A047' },
+    { value: 'transport', label: 'Transporte', icon: 'directions_bus', color: '#78909C' },
+    { value: 'custom', label: 'Outro', icon: 'edit_note', color: '#9E9E9E' },
   ];
 
   readonly hourOptions = Array.from({ length: 13 }, (_, i) => i);      // 0–12
@@ -148,6 +383,25 @@ export class AddItemDialogComponent {
     durationMins: [0],
     notes: [''],
   });
+
+  selectedTypeIcon(): string {
+    const t = this.itemTypes.find(t => t.value === this.form.value.type);
+    return t?.icon || 'event';
+  }
+
+  selectedTypeLabel(): string {
+    const t = this.itemTypes.find(t => t.value === this.form.value.type);
+    return t?.label || 'Item';
+  }
+
+  selectedTypeColor(): string {
+    const t = this.itemTypes.find(t => t.value === this.form.value.type);
+    return t?.color || '#9E9E9E';
+  }
+
+  selectType(value: string): void {
+    this.form.patchValue({ type: value });
+  }
 
   isPresetActive(p: { hours: number; mins: number }): boolean {
     return this.form.value.durationHours === p.hours && this.form.value.durationMins === p.mins;
