@@ -1,15 +1,13 @@
 import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { CollaborationService } from '../../core/services/collaboration.service';
-import { Trip, TripStatus } from '../../core/models/trip.models';
+import { Trip } from '../../core/models/trip.models';
 import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
-import { ListItemBaseComponent } from '../../shared/components/list-item-base/list-item-base.component';
-import { tripToListItem } from '../../shared/components/list-item-base/list-item-mappers';
 import { PendingInvitesComponent } from '../../shared/components/pending-invites/pending-invites.component';
 import { CollaboratorAvatarsComponent } from '../../shared/components/collaborator-avatars/collaborator-avatars.component';
 import { PlanService } from '../../core/services/plan.service';
@@ -19,7 +17,7 @@ import { TranslationService } from '../../core/i18n/translation.service';
 @Component({
   selector: 'app-trip-list',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DatePipe, ListItemBaseComponent, TranslatePipe, PendingInvitesComponent, CollaboratorAvatarsComponent],
+  imports: [MATERIAL_IMPORTS, CommonModule, TranslatePipe, PendingInvitesComponent, CollaboratorAvatarsComponent],
   templateUrl: './trip-list.component.html',
   styleUrl: './trip-list.component.scss',
 })
@@ -38,16 +36,61 @@ export class TripListComponent implements OnInit {
     this.collabService.loadPendingInvites();
   }
 
-  isSharedTrip(trip: Trip): boolean {
-    return !!trip.myRole && trip.myRole !== 'OWNER';
-  }
-
   readonly filteredTrips = computed(() => {
     const filter = this.statusFilter();
     const trips = this.tripState.trips();
     if (!filter) return trips;
     return trips.filter(t => t.status === filter);
   });
+
+  // ── Helpers ──
+
+  isNextTrip(trip: Trip): boolean {
+    const days = this.getDaysUntil(trip);
+    return trip.status === 'ativa' || (days !== null && days >= 0 && days <= 14);
+  }
+
+  getDaysUntil(trip: Trip): number | null {
+    if (!trip.dates.start) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(trip.dates.start + 'T00:00:00');
+    return Math.ceil((start.getTime() - today.getTime()) / 86400000);
+  }
+
+  calcDays(start: string, end: string): number {
+    if (!start || !end) return 0;
+    const diff = new Date(end).getTime() - new Date(start).getTime();
+    return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
+  }
+
+  formatDateShort(dateStr: string): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  }
+
+  getTripStats(trip: Trip): { icon: string; count: number }[] {
+    const stats: { icon: string; count: number }[] = [];
+    if (trip.flights?.length) stats.push({ icon: 'flight', count: trip.flights.length });
+    if (trip.stays?.length) stats.push({ icon: 'hotel', count: trip.stays.length });
+    const acts = (trip.activities?.length ?? 0) + (trip.attractions?.length ?? 0);
+    if (acts) stats.push({ icon: 'local_activity', count: acts });
+    if (trip.carRentals?.length) stats.push({ icon: 'directions_car', count: trip.carRentals.length });
+    if (trip.transports?.length) stats.push({ icon: 'directions_bus', count: trip.transports.length });
+    return stats;
+  }
+
+  getStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      planejamento: this.i18n.t('trips.statusPlanning'),
+      ativa: this.i18n.t('trips.statusActive'),
+      concluida: this.i18n.t('trips.statusCompleted'),
+    };
+    return map[status] || status;
+  }
+
+  // ── Actions ──
 
   openCreateDialog(): void {
     if (!this.planService.canCreateTrip(this.tripState.trips().length)) {
@@ -71,7 +114,7 @@ export class TripListComponent implements OnInit {
     });
   }
 
-  selectTrip(id: string): void {
+  openTrip(id: string): void {
     this.tripState.selectTrip(id);
     this.router.navigate(['/viagem', id, 'home']);
   }
@@ -82,37 +125,6 @@ export class TripListComponent implements OnInit {
       next: () => this.notify.success(this.i18n.t('trips.deletedSuccess')),
       error: () => this.notify.error(this.i18n.t('trips.deleteError')),
     });
-  }
-
-  toListItem(trip: Trip) {
-    return tripToListItem(trip);
-  }
-
-  openTrip(id: string): void {
-    this.selectTrip(id);
-  }
-
-  getStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-      planejamento: this.i18n.t('trips.statusPlanning'),
-      ativa: this.i18n.t('trips.statusActive'),
-      concluida: this.i18n.t('trips.statusCompleted'),
-    };
-    return map[status] || status;
-  }
-
-  getStatusColor(status: string): string {
-    const colors: Record<string, string> = {
-      planejamento: 'accent',
-      ativa: 'primary',
-      concluida: '',
-    };
-    return colors[status] || '';
-  }
-
-  handleIconAction(event: { itemId: string; actionId: string }): void {
-    if (event.actionId === 'edit') this.editTrip(event.itemId);
-    else if (event.actionId === 'cover') this.addCoverImage(event.itemId);
   }
 
   editTrip(id: string): void {
@@ -145,23 +157,5 @@ export class TripListComponent implements OnInit {
       },
       error: () => this.notify.error(this.i18n.t('trips.cloneError')),
     });
-  }
-
-  addCoverImage(id: string): void {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        this.tripState.setTripCoverImage(id, dataUrl);
-        this.notify.success(this.i18n.t('trips.coverAdded'));
-      };
-      reader.readAsDataURL(file);
-    };
-    input.click();
   }
 }

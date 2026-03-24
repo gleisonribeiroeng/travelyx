@@ -74,37 +74,96 @@
     </div>
   }
 
-  <!-- Trip Cards -->
+  <!-- Trip Cards Grid -->
   @else {
-    <div class="trips-list">
-      @for (trip of filteredTrips(); track trip.id) {
-        <div class="trip-card-wrapper">
-          <app-list-item-base
-            [config]="toListItem(trip)"
-            (primaryClick)="openTrip($event)"
-            (secondaryClick)="deleteTrip($event)"
-            (cardClick)="openTrip($event)"
-            (iconActionClick)="handleIconAction($event)"
-          />
-          <div class="trip-card-collab-row">
-            <button mat-icon-button class="clone-btn" (click)="cloneTrip(trip.id, trip.name); $event.stopPropagation()" [matTooltip]="'trips.clone' | translate">
-              <mat-icon>content_copy</mat-icon>
-              @if (!planService.hasFeature('tripClone')) {
-                <mat-icon class="pro-lock-icon">lock</mat-icon>
-              }
-            </button>
-            @if (isSharedTrip(trip)) {
-              <span class="shared-badge">
-                <mat-icon>people</mat-icon>
-                {{ 'collab.share' | translate }}
-              </span>
+    <div class="trips-grid">
+      @for (trip of filteredTrips(); track trip.id; let i = $index) {
+        <div class="trip-card" [class.is-next]="isNextTrip(trip)" (click)="openTrip(trip.id)">
+          <!-- Cover Image -->
+          <div class="card-cover" [class.has-image]="!!trip.coverImage">
+            @if (trip.coverImage) {
+              <img [src]="trip.coverImage" [alt]="trip.destination" class="cover-img" loading="lazy" />
             }
+            <div class="cover-gradient"></div>
+
+            <!-- Status chip -->
+            <span class="status-chip" [class]="'status-' + trip.status">
+              @switch (trip.status) {
+                @case ('planejamento') { <mat-icon>edit_calendar</mat-icon> {{ 'trips.filterPlanning' | translate }} }
+                @case ('ativa') { <mat-icon>flight_takeoff</mat-icon> {{ 'trips.filterActive' | translate }} }
+                @case ('concluida') { <mat-icon>check_circle</mat-icon> {{ 'trips.filterCompleted' | translate }} }
+              }
+            </span>
+
+            <!-- Overflow menu -->
+            <button mat-icon-button class="card-menu-btn" [matMenuTriggerFor]="tripMenu" (click)="$event.stopPropagation()">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #tripMenu="matMenu">
+              <button mat-menu-item (click)="editTrip(trip.id)">
+                <mat-icon>edit</mat-icon> <span>{{ 'dash.edit' | translate }}</span>
+              </button>
+              <button mat-menu-item (click)="cloneTrip(trip.id, trip.name)">
+                <mat-icon>content_copy</mat-icon> <span>{{ 'trips.clone' | translate }}</span>
+                @if (!planService.hasFeature('tripClone')) {
+                  <mat-icon class="menu-pro-lock">lock</mat-icon>
+                }
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item class="delete-menu-item" (click)="deleteTrip(trip.id)">
+                <mat-icon color="warn">delete</mat-icon> <span>{{ 'trips.delete' | translate }}</span>
+              </button>
+            </mat-menu>
+
+            <!-- Days countdown (if upcoming) -->
+            @if (getDaysUntil(trip) !== null && getDaysUntil(trip)! > 0 && getDaysUntil(trip)! <= 30) {
+              <div class="card-countdown">
+                <span class="countdown-num">{{ getDaysUntil(trip) }}</span>
+                <span class="countdown-lbl">{{ getDaysUntil(trip) === 1 ? ('dash.day' | translate) : ('dash.days' | translate) }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <h3 class="card-title">{{ trip.name || 'Viagem sem nome' }}</h3>
+
+            @if (trip.destination) {
+              <p class="card-destination">
+                <mat-icon>location_on</mat-icon> {{ trip.destination }}
+              </p>
+            }
+
+            @if (trip.dates.start) {
+              <p class="card-dates">
+                <mat-icon>calendar_today</mat-icon>
+                {{ formatDateShort(trip.dates.start) }} — {{ formatDateShort(trip.dates.end) }}
+                @if (calcDays(trip.dates.start, trip.dates.end) > 0) {
+                  <span class="days-badge">{{ calcDays(trip.dates.start, trip.dates.end) }}d</span>
+                }
+              </p>
+            }
+
+            <!-- Summary chips -->
+            @if (getTripStats(trip).length > 0) {
+              <div class="card-stats">
+                @for (stat of getTripStats(trip); track stat.icon) {
+                  <span class="stat-chip">
+                    <mat-icon>{{ stat.icon }}</mat-icon> {{ stat.count }}
+                  </span>
+                }
+              </div>
+            }
+
+            <!-- Collaborators -->
             @if (trip.collaborators && trip.collaborators.length > 1) {
-              <app-collaborator-avatars
-                [collaborators]="trip.collaborators"
-                [maxVisible]="3"
-                size="sm"
-              ></app-collaborator-avatars>
+              <div class="card-collabs">
+                <app-collaborator-avatars
+                  [collaborators]="trip.collaborators"
+                  [maxVisible]="4"
+                  size="sm"
+                ></app-collaborator-avatars>
+              </div>
             }
           </div>
         </div>

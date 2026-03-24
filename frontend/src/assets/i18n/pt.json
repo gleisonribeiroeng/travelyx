@@ -126,6 +126,7 @@
   "trips.createError": "Erro ao criar viagem",
   "trips.deletedSuccess": "Viagem excluída com sucesso",
   "trips.deleteError": "Erro ao excluir viagem",
+  "trips.delete": "Excluir",
   "trips.deleteConfirm": "Tem certeza que deseja excluir esta viagem?",
   "trips.updatedSuccess": "Viagem atualizada com sucesso",
 

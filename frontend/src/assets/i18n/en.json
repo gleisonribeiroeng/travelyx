@@ -126,6 +126,7 @@
   "trips.createError": "Error creating trip",
   "trips.deletedSuccess": "Trip deleted successfully",
   "trips.deleteError": "Error deleting trip",
+  "trips.delete": "Delete",
   "trips.deleteConfirm": "Are you sure you want to delete this trip?",
   "trips.updatedSuccess": "Trip updated successfully",
 

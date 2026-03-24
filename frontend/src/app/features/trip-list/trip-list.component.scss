@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-// Minhas Viagens — Page Layout
+// Minhas Viagens — Redesign: Vertical Cards Grid
 // ════════════════════════════════════════════════════════════
 
 .trip-list-page {
@@ -19,7 +19,7 @@
   h1 {
     font-size: 1.85rem;
     font-weight: 800;
-    color: #1a1a2e;
+    color: var(--triply-text-primary, #1a1a2e);
     margin: 0;
     letter-spacing: -0.03em;
     line-height: 1.2;
@@ -28,7 +28,7 @@
 
 .header-subtitle {
   font-size: 0.92rem;
-  color: #9ca3af;
+  color: var(--triply-text-secondary, #9ca3af);
   margin: 4px 0 0;
   font-weight: 400;
 }
@@ -55,15 +55,13 @@
     flex-shrink: 1;
     min-width: 0;
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
+    &::-webkit-scrollbar { display: none; }
   }
 }
 
 .trip-count {
   font-size: 0.82rem;
-  color: #9ca3af;
+  color: var(--triply-text-secondary, #9ca3af);
   white-space: nowrap;
   font-weight: 500;
 }
@@ -78,12 +76,9 @@
   padding: 80px 24px;
   text-align: center;
   gap: 20px;
-  color: #9ca3af;
+  color: var(--triply-text-secondary, #9ca3af);
 
-  p {
-    margin: 0;
-    font-size: 0.92rem;
-  }
+  p { margin: 0; font-size: 0.92rem; }
 }
 
 // ── Empty State ────────────────────────────────────────────
@@ -99,7 +94,7 @@
   h2 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--triply-text-primary, #1a1a2e);
     margin: 0 0 8px;
   }
 }
@@ -144,34 +139,16 @@
     opacity: 0.7;
     animation: float 3s ease-in-out infinite;
   }
-
-  .deco-pin {
-    top: -10px;
-    right: -10px;
-    animation-delay: 0.5s;
-  }
-
-  .deco-palm {
-    bottom: -5px;
-    left: -15px;
-    animation-delay: 1s;
-  }
-
-  .deco-sun {
-    top: 5px;
-    left: -5px;
-    animation-delay: 1.5s;
-  }
+  .deco-pin { top: -10px; right: -10px; animation-delay: 0.5s; }
+  .deco-palm { bottom: -5px; left: -15px; animation-delay: 1s; }
+  .deco-sun { top: 5px; left: -5px; animation-delay: 1.5s; }
 }
 
-.empty-clear-filter {
-  font-weight: 600;
-  border-radius: 10px;
-}
+.empty-clear-filter { font-weight: 600; border-radius: 10px; }
 
 .empty-text {
   font-size: 0.92rem;
-  color: #9ca3af;
+  color: var(--triply-text-secondary, #9ca3af);
   margin: 0 0 24px;
   max-width: 380px;
   line-height: 1.5;
@@ -187,50 +164,298 @@
   box-shadow: 0 2px 12px rgba(108, 92, 231, 0.25);
 }
 
-// ── Trips List ─────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// TRIPS GRID — Vertical Cards
+// ════════════════════════════════════════════════════════════
 
-.trips-list {
+.trips-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+// ── Trip Card ──────────────────────────────────────────────
+
+.trip-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--triply-surface-1, #fff);
+  border: 1px solid var(--triply-border-subtle, #e8e8ec);
+  cursor: pointer;
+  transition: all 0.25s ease;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    border-color: transparent;
+
+    .cover-img {
+      transform: scale(1.05);
+    }
+
+    .card-menu-btn {
+      opacity: 1;
+    }
+  }
+
+  &.is-next {
+    border-color: var(--triply-primary, #6C5CE7);
+    box-shadow: 0 0 0 1px var(--triply-primary, #6C5CE7), 0 4px 16px rgba(108, 92, 231, 0.15);
+  }
 }
 
-// ── Collaboration badges ──────────────────────────────────
+// ── Cover Section ──────────────────────────────────────────
 
-.trip-card-wrapper {
+.card-cover {
   position: relative;
+  height: 180px;
+  overflow: hidden;
+  // Fallback gradient
+  background: linear-gradient(135deg, #6C5CE7 0%, #7C4DFF 40%, #a29bfe 100%);
 }
 
-.trip-card-collab-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  margin-top: -4px;
-  margin-bottom: 4px;
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 65%;
+  transition: transform 0.4s ease;
 }
 
-.shared-badge {
+.cover-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.05) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+
+  .card-cover:not(.has-image) & {
+    background: none;
+  }
+}
+
+// ── Status Chip ────────────────────────────────────────────
+
+.status-chip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.68rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: #6C5CE7;
-  background: rgba(108, 92, 231, 0.08);
-  padding: 3px 10px;
-  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.status-planejamento {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  &.status-ativa {
+    background: rgba(76, 175, 80, 0.25);
+    color: #A5D6A7;
+    border-color: rgba(76, 175, 80, 0.3);
+  }
+
+  &.status-concluida {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+// ── Menu Button ────────────────────────────────────────────
+
+.card-menu-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: #fff !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(8px);
+  width: 32px !important;
+  height: 32px !important;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  // Always visible on touch devices
+  @media (hover: none) {
+    opacity: 1;
+  }
+}
+
+.delete-menu-item {
+  color: var(--triply-error, #f44336) !important;
+}
+
+.menu-pro-lock {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: var(--triply-primary, #6C5CE7);
+  margin-left: 4px;
+}
+
+// ── Countdown Badge ────────────────────────────────────────
+
+.card-countdown {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  text-align: center;
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.countdown-num {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  display: block;
+  line-height: 1;
+}
+
+.countdown-lbl {
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+// ── Card Body ──────────────────────────────────────────────
+
+.card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--triply-text-primary, #1a1a2e);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  // Truncate long names
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-destination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--triply-text-secondary, #666);
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: var(--triply-primary, #6C5CE7);
+    flex-shrink: 0;
+  }
+}
+
+.card-dates {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--triply-text-tertiary, #999);
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--triply-text-tertiary, #999);
+    flex-shrink: 0;
+  }
+}
+
+.days-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--triply-primary, #6C5CE7);
+  background: var(--triply-primary-muted, rgba(108, 92, 231, 0.08));
+  padding: 1px 8px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+// ── Stats Chips ────────────────────────────────────────────
+
+.card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--triply-text-secondary, #666);
+  background: var(--triply-surface-2, #f5f5f8);
 
   mat-icon {
     font-size: 13px;
     width: 13px;
     height: 13px;
+    color: var(--triply-primary, #6C5CE7);
   }
 }
 
-// ── Responsive ─────────────────────────────────────────────
+// ── Collaborators ──────────────────────────────────────────
+
+.card-collabs {
+  margin-top: 6px;
+}
+
+// ════════════════════════════════════════════════════════════
+// RESPONSIVE
+// ════════════════════════════════════════════════════════════
 
 @media (max-width: 639px) {
   .trip-list-page {
@@ -242,13 +467,8 @@
     gap: 16px;
     align-items: stretch;
 
-    h1 {
-      font-size: 1.5rem;
-    }
-
-    .create-btn {
-      align-self: flex-start;
-    }
+    h1 { font-size: 1.5rem; }
+    .create-btn { align-self: flex-start; }
   }
 
   .filter-bar {
@@ -256,39 +476,32 @@
     overflow: hidden;
   }
 
-  .empty-state {
-    padding: 48px 16px 40px;
+  .trips-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
+
+  .card-cover {
+    height: 160px;
+  }
+
+  .card-menu-btn {
+    opacity: 1;
+  }
+
+  .empty-state { padding: 48px 16px 40px; }
 
   .empty-icon-circle {
     width: 96px;
     height: 96px;
-
-    .empty-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
-    }
+    .empty-icon { font-size: 40px; width: 40px; height: 40px; }
   }
 
-  .empty-decorations .deco {
-    font-size: 20px;
-  }
+  .empty-decorations .deco { font-size: 20px; }
 }
 
-// Clone button
-.clone-btn {
-  position: relative;
-
-  .pro-lock-icon {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    font-size: 12px;
-    width: 12px;
-    height: 12px;
-    color: #6C5CE7;
-    background: #fff;
-    border-radius: 50%;
+@media (min-width: 900px) {
+  .trips-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
