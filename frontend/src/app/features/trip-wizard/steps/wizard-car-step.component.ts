@@ -310,12 +310,28 @@ export class WizardCarStepComponent {
         next: (results) => {
           if (results.length > 0) {
             this.pickupControl.setValue(results[0]);
-            // Auto-search after location resolves
             setTimeout(() => {
               if (this.searchForm.valid) {
                 this.search();
               }
             }, 300);
+          } else {
+            // Destination not found (small city) — try with broader search
+            // e.g. "Gramado" → try nearby airport/city
+            const flights = this.tripState.flights();
+            const destAirport = flights.find(f => f.destination)?.destination;
+            if (destAirport) {
+              this.api.searchLocations(destAirport).subscribe({
+                next: (airportResults) => {
+                  if (airportResults.length > 0) {
+                    this.pickupControl.setValue(airportResults[0]);
+                    setTimeout(() => {
+                      if (this.searchForm.valid) this.search();
+                    }, 300);
+                  }
+                },
+              });
+            }
           }
         },
       });
