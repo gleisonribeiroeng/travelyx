@@ -1,16 +1,20 @@
-// Mobile-first: shorter height on mobile
+// ════════════════════════════════════════════════════════════
+// Trip Wizard — Compact, Modern Stepper
+// ════════════════════════════════════════════════════════════
+
 .wizard-shell {
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--triply-topbar-height) - 32px);
 }
 
-// Progress bar (Mobile-first: compact)
+// ── Progress Bar ───────────────────────────────────────────
+
 .wizard-progress {
   display: flex;
   align-items: center;
-  padding: var(--triply-spacing-sm) 0;
-  margin-bottom: var(--triply-spacing-md);
+  padding: 12px 0;
+  margin-bottom: var(--triply-spacing-sm);
   overflow-x: auto;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
@@ -20,30 +24,35 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
   flex-shrink: 0;
-  min-width: 64px;
+  min-width: 56px;
   transition: all 0.2s ease;
 }
 
-// Mobile-first: smaller dots
 .step-dot {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--triply-surface-1);
-  border: 2px solid var(--triply-border);
-  box-shadow: var(--triply-shadow-xs);
+  background: var(--triply-surface-2, #f0f0f4);
+  border: 2px solid var(--triply-border-subtle, #e0e0e4);
   transition: all 0.3s ease;
 
   .dot-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--triply-text-secondary);
+    transition: all 0.3s ease;
+  }
+
+  .step-number {
+    font-size: 0.7rem;
+    font-weight: 700;
     color: var(--triply-text-secondary);
     transition: all 0.3s ease;
   }
@@ -51,46 +60,31 @@
   .active & {
     background: var(--triply-primary);
     border-color: var(--triply-primary);
-    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.2), var(--triply-shadow-colored);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
 
-    .dot-icon {
-      color: #ffffff;
-    }
+    .dot-icon, .step-number { color: #fff; }
   }
 
   .complete & {
-    background: var(--triply-success);
-    border-color: var(--triply-success);
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
-    animation: dotComplete 0.3s ease;
+    background: var(--triply-success, #22c55e);
+    border-color: var(--triply-success, #22c55e);
 
-    .dot-icon {
-      color: #ffffff;
-    }
+    .dot-icon { color: #fff; }
   }
 
   .skipped & {
     background: var(--triply-surface-2);
-    border-color: var(--triply-border);
+    border-color: var(--triply-border-subtle);
+    opacity: 0.5;
 
-    .dot-icon {
-      color: var(--triply-text-secondary);
-      opacity: 0.5;
-    }
+    .step-number { color: var(--triply-text-tertiary); }
   }
 }
 
-@keyframes dotComplete {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
-}
-
-// Mobile-first: smaller label
 .step-label {
   font-size: 0.6rem;
   font-weight: 600;
-  color: var(--triply-text-secondary);
+  color: var(--triply-text-tertiary, #999);
   text-align: center;
   white-space: nowrap;
   transition: color 0.2s ease;
@@ -101,45 +95,41 @@
   }
 
   .complete & {
-    color: var(--triply-success);
+    color: var(--triply-success, #22c55e);
   }
 }
 
 .step-connector {
   flex: 1;
   height: 2px;
-  min-width: 20px;
-  background: var(--triply-border);
-  margin: 0 4px;
-  margin-bottom: 20px;
+  min-width: 16px;
+  background: var(--triply-border-subtle, #e0e0e4);
+  margin: 0 2px;
+  margin-bottom: 18px;
   border-radius: 1px;
   transition: background 0.3s ease;
 
   &.complete {
-    background: var(--triply-success);
+    background: var(--triply-success, #22c55e);
   }
 }
 
-// Content area — scrolls independently so nav bar stays visible
+// ── Content ────────────────────────────────────────────────
+
 .wizard-content {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.25s ease;
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-// Navigation — Mobile-first: wrap, larger touch targets, safe area
+// ── Navigation ─────────────────────────────────────────────
+
 .wizard-nav {
   display: flex;
   align-items: center;
@@ -148,18 +138,20 @@
   padding-bottom: env(safe-area-inset-bottom, 8px);
   flex-shrink: 0;
   flex-wrap: wrap;
-  border-top: none;
   background: var(--triply-surface-1);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
-  border-radius: var(--triply-radius-md) var(--triply-radius-md) 0 0;
+}
 
-  button {
-    min-height: 48px;
-  }
+.nav-back-btn {
+  font-size: 0.82rem !important;
+  color: var(--triply-text-secondary) !important;
+  border-color: var(--triply-border-subtle) !important;
+  min-height: 40px;
 
-  .skip-btn {
-    order: 3;
-    width: 100%;
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 4px;
   }
 }
 
@@ -167,55 +159,90 @@
   flex: 1;
 }
 
-.skip-btn {
-  color: var(--triply-text-secondary) !important;
-}
+.skip-link {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--triply-text-tertiary, #999);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--triply-radius-sm);
+  transition: all 0.15s ease;
 
-// ── Hover — conditional ──
-@media (hover: hover) {
-  .progress-step:hover .step-dot {
-    transform: scale(1.1);
+  &:hover {
+    color: var(--triply-text-secondary);
+    background: var(--triply-surface-2, #f5f5f8);
   }
 }
 
-// ── Responsive — Mobile-first (min-width) ──
+.nav-continue-btn {
+  min-height: 42px !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  padding: 0 28px !important;
+  border-radius: var(--triply-radius-full, 24px) !important;
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.25);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.35);
+    transform: translateY(-1px);
+  }
+}
+
+// ── Hover ──────────────────────────────────────────────────
+
+@media (hover: hover) {
+  .progress-step:hover .step-dot {
+    transform: scale(1.08);
+  }
+}
+
+// ── Responsive ─────────────────────────────────────────────
+
 @media (min-width: 600px) {
   .wizard-shell {
     height: calc(100vh - var(--triply-topbar-height) - 48px);
   }
 
   .wizard-progress {
-    padding: var(--triply-spacing-md) 0;
-    margin-bottom: var(--triply-spacing-lg);
+    padding: 14px 0;
+    margin-bottom: var(--triply-spacing-md);
   }
 
   .step-dot {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
 
     .dot-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+    }
+
+    .step-number {
+      font-size: 0.75rem;
     }
   }
 
   .step-label {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
   }
 
   .wizard-nav {
     flex-wrap: nowrap;
     padding: var(--triply-spacing-md) 0;
-    padding-bottom: var(--triply-spacing-md);
 
-    button {
-      min-height: 44px;
-    }
-
-    .skip-btn {
+    .skip-link {
       order: 0;
-      width: auto;
     }
   }
 }

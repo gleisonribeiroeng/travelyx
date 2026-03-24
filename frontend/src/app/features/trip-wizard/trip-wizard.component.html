@@ -1,5 +1,5 @@
 <div class="wizard-shell">
-  <!-- Progress bar -->
+  <!-- Compact progress bar -->
   <div class="wizard-progress">
     @for (step of steps(); track step.key; let i = $index) {
       <div class="progress-step"
@@ -10,10 +10,8 @@
         <div class="step-dot">
           @if (isStepComplete(step.key)) {
             <mat-icon class="dot-icon">check</mat-icon>
-          } @else if (isStepSkipped(step.key)) {
-            <mat-icon class="dot-icon">remove</mat-icon>
           } @else {
-            <mat-icon class="dot-icon">{{ step.icon }}</mat-icon>
+            <span class="step-number">{{ i + 1 }}</span>
           }
         </div>
         <span class="step-label">{{ step.label }}</span>
@@ -33,27 +31,23 @@
 
   <!-- Navigation -->
   <div class="wizard-nav">
-    <button mat-stroked-button
-            (click)="prevStep()"
-            [disabled]="isFirstStep()">
-      <mat-icon>arrow_back</mat-icon>
-      {{ 'wizard.back' | translate }}
-    </button>
+    @if (!isFirstStep()) {
+      <button mat-stroked-button class="nav-back-btn" (click)="prevStep()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'wizard.back' | translate }}
+      </button>
+    }
 
     <div class="nav-spacer"></div>
 
     @if (!isReviewStep()) {
-      <button mat-stroked-button
-              class="skip-btn"
-              (click)="skipStep()">
+      <button class="skip-link" (click)="skipStep()">
         {{ 'wizard.skipStep' | translate }}
       </button>
     }
 
     @if (!isLastStep()) {
-      <button mat-flat-button
-              color="primary"
-              (click)="nextStep()">
+      <button mat-flat-button color="primary" class="nav-continue-btn" (click)="nextStep()">
         {{ 'wizard.continue' | translate }}
         <mat-icon iconPositionEnd>arrow_forward</mat-icon>
       </button>

@@ -55,8 +55,20 @@ interface MonthOption {
   template: `
     <div class="wizard-step">
       <div class="step-header">
-        <h2>Escolha seu voo</h2>
-        <p>Busque e selecione o voo ideal para sua viagem</p>
+        <h2>
+          @if (tripDestination()) {
+            Voos para {{ tripDestination() }}
+          } @else {
+            Escolha seu voo
+          }
+        </h2>
+        <p>
+          @if (tripDates()) {
+            Busque o melhor voo para sua viagem de {{ tripDates() }}
+          } @else {
+            Busque e selecione o voo ideal para sua viagem
+          }
+        </p>
       </div>
 
       <!-- Current selection -->
@@ -162,12 +174,14 @@ interface MonthOption {
                 </mat-form-field>
               </div>
 
-              <!-- Flexible dates toggle -->
-              <div class="flexible-row">
-                <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
-                  Ainda não defini a data
-                </mat-slide-toggle>
-              </div>
+              <!-- Flexible dates toggle (only when trip has no dates) -->
+              @if (!hasTripDates()) {
+                <div class="flexible-row">
+                  <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
+                    Ainda não defini a data
+                  </mat-slide-toggle>
+                </div>
+              }
 
               <!-- Date fields (fixed dates) -->
               @if (!flexibleDates()) {
@@ -272,7 +286,7 @@ interface MonthOption {
               </mat-form-field>
             </div>
 
-            <button mat-flat-button color="primary" type="submit"
+            <button mat-flat-button color="primary" type="submit" class="search-cta-btn"
                     [disabled]="!canSearch() || isSearching()">
               @if (isSearching()) {
                 <mat-spinner diameter="20"></mat-spinner>
@@ -369,8 +383,9 @@ interface MonthOption {
   `,
   styles: [`
     .wizard-step { display: flex; flex-direction: column; gap: var(--triply-spacing-md); }
-    .step-header h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--triply-text-primary); letter-spacing: -0.02em; }
-    .step-header p { margin: 0; font-size: 0.9rem; color: var(--triply-text-secondary); }
+    .step-header { margin-bottom: 4px; }
+    .step-header h2 { margin: 0 0 4px; font-size: 1.4rem; font-weight: 800; color: var(--triply-text-primary); letter-spacing: -0.02em; }
+    .step-header p { margin: 0; font-size: 0.88rem; color: var(--triply-text-secondary); }
 
     .current-selection { display: flex; flex-direction: column; gap: 8px; }
     .current-selection h3 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--triply-text-primary); }
@@ -409,7 +424,8 @@ interface MonthOption {
 
     .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: var(--triply-spacing-sm); }
     .form-row mat-form-field { flex: 1; }
-    form button[type="submit"] { width: 100%; height: 44px; }
+    form button[type="submit"] { width: 100%; height: 48px; font-size: 0.95rem !important; font-weight: 700 !important; border-radius: 12px !important; letter-spacing: 0.01em; box-shadow: 0 2px 10px rgba(108, 92, 231, 0.25); }
+    form button[type="submit"]:not(:disabled):hover { box-shadow: 0 4px 16px rgba(108, 92, 231, 0.35); transform: translateY(-1px); }
 
     .loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--triply-spacing-xl); }
     .loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
@@ -477,12 +493,12 @@ interface MonthOption {
 
     /* Manual entry */
     .manual-entry-section {
-      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-      margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.08);
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.06);
     }
-    .manual-entry-section button { white-space: nowrap; font-size: 0.85rem; }
+    .manual-entry-section button { white-space: nowrap; font-size: 0.82rem; color: var(--triply-text-secondary) !important; border-color: var(--triply-border-subtle) !important; }
     .manual-hint {
-      font-size: 0.78rem; color: var(--triply-text-secondary);
+      font-size: 0.75rem; color: var(--triply-text-tertiary, #999);
     }
     .manual-badge {
       font-size: 0.65rem; font-weight: 600; padding: 2px 8px;
@@ -520,6 +536,19 @@ export class WizardFlightStepComponent {
   readonly hasSearched = signal(false);
   readonly formCollapsed = signal(false);
   readonly minDate = new Date();
+
+  // Trip context for header
+  readonly tripDestination = computed(() => this.tripState.trip().destination || '');
+  readonly hasTripDates = computed(() => !!this.tripState.trip().dates.start);
+  readonly tripDates = computed(() => {
+    const t = this.tripState.trip();
+    if (!t.dates.start) return '';
+    const fmt = (d: string) => {
+      const date = new Date(d + 'T00:00:00');
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    };
+    return `${fmt(t.dates.start)} a ${fmt(t.dates.end || t.dates.start)}`;
+  });
 
   readonly tripType = signal<TripType>('roundTrip');
   readonly flexibleDates = signal(false);
