@@ -1,64 +1,99 @@
 <div class="timeline-page">
-  <!-- ═══ PAGE HEADER ═══ -->
-  <div class="page-header">
-    <div class="header-text">
-      <h1>{{ 'timeline.title' | translate }}</h1>
-      <p>{{ 'timeline.subtitle' | translate }}</p>
-    </div>
-    <div class="header-actions">
-      <button mat-button (click)="expandAll()" class="bulk-action">
-        <mat-icon>unfold_more</mat-icon> {{ 'timeline.expand' | translate }}
-      </button>
-      <button mat-button (click)="collapseAll()" class="bulk-action">
-        <mat-icon>unfold_less</mat-icon> {{ 'timeline.collapse' | translate }}
-      </button>
+  <!-- ═══ LINE 1: Title + summary pills + add button ═══ -->
+  <div class="header-row-1">
+    <h1 class="header-title">{{ 'timeline.title' | translate }}</h1>
 
-      <!-- Optimize Route (PRO) -->
-      <button mat-stroked-button class="bulk-action optimize-btn" (click)="optimizeRoute()" [disabled]="optimizing()">
-        @if (optimizing()) {
-          <mat-spinner diameter="16"></mat-spinner>
-        } @else {
-          <mat-icon>route</mat-icon>
+    @if (hasDates()) {
+      <div class="header-summary">
+        <span class="hs-pill pill-days">
+          <mat-icon>calendar_today</mat-icon>
+          {{ tripSummary().plannedDays }}/{{ tripSummary().totalDays }}
+        </span>
+        <span class="hs-pill pill-items">
+          <mat-icon>event_note</mat-icon>
+          {{ tripSummary().totalItems }} itens
+        </span>
+        @if (tripSummary().totalDuration > 0) {
+          <span class="hs-pill pill-duration">
+            <mat-icon>schedule</mat-icon>
+            {{ formatDuration(tripSummary().totalDuration) }}
+          </span>
         }
-        {{ 'timeline.optimize' | translate }}
-        @if (!planService.hasFeature('routeOptimization')) {
-          <mat-icon class="pro-lock-inline">lock</mat-icon>
+        @if (tripSummary().totalCost > 0) {
+          <span class="hs-pill pill-cost">
+            <mat-icon>payments</mat-icon>
+            {{ formatCurrency(tripSummary().totalCost) }}
+            <span class="hs-sub">{{ tripSummary().paidPercent }}%</span>
+          </span>
         }
-      </button>
+        @if (tripSummary().conflictCount > 0) {
+          <span class="hs-pill pill-conflict">
+            <mat-icon>warning</mat-icon>
+            {{ tripSummary().conflictCount }}
+          </span>
+        }
+      </div>
+    }
 
-      <!-- Export -->
-      <button mat-stroked-button class="bulk-action export-btn" [matMenuTriggerFor]="exportMenu" [disabled]="exporting()">
-        @if (exporting()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>download</mat-icon> }
-        {{ 'export.button' | translate }}
-      </button>
-      <mat-menu #exportMenu="matMenu">
-        <button mat-menu-item (click)="exportPdf()"><mat-icon>picture_as_pdf</mat-icon> {{ 'export.pdf' | translate }}</button>
-        <button mat-menu-item (click)="exportBeautifulPdf()">
-          <mat-icon>auto_stories</mat-icon> {{ 'export.pdfPro' | translate }}
-          @if (!planService.hasFeature('pdfExport')) { <mat-icon class="pro-lock-inline">lock</mat-icon> }
-        </button>
-        <button mat-menu-item (click)="exportExcel()"><mat-icon>table_chart</mat-icon> {{ 'export.excel' | translate }}</button>
-      </mat-menu>
-
-      <!-- Google Calendar -->
-      <button mat-stroked-button class="bulk-action calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()">
-        @if (syncing()) { <mat-spinner diameter="16"></mat-spinner> } @else { <mat-icon>event</mat-icon> }
-        {{ 'timeline.googleCalendar' | translate }}
-      </button>
-
-      <!-- Quick add -->
-      <button mat-flat-button color="primary" [matMenuTriggerFor]="addMenu" class="add-btn">
-        <mat-icon>add</mat-icon> {{ 'timeline.newItem' | translate }}
-      </button>
-      <mat-menu #addMenu="matMenu">
-        <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> {{ 'timeline.flight' | translate }}</button>
-        <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> {{ 'timeline.hotel' | translate }}</button>
-        <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> {{ 'timeline.activity' | translate }}</button>
-        <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> {{ 'timeline.transport' | translate }}</button>
-        <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> {{ 'timeline.customItem' | translate }}</button>
-      </mat-menu>
-    </div>
+    <button mat-flat-button color="primary" [matMenuTriggerFor]="addMenu" class="add-btn">
+      <mat-icon>add</mat-icon> {{ 'timeline.newItem' | translate }}
+    </button>
+    <mat-menu #addMenu="matMenu">
+      <button mat-menu-item (click)="openAddDialog('flight')"><mat-icon class="type-flight">flight</mat-icon> {{ 'timeline.flight' | translate }}</button>
+      <button mat-menu-item (click)="openAddDialog('stay')"><mat-icon class="type-stay">hotel</mat-icon> {{ 'timeline.hotel' | translate }}</button>
+      <button mat-menu-item (click)="openAddDialog('activity')"><mat-icon class="type-activity">local_activity</mat-icon> {{ 'timeline.activity' | translate }}</button>
+      <button mat-menu-item (click)="openAddDialog('transport')"><mat-icon class="type-transport">directions_bus</mat-icon> {{ 'timeline.transport' | translate }}</button>
+      <button mat-menu-item (click)="openAddDialog('custom')"><mat-icon class="type-custom">edit_note</mat-icon> {{ 'timeline.customItem' | translate }}</button>
+    </mat-menu>
   </div>
+
+  <!-- ═══ LINE 2: Filters + secondary actions ═══ -->
+  @if (hasDates()) {
+    <div class="header-row-2">
+      <div class="filter-row">
+        @if (tripSummary().totalItems > 0) {
+          @for (ft of filterTypes; track ft.value) {
+            @if (ft.value === '' || (typeCounts()[ft.value] ?? 0) > 0) {
+              <button class="filter-chip" [class.active]="activeFilter() === ft.value"
+                      (click)="activeFilter.set(ft.value)">
+                <mat-icon>{{ ft.icon }}</mat-icon>
+                <span>{{ ft.label }}</span>
+                @if (ft.value !== '' && (typeCounts()[ft.value] ?? 0) > 0) {
+                  <span class="filter-count">{{ typeCounts()[ft.value] }}</span>
+                }
+              </button>
+            }
+          }
+        }
+      </div>
+
+      <div class="header-actions-secondary">
+        <button mat-icon-button (click)="expandAll()" class="sec-action" matTooltip="Expandir todos">
+          <mat-icon>unfold_more</mat-icon>
+        </button>
+        <button mat-icon-button (click)="collapseAll()" class="sec-action" matTooltip="Colapsar todos">
+          <mat-icon>unfold_less</mat-icon>
+        </button>
+        <button mat-icon-button class="sec-action optimize-btn" (click)="optimizeRoute()" [disabled]="optimizing()" matTooltip="Otimizar rota">
+          @if (optimizing()) { <mat-spinner diameter="14"></mat-spinner> } @else { <mat-icon>route</mat-icon> }
+        </button>
+        <button mat-icon-button class="sec-action export-btn" [matMenuTriggerFor]="exportMenu" [disabled]="exporting()" matTooltip="Exportar">
+          @if (exporting()) { <mat-spinner diameter="14"></mat-spinner> } @else { <mat-icon>download</mat-icon> }
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="exportPdf()"><mat-icon>picture_as_pdf</mat-icon> {{ 'export.pdf' | translate }}</button>
+          <button mat-menu-item (click)="exportBeautifulPdf()">
+            <mat-icon>auto_stories</mat-icon> {{ 'export.pdfPro' | translate }}
+            @if (!planService.hasFeature('pdfExport')) { <mat-icon class="pro-lock-inline">lock</mat-icon> }
+          </button>
+          <button mat-menu-item (click)="exportExcel()"><mat-icon>table_chart</mat-icon> {{ 'export.excel' | translate }}</button>
+        </mat-menu>
+        <button mat-icon-button class="sec-action calendar-sync-btn" (click)="syncToCalendar()" [disabled]="syncing()" matTooltip="Google Calendar">
+          @if (syncing()) { <mat-spinner diameter="14"></mat-spinner> } @else { <mat-icon>event</mat-icon> }
+        </button>
+      </div>
+    </div>
+  }
 
   @if (!hasDates()) {
     <div class="empty-state">
@@ -67,69 +102,6 @@
       <p>{{ 'timeline.setDatesDesc' | translate }}</p>
     </div>
   } @else {
-
-    <!-- ═══ TRIP SUMMARY BAR ═══ -->
-    <div class="summary-bar">
-      <div class="summary-pill pill-days">
-        <mat-icon>calendar_today</mat-icon>
-        <div class="pill-content">
-          <span class="pill-value">{{ tripSummary().plannedDays }}<span class="pill-of">/{{ tripSummary().totalDays }}</span></span>
-          <span class="pill-label">dias</span>
-        </div>
-      </div>
-      <div class="summary-pill pill-items">
-        <mat-icon>event_note</mat-icon>
-        <div class="pill-content">
-          <span class="pill-value">{{ tripSummary().totalItems }}</span>
-          <span class="pill-label">itens</span>
-        </div>
-      </div>
-      @if (tripSummary().totalDuration > 0) {
-        <div class="summary-pill pill-duration">
-          <mat-icon>schedule</mat-icon>
-          <div class="pill-content">
-            <span class="pill-value">{{ formatDuration(tripSummary().totalDuration) }}</span>
-            <span class="pill-label">duração</span>
-          </div>
-        </div>
-      }
-      @if (tripSummary().totalCost > 0) {
-        <div class="summary-pill pill-cost">
-          <mat-icon>payments</mat-icon>
-          <div class="pill-content">
-            <span class="pill-value">{{ formatCurrency(tripSummary().totalCost) }}</span>
-            <span class="pill-label">{{ tripSummary().paidPercent }}% pago</span>
-          </div>
-        </div>
-      }
-      @if (tripSummary().conflictCount > 0) {
-        <div class="summary-pill pill-conflict">
-          <mat-icon>warning</mat-icon>
-          <div class="pill-content">
-            <span class="pill-value">{{ tripSummary().conflictCount }}</span>
-            <span class="pill-label">{{ tripSummary().conflictCount === 1 ? 'alerta' : 'alertas' }}</span>
-          </div>
-        </div>
-      }
-    </div>
-
-    <!-- ═══ TYPE FILTERS ═══ -->
-    @if (tripSummary().totalItems > 0) {
-      <div class="filter-row">
-        @for (ft of filterTypes; track ft.value) {
-          @if (ft.value === '' || (typeCounts()[ft.value] ?? 0) > 0) {
-            <button class="filter-chip" [class.active]="activeFilter() === ft.value"
-                    (click)="activeFilter.set(ft.value)">
-              <mat-icon>{{ ft.icon }}</mat-icon>
-              <span>{{ ft.label }}</span>
-              @if (ft.value !== '' && (typeCounts()[ft.value] ?? 0) > 0) {
-                <span class="filter-count">{{ typeCounts()[ft.value] }}</span>
-              }
-            </button>
-          }
-        }
-      </div>
-    }
 
     <!-- ═══ TIMELINE RAIL ═══ -->
     <div class="timeline-rail">
