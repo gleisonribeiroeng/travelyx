@@ -42,18 +42,18 @@ export interface AddItemDialogData {
         </div>
 
         <!-- Name -->
-        <mat-form-field appearance="outline" class="compact-field">
+        <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic">
           <mat-label>Nome</mat-label>
-          <input matInput formControlName="label" placeholder="Ex: Check-in hotel, Voo para SP..." />
+          <input matInput formControlName="label" />
         </mat-form-field>
 
         <!-- Date + Time row -->
         <div class="row-2">
-          <mat-form-field appearance="outline" class="compact-field">
+          <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic">
             <mat-label>Data</mat-label>
             <input matInput type="date" formControlName="date" />
           </mat-form-field>
-          <mat-form-field appearance="outline" class="compact-field">
+          <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic">
             <mat-label>Hora</mat-label>
             <input matInput type="time" formControlName="timeSlot" />
           </mat-form-field>
@@ -78,7 +78,7 @@ export interface AddItemDialogData {
           </div>
           @if (showCustomDuration()) {
             <div class="duration-custom">
-              <mat-form-field appearance="outline" class="compact-field duration-field">
+              <mat-form-field appearance="outline" class="compact-field duration-field" subscriptSizing="dynamic">
                 <mat-label>Horas</mat-label>
                 <mat-select formControlName="durationHours">
                   @for (h of hourOptions; track h) {
@@ -86,7 +86,7 @@ export interface AddItemDialogData {
                   }
                 </mat-select>
               </mat-form-field>
-              <mat-form-field appearance="outline" class="compact-field duration-field">
+              <mat-form-field appearance="outline" class="compact-field duration-field" subscriptSizing="dynamic">
                 <mat-label>Minutos</mat-label>
                 <mat-select formControlName="durationMins">
                   @for (m of minuteOptions; track m) {
@@ -99,9 +99,9 @@ export interface AddItemDialogData {
         </div>
 
         <!-- Notes (compact) -->
-        <mat-form-field appearance="outline" class="compact-field">
+        <mat-form-field appearance="outline" class="compact-field" subscriptSizing="dynamic">
           <mat-label>Notas</mat-label>
-          <input matInput formControlName="notes" placeholder="Opcional" />
+          <input matInput formControlName="notes" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
@@ -170,35 +170,40 @@ export interface AddItemDialogData {
     .dialog-form {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      min-width: 380px;
+      gap: 6px;
+      min-width: 360px;
+      max-width: 420px;
     }
 
     .compact-field {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
+
+      .mat-mdc-form-field-infix {
+        min-height: 40px !important;
+        padding-top: 10px !important;
+        padding-bottom: 6px !important;
+      }
     }
 
     /* ─── Type selector ─── */
     .type-selector {
-      display: flex;
-      gap: 6px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
       margin-bottom: 8px;
-      flex-wrap: wrap;
     }
 
     .type-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      padding: 8px 6px;
+      gap: 2px;
+      padding: 8px 2px 6px;
       border: 1.5px solid var(--triply-border-subtle, #e5e5e5);
       border-radius: 10px;
       background: var(--triply-surface-1, #fff);
       cursor: pointer;
       transition: all 0.18s ease;
-      flex: 1;
-      min-width: 52px;
 
       mat-icon {
         font-size: 20px;
@@ -209,12 +214,13 @@ export interface AddItemDialogData {
       }
 
       span {
-        font-size: 0.62rem;
+        font-size: 0.58rem;
         font-weight: 600;
         color: var(--triply-text-tertiary, #aaa);
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.02em;
         transition: color 0.18s;
+        white-space: nowrap;
       }
 
       &:hover {
@@ -258,9 +264,12 @@ export interface AddItemDialogData {
 
     .duration-presets {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 5px;
       margin-bottom: 6px;
+      overflow-x: auto;
+
+      &::-webkit-scrollbar { display: none; }
     }
 
     .preset-chip {
@@ -269,9 +278,11 @@ export interface AddItemDialogData {
       gap: 3px;
       border: 1px solid var(--triply-border-subtle, #e0e0e0);
       border-radius: 8px;
-      padding: 5px 12px;
-      font-size: 0.74rem;
+      padding: 5px 10px;
+      font-size: 0.72rem;
       font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
       background: var(--triply-surface-1, #fff);
       color: var(--triply-text-secondary, #666);
       cursor: pointer;
@@ -358,8 +369,8 @@ export class AddItemDialogComponent {
     { value: 'flight', label: 'Voo', icon: 'flight', color: '#2196F3' },
     { value: 'stay', label: 'Hotel', icon: 'hotel', color: '#7C4DFF' },
     { value: 'car-rental', label: 'Carro', icon: 'directions_car', color: '#607D8B' },
-    { value: 'activity', label: 'Atividade', icon: 'local_activity', color: '#43A047' },
-    { value: 'transport', label: 'Transporte', icon: 'directions_bus', color: '#78909C' },
+    { value: 'activity', label: 'Ativ.', icon: 'local_activity', color: '#43A047' },
+    { value: 'transport', label: 'Transp.', icon: 'directions_bus', color: '#78909C' },
     { value: 'custom', label: 'Outro', icon: 'edit_note', color: '#9E9E9E' },
   ];
 
