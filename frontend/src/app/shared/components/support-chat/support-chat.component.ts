@@ -70,7 +70,7 @@ interface ChatMessage {
     }
   `,
   styles: [`
-    :host { position: fixed; bottom: 24px; right: 24px; z-index: 9998; }
+    :host { position: fixed; bottom: 88px; right: 24px; z-index: 9998; }
 
     .chat-fab {
       width: 56px; height: 56px; border-radius: 50%; border: none;
@@ -151,7 +151,7 @@ interface ChatMessage {
     .chat-input input::placeholder { color: var(--triply-text-secondary, #999); }
 
     @media (max-width: 959px) {
-      :host { bottom: 72px; right: 16px; left: auto; }
+      :host { bottom: 80px; right: 16px; left: auto; }
       .chat-fab { width: 48px; height: 48px; }
       .chat-fab mat-icon { font-size: 22px; }
       .chat-panel { width: calc(100vw - 32px); right: 0; height: 55vh; }
