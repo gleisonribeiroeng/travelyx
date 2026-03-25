@@ -727,6 +727,14 @@ function formatDate(iso: string): string {
           </div>
         }
 
+        <!-- How to buy hint (flights) -->
+        @if (data.type === 'flight' && asF().flightNumber) {
+          <div class="buy-hint">
+            <mat-icon>info_outline</mat-icon>
+            <span>Para comprar, busque o voo <strong>{{ asF().flightNumber }}</strong> de <strong>{{ asF().origin }} → {{ asF().destination }}</strong> em <strong>{{ asF().departureAt | date:'dd/MM/yyyy' }}</strong> no site da companhia aérea ou em sites como Booking.com, Decolar ou Google Flights.</span>
+          </div>
+        }
+
         <!-- External link -->
         @if (externalLink(); as link) {
           @if (link.url && link.provider !== 'manual') {
@@ -2355,6 +2363,33 @@ function formatDate(iso: string): string {
       -webkit-box-orient: vertical;
       overflow: hidden;
       cursor: pointer;
+    }
+
+    /* ─── Buy hint ────────────────────────────────────────────────── */
+    .buy-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 12px 14px;
+      background: rgba(108, 92, 231, 0.06);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--triply-text-secondary);
+      margin-top: 8px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: var(--triply-primary);
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      strong {
+        color: var(--triply-text-primary);
+      }
     }
 
     /* ─── External link ──────────────────────────────────────────── */
