@@ -230,8 +230,13 @@ export class FlightsService {
     const departureAt = offer.departure_at || `${offer.depart_date || ''}T00:00:00`;
     const arrivalAt = offer.arrival_at || '';
 
-    // Build Aviasales affiliate deep link
-    const deepLink = `https://www.aviasales.com/search/${fromIata}${offer.depart_date?.replace(/-/g, '').slice(2) || ''}${toIata}${offer.return_date?.replace(/-/g, '').slice(2) || ''}1?marker=${marker}`;
+    // Build Aviasales affiliate deep link (format: {origin}{DDMM}{dest}{DDMM}{pax})
+    const fmtDate = (d: string) => {
+      if (!d) return '';
+      const [, mm, dd] = d.split('-');
+      return `${dd}${mm}`;
+    };
+    const deepLink = `https://www.aviasales.com/search/${fromIata}${fmtDate(offer.depart_date)}${toIata}${fmtDate(offer.return_date)}1?marker=${marker}`;
 
     return {
       id: `tp-${Date.now()}-${index}`,
@@ -332,7 +337,8 @@ export class FlightsService {
     const arrCode = outbound.arrivalAirport?.code || '';
     const depDate = (outbound.departureTime || '').split('T')[0];
 
-    const bookingUrl = `https://www.booking.com/flights/search?fromId=${depCode}.AIRPORT&toId=${arrCode}.AIRPORT&departDate=${depDate}&adults=1&cabinClass=ECONOMY&sort=BEST`;
+    // Build Booking.com flight search URL with airport IDs matching the API format
+    const bookingUrl = `https://www.booking.com/flights/search?fromId=${depCode}.AIRPORT&toId=${arrCode}.AIRPORT&departDate=${depDate}&returnDate=&adults=1&cabinClass=ECONOMY&sort=CHEAPEST`;
 
     return {
       id: `bkf-${Date.now()}-${index}`,
