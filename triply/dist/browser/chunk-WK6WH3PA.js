@@ -1,0 +1,1 @@
+import{W as s,ra as t}from"./chunk-PBMURHRD.js";var r=class e{active=t(!1);progress=t(0);start(){this.progress.set(0),this.active.set(!0)}finish(){this.active.set(!1),this.progress.set(0)}static \u0275fac=function(o){return new(o||e)};static \u0275prov=s({token:e,factory:e.\u0275fac,providedIn:"root"})};export{r as a};

@@ -1,0 +1,1 @@
+import{K as n,k as r,v as a}from"./chunk-PBMURHRD.js";import{a as e}from"./chunk-DAQOROHW.js";var T=[429,502,503,504],c={maxRetries:3,initialDelay:1e3,maxDelay:8e3};function y(i){let t=e(e({},c),i);return n({count:t.maxRetries,delay:(o,m)=>{if(T.includes(o.status)){let p=Math.min(t.initialDelay*Math.pow(2,m-1),t.maxDelay);return a(p)}return r(()=>o)}})}export{y as a};

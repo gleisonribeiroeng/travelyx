@@ -1,0 +1,1 @@
+import{E as p}from"./chunk-BD7H57YY.js";import{Ib as n,ib as o}from"./chunk-PBMURHRD.js";import"./chunk-DAQOROHW.js";var l=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=o({type:t,selectors:[["app-trip-shell"]],decls:1,vars:0,template:function(e,r){e&1&&n(0,"router-outlet")},dependencies:[p],encapsulation:2})};export{l as TripShellComponent};
