@@ -103,7 +103,7 @@ export function stayToListItem(
 export type FlightTagType = 'cheapest' | 'fastest' | 'bestValue';
 
 const FLIGHT_SOURCE_BADGES: Record<string, ListItemSourceBadge> = {
-  booking: { label: 'Booking.com', color: '#003580' },
+  booking: { label: 'Google Flights', color: '#4285F4' },
   kiwi:    { label: 'Kiwi.com',    color: '#00a991' },
 };
 

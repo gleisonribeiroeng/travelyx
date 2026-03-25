@@ -337,18 +337,8 @@ export class FlightsService {
     const arrCode = outbound.arrivalAirport?.code || '';
     const depDate = (outbound.departureTime || '').split('T')[0];
 
-    // Build Booking.com flight search URL using the original search IDs (not segment codes)
-    // This ensures Booking.com recognizes the airports and shows results
-    const bookingParams = new URLSearchParams({
-      fromId: searchFromId,
-      toId: searchToId,
-      departDate: searchDepartDate,
-      adults: '1',
-      cabinClass: 'ECONOMY',
-      sort: 'CHEAPEST',
-      ...(searchReturnDate ? { returnDate: searchReturnDate } : { type: 'ONEWAY' }),
-    });
-    const bookingUrl = `https://www.booking.com/flights/search?${bookingParams.toString()}`;
+    // Google Flights deep link — reliable and always finds the flight by IATA codes
+    const bookingUrl = `https://www.google.com/travel/flights?q=flights%20from%20${depCode}%20to%20${arrCode}%20on%20${depDate}&curr=BRL`;
 
     return {
       id: `bkf-${Date.now()}-${index}`,
@@ -374,7 +364,7 @@ export class FlightsService {
       },
       link: {
         url: bookingUrl,
-        provider: 'Booking.com',
+        provider: 'Google Flights',
       },
     };
   }
