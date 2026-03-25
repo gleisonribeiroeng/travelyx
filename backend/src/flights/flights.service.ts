@@ -121,7 +121,7 @@ export class FlightsService {
       }
 
       const flights = data.data.flightOffers
-        .map((offer: any, index: number) => this.mapFlightOffer(offer, index))
+        .map((offer: any, index: number) => this.mapFlightOffer(offer, index, normalizedFrom, normalizedTo, departDate, returnDate))
         .filter(Boolean);
 
       this.logger.log(`Booking.com flights: ${flights.length} results`);
@@ -309,7 +309,7 @@ export class FlightsService {
   /**
    * Map a single Booking.com flight offer to the canonical Flight model.
    */
-  private mapFlightOffer(offer: any, index: number): any {
+  private mapFlightOffer(offer: any, index: number, searchFromId: string, searchToId: string, searchDepartDate: string, searchReturnDate: string): any {
     const outbound = offer.segments?.[0];
     if (!outbound) return null;
 
@@ -337,8 +337,18 @@ export class FlightsService {
     const arrCode = outbound.arrivalAirport?.code || '';
     const depDate = (outbound.departureTime || '').split('T')[0];
 
-    // Build Booking.com flight search URL with airport IDs matching the API format
-    const bookingUrl = `https://www.booking.com/flights/search?fromId=${depCode}.AIRPORT&toId=${arrCode}.AIRPORT&departDate=${depDate}&returnDate=&adults=1&cabinClass=ECONOMY&sort=CHEAPEST`;
+    // Build Booking.com flight search URL using the original search IDs (not segment codes)
+    // This ensures Booking.com recognizes the airports and shows results
+    const bookingParams = new URLSearchParams({
+      fromId: searchFromId,
+      toId: searchToId,
+      departDate: searchDepartDate,
+      adults: '1',
+      cabinClass: 'ECONOMY',
+      sort: 'CHEAPEST',
+      ...(searchReturnDate ? { returnDate: searchReturnDate } : { type: 'ONEWAY' }),
+    });
+    const bookingUrl = `https://www.booking.com/flights/search?${bookingParams.toString()}`;
 
     return {
       id: `bkf-${Date.now()}-${index}`,
