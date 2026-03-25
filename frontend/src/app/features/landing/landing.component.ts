@@ -66,7 +66,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly loading = signal(false);
 
   // Hero device carousel
-  readonly screens = ['dashboard', 'flights', 'hotels', 'timeline'];
+  readonly screens = ['hotels', 'checklist', 'dashboard', 'timeline'];
   readonly activeScreen = signal(0);
   private screenTimer?: ReturnType<typeof setInterval>;
 
