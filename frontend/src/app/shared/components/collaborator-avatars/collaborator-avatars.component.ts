@@ -61,7 +61,7 @@ import { Collaborator } from '../../../core/models/collaboration.models';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       flex-shrink: 0;
       position: relative;
     }

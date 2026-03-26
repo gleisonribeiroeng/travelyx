@@ -4,7 +4,7 @@
 
 // ── Type color map ──
 [data-type="flight"]     { --type-color: #2196F3; --type-bg: rgba(33, 150, 243, 0.10); }
-[data-type="stay"]       { --type-color: #7C4DFF; --type-bg: rgba(124, 77, 255, 0.10); }
+[data-type="stay"]       { --type-color: #f97316; --type-bg: rgba(249, 115, 22, 0.10); }
 [data-type="car-rental"] { --type-color: #607D8B; --type-bg: rgba(96, 125, 139, 0.10); }
 [data-type="transport"]  { --type-color: #78909C; --type-bg: rgba(120, 144, 156, 0.10); }
 [data-type="activity"]   { --type-color: #43A047; --type-bg: rgba(67, 160, 71, 0.10); }
@@ -16,8 +16,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-width: 860px;
-  margin: 0 auto;
+  max-width: none;
 }
 
 // ── Header Row 1: Title + summary pills + add button ──
@@ -65,9 +64,9 @@
   }
 
   &.pill-days {
-    background: rgba(108, 92, 231, 0.08);
-    color: #5b4ccc;
-    mat-icon { color: #6C5CE7; }
+    background: rgba(249, 115, 22, 0.08);
+    color: #ea580c;
+    mat-icon { color: #f97316; }
   }
   &.pill-items {
     background: rgba(59, 130, 246, 0.08);
@@ -133,7 +132,7 @@
 }
 
 .sec-action.optimize-btn {
-  &:hover:not(:disabled) { color: var(--triply-primary) !important; background: rgba(108, 92, 231, 0.06) !important; }
+  &:hover:not(:disabled) { color: var(--triply-primary) !important; background: rgba(249, 115, 22, 0.06) !important; }
 }
 .sec-action.export-btn {
   &:hover:not(:disabled) { color: #10B981 !important; background: rgba(16, 185, 129, 0.06) !important; }
@@ -258,7 +257,7 @@
 
 .day-section.expanded .day-node .node-dot {
   transform: scale(1.15);
-  box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
 }
 
 // ── Day card ──
@@ -278,8 +277,8 @@
 }
 
 .day-section.expanded .day-card {
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(108, 92, 231, 0.1);
-  border-color: rgba(108, 92, 231, 0.18);
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(249, 115, 22, 0.1);
+  border-color: rgba(249, 115, 22, 0.18);
 }
 
 // ── Day header ──
@@ -454,7 +453,7 @@
   &:hover {
     background: var(--triply-surface-1, #fff);
     border-color: var(--triply-border-hover, #d4d4d8);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(108, 92, 231, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(249, 115, 22, 0.06);
     transform: translateY(-1px);
 
     .card-actions {
@@ -487,7 +486,7 @@
 
 // All-day time placeholder
 .card-time-allday {
-  background: rgba(108, 92, 231, 0.03);
+  background: rgba(249, 115, 22, 0.03);
 }
 
 .time-allday-label {
@@ -561,7 +560,7 @@
     width: 15px;
     height: 15px;
     color: var(--type-color, var(--triply-primary));
-    background: var(--type-bg, rgba(108, 92, 231, 0.10));
+    background: var(--type-bg, rgba(249, 115, 22, 0.10));
     padding: 5px;
     border-radius: 50%;
     box-sizing: content-box;
@@ -591,7 +590,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   color: var(--type-color, var(--triply-text-tertiary));
-  background: var(--type-bg, rgba(108, 92, 231, 0.08));
+  background: var(--type-bg, rgba(249, 115, 22, 0.08));
   padding: 2px 7px;
   border-radius: 4px;
   line-height: 1.3;
@@ -716,7 +715,7 @@
   opacity: 0.25;
   border: 2px dashed var(--triply-primary);
   border-radius: 8px;
-  background: rgba(108, 92, 231, 0.04);
+  background: rgba(249, 115, 22, 0.04);
 }
 
 .cdk-drag-animating {
@@ -835,7 +834,7 @@
   }
 
   &:hover {
-    background: rgba(108, 92, 231, 0.04) !important;
+    background: rgba(249, 115, 22, 0.04) !important;
     border-color: var(--triply-primary) !important;
     color: var(--triply-primary) !important;
     border-style: solid !important;
@@ -847,7 +846,7 @@
 // ═══════════════════════════════════════════════════════════
 
 .type-flight { color: #2196F3 !important; }
-.type-stay { color: #7C4DFF !important; }
+.type-stay { color: #f97316 !important; }
 .type-activity { color: #43A047 !important; }
 .type-attraction { color: #FF9800 !important; }
 .type-transport { color: #78909C !important; }
@@ -973,14 +972,14 @@
   &:hover {
     border-color: var(--triply-primary);
     color: var(--triply-primary);
-    background: rgba(108, 92, 231, 0.04);
+    background: rgba(249, 115, 22, 0.04);
   }
 
   &.active {
     background: var(--triply-primary);
     color: #fff;
     border-color: var(--triply-primary);
-    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.25);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
 
     mat-icon { color: #fff; }
     .filter-count { background: rgba(255,255,255,0.25); color: #fff; }
@@ -1156,7 +1155,7 @@
 .travel-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(108, 92, 231, 0.15), transparent);
+  background: linear-gradient(to right, transparent, rgba(249, 115, 22, 0.15), transparent);
 }
 
 .travel-badge {
@@ -1165,7 +1164,7 @@
   gap: 4px;
   padding: 2px 10px;
   border-radius: 12px;
-  background: rgba(108, 92, 231, 0.06);
+  background: rgba(249, 115, 22, 0.06);
   font-size: 0.68rem;
   font-weight: 600;
   color: var(--triply-primary);
@@ -1196,7 +1195,7 @@
   color: var(--triply-primary) !important;
   mat-icon { color: var(--triply-primary); }
   mat-spinner { display: inline-block; margin-right: 4px; }
-  &:hover:not(:disabled) { background: rgba(108, 92, 231, 0.06) !important; }
+  &:hover:not(:disabled) { background: rgba(249, 115, 22, 0.06) !important; }
 }
 
 .pro-lock-inline {

@@ -1,6 +1,6 @@
 <div class="timeline-page">
   <!-- ═══ LINE 1: Title + summary pills + add button ═══ -->
-  <div class="header-row-1">
+  <div class="header-row-1 page-dark-header">
     <h1 class="header-title">{{ 'timeline.title' | translate }}</h1>
 
     @if (hasDates()) {
@@ -84,7 +84,8 @@
           <button mat-menu-item (click)="exportPdf()"><mat-icon>picture_as_pdf</mat-icon> {{ 'export.pdf' | translate }}</button>
           <button mat-menu-item (click)="exportBeautifulPdf()">
             <mat-icon>auto_stories</mat-icon> {{ 'export.pdfPro' | translate }}
-            @if (!planService.hasFeature('pdfExport')) { <mat-icon class="pro-lock-inline">lock</mat-icon> }
+            <!-- PRO lock commented out — all features unlocked for now
+            @if (!planService.hasFeature('pdfExport')) { <mat-icon class="pro-lock-inline">lock</mat-icon> } -->
           </button>
           <button mat-menu-item (click)="exportExcel()"><mat-icon>table_chart</mat-icon> {{ 'export.excel' | translate }}</button>
         </mat-menu>

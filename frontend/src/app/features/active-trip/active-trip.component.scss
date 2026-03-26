@@ -15,7 +15,7 @@
 .trip-progress { border-radius: 4px; }
 
 .now-card {
-  background: linear-gradient(135deg, rgba(108,92,231,0.08), rgba(108,92,231,0.02)) !important;
+  background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.02)) !important;
   border-left: 4px solid var(--triply-primary) !important;
 }
 
@@ -73,7 +73,7 @@
   margin-bottom: 2px;
 
   &.past { opacity: 0.5; .schedule-label { text-decoration: line-through; } }
-  &.current { background: rgba(108, 92, 231, 0.06); font-weight: 600; }
+  &.current { background: rgba(249, 115, 22, 0.06); font-weight: 600; }
   &.tomorrow { opacity: 0.7; }
 
   mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--triply-primary); }

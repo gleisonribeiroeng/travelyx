@@ -1,93 +1,99 @@
-<div class="view-header">
-  <h1>{{ 'activities.title' | translate }}</h1>
-  <p>{{ 'activities.subtitleAttractions' | translate }}</p>
-</div>
+<div class="dsp">
+  <div class="dsp-header">
+    <h1>{{ 'activities.title' | translate }}</h1>
+  </div>
 
-@if (formCollapsed()) {
-  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
-    <div class="toggle-info">
+  @if (formCollapsed()) {
+    <div class="dsp-collapsed-bar" (click)="formCollapsed.set(false)">
       <mat-icon>museum</mat-icon>
       <span>{{ 'activities.searchToggle' | translate }}</span>
-    </div>
-    <div class="toggle-action">
-      <span>{{ 'activities.editSearch' | translate }}</span>
-      <mat-icon>expand_more</mat-icon>
-    </div>
-  </div>
-}
-
-<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
-  <mat-card-content>
-    <form [formGroup]="attractionSearchForm" (ngSubmit)="searchAttractions()">
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'activities.city' | translate }}</mat-label>
-          <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" />
-          <mat-icon matPrefix>place</mat-icon>
-          <mat-autocomplete #autoCity [displayWith]="displayCity">
-            @for (dest of filteredCities$ | async; track dest.destId) {
-              <mat-option [value]="dest">{{ dest.label }}</mat-option>
-            }
-          </mat-autocomplete>
-          @if (cityControl.hasError('required')) { <mat-error>{{ 'activities.cityRequired' | translate }}</mat-error> }
-        </mat-form-field>
+      <div class="dsp-edit">
+        <span>{{ 'activities.editSearch' | translate }}</span>
+        <mat-icon>expand_more</mat-icon>
       </div>
-
-      @if (isSearching()) {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
-          <mat-spinner diameter="20"></mat-spinner>
-          <span>{{ 'activities.searching' | translate }}</span>
-        </button>
-      } @else {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="attractionSearchForm.invalid">
-          <mat-icon>search</mat-icon>
-          <span>{{ 'activities.searchActivities' | translate }}</span>
-        </button>
-      }
-    </form>
-  </mat-card-content>
-</mat-card>
-
-@if (errorMessage()) {
-  <app-error-banner [source]="errorSource() ?? ('activities.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
-}
-
-@if (searchResults().length > 0) {
-  <div class="results-section">
-    <div class="results-header">
-      <h2>{{ searchResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
     </div>
+  }
 
-    @for (attraction of searchResults(); track attraction.id) {
-      <app-list-item-base
-        [config]="toListItem(attraction)"
-        (primaryClick)="selectById($event)"
-        (secondaryClick)="openDetailById($event)"
-        (cardClick)="openDetailById($event)"
-      />
-    }
+  <form [formGroup]="attractionSearchForm" (ngSubmit)="searchAttractions()" [class.dsp-form-hidden]="formCollapsed()">
+    <div class="dsp-card">
+      <div class="dsp-row">
+        <div class="dsp-field dsp-field--lg">
+          <label>{{ 'activities.city' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" />
+            <mat-icon matPrefix>place</mat-icon>
+            <mat-autocomplete #autoCity [displayWith]="displayCity">
+              @for (dest of filteredCities$ | async; track dest.destId) {
+                <mat-option [value]="dest">{{ dest.label }}</mat-option>
+              }
+            </mat-autocomplete>
+            @if (cityControl.hasError('required')) { <mat-error>{{ 'activities.cityRequired' | translate }}</mat-error> }
+          </mat-form-field>
+        </div>
 
-    @if (hasMore()) {
-      <div class="load-more-container">
-        <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
-          @if (isLoadingMore()) {
-            <mat-spinner diameter="18"></mat-spinner>
+        <button type="submit" class="dsp-btn" [disabled]="attractionSearchForm.invalid || isSearching()">
+          @if (isSearching()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>{{ 'activities.searching' | translate }}</span>
           } @else {
-            <mat-icon>expand_more</mat-icon>
+            <span>{{ 'activities.searchActivities' | translate }}</span>
           }
-          {{ 'common.loadMore' | translate }}
         </button>
-        <span class="load-more-count">{{ searchResults().length }} / {{ totalCount() }}</span>
       </div>
-    }
-  </div>
-}
+    </div>
+  </form>
+</div>
 
-@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
-  <mat-card class="empty-state">
-    <mat-card-content>
-      <mat-icon>museum</mat-icon>
-      <p>{{ 'activities.emptyStateAttractions' | translate }}</p>
-    </mat-card-content>
-  </mat-card>
-}
+<div class="dsp-results">
+  @if (!hasSearched() && !isSearching()) {
+    <div class="search-hint">
+      <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+      <h3>Explore atracoes no destino</h3>
+      <p>Preencha a cidade acima e clique em <strong>Buscar</strong> para ver os resultados</p>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <app-error-banner [source]="errorSource() ?? ('activities.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
+  }
+
+  @if (searchResults().length > 0) {
+    <div class="results-section">
+      <div class="results-header">
+        <h2>{{ searchResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
+      </div>
+
+      @for (attraction of searchResults(); track attraction.id) {
+        <app-list-item-base
+          [config]="toListItem(attraction)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+        />
+      }
+
+      @if (hasMore()) {
+        <div class="load-more-container">
+          <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+            @if (isLoadingMore()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>expand_more</mat-icon>
+            }
+            {{ 'common.loadMore' | translate }}
+          </button>
+          <span class="load-more-count">{{ searchResults().length }} / {{ totalCount() }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon>museum</mat-icon>
+        <p>{{ 'activities.emptyStateAttractions' | translate }}</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

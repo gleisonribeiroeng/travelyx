@@ -1,0 +1,180 @@
+// Wizard Tour Step — replicates the search page DSP layout exactly
+:host {
+  display: block;
+  overflow-x: hidden;
+  // Bleed into wizard-content padding
+  margin: -16px;
+  @media (min-width: 960px) { margin: -28px -40px; }
+}
+
+// ── Dark panel (same as search.component.scss .flight-search-panel) ──
+.flight-search-panel {
+  background: #0f172a;
+  padding: 24px 16px 20px;
+  border-radius: 0 0 20px 20px;
+  @media (min-width: 960px) {
+    padding: 28px 40px 24px;
+    border-radius: 0 0 24px 24px;
+  }
+}
+
+.fsp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+  h1 {
+    color: #fff;
+    font-family: var(--triply-font-display, 'Sora', sans-serif);
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 0;
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+  }
+}
+
+// ── Selected items (dark bg) ──
+.current-selection {
+  display: flex; flex-direction: column; gap: 8px; margin: 12px 0;
+  h3 { margin: 0; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.6); }
+}
+.selected-card { border-left: 3px solid #14b8a6 !important; background: rgba(255,255,255,0.06) !important; }
+.selected-info { display: flex; align-items: center; gap: 12px; }
+.selected-info mat-icon { color: #14b8a6; }
+.selected-details { flex: 1; display: flex; flex-direction: column; }
+.selected-details strong { font-size: 0.9rem; color: rgba(255,255,255,0.9); }
+.selected-details span { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+.selected-price { font-weight: 700; color: #f97316; font-size: 0.95rem; }
+
+// ── Collapsed bar ──
+.fsp-collapsed-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer; font-size: 0.85rem;
+  transition: background 0.2s;
+  &:hover { background: rgba(255,255,255,0.1); }
+  .fsp-edit {
+    margin-left: auto; color: #f97316;
+    display: flex; align-items: center; gap: 4px;
+    font-weight: 600; font-size: 0.8rem;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+.fsp-form-hidden { display: none !important; }
+
+// ── White fields card (same as search page) ──
+.fsp-fields-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.fsp-fields-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  @media (min-width: 960px) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.fsp-field {
+  flex: 1; min-width: 0; padding: 8px 12px 4px;
+  label {
+    display: block; font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.08em; color: var(--triply-text-tertiary, #94a3b8);
+    margin-bottom: 0; font-family: var(--triply-font-display, 'Sora', sans-serif);
+  }
+  &--lg { @media (min-width: 960px) { flex: 2; } }
+}
+
+// Minimal input (copied from search.component.scss — works with ::ng-deep)
+.fsp-input {
+  width: 100%;
+  &.mat-mdc-form-field {
+    --mdc-filled-text-field-container-color: transparent;
+    --mdc-filled-text-field-active-indicator-height: 0;
+    --mdc-filled-text-field-focus-active-indicator-height: 0;
+    --mdc-filled-text-field-hover-active-indicator-color: transparent;
+    --mdc-filled-text-field-active-indicator-color: transparent;
+    --mdc-filled-text-field-focus-active-indicator-color: transparent;
+  }
+}
+
+:host ::ng-deep .fsp-input {
+  .mdc-text-field--filled {
+    background: transparent !important;
+    padding: 0 !important;
+    height: 40px;
+  }
+  .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 4px !important;
+    min-height: 36px;
+  }
+  .mdc-line-ripple { display: none; }
+  .mat-mdc-form-field-subscript-wrapper { display: none; }
+  .mdc-floating-label { display: none; }
+  input, .mat-mdc-select-trigger {
+    font-size: 0.88rem; font-weight: 500;
+    color: var(--triply-text-primary);
+  }
+  .mat-mdc-form-field-icon-prefix {
+    color: var(--triply-text-tertiary);
+    padding: 0 6px 0 0;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+.fsp-divider {
+  display: none;
+  @media (min-width: 960px) {
+    display: block; width: 1px; align-self: stretch;
+    margin: 8px 0; background: var(--triply-border-subtle, #f1f5f9);
+    flex-shrink: 0;
+  }
+}
+
+// Search button — coral pill
+.fsp-search-btn {
+  margin: 8px;
+  height: 48px; min-height: 48px; max-height: 48px;
+  border: none; border-radius: 100px;
+  background: #f97316; color: #fff;
+  font-weight: 700; font-size: 0.88rem;
+  font-family: var(--triply-font-display, 'Sora', sans-serif);
+  box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 24px; white-space: nowrap; flex-shrink: 0;
+  transition: box-shadow 0.2s, transform 0.2s;
+  @media (min-width: 960px) { margin: auto 8px auto 0; min-width: 140px; }
+  &:hover:not(:disabled) { box-shadow: 0 6px 24px rgba(249,115,22,0.4); transform: translateY(-1px); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ── Results area ──
+.search-results-area {
+  padding: 16px;
+  @media (min-width: 960px) { padding: 16px 40px 28px; }
+}
+
+.loading-state, .empty-results { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 48px; }
+.loading-state p, .empty-results p { margin-top: 12px; color: var(--triply-text-secondary); }
+.empty-results mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--triply-text-secondary); opacity: 0.5; }
+
+.results-list { display: flex; flex-direction: column; gap: 6px; }
+.results-list h3 { margin: 0 0 4px; font-size: 0.85rem; font-weight: 600; color: var(--triply-text-secondary); }

@@ -35,7 +35,7 @@ export class AuthService {
     const u = this._user();
     if (u?.picture) return u.picture;
     const name = encodeURIComponent(u?.name || '?');
-    return `https://ui-avatars.com/api/?name=${name}&background=7c3aed&color=fff&size=80`;
+    return `https://ui-avatars.com/api/?name=${name}&background=f97316&color=fff&size=80`;
   });
 
   private readonly router = inject(Router);

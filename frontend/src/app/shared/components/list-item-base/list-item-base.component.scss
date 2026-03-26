@@ -39,7 +39,7 @@
 
   &.recommended {
     border-color: var(--triply-primary);
-    box-shadow: 0 0 0 1px rgba(108, 92, 231, 0.15);
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.15);
 
     .item-image::before {
       content: '';
@@ -117,7 +117,7 @@
       font-size: 32px;
       width: 32px;
       height: 32px;
-      color: var(--triply-primary, #6c5ce7);
+      color: var(--triply-primary, #f97316);
       opacity: 0.3;
     }
   }
@@ -202,11 +202,11 @@
   backdrop-filter: blur(6px);
 }
 
-.tag-value    { background: rgba(108, 92, 231, 0.85); color: #fff; }
+.tag-value    { background: rgba(249, 115, 22, 0.85); color: #fff; }
 .tag-cheap    { background: rgba(5, 150, 105, 0.85);  color: #fff; }
 .tag-rated    { background: rgba(217, 119, 6, 0.85);  color: #fff; }
 .tag-fast     { background: rgba(37, 99, 235, 0.85);  color: #fff; }
-.tag-category { background: rgba(108, 92, 231, 0.85); color: #fff; }
+.tag-category { background: rgba(249, 115, 22, 0.85); color: #fff; }
 
 // Tags rendered inline (inside info column, for logo-mode cards)
 .inline-tags {
@@ -274,8 +274,8 @@
   display: inline-block;
   font-size: 0.6rem;
   font-weight: 700;
-  color: var(--triply-primary, #6c5ce7);
-  background: rgba(108, 92, 231, 0.08);
+  color: var(--triply-primary, #f97316);
+  background: rgba(249, 115, 22, 0.08);
   padding: 1px 8px;
   border-radius: 3px;
   text-transform: uppercase;
@@ -342,7 +342,7 @@
     }
 
     &:hover {
-      color: var(--triply-primary, #6c5ce7);
+      color: var(--triply-primary, #f97316);
     }
   }
 }
@@ -392,7 +392,7 @@
     display: block;
     font-size: 1.15rem;
     font-weight: 800;
-    color: var(--triply-primary, #6c5ce7);
+    color: var(--triply-primary, #f97316);
     letter-spacing: -0.03em;
     line-height: 1.2;
   }
@@ -432,11 +432,11 @@
 .primary-btn {
   font-weight: 700;
   letter-spacing: 0.01em;
-  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.25);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 
   &:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.35);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
     transform: translateY(-1px);
   }
 }

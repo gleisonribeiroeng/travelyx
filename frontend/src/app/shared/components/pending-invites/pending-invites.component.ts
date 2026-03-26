@@ -74,7 +74,7 @@ import { TripInvite } from '../../../core/models/collaboration.models';
         font-size: 20px;
         width: 20px;
         height: 20px;
-        color: var(--triply-primary, #6C5CE7);
+        color: var(--triply-primary, #f97316);
       }
     }
 
@@ -84,8 +84,8 @@ import { TripInvite } from '../../../core/models/collaboration.models';
       justify-content: space-between;
       gap: 16px;
       padding: 16px 20px;
-      background: linear-gradient(135deg, rgba(108, 92, 231, 0.06) 0%, rgba(124, 77, 255, 0.04) 100%);
-      border: 1px solid rgba(108, 92, 231, 0.15);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.06) 0%, rgba(249, 115, 22, 0.04) 100%);
+      border: 1px solid rgba(249, 115, 22, 0.15);
       border-radius: var(--triply-radius-lg, 16px);
       transition: all 0.35s ease;
       opacity: 1;
@@ -119,7 +119,7 @@ import { TripInvite } from '../../../core/models/collaboration.models';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       flex-shrink: 0;
 
       img {

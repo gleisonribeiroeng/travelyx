@@ -146,10 +146,11 @@ export class TripListComponent implements OnInit {
   }
 
   cloneTrip(id: string, name: string): void {
-    if (!this.planService.hasFeature('tripClone')) {
-      this.planService.showPaywall('tripClone');
-      return;
-    }
+    // PRO check commented out — all features unlocked for now
+    // if (!this.planService.hasFeature('tripClone')) {
+    //   this.planService.showPaywall('tripClone');
+    //   return;
+    // }
     this.tripState.cloneTrip(id, `${name} (cópia)`).subscribe({
       next: (trip) => {
         this.notify.success(this.i18n.t('trips.clonedSuccess'));

@@ -1,161 +1,144 @@
-<div class="view-header">
-  <h1>{{ 'flights.title' | translate }}</h1>
-  <p>{{ 'flights.subtitle' | translate }}</p>
-</div>
-
-@if (formCollapsed()) {
-  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
-    <div class="toggle-info">
-      <mat-icon>flight</mat-icon>
-      @if (tripType() === 'multi') {
-        <span>{{ 'flights.multiCity' | translate }}: {{ segmentsArray.length }} {{ 'flights.segments' | translate }}</span>
-      } @else {
-        <span>{{ 'flights.searchToggle' | translate }}</span>
-      }
-    </div>
-    <div class="toggle-action">
-      <span>{{ 'flights.editSearch' | translate }}</span>
-      <mat-icon>expand_more</mat-icon>
-    </div>
+<!-- ═══ FLIGHT SEARCH HERO PANEL ═══ -->
+<div class="flight-search-panel" [class.panel-collapsed]="formCollapsed()">
+  <!-- Row 1: Title + Trip type toggles -->
+  <div class="fsp-header">
+    <h1>{{ 'flights.title' | translate }}</h1>
+    <mat-button-toggle-group [value]="tripType()" (change)="onTripTypeChange($event.value)" class="fsp-type-toggle">
+      <mat-button-toggle value="roundTrip">{{ 'flights.roundTrip' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="oneWay">{{ 'flights.oneWay' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="multi">{{ 'flights.multiCity' | translate }}</mat-button-toggle>
+    </mat-button-toggle-group>
   </div>
-}
 
-<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
-  <mat-card-content>
-    <form [formGroup]="flightSearchForm" (ngSubmit)="searchFlights()">
-      <!-- Trip type toggle -->
-      <div class="trip-type-row">
-        <mat-button-toggle-group [value]="tripType()" (change)="onTripTypeChange($event.value)" class="trip-type-toggle">
-          <mat-button-toggle value="roundTrip">
-            <mat-icon>sync_alt</mat-icon> {{ 'flights.roundTrip' | translate }}
-          </mat-button-toggle>
-          <mat-button-toggle value="oneWay">
-            <mat-icon>arrow_forward</mat-icon> {{ 'flights.oneWay' | translate }}
-          </mat-button-toggle>
-          <mat-button-toggle value="multi">
-            <mat-icon>connecting_airports</mat-icon> {{ 'flights.multiCity' | translate }}
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
+  @if (formCollapsed()) {
+    <div class="fsp-collapsed-bar" (click)="formCollapsed.set(false)">
+      <mat-icon>flight</mat-icon>
+      <span>{{ 'flights.searchToggle' | translate }}</span>
+      <span class="fsp-edit">{{ 'flights.editSearch' | translate }} <mat-icon>expand_more</mat-icon></span>
+    </div>
+  }
 
-      <!-- Standard form (non-multi) -->
-      @if (tripType() !== 'multi') {
-        <!-- Origin and Destination Row -->
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'flights.origin' | translate }}</mat-label>
-            <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
-            <mat-icon matPrefix>flight_takeoff</mat-icon>
-            <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
-              @for (airport of filteredOrigins$ | async; track airport.id) {
-                <mat-option [value]="airport">
-                  <ng-container>
+  <!-- Row 2: Compact fields card (non-multi) -->
+  <form [formGroup]="flightSearchForm" (ngSubmit)="searchFlights()" [class.fsp-form-hidden]="formCollapsed()">
+    @if (tripType() !== 'multi') {
+      <div class="fsp-fields-card">
+        <div class="fsp-fields-row">
+          <div class="fsp-field fsp-field--origin">
+            <label>{{ 'flights.origin' | translate | uppercase }}</label>
+            <mat-form-field appearance="fill" class="fsp-input">
+              <mat-icon matPrefix>flight_takeoff</mat-icon>
+              <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin" [placeholder]="'flights.origin' | translate">
+              <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
+                @for (airport of filteredOrigins$ | async; track airport.id) {
+                  <mat-option [value]="airport">
                     <span class="option-icon">{{ airport.iataCode ? '✈' : '🏙' }}</span>
                     {{ airport.iataCode ? airport.cityName + ' — ' + airport.name + ' (' + airport.iataCode + ')' : airport.cityName + ' — ' + airport.name }}
-                  </ng-container>
-                </mat-option>
-              }
-            </mat-autocomplete>
-            @if (originControl.hasError('required')) {
-              <mat-error>{{ 'flights.originRequired' | translate }}</mat-error>
-            }
-            @if (originControl.hasError('invalidAirport')) {
-              <mat-error>{{ 'flights.selectAirport' | translate }}</mat-error>
-            }
-          </mat-form-field>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'flights.destination' | translate }}</mat-label>
-            <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination">
-            <mat-icon matPrefix>flight_land</mat-icon>
-            <mat-autocomplete #autoDestination [displayWith]="displayAirport">
-              @for (airport of filteredDestinations$ | async; track airport.id) {
-                <mat-option [value]="airport">
-                  <ng-container>
+          <div class="fsp-swap">
+            <mat-icon>swap_horiz</mat-icon>
+          </div>
+
+          <div class="fsp-field fsp-field--dest">
+            <label>{{ 'flights.destination' | translate | uppercase }}</label>
+            <mat-form-field appearance="fill" class="fsp-input">
+              <mat-icon matPrefix>flight_land</mat-icon>
+              <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" [placeholder]="'flights.destination' | translate">
+              <mat-autocomplete #autoDestination [displayWith]="displayAirport">
+                @for (airport of filteredDestinations$ | async; track airport.id) {
+                  <mat-option [value]="airport">
                     <span class="option-icon">{{ airport.iataCode ? '✈' : '🏙' }}</span>
                     {{ airport.iataCode ? airport.cityName + ' — ' + airport.name + ' (' + airport.iataCode + ')' : airport.cityName + ' — ' + airport.name }}
-                  </ng-container>
-                </mat-option>
-              }
-            </mat-autocomplete>
-            @if (destinationControl.hasError('required')) {
-              <mat-error>{{ 'flights.destinationRequired' | translate }}</mat-error>
-            }
-            @if (destinationControl.hasError('invalidAirport')) {
-              <mat-error>{{ 'flights.selectAirport' | translate }}</mat-error>
-            }
-          </mat-form-field>
-        </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
 
-        <!-- Flexible dates toggle -->
-        <div class="flexible-row">
-          <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
-            {{ 'flights.flexibleDates' | translate }}
-          </mat-slide-toggle>
-        </div>
+          <div class="fsp-divider"></div>
 
-        <!-- Date fields (fixed dates) -->
-        @if (!flexibleDates()) {
-          <div class="form-row">
-            <div class="date-range-wrapper" formGroupName="dateRange">
+          @if (!flexibleDates()) {
+            <div class="fsp-field fsp-field--dates" formGroupName="dateRange">
+              <label>{{ 'flights.departReturn' | translate | uppercase }}</label>
               @if (tripType() === 'roundTrip') {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'flights.departReturn' | translate }}</mat-label>
+                <mat-form-field appearance="fill" class="fsp-input">
+                  <mat-icon matPrefix>calendar_today</mat-icon>
                   <mat-date-range-input [rangePicker]="rangePicker" [min]="minDepartureDate" (click)="rangePicker.open()">
                     <input matStartDate formControlName="start" [placeholder]="'flights.departure' | translate">
                     <input matEndDate formControlName="end" [placeholder]="'flights.return' | translate">
                   </mat-date-range-input>
-                  <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
                   <mat-date-range-picker #rangePicker></mat-date-range-picker>
                 </mat-form-field>
               } @else {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'flights.departureDate' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="dpDeparture"
-                         formControlName="start"
-                         [min]="minDepartureDate"
-                         (focus)="dpDeparture.open()">
-                  <mat-datepicker-toggle matSuffix [for]="dpDeparture"></mat-datepicker-toggle>
+                <mat-form-field appearance="fill" class="fsp-input">
+                  <mat-icon matPrefix>calendar_today</mat-icon>
+                  <input matInput [matDatepicker]="dpDeparture" formControlName="start" [min]="minDepartureDate" (focus)="dpDeparture.open()" [placeholder]="'flights.departure' | translate">
                   <mat-datepicker #dpDeparture></mat-datepicker>
                 </mat-form-field>
               }
             </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'flights.passengers' | translate }}</mat-label>
-              <mat-select formControlName="passengers">
-                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
-                  <mat-option [value]="num">{{ num }} {{ num === 1 ? ('flights.adultSingular' | translate) : ('flights.adultPlural' | translate) }}</mat-option>
-                }
-              </mat-select>
-              <mat-icon matPrefix>person</mat-icon>
-            </mat-form-field>
-          </div>
-        }
+            <div class="fsp-divider"></div>
 
-        <!-- Month grid (flexible dates) -->
-        @if (flexibleDates()) {
-          <div class="month-grid">
-            @for (month of availableMonths; track month.value) {
-              <mat-checkbox [checked]="isMonthSelected(month.value)"
-                            (change)="toggleMonth(month.value)">
-                {{ month.label }}
-              </mat-checkbox>
+            <div class="fsp-field fsp-field--pax">
+              <label>{{ 'flights.passengers' | translate | uppercase }}</label>
+              <mat-form-field appearance="fill" class="fsp-input">
+                <mat-icon matPrefix>person</mat-icon>
+                <mat-select formControlName="passengers">
+                  @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                    <mat-option [value]="num">{{ num }} {{ num === 1 ? ('flights.adultSingular' | translate) : ('flights.adultPlural' | translate) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+
+          <!-- Search button -->
+          <button type="submit" class="fsp-search-btn" [disabled]="!canSearch() || isSearching()">
+            @if (isSearching()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              {{ 'flights.searchFlights' | translate }}
             }
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'flights.passengers' | translate }}</mat-label>
-              <mat-select formControlName="passengers">
-                @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
-                  <mat-option [value]="num">{{ num }} {{ num === 1 ? ('flights.adultSingular' | translate) : ('flights.adultPlural' | translate) }}</mat-option>
-                }
-              </mat-select>
-              <mat-icon matPrefix>person</mat-icon>
-            </mat-form-field>
-          </div>
-        }
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 3: Flexible dates + manual entry -->
+      <div class="fsp-footer">
+        <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
+          {{ 'flights.flexibleDates' | translate }}
+        </mat-slide-toggle>
+        <button mat-stroked-button type="button" class="fsp-manual-btn" (click)="openManualFlightDialog()">
+          <mat-icon>edit_note</mat-icon> {{ 'flights.addManually' | translate }}
+        </button>
+      </div>
+
+      @if (flexibleDates()) {
+        <div class="month-grid">
+          @for (month of availableMonths; track month.value) {
+            <mat-checkbox [checked]="isMonthSelected(month.value)" (change)="toggleMonth(month.value)">
+              {{ month.label }}
+            </mat-checkbox>
+          }
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'flights.passengers' | translate }}</mat-label>
+            <mat-select formControlName="passengers">
+              @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track num) {
+                <mat-option [value]="num">{{ num }} {{ num === 1 ? ('flights.adultSingular' | translate) : ('flights.adultPlural' | translate) }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+        </div>
       }
+    }
 
       <!-- Multi-city segments form -->
       @if (tripType() === 'multi') {
@@ -276,29 +259,32 @@
         </div>
       }
 
-      <!-- Submit Button -->
-      @if (isSearching()) {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
-          <mat-spinner diameter="20"></mat-spinner>
-          <span>{{ 'flights.searching' | translate }}</span>
-        </button>
-      } @else {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="!canSearch()">
-          <mat-icon>search</mat-icon>
-          <span>{{ 'flights.searchFlights' | translate }}</span>
-        </button>
+      <!-- Submit Button (multi-city and flexible dates only) -->
+      @if (tripType() === 'multi' || flexibleDates()) {
+        @if (isSearching()) {
+          <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>{{ 'flights.searching' | translate }}</span>
+          </button>
+        } @else {
+          <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="!canSearch()">
+            <mat-icon>search</mat-icon>
+            <span>{{ 'flights.searchFlights' | translate }}</span>
+          </button>
+        }
       }
     </form>
+</div>
 
-    <div class="manual-entry-section">
-      <button mat-stroked-button (click)="openManualFlightDialog()">
-        <mat-icon>edit_note</mat-icon>
-        {{ 'flights.addManually' | translate }}
-      </button>
-      <span class="manual-hint">{{ 'flights.manualHint' | translate }}</span>
-    </div>
-  </mat-card-content>
-</mat-card>
+<div class="search-results-area">
+<!-- Search Hint (before first search) -->
+@if (!hasSearched() && !isSearching()) {
+  <div class="search-hint">
+    <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+    <h3>Busque os melhores voos</h3>
+    <p>Preencha origem, destino e datas acima e clique em <strong>Buscar Voos</strong> para ver os resultados</p>
+  </div>
+}
 
 <!-- Error Banner -->
 @if (errorMessage()) {
@@ -452,3 +438,4 @@
     </mat-card-content>
   </mat-card>
 }
+</div>

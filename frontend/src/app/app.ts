@@ -4,7 +4,6 @@ import { filter } from 'rxjs/operators';
 import { SidebarComponent } from './core/components/sidebar/sidebar.component';
 import { TopBarComponent } from './core/components/top-bar/top-bar.component';
 import { ToastContainerComponent } from './shared/components/toast/toast-container.component';
-import { SupportChatComponent } from './shared/components/support-chat/support-chat.component';
 import { BottomNavComponent } from './core/components/bottom-nav/bottom-nav.component';
 import { AuthService } from './core/services/auth.service';
 import { TripStateService } from './core/services/trip-state.service';
@@ -14,7 +13,7 @@ import { TranslatePipe } from './core/i18n/translate.pipe';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, SupportChatComponent, BottomNavComponent, TranslatePipe],
+  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, BottomNavComponent, TranslatePipe],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -41,8 +40,9 @@ export class App implements OnInit, OnDestroy {
       .subscribe(e => {
         const url = e.urlAfterRedirects;
         this.isLandingPage.set(
-          url.startsWith('/landing') || url.startsWith('/auth/callback') ||
-          url.startsWith('/voos') || url.startsWith('/hoteis') || url.startsWith('/passeios')
+          url === '/' || url.startsWith('/landing') || url.startsWith('/auth/callback') ||
+          url.startsWith('/voos') || url.startsWith('/hoteis') || url.startsWith('/passeios') ||
+          url.startsWith('/planejar')
         );
 
         // When we navigate away from auth/callback and transition is active, run the wipe

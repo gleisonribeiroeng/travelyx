@@ -3,9 +3,7 @@
 // ════════════════════════════════════════════════════════════
 
 .trip-list-page {
-  padding: 32px 24px;
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: none;
 }
 
 // ── Header ─────────────────────────────────────────────────
@@ -31,6 +29,16 @@
   color: var(--triply-text-secondary, #9ca3af);
   margin: 4px 0 0;
   font-weight: 400;
+}
+
+.header-illust {
+  width: 140px;
+  height: 100px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.85;
+  display: none;
+  @media (min-width: 768px) { display: block; }
 }
 
 .create-btn {
@@ -99,28 +107,11 @@
   }
 }
 
-.empty-visual {
-  margin-bottom: 28px;
-  position: relative;
-}
-
-.empty-icon-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
-  animation: float 3s ease-in-out infinite;
-
-  .empty-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    color: #fff;
-  }
+.empty-illust {
+  width: 220px;
+  height: 170px;
+  object-fit: contain;
+  margin-bottom: 24px;
 }
 
 @keyframes float {
@@ -161,7 +152,7 @@
   height: 44px;
   border-radius: 10px;
   letter-spacing: 0.01em;
-  box-shadow: 0 2px 12px rgba(108, 92, 231, 0.25);
+  box-shadow: 0 2px 12px rgba(249, 115, 22, 0.25);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -201,8 +192,8 @@
   }
 
   &.is-next {
-    border-color: var(--triply-primary, #6C5CE7);
-    box-shadow: 0 0 0 1px var(--triply-primary, #6C5CE7), 0 4px 16px rgba(108, 92, 231, 0.15);
+    border-color: var(--triply-primary, #f97316);
+    box-shadow: 0 0 0 1px var(--triply-primary, #f97316), 0 4px 16px rgba(249, 115, 22, 0.15);
   }
 }
 
@@ -213,7 +204,7 @@
   height: 180px;
   overflow: hidden;
   // Fallback gradient
-  background: linear-gradient(135deg, #6C5CE7 0%, #7C4DFF 40%, #a29bfe 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 40%, #ea580c 100%);
 }
 
 .cover-img {
@@ -315,7 +306,7 @@
   font-size: 14px !important;
   width: 14px !important;
   height: 14px !important;
-  color: var(--triply-primary, #6C5CE7);
+  color: var(--triply-primary, #f97316);
   margin-left: 4px;
 }
 
@@ -386,7 +377,7 @@
     font-size: 15px;
     width: 15px;
     height: 15px;
-    color: var(--triply-primary, #6C5CE7);
+    color: var(--triply-primary, #f97316);
     flex-shrink: 0;
   }
 }
@@ -412,8 +403,8 @@
 .days-badge {
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--triply-primary, #6C5CE7);
-  background: var(--triply-primary-muted, rgba(108, 92, 231, 0.08));
+  color: var(--triply-primary, #f97316);
+  background: var(--triply-primary-muted, rgba(249, 115, 22, 0.08));
   padding: 1px 8px;
   border-radius: 10px;
   margin-left: 4px;
@@ -443,7 +434,7 @@
     font-size: 13px;
     width: 13px;
     height: 13px;
-    color: var(--triply-primary, #6C5CE7);
+    color: var(--triply-primary, #f97316);
   }
 }
 
@@ -459,7 +450,7 @@
 
 @media (max-width: 639px) {
   .trip-list-page {
-    padding: 20px 16px;
+    padding: 0;
   }
 
   .page-header {

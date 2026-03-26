@@ -31,7 +31,7 @@ import listPlugin from '@fullcalendar/list';
 // Color map per item type — aligned with timeline type colors
 const TYPE_COLORS: Record<string, string> = {
   flight: '#2196F3',
-  stay: '#7C4DFF',
+  stay: '#f97316',
   'car-rental': '#607D8B',
   transport: '#78909C',
   activity: '#43A047',

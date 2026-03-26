@@ -20,17 +20,18 @@ interface ChatMessage {
   standalone: true,
   imports: [MATERIAL_IMPORTS, CommonModule, FormsModule],
   template: `
-    <!-- FAB button -->
-    <button class="chat-fab" (click)="toggle()" [class.open]="isOpen()">
+    <!-- Topbar icon button -->
+    <button mat-icon-button class="chat-trigger" (click)="toggle()" [class.active]="isOpen()">
       <mat-icon>{{ isOpen() ? 'close' : 'chat' }}</mat-icon>
     </button>
 
-    <!-- Chat panel -->
+    <!-- Chat dropdown panel -->
     @if (isOpen()) {
+      <div class="chat-backdrop" (click)="toggle()"></div>
       <div class="chat-panel">
         <div class="chat-header">
           <mat-icon>support_agent</mat-icon>
-          <span>Suporte Triply</span>
+          <span>Suporte Travelyx</span>
           <button mat-icon-button (click)="toggle()">
             <mat-icon>close</mat-icon>
           </button>
@@ -70,46 +71,50 @@ interface ChatMessage {
     }
   `,
   styles: [`
-    :host { position: fixed; bottom: 88px; right: 24px; z-index: 9998; }
+    :host { position: relative; display: inline-flex; align-items: center; }
 
-    .chat-fab {
-      width: 56px; height: 56px; border-radius: 50%; border: none;
-      background: var(--triply-primary, #7c4dff); color: white;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(124, 77, 255, 0.4);
-      transition: all 0.2s ease;
+    .chat-trigger {
+      color: rgba(255, 255, 255, 0.45);
+      transition: color 0.2s;
     }
-    .chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(124, 77, 255, 0.5); }
-    .chat-fab.open { background: var(--triply-text-secondary, #666); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .chat-trigger:hover, .chat-trigger.active { color: #f97316; }
+
+    .chat-backdrop {
+      position: fixed; inset: 0; z-index: 999;
+    }
 
     .chat-panel {
-      position: absolute; bottom: 72px; right: 0;
-      width: 340px; height: 440px;
+      position: absolute; top: 48px; right: -60px;
+      width: 360px; height: 460px;
       background: var(--triply-surface-1, #fff);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      border-radius: 16px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08);
       display: flex; flex-direction: column;
       overflow: hidden;
-      animation: slideUp 0.2s ease;
+      z-index: 1000;
+      animation: chatSlideDown 0.2s ease;
     }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(12px); }
+    @keyframes chatSlideDown {
+      from { opacity: 0; transform: translateY(-8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
     .chat-header {
       display: flex; align-items: center; gap: 8px;
-      padding: 12px 8px 12px 16px;
-      background: var(--triply-primary, #7c4dff); color: white;
-      font-weight: 600; font-size: 0.95rem;
+      padding: 14px 8px 14px 16px;
+      background: #0f172a; color: white;
+      font-weight: 700; font-size: 0.9rem;
+      font-family: var(--triply-font-display, 'Sora', sans-serif);
     }
+    .chat-header mat-icon:first-child { color: #f97316; }
     .chat-header span { flex: 1; }
-    .chat-header button { color: white; }
+    .chat-header button { color: rgba(255,255,255,0.5); }
 
     .chat-messages {
-      flex: 1; overflow-y: auto; padding: 12px;
+      flex: 1; overflow-y: auto; padding: 14px;
       display: flex; flex-direction: column; gap: 8px;
+      background: var(--triply-surface-0, #f8fafc);
     }
 
     .loading-messages {
@@ -117,44 +122,48 @@ interface ChatMessage {
     }
 
     .chat-bubble {
-      max-width: 80%; padding: 8px 12px; border-radius: 12px;
-      font-size: 0.85rem; line-height: 1.4;
+      max-width: 80%; padding: 10px 14px; border-radius: 14px;
+      font-size: 0.85rem; line-height: 1.5;
     }
     .chat-bubble p { margin: 0; }
     .chat-bubble.system {
       align-self: flex-start;
-      background: var(--triply-surface-2, #f5f5f5);
-      color: var(--triply-text-primary, #333);
+      background: #fff;
+      color: var(--triply-text-primary, #0f172a);
       border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
     .chat-bubble.user {
       align-self: flex-end;
-      background: var(--triply-primary, #7c4dff);
+      background: #f97316;
       color: white;
       border-bottom-right-radius: 4px;
     }
     .msg-time {
-      display: block; font-size: 0.65rem; margin-top: 4px;
-      opacity: 0.6; text-align: right;
+      display: block; font-size: 0.6rem; margin-top: 4px;
+      opacity: 0.5; text-align: right;
     }
 
     .chat-input {
       display: flex; align-items: center; gap: 4px;
-      padding: 8px 8px 8px 16px;
-      border-top: 1px solid var(--triply-border, #e0e0e0);
+      padding: 10px 8px 10px 16px;
+      border-top: 1px solid var(--triply-border, #e2e8f0);
+      background: #fff;
     }
     .chat-input input {
       flex: 1; border: none; outline: none; font-size: 0.85rem;
-      background: transparent; color: var(--triply-text-primary, #333);
+      background: transparent; color: var(--triply-text-primary, #0f172a);
       font-family: inherit;
     }
-    .chat-input input::placeholder { color: var(--triply-text-secondary, #999); }
+    .chat-input input::placeholder { color: var(--triply-text-tertiary, #94a3b8); }
+    .chat-input button { color: #f97316; }
 
-    @media (max-width: 959px) {
-      :host { bottom: 80px; right: 16px; left: auto; }
-      .chat-fab { width: 48px; height: 48px; }
-      .chat-fab mat-icon { font-size: 22px; }
-      .chat-panel { width: calc(100vw - 32px); right: 0; height: 55vh; }
+    @media (max-width: 599px) {
+      .chat-panel {
+        position: fixed; top: 56px; left: 8px; right: 8px;
+        width: auto; height: calc(100vh - 120px);
+        border-radius: 12px;
+      }
     }
   `],
 })

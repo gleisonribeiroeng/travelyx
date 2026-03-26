@@ -1,0 +1,334 @@
+<!-- Top nav bar with branding -->
+<nav class="pw-nav-bar">
+  <a href="/landing" class="pw-brand">
+    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="pw-logo">
+  </a>
+  <div class="pw-nav-right">
+    <button class="pw-login-btn" (click)="loginWithGoogle()">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Entrar
+    </button>
+  </div>
+</nav>
+
+<!-- Dark hero header -->
+<div class="pw-hero">
+  <div class="pw-hero-inner">
+    <!-- Progress bar -->
+    <div class="pw-progress">
+      <div class="pw-progress-bar" [style.width.%]="progress()"></div>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="pw-steps">
+      @for (label of stepLabels; track $index) {
+        <div class="pw-step" [class.active]="$index === currentStep()" [class.done]="$index < currentStep()">
+          <div class="pw-step-dot">
+            @if ($index < currentStep()) { <mat-icon>check</mat-icon> }
+            @else { {{ $index + 1 }} }
+          </div>
+          <span class="pw-step-label">{{ label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="pw">
+
+  <!-- Step content -->
+  <div class="pw-content">
+
+    <!-- STEP 1: Destination -->
+    @if (currentStep() === 0) {
+      <div class="pw-step-content">
+        <div class="pw-step-header">
+          <img src="assets/illustrations/undraw-plan-trip.svg" alt="" class="pw-illust" loading="lazy">
+          <h2>Para onde voce quer ir?</h2>
+          <p>Escolha seu destino dos sonhos</p>
+        </div>
+
+        <div class="pw-popular-grid">
+          @for (dest of popularDestinations; track dest.city) {
+            <button class="pw-dest-card" [class.selected]="selectedDestination()?.name === dest.city" (click)="selectPopularDestination(dest)">
+              <span class="pw-dest-emoji">{{ dest.emoji }}</span>
+              <span class="pw-dest-city">{{ dest.city }}</span>
+              <span class="pw-dest-country">{{ dest.country }}</span>
+            </button>
+          }
+        </div>
+
+        <div class="pw-or-divider">
+          <span>ou busque outro destino</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="pw-full-field">
+          <mat-label>Buscar outro destino</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDest">
+          <mat-autocomplete #autoDest [displayWith]="displayDestination">
+            @for (dest of filteredDestinations$ | async; track dest.destId) {
+              <mat-option [value]="dest" (onSelectionChange)="onDestinationSelected(dest)">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <!-- Origin (optional) -->
+        <mat-form-field appearance="outline" class="pw-full-field">
+          <mat-label>De onde voce sai? (opcional)</mat-label>
+          <mat-icon matPrefix>flight_takeoff</mat-icon>
+          <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
+          <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
+            @for (airport of filteredOrigins$ | async; track airport.id) {
+              <mat-option [value]="airport" (onSelectionChange)="onOriginSelected(airport)">
+                {{ airport.iataCode ? airport.cityName + ' (' + airport.iataCode + ')' : airport.cityName }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+    }
+
+    <!-- STEP 2: Dates -->
+    @if (currentStep() === 1) {
+      <div class="pw-step-content">
+        <div class="pw-step-header">
+          <h2>Quando voce vai viajar?</h2>
+          <p>Escolha as datas da sua viagem para {{ selectedDestination()?.name }}</p>
+        </div>
+
+        <div class="pw-date-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Data de ida</mat-label>
+            <input matInput type="date" [ngModel]="departureDate()" (ngModelChange)="departureDate.set($event)">
+            <mat-icon matPrefix>calendar_today</mat-icon>
+          </mat-form-field>
+
+          <mat-icon class="pw-date-arrow">arrow_forward</mat-icon>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Data de volta</mat-label>
+            <input matInput type="date" [ngModel]="returnDate()" (ngModelChange)="returnDate.set($event)">
+            <mat-icon matPrefix>calendar_today</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
+          Ainda nao defini as datas exatas
+        </mat-slide-toggle>
+      </div>
+    }
+
+    <!-- STEP 3: Travelers -->
+    @if (currentStep() === 2) {
+      <div class="pw-step-content">
+        <div class="pw-step-header">
+          <h2>Quantas pessoas vao viajar?</h2>
+          <p>Viagem para {{ selectedDestination()?.name }}</p>
+        </div>
+
+        <div class="pw-travelers-grid">
+          @for (n of [1, 2, 3, 4, 5]; track n) {
+            <button class="pw-traveler-btn" [class.selected]="adults() === n" (click)="setAdults(n)">
+              <span class="pw-traveler-num">{{ n }}</span>
+              <span class="pw-traveler-label">{{ n === 1 ? 'Viajante' : 'Viajantes' }}</span>
+            </button>
+          }
+        </div>
+
+        <div class="pw-children-toggle">
+          <mat-slide-toggle [checked]="hasChildren()" (change)="hasChildren.set($event.checked)">
+            Tem criancas?
+          </mat-slide-toggle>
+          @if (hasChildren()) {
+            <mat-form-field appearance="outline" class="pw-children-field">
+              <mat-label>Quantas criancas?</mat-label>
+              <mat-select [ngModel]="children()" (ngModelChange)="children.set($event)">
+                @for (n of [1, 2, 3, 4]; track n) {
+                  <mat-option [value]="n">{{ n }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- STEP 4: Categories -->
+    @if (currentStep() === 3) {
+      <div class="pw-step-content">
+        <div class="pw-step-header">
+          <h2>O que voce quer incluir?</h2>
+          <p>Selecione o que faz parte da sua viagem</p>
+        </div>
+
+        <div class="pw-category-grid">
+          <button class="pw-cat-card" [class.selected]="includeFlights()" (click)="includeFlights.set(!includeFlights())">
+            <mat-icon>flight</mat-icon>
+            <span>Voos</span>
+            @if (includeFlights()) { <mat-icon class="pw-cat-check">check_circle</mat-icon> }
+          </button>
+          <button class="pw-cat-card" [class.selected]="includeHotels()" (click)="includeHotels.set(!includeHotels())">
+            <mat-icon>hotel</mat-icon>
+            <span>Hospedagem</span>
+            @if (includeHotels()) { <mat-icon class="pw-cat-check">check_circle</mat-icon> }
+          </button>
+          <button class="pw-cat-card" [class.selected]="includeCar()" (click)="includeCar.set(!includeCar())">
+            <mat-icon>directions_car</mat-icon>
+            <span>Carro</span>
+            @if (includeCar()) { <mat-icon class="pw-cat-check">check_circle</mat-icon> }
+          </button>
+          <button class="pw-cat-card" [class.selected]="includeActivities()" (click)="includeActivities.set(!includeActivities())">
+            <mat-icon>local_activity</mat-icon>
+            <span>Atividades</span>
+            @if (includeActivities()) { <mat-icon class="pw-cat-check">check_circle</mat-icon> }
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- STEP 5: Results -->
+    @if (currentStep() === 4) {
+      <div class="pw-step-content pw-results">
+        @if (isSearching()) {
+          <div class="pw-loading">
+            <mat-spinner diameter="48"></mat-spinner>
+            <h3>Buscando as melhores opcoes...</h3>
+            <p>Comparando precos em tempo real para {{ selectedDestination()?.name }}</p>
+          </div>
+        }
+
+        @if (hasResults() && result(); as r) {
+          <div class="pw-result-header">
+            <img src="assets/illustrations/undraw-savings-result.svg" alt="" class="pw-result-illust" loading="lazy">
+            <h2>Seu roteiro para {{ selectedDestination()?.name }}</h2>
+            <p>{{ adults() }} {{ adults() === 1 ? 'viajante' : 'viajantes' }} &middot; {{ departureDate() | date:'d MMM' }} a {{ returnDate() | date:'d MMM yyyy' }}</p>
+          </div>
+
+          <!-- Flight card -->
+          @if (r.flights.length > 0) {
+            <div class="pw-result-card">
+              <div class="pw-rc-icon"><mat-icon>flight</mat-icon></div>
+              <div class="pw-rc-info">
+                <strong>{{ r.flights[0].origin }} → {{ r.flights[0].destination }}</strong>
+                <span>{{ r.flights[0].airline }} &middot; {{ r.flights[0].duration }}</span>
+              </div>
+              <div class="pw-rc-price">
+                <strong>{{ r.flights[0].price | dynamicCurrency }}</strong>
+                <span>/pessoa</span>
+              </div>
+            </div>
+          }
+
+          <!-- Hotel card with photo -->
+          @if (r.hotels.length > 0) {
+            <div class="pw-hotel-card">
+              @if (r.hotels[0].photo) {
+                <img [src]="r.hotels[0].photo" alt="" class="pw-hotel-photo" loading="lazy" referrerpolicy="no-referrer">
+              } @else {
+                <div class="pw-hotel-photo pw-hotel-photo--placeholder"><mat-icon>hotel</mat-icon></div>
+              }
+              <div class="pw-hotel-info">
+                <strong>{{ r.hotels[0].name }}</strong>
+                <span>{{ r.hotels[0].nights }} noites &middot; {{ r.hotels[0].rating }} estrelas</span>
+                <span class="pw-hotel-price">{{ r.hotels[0].pricePerNight | dynamicCurrency }}/noite &middot; <strong>{{ r.hotels[0].total | dynamicCurrency }}</strong> total</span>
+              </div>
+            </div>
+          }
+
+          <!-- Activities -->
+          @if (r.activities.length > 0) {
+            <div class="pw-activities-section">
+              <h3><mat-icon>local_activity</mat-icon> Atividades sugeridas</h3>
+              <div class="pw-activities-grid">
+                @for (act of r.activities; track act.name) {
+                  <div class="pw-activity-card">
+                    @if (act.photo) {
+                      <img [src]="act.photo" alt="" class="pw-act-photo" loading="lazy" referrerpolicy="no-referrer">
+                    } @else {
+                      <div class="pw-act-photo pw-act-photo--placeholder"><mat-icon>photo_camera</mat-icon></div>
+                    }
+                    <div class="pw-act-info">
+                      <strong>{{ act.name }}</strong>
+                      <div class="pw-act-meta">
+                        @if (act.duration) { <span><mat-icon>schedule</mat-icon> {{ act.duration }}</span> }
+                        @if (act.rating) { <span><mat-icon>star</mat-icon> {{ act.rating }}</span> }
+                      </div>
+                    </div>
+                    <span class="pw-act-price">{{ act.price | dynamicCurrency }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Total -->
+          <div class="pw-total-card">
+            <div class="pw-total-row">
+              <span>Custo total estimado</span>
+              <strong class="pw-total-value">{{ r.totalCost | dynamicCurrency }}</strong>
+            </div>
+            <div class="pw-savings-row">
+              <mat-icon>info</mat-icon>
+              <span>Precos reais consultados direto das fontes — sem markup de intermediarios</span>
+            </div>
+          </div>
+
+          <!-- Locked features -->
+          <div class="pw-locked-section">
+            <h3>Salve seu roteiro gratuitamente</h3>
+            <div class="pw-locked-features">
+              <div class="pw-locked-item">
+                <mat-icon>bookmark</mat-icon>
+                <span>Salvar e editar seu roteiro</span>
+              </div>
+              <div class="pw-locked-item">
+                <mat-icon>notifications</mat-icon>
+                <span>Receber alertas quando o preco cair</span>
+              </div>
+              <div class="pw-locked-item">
+                <mat-icon>group</mat-icon>
+                <span>Planejar com amigos em tempo real</span>
+              </div>
+              <div class="pw-locked-item">
+                <mat-icon>share</mat-icon>
+                <span>Compartilhar roteiro com link</span>
+              </div>
+            </div>
+
+            <button class="pw-cta-google" (click)="loginWithGoogle()">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Salvar meu roteiro — Login com Google
+            </button>
+
+            <p class="pw-cta-hint">100% gratuito. Seus dados estao seguros.</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Navigation buttons -->
+  @if (currentStep() < 4 || (currentStep() === 4 && !hasResults())) {
+    <div class="pw-nav">
+      @if (currentStep() > 0) {
+        <button class="pw-nav-back" (click)="back()">
+          <mat-icon>arrow_back</mat-icon> Voltar
+        </button>
+      }
+      <div class="pw-nav-spacer"></div>
+      <button class="pw-nav-next" [disabled]="!canProceed()" (click)="next()">
+        @if (currentStep() === 3) {
+          Ver meu roteiro <mat-icon>arrow_forward</mat-icon>
+        } @else {
+          Continuar <mat-icon>arrow_forward</mat-icon>
+        }
+      </button>
+    </div>
+  }
+</div>

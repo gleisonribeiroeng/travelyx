@@ -308,11 +308,11 @@ interface PublicActivity {
 
     .hero-overlay {
       padding: 40px 20px 32px;
-      background: linear-gradient(135deg, rgba(108, 92, 231, 0.92) 0%, rgba(124, 77, 255, 0.88) 100%);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.92) 0%, rgba(249, 115, 22, 0.88) 100%);
     }
 
     .hero:not([style*="url"]) .hero-overlay {
-      background: linear-gradient(135deg, rgba(108, 92, 231, 0.06) 0%, rgba(124, 77, 255, 0.03) 100%);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.06) 0%, rgba(249, 115, 22, 0.03) 100%);
     }
     .hero:not([style*="url"]) .hero-overlay h1,
     .hero:not([style*="url"]) .hero-overlay .hero-destination,
@@ -322,7 +322,7 @@ interface PublicActivity {
     }
     .hero:not([style*="url"]) .hero-overlay .hero-destination mat-icon,
     .hero:not([style*="url"]) .hero-overlay .hero-dates mat-icon {
-      color: #6C5CE7;
+      color: #f97316;
     }
 
     .hero-badge {
@@ -333,7 +333,7 @@ interface PublicActivity {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #6C5CE7;
+      color: #f97316;
       background: rgba(255, 255, 255, 0.9);
       padding: 4px 14px;
       border-radius: 20px;
@@ -397,7 +397,7 @@ interface PublicActivity {
       gap: 6px;
       font-size: 0.85rem;
       color: #666;
-      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #6C5CE7; }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #f97316; }
     }
     .stat-count { font-weight: 700; color: #1a1a2e; }
 
@@ -411,7 +411,7 @@ interface PublicActivity {
       font-weight: 700;
       color: #1a1a2e;
       margin: 0 0 16px;
-      mat-icon { color: #6C5CE7; font-size: 22px; width: 22px; height: 22px; }
+      mat-icon { color: #f97316; font-size: 22px; width: 22px; height: 22px; }
     }
 
     /* Flight cards */
@@ -436,7 +436,7 @@ interface PublicActivity {
       align-items: center;
       gap: 4px;
       .line { flex: 1; height: 1px; background: #ddd; }
-      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #6C5CE7; transform: rotate(90deg); }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #f97316; transform: rotate(90deg); }
     }
     .flight-meta {
       display: flex;
@@ -473,16 +473,16 @@ interface PublicActivity {
     .day-group { display: flex; flex-direction: column; gap: 12px; }
     .day-header {
       display: flex; align-items: baseline; gap: 10px;
-      padding-bottom: 8px; border-bottom: 2px solid rgba(108, 92, 231, 0.12);
+      padding-bottom: 8px; border-bottom: 2px solid rgba(249, 115, 22, 0.12);
     }
-    .day-number { font-size: 1rem; font-weight: 800; color: #6C5CE7; }
+    .day-number { font-size: 1rem; font-weight: 800; color: #f97316; }
     .day-date { font-size: 0.85rem; color: #9ca3af; font-weight: 500; }
     .day-items { display: flex; flex-direction: column; gap: 4px; padding-left: 4px; }
     .timeline-item {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 12px 14px; border-radius: 12px;
       transition: background 0.15s ease;
-      &:hover { background: rgba(108, 92, 231, 0.03); }
+      &:hover { background: rgba(249, 115, 22, 0.03); }
     }
     .item-indicator { width: 3px; height: 100%; min-height: 32px; border-radius: 2px; opacity: 0.6; flex-shrink: 0; }
     .item-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
@@ -506,7 +506,7 @@ interface PublicActivity {
     .cta-section { margin-top: 48px; }
     .cta-card {
       text-align: center;
-      background: linear-gradient(135deg, #6C5CE7 0%, #7C4DFF 50%, #651FFF 100%) !important;
+      background: linear-gradient(135deg, #f97316 0%, #f97316 50%, #ea580c 100%) !important;
       color: #fff !important;
       border-radius: 20px !important;
       overflow: hidden;
@@ -606,11 +606,11 @@ export class PublicItineraryComponent implements OnInit {
 
   getTypeColor(type: string): string {
     const map: Record<string, string> = {
-      flight: '#4299e1', stay: '#6C5CE7', 'car-rental': '#f6ad55',
+      flight: '#4299e1', stay: '#f97316', 'car-rental': '#f6ad55',
       transport: '#48bb78', activity: '#ed64a6',
-      attraction: '#9f7aea', custom: '#6C5CE7',
+      attraction: '#9f7aea', custom: '#f97316',
     };
-    return map[type] || '#6C5CE7';
+    return map[type] || '#f97316';
   }
 
   formatDateRange(start: string, end: string): string {

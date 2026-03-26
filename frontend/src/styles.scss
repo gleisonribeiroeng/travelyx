@@ -1,23 +1,24 @@
 @use '@angular/material' as mat;
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
 // ─── M3 Theme ──────────────────────────────────────────────────────────────────
-// Refined indigo-violet primary, warm gray neutrals
+// V2: Coral + Midnight + Teal — matching landing page
 html {
   @include mat.theme((
     color: (
       theme-type: light,
-      primary: mat.$violet-palette,
-      tertiary: mat.$blue-palette,
+      primary: mat.$orange-palette,
+      tertiary: mat.$cyan-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
 
-  // Override M3 primary with our refined indigo-violet
-  --mat-sys-primary: #6C5CE7;
+  // Override M3 primary with our coral
+  --mat-sys-primary: #f97316;
   --mat-sys-on-primary: #ffffff;
-  --mat-sys-primary-container: #EDE9FE;
-  --mat-sys-on-primary-container: #1A1A2E;
+  --mat-sys-primary-container: #FFF7ED;
+  --mat-sys-on-primary-container: #0f172a;
 }
 
 // ─── Global Box Sizing ──────────────────────────────────────────────────────────
@@ -27,32 +28,36 @@ html {
 
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
 :root {
-  // ── Primary ──
-  --triply-primary: #6C5CE7;
-  --triply-primary-hover: #5A4BD4;
-  --triply-primary-light: #EDE9FE;
-  --triply-primary-muted: rgba(108, 92, 231, 0.08);
-  --triply-primary-subtle: rgba(108, 92, 231, 0.04);
+  // ── Primary (Coral — matches landing v2) ──
+  --triply-primary: #f97316;
+  --triply-primary-hover: #ea580c;
+  --triply-primary-light: #FFF7ED;
+  --triply-primary-muted: rgba(249, 115, 22, 0.08);
+  --triply-primary-subtle: rgba(249, 115, 22, 0.04);
+
+  // ── Accent palette ──
+  --triply-accent-violet: #7c3aed;
+  --triply-accent-teal: #14b8a6;
 
   // ── Semantic ──
-  --triply-success: #22C55E;
-  --triply-warning: #F59E0B;
-  --triply-error: #EF4444;
+  --triply-success: #14b8a6;
+  --triply-warning: #f59e0b;
+  --triply-error: #ef4444;
 
-  // ── Text ──
-  --triply-text-primary: #111827;
-  --triply-text-secondary: #6B7280;
-  --triply-text-tertiary: #9CA3AF;
+  // ── Text (Midnight base) ──
+  --triply-text-primary: #0f172a;
+  --triply-text-secondary: #64748b;
+  --triply-text-tertiary: #94a3b8;
 
   // ── Borders ──
-  --triply-border: #E5E7EB;
-  --triply-border-subtle: #F3F4F6;
+  --triply-border: #e2e8f0;
+  --triply-border-subtle: #f1f5f9;
 
-  // ── Surfaces ──
-  --triply-surface-0: #F5F5F7;
-  --triply-surface-1: #FFFFFF;
-  --triply-surface-2: #F3F4F6;
-  --triply-surface-3: #E5E7EB;
+  // ── Surfaces (warm whites) ──
+  --triply-surface-0: #f8fafc;
+  --triply-surface-1: #ffffff;
+  --triply-surface-2: #f1f5f9;
+  --triply-surface-3: #e2e8f0;
 
   // ── Category Colors (desaturated) ──
   --triply-cat-flight: #D4A04A;
@@ -72,20 +77,20 @@ html {
   --triply-cat-attraction-light: rgba(139, 126, 200, 0.08);
   --triply-cat-custom-light: rgba(156, 163, 175, 0.08);
 
-  // ── Shadows (premium elevation system) ──
-  --triply-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --triply-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --triply-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --triply-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
-  --triply-shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
-  --triply-shadow-colored: 0 4px 14px rgba(108, 92, 231, 0.25), 0 2px 4px rgba(108, 92, 231, 0.1);
+  // ── Shadows (softer, warmer) ──
+  --triply-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --triply-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --triply-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --triply-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.03);
+  --triply-shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.04);
+  --triply-shadow-colored: 0 4px 14px rgba(249, 115, 22, 0.2), 0 2px 4px rgba(249, 115, 22, 0.08);
 
-  // ── Backwards compat aliases (consumed by existing components) ──
+  // ── Backwards compat aliases ──
   --triply-card-shadow: var(--triply-shadow-sm);
   --triply-card-shadow-hover: var(--triply-shadow-md);
   --triply-page-bg: var(--triply-surface-0);
   --triply-card-bg: var(--triply-surface-1);
-  --triply-card-hover: rgba(108, 92, 231, 0.06);
+  --triply-card-hover: rgba(249, 115, 22, 0.05);
 
   // ── Spacing ──
   --triply-spacing-xs: 4px;
@@ -105,8 +110,9 @@ html {
   --triply-border-radius-md: var(--triply-radius-md);
   --triply-border-radius-lg: var(--triply-radius-lg);
 
-  // ── Typography ──
-  --triply-font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  // ── Typography (matching landing v2) ──
+  --triply-font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --triply-font-display: 'Sora', sans-serif;
   --triply-font-xs: 0.75rem;
   --triply-font-sm: 0.8125rem;
   --triply-font-base: 0.875rem;
@@ -129,15 +135,15 @@ html {
   --triply-header-bg: var(--triply-surface-1);
   --triply-header-shadow: var(--triply-shadow-sm);
 
-  // ── Sidebar (light theme) ──
-  --triply-dash-sidebar-bg: var(--triply-surface-1);
-  --triply-dash-sidebar-bg-dark: var(--triply-surface-2);
-  --triply-dash-sidebar-text: var(--triply-text-primary);
-  --triply-dash-sidebar-text-muted: #4B5563;
-  --triply-dash-sidebar-section: #6B7280;
-  --triply-dash-sidebar-active-bg: rgba(108, 92, 231, 0.1);
-  --triply-dash-sidebar-active-accent: var(--triply-primary);
-  --triply-dash-sidebar-hover-bg: rgba(108, 92, 231, 0.05);
+  // ── Sidebar (midnight theme — matches landing v2) ──
+  --triply-dash-sidebar-bg: #0f172a;
+  --triply-dash-sidebar-bg-dark: #1e293b;
+  --triply-dash-sidebar-text: rgba(255, 255, 255, 0.9);
+  --triply-dash-sidebar-text-muted: rgba(255, 255, 255, 0.5);
+  --triply-dash-sidebar-section: rgba(255, 255, 255, 0.35);
+  --triply-dash-sidebar-active-bg: rgba(249, 115, 22, 0.12);
+  --triply-dash-sidebar-active-accent: #f97316;
+  --triply-dash-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
 
   // ── Touch (WCAG 2.5.8) ──
   --triply-touch-min: 48px;
@@ -162,7 +168,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   color: var(--triply-text-primary);
   font-weight: 700;
-  font-family: var(--triply-font-family);
+  font-family: var(--triply-font-display);
   letter-spacing: var(--triply-letter-spacing-tight);
   line-height: var(--triply-line-height-tight);
 }
@@ -176,10 +182,29 @@ h1, h2, h3, h4, h5, h6 {
 .cdk-overlay-pane .mat-mdc-select-panel {
   background: var(--triply-surface-1) !important;
   border-radius: 16px !important;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 8px 20px rgba(0,0,0,0.08) !important;
   --mat-autocomplete-background-color: var(--triply-surface-1);
   --mat-select-panel-background-color: var(--triply-surface-1);
   --mat-menu-container-color: var(--triply-surface-1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  max-width: 500px;
+}
+
+// Autocomplete options — compact with location icon
+.mat-mdc-autocomplete-panel .mat-mdc-option {
+  font-size: 0.88rem !important;
+  min-height: 44px !important;
+  padding: 8px 16px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+
+  &:last-child { border-bottom: none; }
+
+  .mdc-list-item__primary-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.88rem;
+  }
 }
 
 .mat-mdc-dialog-container .mdc-dialog__surface {
@@ -205,7 +230,7 @@ h1, h2, h3, h4, h5, h6 {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--triply-primary-light, #a29bfe);
+    border: 2px solid var(--triply-primary-light, #fed7aa);
     flex-shrink: 0;
   }
 
@@ -245,6 +270,48 @@ mat-card, .mat-mdc-card {
   transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-normal);
 }
 
+// ─── Dark Page Header — midnight strip for all page titles ─────────────────
+.page-dark-header {
+  background: #0f172a;
+  margin: -16px -16px 24px;
+  padding: 24px 16px 20px;
+  border-radius: 0 0 20px 20px;
+
+  @media (min-width: 960px) {
+    margin: -28px -40px 28px;
+    padding: 28px 40px 24px;
+    border-radius: 0 0 24px 24px;
+  }
+
+  h1 {
+    color: #fff !important;
+    font-family: var(--triply-font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0 0 4px;
+    font-size: 1.4rem;
+  }
+
+  p, .header-subtitle {
+    color: rgba(255, 255, 255, 0.5) !important;
+    margin: 0;
+  }
+
+  // Buttons inside dark header
+  button[mat-fab], button[mat-flat-button], .create-btn {
+    background: #f97316 !important;
+    color: #fff !important;
+  }
+
+  button[mat-stroked-button] {
+    color: rgba(255, 255, 255, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  // Illustration inside dark header
+  img { opacity: 0.85; }
+}
+
 // ─── Shared View Header ────────────────────────────────────────────────────────
 .view-header {
   margin-bottom: var(--triply-spacing-lg);
@@ -264,7 +331,354 @@ mat-card, .mat-mdc-card {
   }
 }
 
-// ─── Shared Search Form Card ───────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// SHARED DARK SEARCH PANEL — Decolar-inspired hero search
+// Used by: search, hotel-search, car-search, tour-search, attraction-search,
+//          transport-search, wizard steps
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Host mixin: cancel parent padding so dark panel is edge-to-edge
+// Apply via :host in each component that uses the panel
+@mixin search-host-bleed {
+  margin: -16px;
+  @media (min-width: 960px) { margin: -28px -40px; }
+}
+
+// The dark panel container
+.dsp {
+  background: #0f172a;
+  padding: 24px 16px 20px;
+  border-radius: 0 0 20px 20px;
+  @media (min-width: 960px) {
+    padding: 28px 40px 24px;
+    border-radius: 0 0 24px 24px;
+  }
+}
+
+// Row 1: Title + toggles inline
+.dsp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+  h1 {
+    color: #fff;
+    font-family: var(--triply-font-display, 'Sora', sans-serif);
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 0;
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+  }
+}
+
+// Type toggle pills on dark bg
+.dsp-type-toggle {
+  border: none !important;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  .mat-button-toggle {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    border: none !important;
+    font-size: 0.78rem; font-weight: 600;
+  }
+  .mat-button-toggle-checked {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+  }
+}
+
+// Collapsed toggle bar (dark)
+.dsp-collapsed-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+  &:hover { background: rgba(255, 255, 255, 0.1); }
+  .dsp-edit {
+    margin-left: auto;
+    color: #f97316;
+    display: flex; align-items: center; gap: 4px;
+    font-weight: 600; font-size: 0.8rem;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+.dsp-form-hidden { display: none !important; }
+
+// Row 2: White fields card
+.dsp-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dsp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  @media (min-width: 960px) {
+    flex-direction: row;
+    align-items: center;
+    min-height: 64px;
+  }
+}
+
+.dsp-field {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 12px 2px;
+  label {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--triply-text-tertiary, #94a3b8);
+    margin-bottom: -2px;
+    font-family: var(--triply-font-display, 'Sora', sans-serif);
+    line-height: 1;
+  }
+  &--lg { @media (min-width: 960px) { flex: 2; } }
+  &--sm { @media (min-width: 960px) { flex: 0.8; } }
+
+  // Mobile: add subtle separator between stacked fields
+  @media (max-width: 959px) {
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--triply-border-subtle, #f1f5f9);
+      padding-bottom: 6px;
+    }
+  }
+}
+
+// Minimal fill input — CSS vars + global selectors (no ::ng-deep needed in global)
+.dsp-input {
+  width: 100%;
+
+  // CSS custom properties that Angular Material respects
+  --mdc-filled-text-field-container-color: transparent;
+  --mdc-filled-text-field-active-indicator-height: 0px;
+  --mdc-filled-text-field-focus-active-indicator-height: 0px;
+  --mdc-filled-text-field-hover-active-indicator-color: transparent;
+  --mdc-filled-text-field-active-indicator-color: transparent;
+  --mdc-filled-text-field-focus-active-indicator-color: transparent;
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-filled-with-label-container-padding-top: 8px;
+  --mat-form-field-filled-with-label-container-padding-bottom: 4px;
+}
+
+// Global overrides for dsp-input internals
+.dsp-card .dsp-input .mdc-text-field--filled,
+.dsp-input .mdc-text-field--filled {
+  background: transparent !important;
+  padding: 0 !important;
+  height: 40px !important;
+}
+
+.dsp-card .dsp-input .mat-mdc-form-field-infix,
+.dsp-input .mat-mdc-form-field-infix {
+  padding-top: 8px !important;
+  padding-bottom: 4px !important;
+  min-height: 36px !important;
+}
+
+.dsp-card .dsp-input .mdc-line-ripple,
+.dsp-input .mdc-line-ripple {
+  display: none !important;
+}
+
+.dsp-card .dsp-input .mat-mdc-form-field-subscript-wrapper,
+.dsp-input .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+.dsp-card .dsp-input .mdc-floating-label,
+.dsp-input .mdc-floating-label {
+  display: none !important;
+}
+
+.dsp-card .dsp-input input,
+.dsp-card .dsp-input .mat-mdc-select-trigger,
+.dsp-input input,
+.dsp-input .mat-mdc-select-trigger {
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  color: var(--triply-text-primary) !important;
+}
+
+.dsp-card .dsp-input .mat-mdc-form-field-icon-prefix,
+.dsp-input .mat-mdc-form-field-icon-prefix {
+  color: var(--triply-text-tertiary);
+  padding: 0 6px 0 0 !important;
+}
+
+.dsp-card .dsp-input .mat-mdc-form-field-icon-prefix mat-icon,
+.dsp-input .mat-mdc-form-field-icon-prefix mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.dsp-swap {
+  display: none;
+  @media (min-width: 960px) {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; flex-shrink: 0;
+    mat-icon { font-size: 20px; color: var(--triply-text-tertiary); }
+  }
+}
+
+.dsp-divider {
+  display: none;
+  @media (min-width: 960px) {
+    display: block; width: 1px; align-self: stretch;
+    margin: 8px 0; background: var(--triply-border-subtle, #f1f5f9);
+    flex-shrink: 0;
+  }
+}
+
+// Search button — coral pill, fixed height
+.dsp-btn {
+  margin: 8px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  border: none;
+  border-radius: 100px;
+  background: #f97316;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-family: var(--triply-font-display, 'Sora', sans-serif);
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 24px;
+  white-space: nowrap;
+  transition: box-shadow 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  @media (min-width: 960px) {
+    margin: auto 8px auto 0;
+    min-width: 140px;
+  }
+  &:hover:not(:disabled) {
+    box-shadow: 0 6px 24px rgba(249, 115, 22, 0.4);
+    transform: translateY(-1px);
+  }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// Footer row (dark bg)
+.dsp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  mat-slide-toggle {
+    --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.15);
+    --mdc-switch-unselected-handle-color: rgba(255, 255, 255, 0.4);
+    --mdc-switch-selected-track-color: #f97316;
+    --mdc-switch-selected-handle-color: #fff;
+    --mat-slide-toggle-label-text-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.82rem;
+  }
+  mat-checkbox {
+    --mdc-checkbox-unselected-icon-color: rgba(255, 255, 255, 0.3);
+    --mdc-checkbox-selected-icon-color: #f97316;
+    --mat-checkbox-label-text-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.82rem;
+  }
+}
+
+.dsp-manual-btn {
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  font-size: 0.8rem !important;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 4px; }
+  &:hover {
+    color: #f97316 !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+  }
+}
+
+// Search hint — shown before first search
+.search-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 24px 56px;
+  gap: 8px;
+
+  img {
+    width: 200px;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 12px;
+    opacity: 0.85;
+  }
+
+  h3 {
+    font-family: var(--triply-font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--triply-text-primary);
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: var(--triply-text-secondary);
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.5;
+
+    strong {
+      color: var(--triply-primary);
+      font-weight: 600;
+    }
+  }
+}
+
+// Results area: re-adds padding below the dark panel
+.dsp-results {
+  padding: 16px;
+  @media (min-width: 960px) { padding: 0 40px 40px; }
+}
+
+// Wizard step variants — bleed + dark panel inside steps
+.wiz-step-bleed {
+  margin: -16px !important;
+  @media (min-width: 960px) { margin: -28px -40px !important; }
+}
+.wiz-dsp {
+  padding: 24px 16px 20px;
+  @media (min-width: 960px) { padding: 28px 40px 24px; }
+}
+.wiz-dsp-results {
+  padding: 16px;
+  @media (min-width: 960px) { padding: 16px 40px 28px; }
+}
+
+// ─── Shared Search Form Card (default — outside .search-hero) ────────────────
 .search-form-card {
   margin-bottom: var(--triply-spacing-lg);
   padding: var(--triply-spacing-md);
@@ -502,7 +916,7 @@ mat-card, .mat-mdc-card {
   transition: box-shadow var(--triply-transition-normal), transform var(--triply-transition-fast);
 
   &:hover {
-    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3), 0 3px 6px rgba(108, 92, 231, 0.15) !important;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3), 0 3px 6px rgba(249, 115, 22, 0.15) !important;
     transform: translateY(-1px);
   }
 }

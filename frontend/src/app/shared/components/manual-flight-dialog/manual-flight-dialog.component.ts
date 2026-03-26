@@ -297,7 +297,7 @@ function parseTimeFromISO(iso: string): string | null {
       align-items: center;
       gap: 8px;
       padding: 8px 12px;
-      background: rgba(124, 77, 255, 0.06);
+      background: rgba(249, 115, 22, 0.06);
       border-radius: 8px;
       font-size: 0.85rem;
       color: var(--triply-primary);

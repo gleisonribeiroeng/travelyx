@@ -1,3 +1,10 @@
+:host {
+  display: block;
+  overflow-x: hidden;
+  margin: -16px;
+  @media (min-width: 960px) { margin: -28px -40px; }
+}
+
 .results-section {
   margin-top: var(--triply-spacing-xl);
 }
@@ -23,8 +30,7 @@
   gap: 8px;
 }
 
-
-// ── Empty state ──
+// -- Empty state --
 
 .empty-state {
   text-align: center;
@@ -51,7 +57,7 @@
   }
 }
 
-// ── Responsive — Mobile-first (min-width) ──
+// -- Responsive -- Mobile-first (min-width) --
 
 @media (min-width: 600px) {
   .results-header {

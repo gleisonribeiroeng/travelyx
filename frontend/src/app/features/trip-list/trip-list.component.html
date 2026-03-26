@@ -1,10 +1,11 @@
 <div class="trip-list-page">
   <!-- Header -->
-  <div class="page-header">
+  <div class="page-header page-dark-header">
     <div class="header-text">
       <h1>{{ 'trips.title' | translate }}</h1>
       <p class="header-subtitle">{{ 'trips.subtitle' | translate }}</p>
     </div>
+    <img src="assets/illustrations/undraw-my-trips.svg" alt="" class="header-illust" loading="lazy">
     <button mat-fab extended color="primary" class="create-btn" (click)="openCreateDialog()">
       <mat-icon>add</mat-icon>
       {{ 'trips.newTrip' | translate }}
@@ -46,16 +47,7 @@
   <!-- Empty State -->
   @else if (filteredTrips().length === 0) {
     <div class="empty-state">
-      <div class="empty-visual">
-        <div class="empty-icon-circle">
-          <mat-icon class="empty-icon">flight_takeoff</mat-icon>
-        </div>
-        <div class="empty-decorations">
-          <span class="deco deco-pin">📍</span>
-          <span class="deco deco-palm">🌴</span>
-          <span class="deco deco-sun">☀️</span>
-        </div>
-      </div>
+      <img src="assets/illustrations/undraw-no-trips.svg" alt="" class="empty-illust" loading="lazy">
       @if (statusFilter()) {
         <h2>{{ 'trips.emptyFilterTitle' | translate }}</h2>
         <p class="empty-text">Nenhuma viagem com o status "{{ getStatusLabel(statusFilter()) }}".</p>
@@ -105,9 +97,10 @@
               </button>
               <button mat-menu-item (click)="cloneTrip(trip.id, trip.name)">
                 <mat-icon>content_copy</mat-icon> <span>{{ 'trips.clone' | translate }}</span>
+                <!-- PRO lock commented out — all features unlocked for now
                 @if (!planService.hasFeature('tripClone')) {
                   <mat-icon class="menu-pro-lock">lock</mat-icon>
-                }
+                } -->
               </button>
               <mat-divider></mat-divider>
               <button mat-menu-item class="delete-menu-item" (click)="deleteTrip(trip.id)">

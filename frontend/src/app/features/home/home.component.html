@@ -1,5 +1,5 @@
 <div class="dashboard">
-  <div class="welcome-section">
+  <div class="welcome-section page-dark-header">
     <h1>Bem-vindo ao Travelyx</h1>
     <p>Planeje sua viagem perfeita</p>
   </div>
@@ -8,9 +8,7 @@
   <mat-card class="hero-card" (click)="navigateTo('/planner')" tabindex="0">
     <mat-card-content>
       <div class="hero-content">
-        <div class="hero-icon">
-          <mat-icon>explore</mat-icon>
-        </div>
+        <img src="assets/illustrations/undraw-travel-plans.svg" alt="" class="hero-illust" loading="lazy">
         <div class="hero-text">
           <h2>Planejar Nova Viagem</h2>
           <p>Configure destino, datas, viajantes, transporte e hospedagem em um assistente completo</p>
@@ -164,7 +162,10 @@
     <!-- Planning Checklist -->
     <mat-card class="checklist-card">
       <mat-card-content>
-        <h3 class="section-title"><mat-icon>checklist</mat-icon> Planejamento</h3>
+        <div class="checklist-header-row">
+          <h3 class="section-title"><mat-icon>checklist</mat-icon> Planejamento</h3>
+          <img src="assets/illustrations/undraw-checklist.svg" alt="" class="checklist-illust" loading="lazy">
+        </div>
         <div class="checklist-progress">
           <mat-progress-bar mode="determinate" [value]="(completedSteps() / checklistSteps().length) * 100"></mat-progress-bar>
           <span class="progress-label">{{ completedSteps() }} de {{ checklistSteps().length }} etapas</span>
@@ -184,7 +185,7 @@
     <!-- Empty State -->
     <mat-card class="empty-state">
       <mat-card-content>
-        <mat-icon class="empty-icon">luggage</mat-icon>
+        <img src="assets/illustrations/undraw-no-trips.svg" alt="" class="empty-illust" loading="lazy">
         <h3>Nenhuma viagem planejada ainda</h3>
         <p>Clique em "Planejar Nova Viagem" acima ou explore as categorias para começar.</p>
         <div class="quick-links">

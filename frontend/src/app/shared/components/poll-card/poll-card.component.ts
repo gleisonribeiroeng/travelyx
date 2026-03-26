@@ -91,7 +91,7 @@ import { TripPoll } from '../../../core/models/collaboration.models';
         font-size: 20px;
         width: 20px;
         height: 20px;
-        color: var(--triply-primary, #6C5CE7);
+        color: var(--triply-primary, #f97316);
       }
 
       h4 {
@@ -139,15 +139,15 @@ import { TripPoll } from '../../../core/models/collaboration.models';
       text-align: left;
 
       &:hover:not(.disabled) {
-        border-color: var(--triply-primary, #6C5CE7);
+        border-color: var(--triply-primary, #f97316);
       }
 
       &.voted {
-        border-color: var(--triply-primary, #6C5CE7);
-        background: rgba(108, 92, 231, 0.04);
+        border-color: var(--triply-primary, #f97316);
+        background: rgba(249, 115, 22, 0.04);
 
         .option-fill {
-          background: rgba(108, 92, 231, 0.12);
+          background: rgba(249, 115, 22, 0.12);
         }
       }
 
@@ -164,7 +164,7 @@ import { TripPoll } from '../../../core/models/collaboration.models';
 
     .option-fill {
       height: 100%;
-      background: rgba(108, 92, 231, 0.06);
+      background: rgba(249, 115, 22, 0.06);
       border-radius: var(--triply-radius-sm, 8px);
       transition: width 0.4s ease;
     }
@@ -197,7 +197,7 @@ import { TripPoll } from '../../../core/models/collaboration.models';
       font-size: 18px;
       width: 18px;
       height: 18px;
-      color: var(--triply-primary, #6C5CE7);
+      color: var(--triply-primary, #f97316);
       margin-left: 8px;
       flex-shrink: 0;
     }
@@ -223,7 +223,7 @@ import { TripPoll } from '../../../core/models/collaboration.models';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       flex-shrink: 0;
 
       img {

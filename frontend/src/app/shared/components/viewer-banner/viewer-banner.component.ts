@@ -24,8 +24,8 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
       align-items: center;
       gap: 10px;
       padding: 10px 16px;
-      background: linear-gradient(135deg, rgba(108, 92, 231, 0.08) 0%, rgba(33, 150, 243, 0.06) 100%);
-      border: 1px solid rgba(108, 92, 231, 0.15);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(33, 150, 243, 0.06) 100%);
+      border: 1px solid rgba(249, 115, 22, 0.15);
       border-radius: var(--triply-radius-md, 12px);
       margin-bottom: var(--triply-spacing-md, 16px);
     }
@@ -34,7 +34,7 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
       font-size: 20px;
       width: 20px;
       height: 20px;
-      color: var(--triply-primary, #6C5CE7);
+      color: var(--triply-primary, #f97316);
       flex-shrink: 0;
     }
 

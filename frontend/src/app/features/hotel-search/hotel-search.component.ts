@@ -386,10 +386,11 @@ export class HotelSearchComponent {
   onIconAction(event: { itemId: string; actionId: string }): void {
     if (event.actionId !== 'price-alert') return;
 
-    if (!this.planService.hasFeature('priceAlerts')) {
-      this.planService.showPaywall('priceAlerts');
-      return;
-    }
+    // PRO check commented out — all features unlocked for now
+    // if (!this.planService.hasFeature('priceAlerts')) {
+    //   this.planService.showPaywall('priceAlerts');
+    //   return;
+    // }
 
     const hotel = this.searchResults().find(h => h.id === event.itemId);
     if (!hotel) return;

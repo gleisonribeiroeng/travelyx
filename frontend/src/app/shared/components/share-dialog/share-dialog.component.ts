@@ -99,14 +99,14 @@ export interface ShareDialogData {
       .header-icon-wrap {
         width: 44px; height: 44px;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(108,92,231,0.12), rgba(108,92,231,0.04));
+        background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(249,115,22,0.04));
         display: flex; align-items: center; justify-content: center;
         flex-shrink: 0;
       }
 
       .header-icon {
         font-size: 22px; width: 22px; height: 22px;
-        color: #6C5CE7;
+        color: #f97316;
       }
 
       h2 {
@@ -138,7 +138,7 @@ export interface ShareDialogData {
     .toggle-info {
       display: flex; align-items: center; gap: 10px;
 
-      mat-icon { font-size: 20px; width: 20px; height: 20px; color: #6C5CE7; }
+      mat-icon { font-size: 20px; width: 20px; height: 20px; color: #f97316; }
     }
 
     .toggle-label {
@@ -158,7 +158,7 @@ export interface ShareDialogData {
       background: #f5f3ff;
       border-radius: 10px;
       padding: 4px 4px 4px 14px;
-      border: 1px solid rgba(108,92,231,0.15);
+      border: 1px solid rgba(249,115,22,0.15);
     }
 
     .link-input {
@@ -170,7 +170,7 @@ export interface ShareDialogData {
 
     .copy-btn {
       flex-shrink: 0;
-      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #6C5CE7; }
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #f97316; }
     }
 
     .copied-feedback {
@@ -208,8 +208,8 @@ export interface ShareDialogData {
     .invite-btn {
       width: 100%;
       font-weight: 600;
-      color: #6C5CE7;
-      border-color: rgba(108,92,231,0.3) !important;
+      color: #f97316;
+      border-color: rgba(249,115,22,0.3) !important;
       border-radius: 10px !important;
       height: 44px;
       font-size: 0.9rem;
@@ -218,8 +218,8 @@ export interface ShareDialogData {
       mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 8px; }
 
       &:hover {
-        background: rgba(108,92,231,0.06) !important;
-        border-color: #6C5CE7 !important;
+        background: rgba(249,115,22,0.06) !important;
+        border-color: #f97316 !important;
       }
     }
 

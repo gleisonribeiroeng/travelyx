@@ -1,340 +1,338 @@
-<div class="landing-page">
-  <!-- NAV -->
-  <nav class="landing-nav">
-    <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="nav-logo">
-    <div class="nav-links">
-      <a (click)="scrollToSection('features-section')">{{ 'landing.nav.features' | translate }}</a>
-      <a (click)="scrollToSection('comparison-section')">Travelyx vs Agencias</a>
-      <a (click)="scrollToSection('how-section')">{{ 'landing.nav.howItWorks' | translate }}</a>
-    </div>
-    <div class="nav-actions">
-      <button class="lang-btn" (click)="i18n.toggle()">
-        {{ i18n.lang() === 'pt' ? '🇺🇸 EN' : '🇧🇷 PT' }}
-      </button>
-      @if (authService.isLoggedIn()) {
-        <div class="user-pill">
-          <img [src]="authService.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">
-          <span class="user-name">{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
-        </div>
-        <button mat-flat-button class="nav-cta" (click)="navigateTo('/home')">
-          {{ 'landing.nav.panel' | translate }}
+<div class="v2-landing">
+  <!-- FLOATING NAV -->
+  <nav class="v2-nav" [class.scrolled]="navScrolled()">
+    <div class="v2-nav-inner">
+      <div class="v2-nav-brand">
+        <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="v2-nav-logo">
+      </div>
+      <div class="v2-nav-links">
+        <a (click)="scrollToSection('v2-features')">{{ 'landing.nav.features' | translate }}</a>
+        <a (click)="scrollToSection('v2-compare')">{{ 'landing.nav.compare' | translate }}</a>
+        <a (click)="scrollToSection('v2-how')">{{ 'landing.nav.howItWorks' | translate }}</a>
+      </div>
+      <div class="v2-nav-actions">
+        <button class="v2-lang-toggle" (click)="i18n.toggle()">
+          {{ i18n.lang() === 'pt' ? 'EN' : 'PT' }}
         </button>
-      } @else {
-        <button class="google-login-btn" (click)="loginWithGoogle()">
-          <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          {{ 'landing.nav.loginGoogle' | translate }}
-        </button>
-      }
+        @if (authService.isLoggedIn()) {
+          <div class="v2-user-chip">
+            <img [src]="authService.avatarUrl()" alt="" class="v2-user-avatar" referrerpolicy="no-referrer">
+            <span>{{ (authService.user()?.name?.split(' ') ?? [''])[0] }}</span>
+          </div>
+          <button class="v2-nav-cta" (click)="navigateTo('/home')">
+            {{ 'landing.nav.panel' | translate }}
+          </button>
+        } @else {
+          <button class="v2-google-btn v2-google-btn--nav" (click)="loginWithGoogle()">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            {{ 'landing.nav.loginGoogle' | translate }}
+          </button>
+        }
+      </div>
     </div>
   </nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-bg" aria-hidden="true">
-      <img src="assets/hero-travel.jpg" alt="">
-    </div>
-    <div class="hero-glow" aria-hidden="true"></div>
-    <div class="hero-inner">
-      <div class="hero-content">
-        <span class="hero-badge">{{ 'landing.hero.badge' | translate }}</span>
-        <h1>{{ 'landing.hero.title' | translate }}</h1>
-        <p class="hero-sub">{{ 'landing.hero.subtitle' | translate }}</p>
-        <div class="hero-trust">
-          <span class="trust-chip"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust1' | translate }}</span>
-          <span class="trust-chip"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust2' | translate }}</span>
-          <span class="trust-chip"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust3' | translate }}</span>
-        </div>
-        <div class="hero-actions">
-          @if (authService.isLoggedIn()) {
-            <button mat-flat-button class="hero-cta-primary" (click)="navigateTo('/home')">
-              <mat-icon>dashboard</mat-icon> {{ 'landing.hero.goToPanel' | translate }}
-            </button>
-          } @else {
-            <button class="hero-google-btn" (click)="loginWithGoogle()">
-              <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-              </svg>
-              {{ 'landing.hero.startFreeGoogle' | translate }}
-            </button>
-          }
-          <button class="hero-cta-secondary" (click)="scrollToSection('features-section')">
-            {{ 'landing.hero.seeFeatures' | translate }} <mat-icon>arrow_downward</mat-icon>
+  <!-- HERO — Search-first with product preview -->
+  <section class="v2-hero">
+    <div class="v2-hero-grain" aria-hidden="true"></div>
+    <div class="v2-hero-mesh" aria-hidden="true"></div>
+    <div class="v2-hero-orb v2-hero-orb--1" aria-hidden="true"></div>
+    <div class="v2-hero-orb v2-hero-orb--2" aria-hidden="true"></div>
+
+    <div class="v2-hero-content v2-hero-content--centered">
+      <span class="v2-hero-eyebrow">{{ 'landing.hero.badge' | translate }}</span>
+      <h1 class="v2-hero-title v2-hero-title--centered">{{ 'landing.hero.title' | translate }}</h1>
+      <p class="v2-hero-sub" style="text-align:center; max-width: 520px; margin: 0 auto;">{{ 'landing.hero.subtitle' | translate }}</p>
+
+      <!-- Search card -->
+      <div class="hero-search-card">
+        <div class="hero-search-row">
+          <mat-icon class="hero-search-icon">place</mat-icon>
+          <input
+            class="hero-search-native"
+            type="text"
+            [placeholder]="'landing.hero.searchPlaceholder' | translate"
+            [formControl]="heroDestControl"
+            [matAutocomplete]="heroAutoComplete"
+          >
+          <mat-autocomplete #heroAutoComplete [displayWith]="displayHeroDest">
+            @for (dest of filteredHeroDests$ | async; track dest.destId) {
+              <mat-option [value]="dest" (onSelectionChange)="onHeroDestSelected(dest)">{{ dest.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          <button class="hero-search-btn" (click)="startPlanning()">
+            {{ 'landing.hero.planTrip' | translate }} <mat-icon>arrow_forward</mat-icon>
           </button>
         </div>
       </div>
-      <div class="hero-device" aria-hidden="true">
-        <div class="device-frame">
-          <div class="device-titlebar">
-            <span class="tb-dot red"></span>
-            <span class="tb-dot yellow"></span>
-            <span class="tb-dot green"></span>
-            <span class="tb-url">
-              <mat-icon class="tb-lock">lock</mat-icon>
-              travelyx.app
-            </span>
-          </div>
-          <div class="device-screen">
-            <div class="screen-carousel" [style.transform]="'translateX(-' + activeScreen() * 100 + '%)'">
-              <div class="screen-slide">
-                <img src="assets/hoteis.png?v=2" alt="Hotéis" class="screen-img" loading="lazy">
-              </div>
-              <div class="screen-slide">
-                <img src="assets/checklist.png?v=2" alt="Checklist" class="screen-img" loading="lazy">
-              </div>
-              <div class="screen-slide">
-                <img src="assets/timeline.png?v=2" alt="Timeline" class="screen-img" loading="lazy">
-              </div>
-            </div>
+
+      <!-- Quick destination chips -->
+      <div class="hero-quick-dests">
+        <span class="hero-quick-label">{{ 'landing.hero.popular' | translate }}</span>
+        @for (d of heroQuickDests; track d.label) {
+          <button class="hero-quick-chip" (click)="startPlanning(d.label)">
+            {{ d.emoji }} {{ d.label }}
+          </button>
+        }
+      </div>
+
+      <div class="v2-hero-badges" style="justify-content: center;">
+        <span class="v2-badge"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust1' | translate }}</span>
+        <span class="v2-badge"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust2' | translate }}</span>
+        <span class="v2-badge"><mat-icon>check_circle</mat-icon> {{ 'landing.hero.trust3' | translate }}</span>
+      </div>
+    </div>
+
+    <!-- Product preview — floating cards showing what the app does -->
+    <div class="hero-preview" aria-hidden="true">
+      <div class="hero-preview-inner">
+        <div class="hero-pcard hero-pcard--1">
+          <mat-icon>flight</mat-icon>
+          <div>
+            <strong>{{ 'landing.hero.flightsCompared' | translate }}</strong>
+            <span>{{ 'landing.hero.flightRoute' | translate }}</span>
           </div>
         </div>
-        <div class="screen-dots">
-          @for (s of screens; track $index) {
-            <span class="sdot" [class.active]="$index === activeScreen()" (click)="goToScreen($index)"></span>
-          }
+        <div class="hero-pcard hero-pcard--2">
+          <mat-icon>hotel</mat-icon>
+          <div>
+            <strong>{{ 'landing.hero.hotelBooked' | translate }}</strong>
+            <span>{{ 'landing.hero.hotelDetail' | translate }}</span>
+          </div>
+        </div>
+        <div class="hero-pcard hero-pcard--3">
+          <mat-icon>trending_down</mat-icon>
+          <div>
+            <strong>{{ 'landing.hero.priceDropped' | translate }}</strong>
+            <span>{{ 'landing.hero.priceAlert' | translate }}</span>
+          </div>
+        </div>
+        <div class="hero-pcard hero-pcard--4">
+          <mat-icon>group</mat-icon>
+          <div>
+            <strong>{{ 'landing.hero.friendsPlanning' | translate }}</strong>
+            <span>{{ 'landing.hero.planningTogether' | translate }}</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PROBLEM -->
-  <section class="problem-section reveal">
-    <div class="problem-inner">
-      <h2>{{ 'landing.problem.title' | translate }}</h2>
-      <p class="problem-lead">{{ 'landing.problem.lead' | translate }}</p>
-      <div class="pain-points">
-        <div class="pain-card pain-tabs">
-          <span class="pain-emoji">😩</span>
-          <p><strong>{{ 'landing.problem.tabs' | translate }}</strong> {{ 'landing.problem.tabsDesc' | translate }}</p>
+  <!-- PAIN POINTS — Editorial cards -->
+  <section class="v2-pain reveal">
+    <div class="v2-section-inner">
+      <h2 class="v2-section-title">{{ 'landing.problem.title' | translate }}</h2>
+      <p class="v2-section-lead">{{ 'landing.problem.lead' | translate }}</p>
+      <div class="v2-pain-grid">
+        <div class="v2-pain-card">
+          <div class="v2-pain-illust">
+            <img src="assets/illustrations/undraw-overwhelmed.svg" alt="" loading="lazy">
+          </div>
+          <div class="v2-pain-body">
+            <strong>{{ 'landing.problem.tabs' | translate }}</strong>
+            <p>{{ 'landing.problem.tabsDesc' | translate }}</p>
+          </div>
         </div>
-        <div class="pain-card pain-sheets">
-          <span class="pain-emoji">📋</span>
-          <p><strong>{{ 'landing.problem.sheets' | translate }}</strong> {{ 'landing.problem.sheetsDesc' | translate }}</p>
+
+        <div class="v2-pain-card">
+          <div class="v2-pain-illust">
+            <img src="assets/illustrations/undraw-spreadsheets.svg" alt="" loading="lazy">
+          </div>
+          <div class="v2-pain-body">
+            <strong>{{ 'landing.problem.sheets' | translate }}</strong>
+            <p>{{ 'landing.problem.sheetsDesc' | translate }}</p>
+          </div>
         </div>
-        <div class="pain-card pain-forget">
-          <span class="pain-emoji">😰</span>
-          <p><strong>{{ 'landing.problem.forget' | translate }}</strong> {{ 'landing.problem.forgetDesc' | translate }}</p>
+
+        <div class="v2-pain-card">
+          <div class="v2-pain-illust">
+            <img src="assets/illustrations/undraw-warning.svg" alt="" loading="lazy">
+          </div>
+          <div class="v2-pain-body">
+            <strong>{{ 'landing.problem.forget' | translate }}</strong>
+            <p>{{ 'landing.problem.forgetDesc' | translate }}</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FEATURES SHOWCASE -->
-  <section class="features-section reveal" id="features-section">
-    <div class="features-inner">
-      <div class="features-header">
-        <span class="section-tag">{{ 'landing.features.tag' | translate }}</span>
-        <h2>{{ 'landing.features.title' | translate }}</h2>
-        <p class="features-lead">{{ 'landing.features.lead' | translate }}</p>
-      </div>
+  <!-- FEATURES — Staggered bento grid -->
+  <section class="v2-features reveal" id="v2-features">
+    <div class="v2-section-inner">
+      <span class="v2-pill">{{ 'landing.features.tag' | translate }}</span>
+      <h2 class="v2-section-title">{{ 'landing.features.title' | translate }}</h2>
+      <p class="v2-section-lead">{{ 'landing.features.lead' | translate }}</p>
 
-      <!-- Feature Grid: 2 columns, alternating layout -->
-      <div class="features-grid">
-
-        <!-- 1: Timeline Command Center -->
-        <div class="feature-showcase-card reveal">
-          <div class="fsc-icon fsc-purple"><mat-icon>view_timeline</mat-icon></div>
-          <div class="fsc-content">
-            <h3>{{ 'landing.features.timelineTitle' | translate }}</h3>
-            <p>{{ 'landing.features.timelineDesc' | translate }}</p>
-            <div class="fsc-chips">
-              <span class="fsc-chip"><mat-icon>schedule</mat-icon> {{ 'landing.features.timelineChip1' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>wb_sunny</mat-icon> {{ 'landing.features.timelineChip2' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>route</mat-icon> {{ 'landing.features.timelineChip3' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>sticky_note_2</mat-icon> {{ 'landing.features.timelineChip4' | translate }}</span>
-            </div>
+      <div class="v2-bento">
+        <div class="v2-bento-card reveal">
+          <img src="assets/illustrations/undraw-timeline.svg" alt="" class="v2-bento-illust" loading="lazy">
+          <h3>{{ 'landing.features.timelineTitle' | translate }}</h3>
+          <p>{{ 'landing.features.timelineDesc' | translate }}</p>
+          <div class="v2-bento-tags">
+            <span><mat-icon>schedule</mat-icon> {{ 'landing.features.timelineChip1' | translate }}</span>
+            <span><mat-icon>wb_sunny</mat-icon> {{ 'landing.features.timelineChip2' | translate }}</span>
+            <span><mat-icon>route</mat-icon> {{ 'landing.features.timelineChip3' | translate }}</span>
+            <span><mat-icon>sticky_note_2</mat-icon> {{ 'landing.features.timelineChip4' | translate }}</span>
           </div>
         </div>
 
-        <!-- 2: Smart Search -->
-        <div class="feature-showcase-card reveal">
-          <div class="fsc-icon fsc-blue"><mat-icon>travel_explore</mat-icon></div>
-          <div class="fsc-content">
-            <h3>{{ 'landing.features.searchTitle' | translate }}</h3>
-            <p>{{ 'landing.features.searchDesc' | translate }}</p>
-            <div class="fsc-chips">
-              <span class="fsc-chip"><mat-icon>flight</mat-icon> {{ 'landing.features.searchChip1' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>hotel</mat-icon> {{ 'landing.features.searchChip2' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>directions_car</mat-icon> {{ 'landing.features.searchChip3' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>local_activity</mat-icon> {{ 'landing.features.searchChip4' | translate }}</span>
-            </div>
+        <div class="v2-bento-card reveal">
+          <img src="assets/illustrations/undraw-search.svg" alt="" class="v2-bento-illust" loading="lazy">
+          <h3>{{ 'landing.features.searchTitle' | translate }}</h3>
+          <p>{{ 'landing.features.searchDesc' | translate }}</p>
+          <div class="v2-bento-tags">
+            <span><mat-icon>flight</mat-icon> {{ 'landing.features.searchChip1' | translate }}</span>
+            <span><mat-icon>hotel</mat-icon> {{ 'landing.features.searchChip2' | translate }}</span>
+            <span><mat-icon>directions_car</mat-icon> {{ 'landing.features.searchChip3' | translate }}</span>
+            <span><mat-icon>local_activity</mat-icon> {{ 'landing.features.searchChip4' | translate }}</span>
           </div>
         </div>
 
-        <!-- 3: Price Tracking -->
-        <div class="feature-showcase-card reveal">
-          <div class="fsc-icon fsc-green"><mat-icon>trending_down</mat-icon></div>
-          <div class="fsc-content">
-            <h3>{{ 'landing.features.priceTitle' | translate }}</h3>
-            <p>{{ 'landing.features.priceDesc' | translate }}</p>
-            <div class="fsc-chips">
-              <span class="fsc-chip"><mat-icon>notifications</mat-icon> {{ 'landing.features.priceChip1' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>show_chart</mat-icon> {{ 'landing.features.priceChip2' | translate }}</span>
-            </div>
+        <div class="v2-bento-card reveal">
+          <img src="assets/illustrations/undraw-savings.svg" alt="" class="v2-bento-illust" loading="lazy">
+          <h3>{{ 'landing.features.priceTitle' | translate }}</h3>
+          <p>{{ 'landing.features.priceDesc' | translate }}</p>
+          <div class="v2-bento-tags">
+            <span><mat-icon>notifications</mat-icon> {{ 'landing.features.priceChip1' | translate }}</span>
+            <span><mat-icon>show_chart</mat-icon> {{ 'landing.features.priceChip2' | translate }}</span>
           </div>
         </div>
 
-        <!-- 4: Collaboration -->
-        <div class="feature-showcase-card reveal">
-          <div class="fsc-icon fsc-pink"><mat-icon>group</mat-icon></div>
-          <div class="fsc-content">
-            <h3>{{ 'landing.features.collabTitle' | translate }}</h3>
-            <p>{{ 'landing.features.collabDesc' | translate }}</p>
-            <div class="fsc-chips">
-              <span class="fsc-chip"><mat-icon>edit</mat-icon> {{ 'landing.features.collabChip1' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>poll</mat-icon> {{ 'landing.features.collabChip2' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>receipt_long</mat-icon> {{ 'landing.features.collabChip3' | translate }}</span>
-            </div>
+        <div class="v2-bento-card reveal">
+          <img src="assets/illustrations/undraw-collaboration.svg" alt="" class="v2-bento-illust" loading="lazy">
+          <h3>{{ 'landing.features.collabTitle' | translate }}</h3>
+          <p>{{ 'landing.features.collabDesc' | translate }}</p>
+          <div class="v2-bento-tags">
+            <span><mat-icon>edit</mat-icon> {{ 'landing.features.collabChip1' | translate }}</span>
+            <span><mat-icon>poll</mat-icon> {{ 'landing.features.collabChip2' | translate }}</span>
+            <span><mat-icon>receipt_long</mat-icon> {{ 'landing.features.collabChip3' | translate }}</span>
           </div>
         </div>
 
-        <!-- 5: Export & Share -->
-        <div class="feature-showcase-card reveal">
-          <div class="fsc-icon fsc-amber"><mat-icon>share</mat-icon></div>
-          <div class="fsc-content">
-            <h3>{{ 'landing.features.exportTitle' | translate }}</h3>
-            <p>{{ 'landing.features.exportDesc' | translate }}</p>
-            <div class="fsc-chips">
-              <span class="fsc-chip"><mat-icon>picture_as_pdf</mat-icon> {{ 'landing.features.exportChip1' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>link</mat-icon> {{ 'landing.features.exportChip2' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>event</mat-icon> {{ 'landing.features.exportChip3' | translate }}</span>
-            </div>
+        <div class="v2-bento-card reveal">
+          <img src="assets/illustrations/undraw-share.svg" alt="" class="v2-bento-illust" loading="lazy">
+          <h3>{{ 'landing.features.exportTitle' | translate }}</h3>
+          <p>{{ 'landing.features.exportDesc' | translate }}</p>
+          <div class="v2-bento-tags">
+            <span><mat-icon>picture_as_pdf</mat-icon> {{ 'landing.features.exportChip1' | translate }}</span>
+            <span><mat-icon>link</mat-icon> {{ 'landing.features.exportChip2' | translate }}</span>
+            <span><mat-icon>event</mat-icon> {{ 'landing.features.exportChip3' | translate }}</span>
           </div>
         </div>
 
-        <!-- 6: Smart Alerts -->
-        <div class="feature-showcase-card reveal">
-          <div class="fsc-icon fsc-red"><mat-icon>security</mat-icon></div>
-          <div class="fsc-content">
-            <h3>{{ 'landing.features.alertsTitle' | translate }}</h3>
-            <p>{{ 'landing.features.alertsDesc' | translate }}</p>
-            <div class="fsc-chips">
-              <span class="fsc-chip"><mat-icon>warning</mat-icon> {{ 'landing.features.alertsChip1' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>checklist</mat-icon> {{ 'landing.features.alertsChip2' | translate }}</span>
-              <span class="fsc-chip"><mat-icon>account_balance_wallet</mat-icon> {{ 'landing.features.alertsChip3' | translate }}</span>
-            </div>
+        <div class="v2-bento-card reveal">
+          <img src="assets/illustrations/undraw-alerts.svg" alt="" class="v2-bento-illust" loading="lazy">
+          <h3>{{ 'landing.features.alertsTitle' | translate }}</h3>
+          <p>{{ 'landing.features.alertsDesc' | translate }}</p>
+          <div class="v2-bento-tags">
+            <span><mat-icon>warning</mat-icon> {{ 'landing.features.alertsChip1' | translate }}</span>
+            <span><mat-icon>checklist</mat-icon> {{ 'landing.features.alertsChip2' | translate }}</span>
+            <span><mat-icon>account_balance_wallet</mat-icon> {{ 'landing.features.alertsChip3' | translate }}</span>
           </div>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- COMPARISON: TRAVELYX vs PACOTES TRADICIONAIS -->
-  <section class="comparison-section" id="comparison-section">
-    <div class="comparison-inner reveal">
-      <span class="section-tag">Compara e economiza</span>
-      <h2>Por que montar sua viagem no <strong>Travelyx</strong>?</h2>
-      <p class="comparison-subtitle">Pacotes de agencias incluem margens escondidas. No Travelyx voce acessa os precos direto da fonte e monta do seu jeito.</p>
+  <!-- COMPARISON -->
+  <section class="v2-compare" id="v2-compare">
+    <div class="v2-section-inner reveal">
+      <span class="v2-pill">{{ 'landing.compare.tag' | translate }}</span>
+      <h2 class="v2-section-title" [innerHTML]="'landing.compare.title' | translate"></h2>
+      <p class="v2-section-lead">{{ 'landing.compare.subtitle' | translate }}</p>
 
-      <div class="comparison-table">
-        <!-- Header -->
-        <div class="ct-header">
-          <div class="ct-feature-col"></div>
-          <div class="ct-col ct-them">
-            <mat-icon>storefront</mat-icon>
-            <span>Agencias tradicionais</span>
+      <div class="v2-compare-table">
+        <div class="v2-ct-head">
+          <div class="v2-ct-label"></div>
+          <div class="v2-ct-col v2-ct-them">
+            <mat-icon>storefront</mat-icon> {{ 'landing.compare.agencies' | translate }}
           </div>
-          <div class="ct-col ct-us">
-            <img src="assets/logo-icon.svg" alt="Travelyx" class="ct-logo" onerror="this.style.display='none'" />
-            <span>Travelyx</span>
+          <div class="v2-ct-col v2-ct-us">
+            <img src="assets/logo-icon.svg" alt="" class="v2-ct-logo" onerror="this.style.display='none'">
+            Travelyx
           </div>
         </div>
 
-        <!-- Rows -->
-        <div class="ct-row">
-          <div class="ct-feature-col">Precos de voos</div>
-          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Markup de 15-30%</div>
-          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Preco direto da fonte</div>
+        <div class="v2-ct-row">
+          <div class="v2-ct-label">{{ 'landing.compare.flightPrices' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><mat-icon class="v2-icon-bad">close</mat-icon> {{ 'landing.compare.them.flightMarkup' | translate }}</div>
+          <div class="v2-ct-col v2-ct-us"><mat-icon class="v2-icon-good">check</mat-icon> {{ 'landing.compare.us.flightDirect' | translate }}</div>
         </div>
-        <div class="ct-row">
-          <div class="ct-feature-col">Fontes de busca</div>
-          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Uma unica fonte</div>
-          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Booking + Kiwi + mais</div>
+        <div class="v2-ct-row">
+          <div class="v2-ct-label">{{ 'landing.compare.searchSources' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><mat-icon class="v2-icon-bad">close</mat-icon> {{ 'landing.compare.them.singleSource' | translate }}</div>
+          <div class="v2-ct-col v2-ct-us"><mat-icon class="v2-icon-good">check</mat-icon> {{ 'landing.compare.us.multipleSources' | translate }}</div>
         </div>
-        <div class="ct-row">
-          <div class="ct-feature-col">Hoteis</div>
-          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Hotel fixo do pacote</div>
-          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Voce escolhe o melhor</div>
+        <div class="v2-ct-row">
+          <div class="v2-ct-label">{{ 'landing.compare.hotels' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><mat-icon class="v2-icon-bad">close</mat-icon> {{ 'landing.compare.them.fixedHotel' | translate }}</div>
+          <div class="v2-ct-col v2-ct-us"><mat-icon class="v2-icon-good">check</mat-icon> {{ 'landing.compare.us.youChoose' | translate }}</div>
         </div>
-        <div class="ct-row">
-          <div class="ct-feature-col">Atividades e passeios</div>
-          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Pacote fechado ou sem</div>
-          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Milhares de opcoes</div>
+        <div class="v2-ct-row">
+          <div class="v2-ct-label">{{ 'landing.compare.activities' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><mat-icon class="v2-icon-bad">close</mat-icon> {{ 'landing.compare.them.closedPackage' | translate }}</div>
+          <div class="v2-ct-col v2-ct-us"><mat-icon class="v2-icon-good">check</mat-icon> {{ 'landing.compare.us.thousands' | translate }}</div>
         </div>
-        <div class="ct-row">
-          <div class="ct-feature-col">Alerta de preco</div>
-          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Nao tem</div>
-          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Avisa quando cai</div>
+        <div class="v2-ct-row">
+          <div class="v2-ct-label">{{ 'landing.compare.priceAlerts' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><mat-icon class="v2-icon-bad">close</mat-icon> {{ 'landing.compare.them.none' | translate }}</div>
+          <div class="v2-ct-col v2-ct-us"><mat-icon class="v2-icon-good">check</mat-icon> {{ 'landing.compare.us.alertsWhenDrop' | translate }}</div>
         </div>
-        <div class="ct-row">
-          <div class="ct-feature-col">Roteiro colaborativo</div>
-          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> Nao tem</div>
-          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Planeje com amigos</div>
+        <div class="v2-ct-row">
+          <div class="v2-ct-label">{{ 'landing.compare.collab' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><mat-icon class="v2-icon-bad">close</mat-icon> {{ 'landing.compare.them.none' | translate }}</div>
+          <div class="v2-ct-col v2-ct-us"><mat-icon class="v2-icon-good">check</mat-icon> {{ 'landing.compare.us.planWithFriends' | translate }}</div>
         </div>
-        <div class="ct-row">
-          <div class="ct-feature-col">Controle do orcamento</div>
-          <div class="ct-col ct-them"><mat-icon class="ct-icon-bad">remove_circle</mat-icon> So ve o total</div>
-          <div class="ct-col ct-us"><mat-icon class="ct-icon-good">check_circle</mat-icon> Divisao de gastos</div>
+        <div class="v2-ct-row">
+          <div class="v2-ct-label">{{ 'landing.compare.budget' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><mat-icon class="v2-icon-bad">close</mat-icon> {{ 'landing.compare.them.onlyTotal' | translate }}</div>
+          <div class="v2-ct-col v2-ct-us"><mat-icon class="v2-icon-good">check</mat-icon> {{ 'landing.compare.us.splitExpenses' | translate }}</div>
         </div>
-        <div class="ct-row ct-row-highlight">
-          <div class="ct-feature-col">Economia media</div>
-          <div class="ct-col ct-them"><span class="ct-price-them">R$ 0</span></div>
-          <div class="ct-col ct-us"><span class="ct-price-us">Ate 30% mais barato</span></div>
+        <div class="v2-ct-row v2-ct-highlight">
+          <div class="v2-ct-label">{{ 'landing.compare.prices' | translate }}</div>
+          <div class="v2-ct-col v2-ct-them"><span class="v2-ct-muted">{{ 'landing.compare.withMarkup' | translate }}</span></div>
+          <div class="v2-ct-col v2-ct-us"><span class="v2-ct-savings">{{ 'landing.compare.directSource' | translate }}</span></div>
         </div>
       </div>
 
-      <div class="comparison-cta">
-        <button mat-flat-button color="primary" class="comparison-btn" (click)="loginWithGoogle()">
-          <mat-icon>rocket_launch</mat-icon>
-          Comece a economizar agora
+      <div class="v2-compare-cta">
+        <button class="v2-btn-primary" (click)="startPlanning()">
+          <mat-icon>rocket_launch</mat-icon> {{ 'landing.compare.startPlanning' | translate }}
         </button>
       </div>
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section class="how-section" id="how-section">
-    <div class="how-inner reveal">
-      <div class="how-header">
-        <span class="section-tag">{{ 'landing.how.tag' | translate }}</span>
-        <h2>{{ 'landing.how.title' | translate }}</h2>
-      </div>
-      <div class="steps-timeline">
-        <div class="timeline-step">
-          <div class="step-icon step-icon-1">
-            <mat-icon>travel_explore</mat-icon>
-          </div>
-          <div class="step-num">01</div>
+  <!-- HOW IT WORKS — Horizontal timeline -->
+  <section class="v2-how" id="v2-how">
+    <div class="v2-section-inner reveal">
+      <span class="v2-pill">{{ 'landing.how.tag' | translate }}</span>
+      <h2 class="v2-section-title">{{ 'landing.how.title' | translate }}</h2>
+
+      <div class="v2-steps">
+        <div class="v2-step">
+          <img src="assets/illustrations/undraw-explore.svg" alt="" class="v2-step-illust" loading="lazy">
+          <span class="v2-step-num">01</span>
           <h3>{{ 'landing.how.step1Title' | translate }}</h3>
           <p>{{ 'landing.how.step1Desc' | translate }}</p>
         </div>
-        <div class="timeline-connector">
-          <mat-icon class="connector-arrow">arrow_forward</mat-icon>
-        </div>
-        <div class="timeline-step">
-          <div class="step-icon step-icon-2">
-            <mat-icon>edit_calendar</mat-icon>
-          </div>
-          <div class="step-num">02</div>
+        <div class="v2-step-connector"></div>
+        <div class="v2-step">
+          <img src="assets/illustrations/undraw-planning.svg" alt="" class="v2-step-illust" loading="lazy">
+          <span class="v2-step-num">02</span>
           <h3>{{ 'landing.how.step2Title' | translate }}</h3>
           <p>{{ 'landing.how.step2Desc' | translate }}</p>
         </div>
-        <div class="timeline-connector">
-          <mat-icon class="connector-arrow">arrow_forward</mat-icon>
-        </div>
-        <div class="timeline-step">
-          <div class="step-icon step-icon-3">
-            <mat-icon>flight_takeoff</mat-icon>
-          </div>
-          <div class="step-num">03</div>
+        <div class="v2-step-connector"></div>
+        <div class="v2-step">
+          <img src="assets/illustrations/undraw-travel.svg" alt="" class="v2-step-illust" loading="lazy">
+          <span class="v2-step-num">03</span>
           <h3>{{ 'landing.how.step3Title' | translate }}</h3>
           <p>{{ 'landing.how.step3Desc' | translate }}</p>
         </div>
@@ -342,61 +340,57 @@
     </div>
   </section>
 
-  <!-- SOCIAL PROOF -->
-  <section class="proof-section reveal">
-    <div class="proof-inner">
-      <div class="proof-stats">
-        <div class="proof-stat">
-          <span class="proof-number">190+</span>
-          <span class="proof-label">{{ 'landing.proof.destinations' | translate }}</span>
-        </div>
-        <div class="proof-divider"></div>
-        <div class="proof-stat">
-          <span class="proof-number">100%</span>
-          <span class="proof-label">{{ 'landing.proof.freeToStart' | translate }}</span>
-        </div>
-        <div class="proof-divider"></div>
-        <div class="proof-stat">
-          <span class="proof-number">5 min</span>
-          <span class="proof-label">{{ 'landing.proof.buildItinerary' | translate }}</span>
-        </div>
+  <!-- SOCIAL PROOF — Ticker strip -->
+  <section class="v2-proof reveal">
+    <div class="v2-proof-strip">
+      <div class="v2-proof-item">
+        <span class="v2-proof-num">190+</span>
+        <span class="v2-proof-label">{{ 'landing.proof.destinations' | translate }}</span>
+      </div>
+      <div class="v2-proof-sep"></div>
+      <div class="v2-proof-item">
+        <span class="v2-proof-num">100%</span>
+        <span class="v2-proof-label">{{ 'landing.proof.freeToStart' | translate }}</span>
+      </div>
+      <div class="v2-proof-sep"></div>
+      <div class="v2-proof-item">
+        <span class="v2-proof-num">5 min</span>
+        <span class="v2-proof-label">{{ 'landing.proof.buildItinerary' | translate }}</span>
       </div>
     </div>
   </section>
 
-  <!-- DESTINATIONS -->
-  <section class="destinations-section">
-    <div class="dest-inner">
-      <div class="dest-header">
-        <span class="section-tag">{{ 'landing.destinations.tag' | translate }}</span>
-        <h2>{{ 'landing.destinations.title' | translate }}</h2>
-        <p class="dest-sub">{{ 'landing.destinations.subtitle' | translate }}</p>
-      </div>
-      <div class="dest-showcase">
+  <!-- DESTINATIONS — Magazine layout -->
+  <section class="v2-destinations">
+    <div class="v2-section-inner">
+      <span class="v2-pill">{{ 'landing.destinations.tag' | translate }}</span>
+      <h2 class="v2-section-title">{{ 'landing.destinations.title' | translate }}</h2>
+      <p class="v2-section-lead">{{ 'landing.destinations.subtitle' | translate }}</p>
+
+      <div class="v2-dest-grid">
         @for (dest of destinations(); track dest.city) {
-          <div class="dest-card" (click)="loginWithGoogle()">
-            <div class="dest-card-img">
-              @if (dest.image) {
-                <img [src]="dest.image" [alt]="dest.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
-              }
-              <div class="dest-card-overlay"></div>
-              <div class="dest-card-body">
-                <span class="dest-card-tag">{{ dest.tag }}</span>
-                <h3>{{ dest.city }}</h3>
-                <span class="dest-card-price">{{ 'landing.destinations.startingFrom' | translate }} {{ dest.flightFrom | dynamicCurrency }}</span>
-              </div>
+          <div class="v2-dest-card" (click)="startPlanning(dest.city)">
+            @if (dest.image) {
+              <img [src]="dest.image" [alt]="dest.city" referrerpolicy="no-referrer" loading="lazy" (error)="onImageError($event)">
+            }
+            <div class="v2-dest-overlay"></div>
+            <div class="v2-dest-info">
+              <span class="v2-dest-tag">{{ dest.tag }}</span>
+              <h3>{{ dest.city }}</h3>
+              <span class="v2-dest-price">{{ 'landing.destinations.startingFrom' | translate }} {{ dest.flightFrom | dynamicCurrency }}</span>
             </div>
           </div>
         }
       </div>
-      <div class="dest-cta">
+
+      <div class="v2-dest-cta">
         @if (authService.isLoggedIn()) {
-          <button mat-stroked-button (click)="navigateTo('/home')">
+          <button class="v2-btn-outline" (click)="navigateTo('/home')">
             {{ 'landing.destinations.viewAll' | translate }} <mat-icon>arrow_forward</mat-icon>
           </button>
         } @else {
-          <button class="dest-google-btn" (click)="loginWithGoogle()">
-            <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+          <button class="v2-google-btn v2-google-btn--outline" (click)="loginWithGoogle()">
+            <svg viewBox="0 0 24 24" width="18" height="18">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -409,20 +403,20 @@
     </div>
   </section>
 
-  <!-- FINAL CTA -->
-  <section class="final-cta">
-    <div class="cta-glow" aria-hidden="true"></div>
-    <div class="cta-inner">
-      <mat-icon class="cta-hero-icon">flight_takeoff</mat-icon>
+  <!-- FINAL CTA — Dramatic -->
+  <section class="v2-final-cta">
+    <div class="v2-cta-bg" aria-hidden="true"></div>
+    <div class="v2-cta-content">
+      <img src="assets/illustrations/undraw-adventure.svg" alt="" class="v2-cta-illust" loading="lazy">
       <h2>{{ 'landing.cta.title' | translate }}</h2>
       <p>{{ 'landing.cta.subtitle' | translate }}</p>
       @if (authService.isLoggedIn()) {
-        <button mat-flat-button class="cta-btn" (click)="navigateTo('/planner')">
+        <button class="v2-btn-light" (click)="navigateTo('/planner')">
           <mat-icon>auto_awesome</mat-icon> {{ 'landing.cta.buildItinerary' | translate }}
         </button>
       } @else {
-        <button class="cta-google-btn" (click)="loginWithGoogle()">
-          <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+        <button class="v2-google-btn v2-google-btn--light" (click)="loginWithGoogle()">
+          <svg viewBox="0 0 24 24" width="20" height="20">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -435,20 +429,20 @@
   </section>
 
   <!-- FOOTER -->
-  <footer class="landing-footer">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="footer-logo">
-        <p class="footer-tagline">{{ 'landing.footer.tagline' | translate }}</p>
+  <footer class="v2-footer">
+    <div class="v2-footer-inner">
+      <div class="v2-footer-brand">
+        <img src="assets/Tra-removebg-preview.png" alt="Travelyx" class="v2-footer-logo">
+        <p>{{ 'landing.footer.tagline' | translate }}</p>
       </div>
-      <div class="footer-links">
-        <div class="footer-col">
+      <div class="v2-footer-cols">
+        <div class="v2-footer-col">
           <h4>{{ 'landing.footer.explore' | translate }}</h4>
-          <a (click)="scrollToSection('features-section')">{{ 'landing.nav.features' | translate }}</a>
-          <a (click)="scrollToSection('how-section')">{{ 'landing.nav.howItWorks' | translate }}</a>
+          <a (click)="scrollToSection('v2-features')">{{ 'landing.nav.features' | translate }}</a>
+          <a (click)="scrollToSection('v2-how')">{{ 'landing.nav.howItWorks' | translate }}</a>
           <a (click)="loginWithGoogle()">{{ 'landing.footer.createAccount' | translate }}</a>
         </div>
-        <div class="footer-col">
+        <div class="v2-footer-col">
           <h4>{{ 'landing.footer.legal' | translate }}</h4>
           <a routerLink="/privacidade">{{ 'landing.footer.privacyPolicy' | translate }}</a>
           <a routerLink="/termos">{{ 'landing.footer.termsOfUse' | translate }}</a>
@@ -456,7 +450,7 @@
         </div>
       </div>
     </div>
-    <div class="footer-bottom">
+    <div class="v2-footer-bottom">
       <p>{{ 'landing.footer.copyright' | translate }}</p>
     </div>
   </footer>

@@ -1,180 +1,182 @@
-<div class="view-header">
-  <h1>{{ 'hotels.title' | translate }}</h1>
-  <p>{{ 'hotels.subtitle' | translate }}</p>
-</div>
+<div class="dsp">
+  <div class="dsp-header">
+    <h1>{{ 'hotels.title' | translate }}</h1>
+  </div>
 
-@if (formCollapsed()) {
-  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
-    <div class="toggle-info">
+  @if (formCollapsed()) {
+    <div class="dsp-collapsed-bar" (click)="formCollapsed.set(false)">
       <mat-icon>hotel</mat-icon>
       <span>{{ 'hotels.searchToggle' | translate }}</span>
+      <div class="dsp-edit">
+        <span>{{ 'hotels.editSearch' | translate }}</span>
+        <mat-icon>expand_more</mat-icon>
+      </div>
     </div>
-    <div class="toggle-action">
-      <span>{{ 'hotels.editSearch' | translate }}</span>
-      <mat-icon>expand_more</mat-icon>
+  }
+
+  <form [formGroup]="hotelSearchForm" (ngSubmit)="searchHotels()" [class.dsp-form-hidden]="formCollapsed()">
+    <div class="dsp-card">
+      <div class="dsp-row">
+        <!-- Destination -->
+        <div class="dsp-field dsp-field--lg">
+          <label>{{ 'hotels.destination' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input
+              matInput
+              [formControl]="destinationControl"
+              [matAutocomplete]="autoDestination"
+            />
+            <mat-icon matPrefix>location_on</mat-icon>
+            <mat-autocomplete #autoDestination [displayWith]="displayDestination">
+              @for (dest of filteredDestinations$ | async; track dest.destId) {
+                <mat-option [value]="dest">
+                  {{ dest.label }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (destinationControl.hasError('required')) {
+              <mat-error>{{ 'hotels.destinationRequired' | translate }}</mat-error>
+            }
+            @if (destinationControl.hasError('invalidDestination')) {
+              <mat-error>{{ 'hotels.selectDestination' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="dsp-divider"></div>
+
+        <!-- Check-in/out Dates -->
+        <div class="dsp-field" formGroupName="dateRange">
+          <label>{{ 'hotels.checkInOut' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <mat-date-range-input [rangePicker]="rangePicker" [min]="minCheckInDate" (click)="rangePicker.open()">
+              <input matStartDate formControlName="start" [placeholder]="'hotels.checkIn' | translate">
+              <input matEndDate formControlName="end" [placeholder]="'hotels.checkOut' | translate">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+            <mat-date-range-picker #rangePicker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+
+        <div class="dsp-divider"></div>
+
+        <!-- Guests -->
+        <div class="dsp-field dsp-field--sm">
+          <label>{{ 'hotels.guests' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <mat-select formControlName="guests">
+              @for (num of [1, 2, 3, 4, 5, 6, 7, 8]; track num) {
+                <mat-option [value]="num">{{ num }} {{ num === 1 ? ('hotels.guestSingular' | translate) : ('hotels.guestPlural' | translate) }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="dsp-divider"></div>
+
+        <!-- Rooms -->
+        <div class="dsp-field dsp-field--sm">
+          <label>{{ 'hotels.rooms' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <mat-select formControlName="rooms">
+              @for (num of [1, 2, 3, 4, 5]; track num) {
+                <mat-option [value]="num">{{ num }} {{ num === 1 ? ('hotels.roomSingular' | translate) : ('hotels.roomPlural' | translate) }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>hotel</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="dsp-btn" [disabled]="hotelSearchForm.invalid || isSearching()">
+          @if (isSearching()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            {{ 'hotels.searchHotels' | translate }}
+          }
+        </button>
+      </div>
     </div>
-  </div>
-}
 
-<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
-  <mat-card-content>
-    <form [formGroup]="hotelSearchForm" (ngSubmit)="searchHotels()">
-      <!-- Destination Row -->
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'hotels.destination' | translate }}</mat-label>
-          <input
-            matInput
-            [formControl]="destinationControl"
-            [matAutocomplete]="autoDestination"
-          />
-          <mat-icon matPrefix>location_on</mat-icon>
-          <mat-autocomplete #autoDestination [displayWith]="displayDestination">
-            @for (dest of filteredDestinations$ | async; track dest.destId) {
-              <mat-option [value]="dest">
-                {{ dest.label }}
-              </mat-option>
-            }
-          </mat-autocomplete>
-          @if (destinationControl.hasError('required')) {
-            <mat-error>{{ 'hotels.destinationRequired' | translate }}</mat-error>
-          }
-          @if (destinationControl.hasError('invalidDestination')) {
-            <mat-error>{{ 'hotels.selectDestination' | translate }}</mat-error>
-          }
-        </mat-form-field>
-      </div>
-
-      <!-- Check-in and Check-out Row -->
-      <div class="form-row" formGroupName="dateRange">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'hotels.checkInOut' | translate }}</mat-label>
-          <mat-date-range-input [rangePicker]="rangePicker" [min]="minCheckInDate" (click)="rangePicker.open()">
-            <input matStartDate formControlName="start" [placeholder]="'hotels.checkIn' | translate">
-            <input matEndDate formControlName="end" [placeholder]="'hotels.checkOut' | translate">
-          </mat-date-range-input>
-          <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
-          <mat-date-range-picker #rangePicker></mat-date-range-picker>
-        </mat-form-field>
-      </div>
-
-      <!-- Guests and Rooms Row -->
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'hotels.guests' | translate }}</mat-label>
-          <mat-select formControlName="guests">
-            @for (num of [1, 2, 3, 4, 5, 6, 7, 8]; track num) {
-              <mat-option [value]="num">{{ num }} {{ num === 1 ? ('hotels.guestSingular' | translate) : ('hotels.guestPlural' | translate) }}</mat-option>
-            }
-          </mat-select>
-          <mat-icon matPrefix>person</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'hotels.rooms' | translate }}</mat-label>
-          <mat-select formControlName="rooms">
-            @for (num of [1, 2, 3, 4, 5]; track num) {
-              <mat-option [value]="num">{{ num }} {{ num === 1 ? ('hotels.roomSingular' | translate) : ('hotels.roomPlural' | translate) }}</mat-option>
-            }
-          </mat-select>
-          <mat-icon matPrefix>hotel</mat-icon>
-        </mat-form-field>
-      </div>
-
-      <!-- Submit Button -->
-      @if (isSearching()) {
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          class="search-button"
-          [disabled]="true"
-        >
-          <mat-spinner diameter="20"></mat-spinner>
-          <span>{{ 'hotels.searching' | translate }}</span>
-        </button>
-      } @else {
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          class="search-button"
-          [disabled]="hotelSearchForm.invalid"
-        >
-          <mat-icon>search</mat-icon>
-          <span>{{ 'hotels.searchHotels' | translate }}</span>
-        </button>
-      }
-    </form>
-
-    <div class="manual-entry-section">
-      <button mat-stroked-button (click)="openManualHotelDialog()">
+    <div class="dsp-footer">
+      <button mat-stroked-button class="dsp-manual-btn" (click)="openManualHotelDialog()" type="button">
         <mat-icon>edit_note</mat-icon>
         {{ 'hotels.addManually' | translate }}
       </button>
       <span class="manual-hint">{{ 'hotels.manualHint' | translate }}</span>
     </div>
-  </mat-card-content>
-</mat-card>
+  </form>
+</div>
 
-<!-- Error Banner -->
-@if (errorMessage()) {
-  <app-error-banner
-    [source]="errorSource() ?? ('hotels.title' | translate)"
-    [message]="errorMessage()!"
-    (dismiss)="dismissError()"
-  />
-}
-
-<!-- Results Section -->
-@if (searchResults().length > 0) {
-  <div class="results-section">
-    <div class="results-header">
-      <h2>{{ sortedHotels().length }} {{ 'hotels.hotelsFound' | translate }}</h2>
-
-      <!-- Sort Dropdown -->
-      <mat-form-field appearance="outline" class="sort-field">
-        <mat-label>{{ 'hotels.sortBy' | translate }}</mat-label>
-        <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
-          <mat-option value="price">{{ 'hotels.sortPrice' | translate }}</mat-option>
-          <mat-option value="rating">{{ 'hotels.sortRating' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+<div class="dsp-results">
+  @if (!hasSearched() && !isSearching()) {
+    <div class="search-hint">
+      <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+      <h3>Busque a hospedagem ideal</h3>
+      <p>Preencha destino e datas acima e clique em <strong>Buscar Hospedagem</strong> para ver os resultados</p>
     </div>
+  }
 
-    <!-- Hotel Result Cards -->
-    @for (hotel of sortedHotels(); track hotel.id) {
-      <app-list-item-base
-        [config]="toListItem(hotel)"
-        (primaryClick)="selectById($event)"
-        (secondaryClick)="openDetailById($event)"
-        (cardClick)="openDetailById($event)"
-        (iconActionClick)="onIconAction($event)"
-      />
-    }
+  <!-- Error Banner -->
+  @if (errorMessage()) {
+    <app-error-banner
+      [source]="errorSource() ?? ('hotels.title' | translate)"
+      [message]="errorMessage()!"
+      (dismiss)="dismissError()"
+    />
+  }
 
-    @if (hasMore()) {
-      <div class="load-more-container">
-        <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
-          @if (isLoadingMore()) {
-            <mat-spinner diameter="18"></mat-spinner>
-          } @else {
-            <mat-icon>expand_more</mat-icon>
-          }
-          {{ 'common.loadMore' | translate }}
-        </button>
-        <span class="load-more-count">{{ searchResults().length }} {{ 'hotels.hotelsFound' | translate }}</span>
+  <!-- Results Section -->
+  @if (searchResults().length > 0) {
+    <div class="results-section">
+      <div class="results-header">
+        <h2>{{ sortedHotels().length }} {{ 'hotels.hotelsFound' | translate }}</h2>
+
+        <!-- Sort Dropdown -->
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>{{ 'hotels.sortBy' | translate }}</mat-label>
+          <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
+            <mat-option value="price">{{ 'hotels.sortPrice' | translate }}</mat-option>
+            <mat-option value="rating">{{ 'hotels.sortRating' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
-    }
-  </div>
-}
 
-<!-- Empty State -->
-@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
-  <mat-card class="empty-state">
-    <mat-card-content>
-      <mat-icon>hotel</mat-icon>
-      <p>{{ 'hotels.emptyState' | translate }}</p>
-    </mat-card-content>
-  </mat-card>
-}
+      <!-- Hotel Result Cards -->
+      @for (hotel of sortedHotels(); track hotel.id) {
+        <app-list-item-base
+          [config]="toListItem(hotel)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+          (iconActionClick)="onIconAction($event)"
+        />
+      }
+
+      @if (hasMore()) {
+        <div class="load-more-container">
+          <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+            @if (isLoadingMore()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>expand_more</mat-icon>
+            }
+            {{ 'common.loadMore' | translate }}
+          </button>
+          <span class="load-more-count">{{ searchResults().length }} {{ 'hotels.hotelsFound' | translate }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon>hotel</mat-icon>
+        <p>{{ 'hotels.emptyState' | translate }}</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

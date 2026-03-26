@@ -134,7 +134,7 @@ import { TripComment } from '../../../core/models/collaboration.models';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       flex-shrink: 0;
 
       img {
@@ -247,15 +247,15 @@ import { TripComment } from '../../../core/models/collaboration.models';
       }
 
       &:hover {
-        background: rgba(108, 92, 231, 0.06);
-        border-color: var(--triply-primary, #6C5CE7);
+        background: rgba(249, 115, 22, 0.06);
+        border-color: var(--triply-primary, #f97316);
       }
 
       &.reacted {
-        background: rgba(108, 92, 231, 0.1);
-        border-color: var(--triply-primary, #6C5CE7);
+        background: rgba(249, 115, 22, 0.1);
+        border-color: var(--triply-primary, #f97316);
 
-        .reaction-count { color: var(--triply-primary, #6C5CE7); }
+        .reaction-count { color: var(--triply-primary, #f97316); }
       }
     }
 
@@ -273,7 +273,7 @@ import { TripComment } from '../../../core/models/collaboration.models';
         color: var(--triply-text-tertiary, #999);
       }
 
-      &:hover mat-icon { color: var(--triply-primary, #6C5CE7); }
+      &:hover mat-icon { color: var(--triply-primary, #f97316); }
     }
 
     .reply-input-row {

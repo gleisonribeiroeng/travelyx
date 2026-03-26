@@ -14,6 +14,7 @@
           <span class="group-label">{{ group.label }}</span>
         }
         @for (item of group.items; track item.route) {
+          <!-- PRO gate commented out — all features unlocked for now
           @if (item.pro && !planService.isPro()) {
             <button
               class="nav-item locked"
@@ -25,7 +26,7 @@
               <span class="nav-label">{{ item.label }}</span>
               <span class="pro-badge" aria-hidden="true">PRO</span>
             </button>
-          } @else {
+          } @else { -->
             <a
               class="nav-item"
               [routerLink]="item.route"
@@ -36,7 +37,7 @@
               <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
               <span class="nav-label">{{ item.label }}</span>
             </a>
-          }
+          <!-- } -->
         }
       </div>
     }

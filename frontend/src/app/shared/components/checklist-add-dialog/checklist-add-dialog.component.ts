@@ -90,7 +90,7 @@ export interface ChecklistAddDialogResult {
     }
 
     .title-icon {
-      color: var(--triply-primary, #6c5ce7);
+      color: var(--triply-primary, #f97316);
     }
 
     mat-dialog-content {

@@ -361,10 +361,11 @@ export class SearchComponent {
   onIconAction(event: { itemId: string; actionId: string }): void {
     if (event.actionId !== 'price-alert') return;
 
-    if (!this.planService.hasFeature('priceAlerts')) {
-      this.planService.showPaywall('priceAlerts');
-      return;
-    }
+    // PRO check commented out — all features unlocked for now
+    // if (!this.planService.hasFeature('priceAlerts')) {
+    //   this.planService.showPaywall('priceAlerts');
+    //   return;
+    // }
 
     const flight = this.findFlightById(event.itemId);
     if (!flight) return;

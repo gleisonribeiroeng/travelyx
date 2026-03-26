@@ -9,7 +9,8 @@ import {
   NgZone,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, AsyncPipe } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { AuthService } from '../../core/services/auth.service';
@@ -22,11 +23,14 @@ import {
   HomeShowcaseApiService,
   FeaturedDestination,
 } from '../../core/api/home-showcase-api.service';
+import { HotelApiService, DestinationOption } from '../../core/api/hotel-api.service';
+import { Observable, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, RouterLink, DynamicCurrencyPipe, DecimalPipe, TranslatePipe],
+  imports: [MATERIAL_IMPORTS, RouterLink, DynamicCurrencyPipe, DecimalPipe, AsyncPipe, TranslatePipe, ReactiveFormsModule],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
 })
@@ -39,6 +43,19 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly tripState = inject(TripStateService);
   private readonly transition = inject(TransitionService);
   private readonly seo = inject(SeoService);
+  private readonly hotelApi = inject(HotelApiService);
+
+  // Hero search
+  readonly heroDestControl = new FormControl('');
+  filteredHeroDests$!: Observable<DestinationOption[]>;
+  selectedHeroDest = signal<DestinationOption | null>(null);
+  readonly heroQuickDests = [
+    { label: 'Rio de Janeiro', emoji: '🏖️' },
+    { label: 'Paris', emoji: '🗼' },
+    { label: 'Lisboa', emoji: '🏛️' },
+    { label: 'Orlando', emoji: '🎢' },
+    { label: 'Buenos Aires', emoji: '💃' },
+  ];
 
   private readonly fallbackDestinations: FeaturedDestination[] = [
     {
@@ -70,6 +87,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly activeScreen = signal(0);
   private screenTimer?: ReturnType<typeof setInterval>;
 
+  readonly navScrolled = signal(false);
+  private scrollHandler?: () => void;
+
   private observer!: IntersectionObserver;
   private readonly zone = inject(NgZone);
 
@@ -86,6 +106,15 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       url: 'https://travelyx.com.br',
       keywords: 'planejamento de viagem, voos baratos, hotéis, aluguel de carros, roteiro de viagem, travelyx, viagem barata, passagens aéreas',
     });
+
+    this.filteredHeroDests$ = this.heroDestControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(val => {
+        if (!val || typeof val !== 'string' || val.length < 2) return of([]);
+        return this.hotelApi.searchDestinations(val).pipe(catchError(() => of([])));
+      })
+    );
 
     this.api.getShowcase().subscribe({
       next: (res) => {
@@ -117,12 +146,22 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           this.activeScreen.update((i) => (i + 1) % this.screens.length);
         });
       }, 3500);
+
+      // Nav scroll effect
+      this.scrollHandler = () => {
+        const scrolled = window.scrollY > 40;
+        if (scrolled !== this.navScrolled()) {
+          this.zone.run(() => this.navScrolled.set(scrolled));
+        }
+      };
+      window.addEventListener('scroll', this.scrollHandler, { passive: true });
     });
   }
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
     if (this.screenTimer) clearInterval(this.screenTimer);
+    if (this.scrollHandler) window.removeEventListener('scroll', this.scrollHandler);
   }
 
   navigateTo(route: string): void {
@@ -147,6 +186,28 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     }).catch(() => {
       // User closed popup without logging in — do nothing
     });
+  }
+
+  startPlanning(destName?: string): void {
+    // If we have a full DestinationOption selected from autocomplete, use it
+    const selected = this.selectedHeroDest();
+    if (selected) {
+      localStorage.setItem('travelyx_hero_dest', JSON.stringify(selected));
+    } else if (destName) {
+      // Quick chip — save just the name, public-wizard will handle it
+      localStorage.setItem('travelyx_hero_dest', JSON.stringify({ name: destName, label: destName }));
+    }
+    this.router.navigate(['/planejar']);
+  }
+
+  displayHeroDest = (dest: DestinationOption | string): string => {
+    if (!dest) return '';
+    if (typeof dest === 'string') return dest;
+    return dest.label || dest.name;
+  };
+
+  onHeroDestSelected(dest: DestinationOption): void {
+    this.selectedHeroDest.set(dest);
   }
 
   scrollToSection(id: string): void {

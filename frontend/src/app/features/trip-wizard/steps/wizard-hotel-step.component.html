@@ -1,0 +1,165 @@
+<!-- Dark search panel -->
+<div class="flight-search-panel">
+  <div class="fsp-header">
+    <h1>
+      @if (tripDestination()) {
+        Hoteis em {{ tripDestination() }}
+      } @else {
+        Escolha seu hotel
+      }
+    </h1>
+  </div>
+
+  <!-- Current selection inside dark panel -->
+  @if (selectedHotels().length > 0) {
+    <div class="current-selection">
+      <h3>Hoteis selecionados</h3>
+      @for (hotel of selectedHotels(); track hotel.id) {
+        <mat-card class="selected-card">
+          <mat-card-content>
+            <div class="selected-info">
+              @if (hotel.photoUrl) {
+                <img [src]="hotel.photoUrl" class="selected-thumb" alt="">
+              } @else {
+                <mat-icon>hotel</mat-icon>
+              }
+              <div class="selected-details">
+                <strong>{{ hotel.name }}</strong>
+                <span>{{ hotel.address }} &middot; {{ hotel.checkIn }} a {{ hotel.checkOut }}</span>
+              </div>
+              @if (hotel.source === 'manual') {
+                <span class="manual-badge">Manual</span>
+              }
+              <span class="selected-price">{{ hotel.pricePerNight.currency }} {{ hotel.pricePerNight.total | number:'1.2-2' }}/noite</span>
+              @if (hotel.source === 'manual') {
+                <button mat-icon-button (click)="openManualHotelDialog(hotel); $event.stopPropagation()">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              <button mat-icon-button color="warn" (click)="remove(hotel.id)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  @if (formCollapsed()) {
+    <div class="fsp-collapsed-bar" (click)="formCollapsed.set(false)">
+      <mat-icon>hotel</mat-icon>
+      <span>Busca de Hoteis</span>
+      <span class="fsp-edit">Editar busca <mat-icon>expand_more</mat-icon></span>
+    </div>
+  }
+
+  <!-- Fields card -->
+  <form [formGroup]="searchForm" (ngSubmit)="search()" [class.fsp-form-hidden]="formCollapsed()">
+    <div class="fsp-fields-card">
+      <div class="fsp-fields-row">
+        <div class="fsp-field fsp-field--lg">
+          <label>DESTINO</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>location_on</mat-icon>
+            <input matInput [formControl]="destinationControl"
+                   [matAutocomplete]="autoDest" placeholder="Destino">
+            <mat-autocomplete #autoDest="matAutocomplete"
+                              [displayWith]="displayDestination">
+              @for (option of filteredDestinations$ | async; track option.destId) {
+                <mat-option [value]="option">{{ option.label || option.name }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+
+        <div class="fsp-divider"></div>
+
+        <div class="fsp-field fsp-field--dates" formGroupName="dateRange">
+          <label>DATAS</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>calendar_today</mat-icon>
+            <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
+              <input matStartDate formControlName="start" placeholder="Check-in">
+              <input matEndDate formControlName="end" placeholder="Check-out">
+            </mat-date-range-input>
+            <mat-date-range-picker #rangePicker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+
+        <div class="fsp-divider"></div>
+
+        <div class="fsp-field fsp-field--sm">
+          <label>HOSPEDES</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput type="number" formControlName="guests" min="1" max="30" placeholder="2">
+          </mat-form-field>
+        </div>
+
+        <button type="submit" class="fsp-search-btn" [disabled]="searchForm.invalid || isSearching()">
+          @if (isSearching()) { <mat-spinner diameter="20"></mat-spinner> } @else { Buscar Hoteis }
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="fsp-footer">
+      <button mat-stroked-button type="button" class="fsp-manual-btn" (click)="openManualHotelDialog()">
+        <mat-icon>edit_note</mat-icon> Adicionar hotel manualmente
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Results area (light background) -->
+<div class="search-results-area">
+  @if (isSearching()) {
+    <div class="loading-state"><mat-spinner diameter="40"></mat-spinner><p>Buscando hoteis...</p></div>
+  }
+
+  @if (!isSearching() && hasSearched() && results().length === 0) {
+    <div class="empty-results"><mat-icon>search_off</mat-icon><p>Nenhum hotel encontrado. Tente ajustar os filtros.</p></div>
+  }
+
+  @if (results().length > 0 && !isSearching()) {
+    <div class="results-list">
+      <div class="results-header">
+        <h3>{{ results().length }} hoteis encontrados</h3>
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>Ordenar</mat-label>
+          <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
+            <mat-option value="popularity">Relevancia</mat-option>
+            <mat-option value="price">Menor preco</mat-option>
+            <mat-option value="price_from_high_to_low">Maior preco</mat-option>
+            <mat-option value="bayesian_review_score">Melhor avaliacao</mat-option>
+            <mat-option value="class_descending">Mais estrelas</mat-option>
+            <mat-option value="distance">Mais perto</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      @for (hotel of sortedResults(); track hotel.id) {
+        <app-list-item-base
+          [config]="toListItem(hotel)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+          (iconActionClick)="onIconAction($event)"
+        />
+      }
+      @if (hasMore()) {
+        <div class="load-more-container">
+          <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+            @if (isLoadingMore()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>expand_more</mat-icon>
+            }
+            Carregar mais
+          </button>
+          <span class="load-more-count">{{ results().length }} hoteis carregados</span>
+        </div>
+      }
+    </div>
+  }
+</div>

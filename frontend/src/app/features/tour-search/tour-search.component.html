@@ -1,161 +1,171 @@
-<div class="view-header">
-  <h1>{{ 'activities.title' | translate }}</h1>
-  <p>{{ 'activities.subtitle' | translate }}</p>
-</div>
+<div class="dsp">
+  <div class="dsp-header">
+    <h1>{{ 'activities.title' | translate }}</h1>
+  </div>
 
-@if (formCollapsed()) {
-  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
-    <div class="toggle-info">
+  @if (formCollapsed()) {
+    <div class="dsp-collapsed-bar" (click)="formCollapsed.set(false)">
       <mat-icon>local_activity</mat-icon>
       <span>{{ 'activities.searchToggle' | translate }}</span>
+      <div class="dsp-edit">
+        <span>{{ 'activities.editSearch' | translate }}</span>
+        <mat-icon>expand_more</mat-icon>
+      </div>
     </div>
-    <div class="toggle-action">
-      <span>{{ 'activities.editSearch' | translate }}</span>
-      <mat-icon>expand_more</mat-icon>
-    </div>
-  </div>
-}
+  }
 
-<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
-  <mat-card-content>
-    <form [formGroup]="tourSearchForm" (ngSubmit)="searchTours()">
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'activities.destination' | translate }}</mat-label>
-          <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" />
-          <mat-icon matPrefix>place</mat-icon>
-          <mat-autocomplete #autoDestination [displayWith]="displayDestination">
-            @for (dest of filteredDestinations$ | async; track dest.destId) {
-              <mat-option [value]="dest">{{ dest.label }}</mat-option>
+  <form [formGroup]="tourSearchForm" (ngSubmit)="searchTours()" [class.dsp-form-hidden]="formCollapsed()">
+    <div class="dsp-card">
+      <div class="dsp-row">
+        <!-- Destination -->
+        <div class="dsp-field dsp-field--lg">
+          <label>{{ 'activities.destination' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" />
+            <mat-icon matPrefix>place</mat-icon>
+            <mat-autocomplete #autoDestination [displayWith]="displayDestination">
+              @for (dest of filteredDestinations$ | async; track dest.destId) {
+                <mat-option [value]="dest">{{ dest.label }}</mat-option>
+              }
+            </mat-autocomplete>
+            @if (destinationControl.hasError('required')) {
+              <mat-error>{{ 'activities.destinationRequired' | translate }}</mat-error>
             }
-          </mat-autocomplete>
-          @if (destinationControl.hasError('required')) {
-            <mat-error>{{ 'activities.destinationRequired' | translate }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="dsp-divider"></div>
+
+        <!-- Keyword Filter -->
+        <div class="dsp-field">
+          <label>{{ 'activities.filterKeyword' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input matInput formControlName="keyword" [placeholder]="'activities.filterKeywordPlaceholder' | translate" />
+            <mat-icon matPrefix>filter_list</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="dsp-btn" [disabled]="tourSearchForm.invalid || isSearching()">
+          @if (isSearching()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            {{ 'activities.searchActivities' | translate }}
           }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="dsp-results">
+  @if (!hasSearched() && !isSearching()) {
+    <div class="search-hint">
+      <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+      <h3>Descubra atividades incriveis</h3>
+      <p>Preencha o destino acima e clique em <strong>Buscar Atividades</strong> para ver os resultados</p>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <app-error-banner [source]="errorSource() ?? ('activities.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
+  }
+
+  @if (searchResults().length > 0) {
+    <!-- Highlight Cards -->
+    @if (categorized().cheapest || categorized().bestRated || categorized().bestValue) {
+      <div class="highlights-strip">
+        @if (categorized().cheapest; as cheapest) {
+          <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
+            <div class="hl-badge"><mat-icon>savings</mat-icon> {{ 'activities.bestPrice' | translate }}</div>
+            <div class="hl-name">{{ cheapest.name }}</div>
+            <div class="hl-info">
+              {{ cheapest.city }}
+              @if (cheapest.rating) {
+                · <mat-icon class="hl-star">star</mat-icon> {{ cheapest.rating.toFixed(1) }}
+              }
+            </div>
+            <div class="hl-price">{{ cheapest.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
+          </div>
+        }
+        @if (categorized().bestRated; as rated) {
+          <div class="hl-card hl-rated" (click)="addToItinerary(rated)">
+            <div class="hl-badge"><mat-icon>star</mat-icon> {{ 'activities.bestRated' | translate }}</div>
+            <div class="hl-name">{{ rated.name }}</div>
+            <div class="hl-info">
+              {{ rated.city }}
+              @if (rated.rating) {
+                · <mat-icon class="hl-star">star</mat-icon> {{ rated.rating.toFixed(1) }}
+              }
+              @if (rated.reviewCount > 0) {
+                ({{ rated.reviewCount }})
+              }
+            </div>
+            <div class="hl-price">{{ rated.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
+          </div>
+        }
+        @if (categorized().bestValue; as best) {
+          <div class="hl-card hl-value" (click)="addToItinerary(best)">
+            <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> {{ 'activities.bestValue' | translate }}</div>
+            <div class="hl-name">{{ best.name }}</div>
+            <div class="hl-info">
+              {{ best.city }}
+              @if (best.rating) {
+                · <mat-icon class="hl-star">star</mat-icon> {{ best.rating.toFixed(1) }}
+              }
+            </div>
+            <div class="hl-price">{{ best.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="results-section">
+      <div class="results-header">
+        <h2>{{ sortedResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
+
+        <!-- Sort Dropdown -->
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>{{ 'activities.sortBy' | translate }}</mat-label>
+          <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
+            <mat-option value="price">{{ 'activities.sortPrice' | translate }}</mat-option>
+            <mat-option value="rating">{{ 'activities.sortRating' | translate }}</mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'activities.filterKeyword' | translate }}</mat-label>
-          <input matInput formControlName="keyword" [placeholder]="'activities.filterKeywordPlaceholder' | translate" />
-          <mat-icon matPrefix>filter_list</mat-icon>
-        </mat-form-field>
-      </div>
-
-      @if (isSearching()) {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
-          <mat-spinner diameter="20"></mat-spinner>
-          <span>{{ 'activities.searching' | translate }}</span>
-        </button>
-      } @else {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="tourSearchForm.invalid">
-          <mat-icon>search</mat-icon>
-          <span>{{ 'activities.searchActivities' | translate }}</span>
-        </button>
+      @for (tour of sortedResults(); track tour.id) {
+        <app-list-item-base
+          [config]="toListItem(tour)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+        />
       }
-    </form>
-  </mat-card-content>
-</mat-card>
 
-@if (errorMessage()) {
-  <app-error-banner [source]="errorSource() ?? ('activities.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
-}
-
-@if (searchResults().length > 0) {
-  <!-- Highlight Cards -->
-  @if (categorized().cheapest || categorized().bestRated || categorized().bestValue) {
-    <div class="highlights-strip">
-      @if (categorized().cheapest; as cheapest) {
-        <div class="hl-card hl-cheap" (click)="addToItinerary(cheapest)">
-          <div class="hl-badge"><mat-icon>savings</mat-icon> {{ 'activities.bestPrice' | translate }}</div>
-          <div class="hl-name">{{ cheapest.name }}</div>
-          <div class="hl-info">
-            {{ cheapest.city }}
-            @if (cheapest.rating) {
-              · <mat-icon class="hl-star">star</mat-icon> {{ cheapest.rating.toFixed(1) }}
+      <!-- Load more -->
+      @if (hasMore()) {
+        <div class="load-more-container">
+          <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+            @if (isLoadingMore()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>expand_more</mat-icon>
             }
-          </div>
-          <div class="hl-price">{{ cheapest.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
-        </div>
-      }
-      @if (categorized().bestRated; as rated) {
-        <div class="hl-card hl-rated" (click)="addToItinerary(rated)">
-          <div class="hl-badge"><mat-icon>star</mat-icon> {{ 'activities.bestRated' | translate }}</div>
-          <div class="hl-name">{{ rated.name }}</div>
-          <div class="hl-info">
-            {{ rated.city }}
-            @if (rated.rating) {
-              · <mat-icon class="hl-star">star</mat-icon> {{ rated.rating.toFixed(1) }}
-            }
-            @if (rated.reviewCount > 0) {
-              ({{ rated.reviewCount }})
-            }
-          </div>
-          <div class="hl-price">{{ rated.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
-        </div>
-      }
-      @if (categorized().bestValue; as best) {
-        <div class="hl-card hl-value" (click)="addToItinerary(best)">
-          <div class="hl-badge"><mat-icon>auto_awesome</mat-icon> {{ 'activities.bestValue' | translate }}</div>
-          <div class="hl-name">{{ best.name }}</div>
-          <div class="hl-info">
-            {{ best.city }}
-            @if (best.rating) {
-              · <mat-icon class="hl-star">star</mat-icon> {{ best.rating.toFixed(1) }}
-            }
-          </div>
-          <div class="hl-price">{{ best.price.total | dynamicCurrency }}<span class="hl-price-label">{{ 'activities.perPerson' | translate }}</span></div>
+            {{ 'common.loadMore' | translate }}
+          </button>
+          <span class="load-more-count">{{ searchResults().length }} / {{ totalCount() }}</span>
         </div>
       }
     </div>
   }
 
-  <div class="results-section">
-    <div class="results-header">
-      <h2>{{ sortedResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
-
-      <!-- Sort Dropdown -->
-      <mat-form-field appearance="outline" class="sort-field">
-        <mat-label>{{ 'activities.sortBy' | translate }}</mat-label>
-        <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
-          <mat-option value="price">{{ 'activities.sortPrice' | translate }}</mat-option>
-          <mat-option value="rating">{{ 'activities.sortRating' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    @for (tour of sortedResults(); track tour.id) {
-      <app-list-item-base
-        [config]="toListItem(tour)"
-        (primaryClick)="selectById($event)"
-        (secondaryClick)="openDetailById($event)"
-        (cardClick)="openDetailById($event)"
-      />
-    }
-
-    <!-- Load more -->
-    @if (hasMore()) {
-      <div class="load-more-container">
-        <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
-          @if (isLoadingMore()) {
-            <mat-spinner diameter="18"></mat-spinner>
-          } @else {
-            <mat-icon>expand_more</mat-icon>
-          }
-          {{ 'common.loadMore' | translate }}
-        </button>
-        <span class="load-more-count">{{ searchResults().length }} / {{ totalCount() }}</span>
-      </div>
-    }
-  </div>
-}
-
-@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
-  <mat-card class="empty-state">
-    <mat-card-content>
-      <mat-icon>local_activity</mat-icon>
-      <p>{{ 'activities.emptyState' | translate }}</p>
-    </mat-card-content>
-  </mat-card>
-}
+  @if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon>local_activity</mat-icon>
+        <p>{{ 'activities.emptyState' | translate }}</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

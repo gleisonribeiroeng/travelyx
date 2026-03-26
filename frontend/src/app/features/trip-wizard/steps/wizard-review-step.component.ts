@@ -233,7 +233,7 @@ import { TranslationService } from '../../../core/i18n/translation.service';
     .review-item-info span { font-size: 0.8rem; color: var(--triply-text-secondary); }
     .review-item-price { font-weight: 700; color: var(--triply-primary); font-size: 0.9rem; white-space: nowrap; }
 
-    .total-card { background: linear-gradient(135deg, var(--triply-surface-0), rgba(108, 92, 231, 0.04)) !important; box-shadow: var(--triply-shadow-sm); }
+    .total-card { background: linear-gradient(135deg, var(--triply-surface-0), rgba(249, 115, 22, 0.04)) !important; box-shadow: var(--triply-shadow-sm); }
     .total-row { display: flex; justify-content: space-between; align-items: center; }
     .total-label { font-size: 1rem; font-weight: 600; color: var(--triply-text-primary); }
     .total-value { font-size: 1.3rem; font-weight: 700; color: var(--triply-primary); }

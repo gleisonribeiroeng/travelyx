@@ -451,7 +451,8 @@ export class TimelineComponent implements OnInit {
   }
 
   async exportPdf(): Promise<void> {
-    if (!this.planService.isPro()) { this.planService.showPaywall('budget'); return; }
+    // PRO check commented out — all features unlocked for now
+    // if (!this.planService.isPro()) { this.planService.showPaywall('budget'); return; }
     this.exporting.set(true);
     try { await this.exportService.exportToPdf(); this.notify.success(this.i18n.t('export.pdfSuccess')); }
     catch { this.notify.error(this.i18n.t('export.pdfError')); }
@@ -459,7 +460,8 @@ export class TimelineComponent implements OnInit {
   }
 
   optimizeRoute(): void {
-    if (!this.planService.hasFeature('routeOptimization')) { this.planService.showPaywall('routeOptimization'); return; }
+    // PRO check commented out — all features unlocked for now
+    // if (!this.planService.hasFeature('routeOptimization')) { this.planService.showPaywall('routeOptimization'); return; }
     const trip = this.tripState.trip();
     const itemsWithCoords: { id: string; lat: number; lng: number }[] = [];
     for (const item of trip.itineraryItems) {
@@ -483,7 +485,8 @@ export class TimelineComponent implements OnInit {
   }
 
   async exportBeautifulPdf(): Promise<void> {
-    if (!this.planService.hasFeature('pdfExport')) { this.planService.showPaywall('pdfExport'); return; }
+    // PRO check commented out — all features unlocked for now
+    // if (!this.planService.hasFeature('pdfExport')) { this.planService.showPaywall('pdfExport'); return; }
     this.exporting.set(true);
     try { await this.exportService.exportToBeautifulPdf(); this.notify.success(this.i18n.t('export.pdfSuccess')); }
     catch { this.notify.error(this.i18n.t('export.pdfError')); }
@@ -491,7 +494,8 @@ export class TimelineComponent implements OnInit {
   }
 
   async exportExcel(): Promise<void> {
-    if (!this.planService.isPro()) { this.planService.showPaywall('budget'); return; }
+    // PRO check commented out — all features unlocked for now
+    // if (!this.planService.isPro()) { this.planService.showPaywall('budget'); return; }
     this.exporting.set(true);
     try { await this.exportService.exportToExcel(); this.notify.success(this.i18n.t('export.excelSuccess')); }
     catch { this.notify.error(this.i18n.t('export.excelError')); }

@@ -160,7 +160,7 @@ export interface ExpenseSplitDialogResult {
         font-size: 28px;
         width: 28px;
         height: 28px;
-        color: var(--triply-primary, #6C5CE7);
+        color: var(--triply-primary, #f97316);
       }
 
       h2 {
@@ -235,7 +235,7 @@ export interface ExpenseSplitDialogResult {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       flex-shrink: 0;
 
       img {
@@ -261,7 +261,7 @@ export interface ExpenseSplitDialogResult {
     .participant-amount {
       font-size: 0.82rem;
       font-weight: 600;
-      color: var(--triply-primary, #6C5CE7);
+      color: var(--triply-primary, #f97316);
       flex-shrink: 0;
     }
 

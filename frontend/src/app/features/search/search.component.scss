@@ -1,6 +1,11 @@
 :host {
   display: block;
   overflow-x: hidden;
+  // Remove parent padding so the dark panel can touch edges
+  margin: -16px;
+  @media (min-width: 960px) {
+    margin: -28px -40px;
+  }
 }
 
 .manual-entry-section {
@@ -34,6 +39,14 @@
   mat-form-field,
   .mat-mdc-form-field {
     width: 100%;
+  }
+}
+
+// Re-add padding for content below the dark panel
+.search-results-area {
+  padding: 16px;
+  @media (min-width: 960px) {
+    padding: 0 40px 40px;
   }
 }
 
@@ -108,7 +121,7 @@
 }
 
 :host ::ng-deep .trip-type-toggle .mat-button-toggle-checked {
-  background: rgba(124, 77, 255, 0.1);
+  background: rgba(249, 115, 22, 0.1);
   color: var(--triply-primary);
 }
 
@@ -129,9 +142,9 @@
     grid-template-columns: repeat(2, 1fr);
   }
   padding: 12px;
-  background: rgba(124, 77, 255, 0.04);
+  background: rgba(249, 115, 22, 0.04);
   border-radius: var(--triply-radius-sm);
-  border: 1px dashed rgba(124, 77, 255, 0.2);
+  border: 1px dashed rgba(249, 115, 22, 0.2);
 }
 
 
@@ -167,7 +180,7 @@
   color: var(--triply-text-secondary);
   transition: all 0.2s ease;
 
-  &.active { background: rgba(124, 77, 255, 0.08); color: var(--triply-primary); }
+  &.active { background: rgba(249, 115, 22, 0.08); color: var(--triply-primary); }
   &.done { color: var(--triply-success); }
 
   .check {
@@ -222,8 +235,8 @@
 
 // Mobile-first: compact padding
 .segment-card {
-  background: rgba(124, 77, 255, 0.02);
-  border: 1px solid rgba(124, 77, 255, 0.12);
+  background: rgba(249, 115, 22, 0.02);
+  border: 1px solid rgba(249, 115, 22, 0.12);
   border-radius: var(--triply-border-radius-md, 8px);
   padding: var(--triply-spacing-sm);
   margin-bottom: var(--triply-spacing-md);
@@ -290,8 +303,8 @@
   align-items: center;
   text-align: center;
   gap: var(--triply-spacing-sm);
-  background: linear-gradient(135deg, rgba(124, 77, 255, 0.08) 0%, rgba(124, 77, 255, 0.03) 100%);
-  border: 1px solid rgba(124, 77, 255, 0.15);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(249, 115, 22, 0.03) 100%);
+  border: 1px solid rgba(249, 115, 22, 0.15);
   border-radius: var(--triply-border-radius-md, 8px);
   padding: var(--triply-spacing-md);
   margin: var(--triply-spacing-lg) 0;
@@ -321,7 +334,7 @@
   gap: 4px;
   margin-bottom: var(--triply-spacing-md);
   padding-bottom: var(--triply-spacing-sm);
-  border-bottom: 2px solid rgba(124, 77, 255, 0.15);
+  border-bottom: 2px solid rgba(249, 115, 22, 0.15);
 
   h3 {
     margin: 0;
@@ -376,7 +389,7 @@
 
 @media (hover: hover) {
   .segment-card:hover {
-    border-color: rgba(124, 77, 255, 0.25);
+    border-color: rgba(249, 115, 22, 0.25);
   }
 
   .segment-remove:hover {
@@ -427,5 +440,299 @@
     flex-direction: row;
     text-align: left;
     padding: var(--triply-spacing-md) var(--triply-spacing-lg);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FLIGHT SEARCH PANEL — Decolar-inspired dark hero search
+// ═══════════════════════════════════════════════════════════════
+
+.flight-search-panel {
+  background: #0f172a;
+  padding: 24px 16px 20px;
+  border-radius: 0 0 20px 20px;
+
+  @media (min-width: 960px) {
+    padding: 28px 40px 24px;
+    border-radius: 0 0 24px 24px;
+  }
+}
+
+// Row 1: Title + Toggle inline
+.fsp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+
+  h1 {
+    color: #fff;
+    font-family: var(--triply-font-display, 'Sora', sans-serif);
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 0;
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+  }
+}
+
+// Trip type toggle — pill style on dark bg
+.fsp-type-toggle {
+  border: none !important;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+
+  .mat-button-toggle {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    border: none !important;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .mat-button-toggle-checked {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+  }
+}
+
+:host ::ng-deep .fsp-type-toggle {
+  .mat-button-toggle-label-content {
+    padding: 0 14px;
+    font-size: 0.78rem;
+    line-height: 36px;
+  }
+  .mat-button-toggle-appearance-standard {
+    background: transparent;
+  }
+  .mat-button-toggle-checked .mat-button-toggle-appearance-standard {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+// Collapsed bar
+.fsp-collapsed-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+
+  &:hover { background: rgba(255, 255, 255, 0.1); }
+
+  .fsp-edit {
+    margin-left: auto;
+    color: #f97316;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+.fsp-form-hidden {
+  display: none !important;
+}
+
+// Row 2: Fields card — white rounded card
+.fsp-fields-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.fsp-fields-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  @media (min-width: 960px) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.fsp-field {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px 4px;
+
+  label {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--triply-text-tertiary, #94a3b8);
+    margin-bottom: 0;
+    font-family: var(--triply-font-display, 'Sora', sans-serif);
+  }
+
+  &--origin { @media (min-width: 960px) { flex: 2; } }
+  &--dest   { @media (min-width: 960px) { flex: 2; } }
+  &--dates  { @media (min-width: 960px) { flex: 2; } }
+  &--pax    { @media (min-width: 960px) { flex: 1.2; } }
+}
+
+// Minimal input (no outline, just text)
+.fsp-input {
+  width: 100%;
+
+  &.mat-mdc-form-field {
+    --mdc-filled-text-field-container-color: transparent;
+    --mdc-filled-text-field-active-indicator-height: 0;
+    --mdc-filled-text-field-focus-active-indicator-height: 0;
+    --mdc-filled-text-field-hover-active-indicator-color: transparent;
+    --mdc-filled-text-field-active-indicator-color: transparent;
+    --mdc-filled-text-field-focus-active-indicator-color: transparent;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+:host ::ng-deep .fsp-input {
+  .mdc-text-field--filled {
+    background: transparent !important;
+    padding: 0 !important;
+    height: 40px;
+  }
+  .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 4px !important;
+    min-height: 36px;
+  }
+  .mdc-line-ripple { display: none; }
+  .mat-mdc-form-field-subscript-wrapper { display: none; }
+  .mdc-floating-label { display: none; }
+  input, .mat-mdc-select-trigger {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--triply-text-primary);
+  }
+  .mat-mdc-form-field-icon-prefix {
+    color: var(--triply-text-tertiary);
+    padding: 0 6px 0 0;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+.fsp-swap {
+  display: none;
+  @media (min-width: 960px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    flex-shrink: 0;
+    mat-icon {
+      font-size: 20px;
+      color: var(--triply-text-tertiary);
+    }
+  }
+}
+
+.fsp-divider {
+  display: none;
+  @media (min-width: 960px) {
+    display: block;
+    width: 1px;
+    align-self: stretch;
+    margin: 8px 0;
+    background: var(--triply-border-subtle, #f1f5f9);
+    flex-shrink: 0;
+  }
+}
+
+// Search button — coral pill, no icon
+.fsp-search-btn {
+  margin: 8px;
+  min-height: 48px;
+  border: none;
+  border-radius: 100px;
+  background: #f97316;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  font-family: var(--triply-font-display, 'Sora', sans-serif);
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 28px;
+  white-space: nowrap;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  @media (min-width: 960px) {
+    margin: 4px 4px 4px 0;
+    min-width: 140px;
+    align-self: stretch;
+  }
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 6px 24px rgba(249, 115, 22, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Row 3: Footer — flexible toggle + manual
+.fsp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 0;
+
+  mat-slide-toggle {
+    --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.15);
+    --mdc-switch-unselected-handle-color: rgba(255, 255, 255, 0.4);
+    --mdc-switch-selected-track-color: #f97316;
+    --mdc-switch-selected-handle-color: #fff;
+    --mat-slide-toggle-label-text-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.82rem;
+  }
+}
+
+.fsp-manual-btn {
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  font-size: 0.8rem !important;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 4px;
+  }
+
+  &:hover {
+    color: #f97316 !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
   }
 }

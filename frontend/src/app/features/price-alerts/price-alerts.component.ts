@@ -249,12 +249,12 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
     /* ── Alert Card ── */
     [data-type="flight"] { --alert-color: #2196F3; }
-    [data-type="hotel"]  { --alert-color: #7C4DFF; }
+    [data-type="hotel"]  { --alert-color: #f97316; }
 
     .alert-card {
       background: #fff;
       border: 1px solid var(--triply-border-subtle, #e8e8e8);
-      border-left: 3px solid var(--alert-color, #6c5ce7);
+      border-left: 3px solid var(--alert-color, #f97316);
       border-radius: 10px;
       padding: 14px 16px;
       transition: box-shadow 0.2s, transform 0.2s;
@@ -290,7 +290,7 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: color-mix(in srgb, var(--alert-color, #6c5ce7) 10%, transparent);
+      background: color-mix(in srgb, var(--alert-color, #f97316) 10%, transparent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -298,7 +298,7 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
       mat-icon {
         font-size: 17px; width: 17px; height: 17px;
-        color: var(--alert-color, #6c5ce7);
+        color: var(--alert-color, #f97316);
       }
     }
 
@@ -314,7 +314,7 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       margin-bottom: 2px;
 
       &.flight { background: #2196F3; }
-      &.hotel { background: #7C4DFF; }
+      &.hotel { background: #f97316; }
     }
 
     .alert-label {
@@ -442,7 +442,7 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
         display: block;
 
         &.lowest { color: #16a34a; }
-        &.target { color: var(--triply-primary, #6c5ce7); }
+        &.target { color: var(--triply-primary, #f97316); }
       }
     }
 
@@ -463,7 +463,7 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 
     .progress-fill {
       height: 100%;
-      background: var(--triply-primary, #6c5ce7);
+      background: var(--triply-primary, #f97316);
       border-radius: 3px;
       transition: width 0.4s ease;
 
@@ -518,8 +518,8 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
       height: 120px;
 
       .grid-line { stroke: #f0f0f0; stroke-width: 1; }
-      .target-line { stroke: var(--triply-primary, #6c5ce7); stroke-width: 1; stroke-dasharray: 6 4; opacity: 0.6; }
-      .target-label { font-size: 10px; fill: var(--triply-primary, #6c5ce7); font-weight: 600; }
+      .target-line { stroke: var(--triply-primary, #f97316); stroke-width: 1; stroke-dasharray: 6 4; opacity: 0.6; }
+      .target-label { font-size: 10px; fill: var(--triply-primary, #f97316); font-weight: 600; }
       .price-line { stroke: var(--triply-success, #22c55e); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
       .price-area { fill: rgba(34,197,94,0.08); }
       .data-dot { fill: var(--triply-success, #22c55e); }

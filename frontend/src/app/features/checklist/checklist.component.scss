@@ -170,7 +170,7 @@
 }
 
 @media (hover: hover) {
-  .checklist-row:hover { background: var(--triply-primary-subtle, rgba(108, 92, 231, 0.04)); }
+  .checklist-row:hover { background: var(--triply-primary-subtle, rgba(249, 115, 22, 0.04)); }
 }
 
 @media (min-width: 600px) {
@@ -207,7 +207,7 @@
   overflow: hidden;
 
   &:hover {
-    border-color: var(--triply-primary, #6C5CE7);
+    border-color: var(--triply-primary, #f97316);
     border-style: solid;
   }
 
@@ -226,7 +226,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+    background: linear-gradient(135deg, #f97316, #fb923c);
   }
 
   .assignee-placeholder {
@@ -245,7 +245,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+  background: linear-gradient(135deg, #f97316, #fb923c);
   margin-right: 8px;
   flex-shrink: 0;
   vertical-align: middle;

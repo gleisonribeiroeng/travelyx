@@ -1,0 +1,116 @@
+<!-- Dark search panel -->
+<div class="flight-search-panel">
+  <div class="fsp-header">
+    <h1>Transporte terrestre</h1>
+  </div>
+
+  <!-- Current selection inside dark panel -->
+  @if (selectedTransports().length > 0) {
+    <div class="current-selection">
+      <h3>Transportes selecionados</h3>
+      @for (t of selectedTransports(); track t.id) {
+        <mat-card class="selected-card">
+          <mat-card-content>
+            <div class="selected-info">
+              <mat-icon>{{ getModeIcon(t.mode) }}</mat-icon>
+              <div class="selected-details">
+                <strong>{{ t.origin }} &rarr; {{ t.destination }}</strong>
+                <span>{{ t.mode | titlecase }} &middot; {{ formatDuration(t.durationMinutes) }}</span>
+              </div>
+              <span class="selected-price">{{ t.price.currency }} {{ t.price.total | number:'1.2-2' }}</span>
+              <button mat-icon-button color="warn" (click)="remove(t.id)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  @if (formCollapsed()) {
+    <div class="fsp-collapsed-bar" (click)="formCollapsed.set(false)">
+      <mat-icon>directions_bus</mat-icon>
+      <span>Busca de Transporte</span>
+      <span class="fsp-edit">Editar busca <mat-icon>expand_more</mat-icon></span>
+    </div>
+  }
+
+  <form [formGroup]="searchForm" (ngSubmit)="search()" [class.fsp-form-hidden]="formCollapsed()">
+    <div class="fsp-fields-card">
+      <div class="fsp-fields-row">
+        <div class="fsp-field fsp-field--lg">
+          <label>ORIGEM</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>trip_origin</mat-icon>
+            <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin" placeholder="Origem">
+            <mat-autocomplete #autoOrigin [displayWith]="displayLocation">
+              @for (dest of filteredOrigins$ | async; track dest.destId) {
+                <mat-option [value]="dest">{{ dest.label }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="fsp-divider"></div>
+        <div class="fsp-field fsp-field--lg">
+          <label>DESTINO</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>place</mat-icon>
+            <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" placeholder="Destino">
+            <mat-autocomplete #autoDestination [displayWith]="displayLocation">
+              @for (dest of filteredDestinations$ | async; track dest.destId) {
+                <mat-option [value]="dest">{{ dest.label }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="fsp-divider"></div>
+        <div class="fsp-field">
+          <label>DATA</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <input matInput [matDatepicker]="dp" formControlName="date" [min]="minDate" (focus)="dp.open()" placeholder="Data">
+            <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <button type="submit" class="fsp-search-btn" [disabled]="searchForm.invalid || isSearching()">
+          @if (isSearching()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Buscar transporte
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="search-results-area">
+  @if (isSearching()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Buscando transportes...</p>
+    </div>
+  }
+
+  @if (!isSearching() && hasSearched() && results().length === 0) {
+    <div class="empty-results">
+      <mat-icon>search_off</mat-icon>
+      <p>Nenhum transporte encontrado.</p>
+    </div>
+  }
+
+  @if (results().length > 0) {
+    <div class="results-list">
+      <h3>{{ results().length }} opções encontradas</h3>
+      @for (t of results(); track t.id) {
+        <app-list-item-base
+          [config]="toListItem(t)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+        />
+      }
+    </div>
+  }
+</div>

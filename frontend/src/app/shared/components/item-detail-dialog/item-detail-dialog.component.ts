@@ -1133,7 +1133,7 @@ function formatDate(iso: string): string {
     .flight-hero-bg {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 120%, rgba(108, 92, 231, 0.25) 0%, transparent 60%);
+      background: radial-gradient(circle at 50% 120%, rgba(249, 115, 22, 0.25) 0%, transparent 60%);
       pointer-events: none;
     }
 
@@ -1182,7 +1182,7 @@ function formatDate(iso: string): string {
     .fh-line {
       flex: 1;
       height: 2px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(108, 92, 231, 0.4), rgba(255,255,255,0.1));
+      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(249, 115, 22, 0.4), rgba(255,255,255,0.1));
       border-radius: 1px;
     }
 
@@ -1195,7 +1195,7 @@ function formatDate(iso: string): string {
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 0 16px rgba(108, 92, 231, 0.5);
+      box-shadow: 0 0 16px rgba(249, 115, 22, 0.5);
     }
 
     .fh-plane mat-icon {
@@ -1339,7 +1339,7 @@ function formatDate(iso: string): string {
       align-items: baseline;
       gap: 8px;
       padding: 14px 18px;
-      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.06));
+      background: var(--triply-primary-muted, rgba(249, 115, 22, 0.06));
       border-radius: var(--triply-radius-md);
     }
 
@@ -1427,7 +1427,7 @@ function formatDate(iso: string): string {
       .connector {
         flex: 1;
         height: 2px;
-        background: linear-gradient(90deg, rgba(124, 77, 255, 0.3), rgba(124, 77, 255, 0.1));
+        background: linear-gradient(90deg, rgba(249, 115, 22, 0.3), rgba(249, 115, 22, 0.1));
         border-radius: 1px;
       }
 
@@ -1699,7 +1699,7 @@ function formatDate(iso: string): string {
       align-items: baseline;
       justify-content: space-between;
       padding: 14px 18px;
-      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.06));
+      background: var(--triply-primary-muted, rgba(249, 115, 22, 0.06));
       border-radius: var(--triply-radius-md);
     }
 
@@ -1769,7 +1769,7 @@ function formatDate(iso: string): string {
     }
 
     .tour-chip--provider {
-      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.08));
+      background: var(--triply-primary-muted, rgba(249, 115, 22, 0.08));
       color: var(--triply-primary);
 
       mat-icon { color: var(--triply-primary); }
@@ -1839,7 +1839,7 @@ function formatDate(iso: string): string {
       align-items: center;
       gap: 2px;
       padding: 16px 20px;
-      background: var(--triply-primary-muted, rgba(108, 92, 231, 0.06));
+      background: var(--triply-primary-muted, rgba(249, 115, 22, 0.06));
       border-radius: var(--triply-radius-md);
     }
 
@@ -1940,8 +1940,8 @@ function formatDate(iso: string): string {
       flex-wrap: wrap;
       gap: 8px;
       padding: 10px 14px;
-      background: linear-gradient(135deg, rgba(124, 77, 255, 0.06), rgba(124, 77, 255, 0.02));
-      border: 1px solid rgba(124, 77, 255, 0.1);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.06), rgba(249, 115, 22, 0.02));
+      border: 1px solid rgba(249, 115, 22, 0.1);
       border-radius: var(--triply-radius-md);
     }
 
@@ -2089,12 +2089,12 @@ function formatDate(iso: string): string {
 
     .room-card:hover {
       border-color: var(--triply-primary);
-      box-shadow: 0 2px 8px rgba(108, 92, 231, 0.08);
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.08);
     }
 
     .room-card.selected {
       border-color: var(--triply-primary);
-      background: rgba(108, 92, 231, 0.04);
+      background: rgba(249, 115, 22, 0.04);
       box-shadow: 0 0 0 1px var(--triply-primary);
     }
 
@@ -2262,7 +2262,7 @@ function formatDate(iso: string): string {
       transition: background 0.2s ease;
 
       &:hover {
-        background: rgba(124, 77, 255, 0.06);
+        background: rgba(249, 115, 22, 0.06);
       }
 
       mat-icon {
@@ -2371,7 +2371,7 @@ function formatDate(iso: string): string {
       align-items: flex-start;
       gap: 8px;
       padding: 12px 14px;
-      background: rgba(108, 92, 231, 0.06);
+      background: rgba(249, 115, 22, 0.06);
       border-radius: 10px;
       font-size: 0.82rem;
       line-height: 1.5;
@@ -2421,7 +2421,7 @@ function formatDate(iso: string): string {
       font-weight: 600;
       padding: 2px 10px;
       border-radius: 12px;
-      background: rgba(124, 77, 255, 0.08);
+      background: rgba(249, 115, 22, 0.08);
       color: var(--triply-primary);
       text-transform: uppercase;
       letter-spacing: 0.3px;
@@ -2486,7 +2486,7 @@ function formatDate(iso: string): string {
         color: var(--triply-text-primary);
 
         &.lowest { color: var(--triply-success, #22c55e); }
-        &.target { color: var(--triply-primary, #6c5ce7); }
+        &.target { color: var(--triply-primary, #f97316); }
         &.active { color: var(--triply-success, #22c55e); }
       }
     }

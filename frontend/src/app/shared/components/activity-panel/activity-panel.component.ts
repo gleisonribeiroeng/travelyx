@@ -85,7 +85,7 @@ import { TripActivity } from '../../../core/models/collaboration.models';
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+        background: linear-gradient(135deg, #f97316, #fb923c);
         flex-shrink: 0;
 
         img {
@@ -152,7 +152,7 @@ import { TripActivity } from '../../../core/models/collaboration.models';
       &.dot-add { background: #4CAF50; }
       &.dot-edit { background: #FF9800; }
       &.dot-delete { background: #f44336; }
-      &.dot-join { background: var(--triply-primary, #6C5CE7); }
+      &.dot-join { background: var(--triply-primary, #f97316); }
       &.dot-comment { background: #2196F3; }
       &.dot-vote { background: #9C27B0; }
       &.dot-default { background: #9e9e9e; }
@@ -180,7 +180,7 @@ import { TripActivity } from '../../../core/models/collaboration.models';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       flex-shrink: 0;
 
       img {

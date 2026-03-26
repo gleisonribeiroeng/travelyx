@@ -77,17 +77,17 @@ import { RouterLink } from '@angular/router';
       line-height: 1.7;
     }
     .back-link {
-      color: var(--triply-primary, #7c3aed);
+      color: var(--triply-primary, #f97316);
       text-decoration: none;
       font-size: 0.9rem;
       &:hover { text-decoration: underline; }
     }
     h1 { font-size: 1.8rem; margin: 16px 0 4px; }
     .updated { color: #666; font-size: 0.85rem; margin-bottom: 32px; }
-    h2 { font-size: 1.15rem; margin: 28px 0 8px; color: var(--triply-primary, #7c3aed); }
+    h2 { font-size: 1.15rem; margin: 28px 0 8px; color: var(--triply-primary, #f97316); }
     ul { padding-left: 20px; }
     li { margin-bottom: 6px; }
-    a { color: var(--triply-primary, #7c3aed); }
+    a { color: var(--triply-primary, #f97316); }
   `],
 })
 export class TermsComponent {}

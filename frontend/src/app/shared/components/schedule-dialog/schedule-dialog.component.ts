@@ -162,7 +162,7 @@ export interface ScheduleDialogResult {
       font-family: inherit;
 
       &:hover { border-color: #999; }
-      &.active { background: var(--triply-primary, #7c3aed); color: #fff; border-color: var(--triply-primary, #7c3aed); }
+      &.active { background: var(--triply-primary, #f97316); color: #fff; border-color: var(--triply-primary, #f97316); }
     }
 
     .conflict-warning {

@@ -125,9 +125,9 @@ export class ExportService {
 
     // ── Cover Page ──
     // Purple gradient header
-    doc.setFillColor(108, 92, 231);
+    doc.setFillColor(249, 115, 22);
     doc.rect(0, 0, w, 120, 'F');
-    doc.setFillColor(124, 77, 255);
+    doc.setFillColor(249, 115, 22);
     doc.rect(0, 90, w, 30, 'F');
 
     // Trip name
@@ -169,7 +169,7 @@ export class ExportService {
 
     if (summaryItems.length > 0) {
       doc.setFontSize(14);
-      doc.setTextColor(108, 92, 231);
+      doc.setTextColor(249, 115, 22);
       doc.text('Resumo da Viagem', w / 2, y, { align: 'center' });
       y += 12;
 
@@ -199,7 +199,7 @@ export class ExportService {
       doc.addPage();
       y = 20;
       doc.setFontSize(18);
-      doc.setTextColor(108, 92, 231);
+      doc.setTextColor(249, 115, 22);
       doc.text('Voos', 14, y);
       y += 10;
 
@@ -218,7 +218,7 @@ export class ExportService {
         body: flightRows,
         startY: y,
         theme: 'striped',
-        headStyles: { fillColor: [108, 92, 231], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+        headStyles: { fillColor: [249, 115, 22], textColor: 255, fontStyle: 'bold', fontSize: 9 },
         bodyStyles: { fontSize: 8.5, textColor: [50, 50, 50] },
         alternateRowStyles: { fillColor: [248, 246, 255] },
       });
@@ -229,7 +229,7 @@ export class ExportService {
       doc.addPage();
       y = 20;
       doc.setFontSize(18);
-      doc.setTextColor(108, 92, 231);
+      doc.setTextColor(249, 115, 22);
       doc.text('Hospedagem', 14, y);
       y += 10;
 
@@ -246,7 +246,7 @@ export class ExportService {
         body: stayRows,
         startY: y,
         theme: 'striped',
-        headStyles: { fillColor: [108, 92, 231], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+        headStyles: { fillColor: [249, 115, 22], textColor: 255, fontStyle: 'bold', fontSize: 9 },
         bodyStyles: { fontSize: 8.5, textColor: [50, 50, 50] },
         alternateRowStyles: { fillColor: [248, 246, 255] },
       });
@@ -270,7 +270,7 @@ export class ExportService {
       doc.addPage();
       y = 20;
       doc.setFontSize(18);
-      doc.setTextColor(108, 92, 231);
+      doc.setTextColor(249, 115, 22);
       doc.text('Roteiro Dia a Dia', 14, y);
       y += 12;
 
@@ -288,7 +288,7 @@ export class ExportService {
         doc.setFillColor(248, 246, 255);
         doc.roundedRect(14, y - 5, w - 28, 12, 3, 3, 'F');
         doc.setFontSize(12);
-        doc.setTextColor(108, 92, 231);
+        doc.setTextColor(249, 115, 22);
         doc.text(`Dia ${dayNum}`, 18, y + 3);
         doc.setFontSize(9);
         doc.setTextColor(120);
@@ -304,16 +304,16 @@ export class ExportService {
 
           // Time
           doc.setFontSize(9);
-          doc.setTextColor(108, 92, 231);
+          doc.setTextColor(249, 115, 22);
           doc.text(item.timeSlot || '—', 18, y);
 
           // Type indicator
           const typeColors: Record<string, [number, number, number]> = {
-            flight: [66, 153, 225], stay: [108, 92, 231], 'car-rental': [246, 173, 85],
+            flight: [66, 153, 225], stay: [249, 115, 22], 'car-rental': [246, 173, 85],
             transport: [72, 187, 120], activity: [237, 100, 166], attraction: [159, 122, 234],
-            custom: [108, 92, 231],
+            custom: [249, 115, 22],
           };
-          const color = typeColors[item.type] || [108, 92, 231];
+          const color = typeColors[item.type] || [249, 115, 22];
           doc.setFillColor(...color);
           doc.circle(38, y - 1.5, 1.5, 'F');
 

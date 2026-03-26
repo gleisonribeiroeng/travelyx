@@ -12,10 +12,10 @@
 
 .hero-banner {
   cursor: pointer;
-  background: linear-gradient(135deg, #6C5CE7 0%, #7C4DFF 50%, #651FFF 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #ea580c 100%);
   border-radius: var(--triply-radius-lg);
   padding: var(--triply-spacing-lg) var(--triply-spacing-xl);
-  box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 8px 32px rgba(249, 115, 22, 0.3);
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
@@ -112,7 +112,7 @@
   flex-direction: column;
   justify-content: flex-end;
   // Fallback gradient when no image
-  background: linear-gradient(135deg, #6C5CE7 0%, #7C4DFF 40%, #a29bfe 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 40%, #fed7aa 100%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 
   &.has-image {
@@ -641,7 +641,7 @@
 
 .next-item-first {
   background: var(--triply-primary-muted);
-  border: 1px solid rgba(108, 92, 231, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.1);
 }
 
 .next-item-indicator {
@@ -717,7 +717,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--triply-primary);
-  background: rgba(108, 92, 231, 0.1);
+  background: rgba(249, 115, 22, 0.1);
   padding: 2px 8px;
   border-radius: var(--triply-radius-full);
   flex-shrink: 0;
@@ -770,7 +770,7 @@
   border-top: 1px solid var(--triply-border-subtle);
 
   &:hover {
-    background: var(--triply-primary-muted, rgba(108, 92, 231, 0.04));
+    background: var(--triply-primary-muted, rgba(249, 115, 22, 0.04));
   }
 
   &.done {
@@ -928,7 +928,7 @@
 
 .collab-cta-card {
   cursor: pointer;
-  border: 1px solid rgba(108, 92, 231, 0.15) !important;
+  border: 1px solid rgba(249, 115, 22, 0.15) !important;
   background: var(--triply-surface-1) !important;
   transition: all 0.2s ease;
 
@@ -940,8 +940,8 @@
   }
 
   &:hover {
-    border-color: rgba(108, 92, 231, 0.35) !important;
-    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.08) !important;
+    border-color: rgba(249, 115, 22, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.08) !important;
     transform: translateY(-1px);
     box-shadow: var(--triply-shadow-md);
   }
@@ -951,7 +951,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1024,7 +1024,7 @@
 @media (hover: hover) {
   .hero-banner:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(108, 92, 231, 0.4);
+    box-shadow: 0 12px 40px rgba(249, 115, 22, 0.4);
 
     .hero-cta {
       background: rgba(255, 255, 255, 0.3) !important;
@@ -1169,7 +1169,7 @@
       font-size: 22px;
       width: 22px;
       height: 22px;
-      color: var(--triply-primary, #6C5CE7);
+      color: var(--triply-primary, #f97316);
     }
   }
 }
@@ -1316,7 +1316,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+  background: linear-gradient(135deg, #f97316, #fb923c);
   flex-shrink: 0;
 
   img { width: 100%; height: 100%; object-fit: cover; }
@@ -1362,7 +1362,7 @@
     color: var(--triply-text-tertiary, #999);
   }
 
-  strong { margin-left: auto; color: var(--triply-primary, #6C5CE7); }
+  strong { margin-left: auto; color: var(--triply-primary, #f97316); }
 }
 
 .expenses-list {
@@ -1394,7 +1394,7 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
-    color: var(--triply-primary, #6C5CE7);
+    color: var(--triply-primary, #f97316);
   }
 }
 
@@ -1407,7 +1407,7 @@
 .expense-total {
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--triply-primary, #6C5CE7);
+  color: var(--triply-primary, #f97316);
   flex-shrink: 0;
 }
 
@@ -1504,7 +1504,7 @@
 .readiness-card {
   border-radius: var(--triply-radius-lg) !important;
   overflow: hidden;
-  border: 1px solid rgba(108, 92, 231, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.1);
 
   mat-card-content {
     padding: 20px !important;
@@ -1539,7 +1539,7 @@
 
 .readiness-fill {
   fill: none;
-  stroke: var(--readiness-color, #6C5CE7);
+  stroke: var(--readiness-color, #f97316);
   stroke-width: 3;
   stroke-linecap: round;
   transition: stroke-dasharray 0.6s ease;
@@ -1553,7 +1553,7 @@
   justify-content: center;
   font-size: 0.82rem;
   font-weight: 800;
-  color: var(--readiness-color, #6C5CE7);
+  color: var(--readiness-color, #f97316);
 }
 
 .readiness-info {
@@ -1603,7 +1603,7 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
-    color: #6C5CE7;
+    color: #f97316;
   }
 
   span {
@@ -1627,7 +1627,7 @@
 
   &.pro-upsell {
     background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
-    border: 1px dashed rgba(108, 92, 231, 0.3);
+    border: 1px dashed rgba(249, 115, 22, 0.3);
   }
 }
 
@@ -1637,8 +1637,8 @@
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.06), rgba(108, 92, 231, 0.02));
-  border: 1px dashed rgba(108, 92, 231, 0.2);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.06), rgba(249, 115, 22, 0.02));
+  border: 1px dashed rgba(249, 115, 22, 0.2);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -1662,8 +1662,8 @@
   }
 
   &:hover {
-    background: rgba(108, 92, 231, 0.08);
-    border-color: rgba(108, 92, 231, 0.35);
+    background: rgba(249, 115, 22, 0.08);
+    border-color: rgba(249, 115, 22, 0.35);
   }
 }
 
@@ -1681,8 +1681,8 @@
 .pro-badge-sm {
   font-size: 0.68rem;
   font-weight: 800;
-  color: #6C5CE7;
-  background: rgba(108, 92, 231, 0.12);
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.12);
   padding: 2px 8px;
   border-radius: 10px;
   flex: none !important;

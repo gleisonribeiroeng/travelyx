@@ -6,12 +6,13 @@ import { planGuard } from './core/guards/plan.guard';
 
 export const routes: Routes = [
   // ── Public routes ──
-  { path: '', redirectTo: 'landing', pathMatch: 'full' },
   {
-    path: 'landing',
+    path: '',
     loadComponent: () =>
       import('./features/landing/landing.component').then(m => m.LandingComponent),
+    pathMatch: 'full',
   },
+  { path: 'landing', redirectTo: '', pathMatch: 'full' },
   {
     path: 'auth/callback',
     loadComponent: () =>
@@ -36,6 +37,12 @@ export const routes: Routes = [
     path: 'v/:slug',
     loadComponent: () =>
       import('./features/public-itinerary/public-itinerary.component').then(m => m.PublicItineraryComponent),
+  },
+
+  {
+    path: 'planejar',
+    loadComponent: () =>
+      import('./features/public-wizard/public-wizard.component').then(m => m.PublicWizardComponent),
   },
 
   // ── Legal pages ──

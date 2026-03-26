@@ -43,6 +43,8 @@
       <mat-icon>notifications_none</mat-icon>
     </button>
 
+    <app-support-chat />
+
     @if (auth.user(); as user) {
       <button class="user-chip" [matMenuTriggerFor]="userMenu">
         <img [src]="auth.avatarUrl()" alt="" class="user-avatar" referrerpolicy="no-referrer">

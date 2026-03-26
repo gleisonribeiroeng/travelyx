@@ -1,0 +1,171 @@
+<!-- Dark search panel -->
+<div class="flight-search-panel">
+  <div class="fsp-header">
+    <h1>
+      @if (tripDestination()) {
+        Carros em {{ tripDestination() }}
+      } @else {
+        Aluguel de carro
+      }
+    </h1>
+  </div>
+
+  <!-- Current selection inside dark panel -->
+  @if (selectedCars().length > 0) {
+    <div class="current-selection">
+      <h3>Carros selecionados</h3>
+      @for (car of selectedCars(); track car.id) {
+        <mat-card class="selected-card">
+          <mat-card-content>
+            <div class="selected-info">
+              <mat-icon>directions_car</mat-icon>
+              <div class="selected-details">
+                <strong>{{ car.vehicleType }}</strong>
+                <span>{{ car.pickUpLocation }} &middot; {{ car.pickUpAt.split('T')[0] }} a {{ car.dropOffAt.split('T')[0] }}</span>
+              </div>
+              <span class="selected-price">{{ car.price.currency }} {{ car.price.total | number:'1.2-2' }}</span>
+              @if (car.source === 'manual') {
+                <span class="manual-badge">Manual</span>
+                <button mat-icon-button (click)="openManualCarDialog(car); $event.stopPropagation()">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              <button mat-icon-button color="warn" (click)="remove(car.id)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  @if (formCollapsed()) {
+    <div class="fsp-collapsed-bar" (click)="formCollapsed.set(false)">
+      <mat-icon>directions_car</mat-icon>
+      <span>Busca de Carros</span>
+      <span class="fsp-edit">Editar busca <mat-icon>expand_more</mat-icon></span>
+    </div>
+  }
+
+  <!-- Compact fields card -->
+  <form [formGroup]="searchForm" (ngSubmit)="search()" [class.fsp-form-hidden]="formCollapsed()">
+    <div class="fsp-fields-card">
+      <div class="fsp-fields-row">
+        <div class="fsp-field fsp-field--lg">
+          <label>LOCAL DE RETIRADA</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>location_on</mat-icon>
+            <input matInput [formControl]="pickupControl"
+                   [matAutocomplete]="autoPickup" placeholder="Cidade ou aeroporto">
+            <mat-autocomplete #autoPickup="matAutocomplete" [displayWith]="displayLocation">
+              @for (option of filteredPickup$ | async; track option.cityId) {
+                <mat-option [value]="option">{{ option.label || option.name }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+
+        <div class="fsp-divider"></div>
+
+        <div class="fsp-field fsp-field--dates" formGroupName="dateRange">
+          <label>DATAS</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>calendar_today</mat-icon>
+            <mat-date-range-input [rangePicker]="rangePicker" [min]="minDate" (click)="rangePicker.open()">
+              <input matStartDate formControlName="start" placeholder="Retirada">
+              <input matEndDate formControlName="end" placeholder="Devolução">
+            </mat-date-range-input>
+            <mat-date-range-picker #rangePicker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+
+        <div class="fsp-divider"></div>
+
+        <div class="fsp-field fsp-field--sm">
+          <label>HORA RETIRADA</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>schedule</mat-icon>
+            <input matInput type="time" formControlName="pickupTime">
+          </mat-form-field>
+        </div>
+
+        <div class="fsp-divider"></div>
+
+        <div class="fsp-field fsp-field--sm">
+          <label>HORA DEVOLUÇÃO</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>schedule</mat-icon>
+            <input matInput type="time" formControlName="dropoffTime">
+          </mat-form-field>
+        </div>
+
+        <button type="submit" class="fsp-search-btn" [disabled]="searchForm.invalid || isSearching()">
+          @if (isSearching()) { <mat-spinner diameter="20"></mat-spinner> } @else { Buscar }
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="fsp-footer">
+      <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)"
+                    class="fsp-checkbox">
+        Devolver no mesmo local
+      </mat-checkbox>
+
+      @if (!sameDropOff()) {
+        <div class="fsp-dropoff-field">
+          <mat-form-field appearance="fill" class="fsp-input fsp-input--dark">
+            <mat-icon matPrefix>location_on</mat-icon>
+            <input matInput [formControl]="dropoffControl"
+                   [matAutocomplete]="autoDropoff" placeholder="Local de devolução">
+            <mat-autocomplete #autoDropoff="matAutocomplete" [displayWith]="displayLocation">
+              @for (option of filteredDropoff$ | async; track option.cityId) {
+                <mat-option [value]="option">{{ option.label || option.name }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+      }
+
+      <button mat-stroked-button type="button" class="fsp-manual-btn" (click)="openManualCarDialog()">
+        <mat-icon>edit_note</mat-icon> Adicionar manualmente
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Results area (light background) -->
+<div class="search-results-area">
+  @if (isSearching()) {
+    <div class="loading-state"><mat-spinner diameter="40"></mat-spinner><p>Buscando carros...</p></div>
+  }
+
+  @if (!isSearching() && hasSearched() && results().length === 0) {
+    <div class="empty-results"><mat-icon>search_off</mat-icon><p>Nenhum carro encontrado. Tente ajustar as datas ou local.</p></div>
+  }
+
+  @if (results().length > 0 && !isSearching()) {
+    <div class="results-list">
+      <div class="results-header">
+        <h3>{{ results().length }} carros encontrados</h3>
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>Ordenar</mat-label>
+          <mat-select [value]="currentSort()" (selectionChange)="onSortChange($event.value)">
+            <mat-option value="price">Menor preço</mat-option>
+            <mat-option value="price_desc">Maior preço</mat-option>
+            <mat-option value="name">Nome do veículo</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      @for (car of results(); track car.id) {
+        <app-list-item-base
+          [config]="toListItem(car)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+        />
+      }
+    </div>
+  }
+</div>

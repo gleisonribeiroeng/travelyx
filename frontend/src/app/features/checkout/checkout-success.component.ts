@@ -55,7 +55,7 @@ import { StripeService } from '../../core/services/stripe.service';
       font-size: 48px;
       width: 48px;
       height: 48px;
-      color: #7c3aed;
+      color: #f97316;
     }
 
     h2 {
@@ -70,7 +70,7 @@ import { StripeService } from '../../core/services/stripe.service';
     }
 
     button {
-      background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+      background: linear-gradient(135deg, #f97316, #fb923c) !important;
       color: white !important;
     }
 

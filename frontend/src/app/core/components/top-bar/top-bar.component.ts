@@ -8,11 +8,12 @@ import { TripStateService } from '../../services/trip-state.service';
 import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../i18n/translation.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
+import { SupportChatComponent } from '../../../shared/components/support-chat/support-chat.component';
 
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, MatMenuModule, MatDividerModule, TranslatePipe],
+  imports: [MatIconModule, MatButtonModule, MatMenuModule, MatDividerModule, TranslatePipe, SupportChatComponent],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.scss',
 })

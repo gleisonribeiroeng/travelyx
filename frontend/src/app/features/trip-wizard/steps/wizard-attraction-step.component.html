@@ -1,0 +1,106 @@
+<!-- Dark search panel -->
+<div class="flight-search-panel">
+  <div class="fsp-header">
+    <h1>Atividades</h1>
+  </div>
+
+  <!-- Current selection inside dark panel -->
+  @if (selectedAttractions().length > 0) {
+    <div class="current-selection">
+      <h3>Atividades selecionadas</h3>
+      @for (attr of selectedAttractions(); track attr.id) {
+        <mat-card class="selected-card">
+          <mat-card-content>
+            <div class="selected-info">
+              <mat-icon>museum</mat-icon>
+              <div class="selected-details">
+                <strong>{{ attr.name }}</strong>
+                <span>{{ attr.city }} &middot; {{ attr.category }}</span>
+              </div>
+              <button mat-icon-button color="warn" (click)="remove(attr.id)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  @if (formCollapsed()) {
+    <div class="fsp-collapsed-bar" (click)="formCollapsed.set(false)">
+      <mat-icon>museum</mat-icon>
+      <span>Busca de Atividades</span>
+      <span class="fsp-edit">Editar busca <mat-icon>expand_more</mat-icon></span>
+    </div>
+  }
+
+  <form [formGroup]="searchForm" (ngSubmit)="search()" [class.fsp-form-hidden]="formCollapsed()">
+    <div class="fsp-fields-card">
+      <div class="fsp-fields-row">
+        <div class="fsp-field fsp-field--lg">
+          <label>CIDADE</label>
+          <mat-form-field appearance="fill" class="fsp-input">
+            <mat-icon matPrefix>location_city</mat-icon>
+            <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" placeholder="Cidade">
+            <mat-autocomplete #autoCity [displayWith]="displayCity">
+              @for (dest of filteredCities$ | async; track dest.destId) {
+                <mat-option [value]="dest">{{ dest.label }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <button type="submit" class="fsp-search-btn" [disabled]="searchForm.invalid || isSearching()">
+          @if (isSearching()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Buscar atividades
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="search-results-area">
+  @if (isSearching()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Buscando atividades...</p>
+    </div>
+  }
+
+  @if (!isSearching() && hasSearched() && results().length === 0) {
+    <div class="empty-results">
+      <mat-icon>search_off</mat-icon>
+      <p>Nenhuma atividade encontrada.</p>
+    </div>
+  }
+
+  @if (results().length > 0) {
+    <div class="results-list">
+      <h3>{{ results().length }} atividades encontradas</h3>
+      @for (attr of results(); track attr.id) {
+        <app-list-item-base
+          [config]="toListItem(attr)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+        />
+      }
+      @if (hasMore()) {
+        <div class="load-more-container">
+          <button mat-stroked-button class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+            @if (isLoadingMore()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>expand_more</mat-icon>
+            }
+            Carregar mais
+          </button>
+          <span class="load-more-count">{{ results().length }} / {{ totalCount() }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

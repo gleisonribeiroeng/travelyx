@@ -197,20 +197,22 @@
         <mat-card class="readiness-card">
           <mat-card-content>
             <div class="readiness-missing">
-              @for (item of readiness()!.missing.slice(0, planService.isPro() ? 10 : 2); track item.category) {
+              <!-- PRO limit commented out — was: planService.isPro() ? 10 : 2 -->
+              @for (item of readiness()!.missing.slice(0, 10); track item.category) {
                 <button class="missing-item" [class]="'priority-' + item.priority" (click)="navigateTo(getMissingRoute(item.category))">
                   <mat-icon>{{ item.icon }}</mat-icon>
                   <span>{{ item.message }}</span>
                   <mat-icon class="missing-arrow">chevron_right</mat-icon>
                 </button>
               }
+              <!-- PRO upsell commented out — all features unlocked for now
               @if (!planService.isPro() && readiness()!.missing.length > 2) {
                 <button class="missing-item pro-upsell" (click)="planService.showPaywall('checklist')">
                   <mat-icon>lock</mat-icon>
                   <span>{{ 'dash.readinessProHint' | translate }}</span>
                   <span class="pro-badge-sm">PRO</span>
                 </button>
-              }
+              } -->
             </div>
           </mat-card-content>
         </mat-card>
@@ -247,9 +249,10 @@
               <p>{{ 'collab.planTogetherDesc' | translate }}</p>
             </div>
             <div class="collab-cta-action">
+              <!-- PRO badge commented out — collaboration unlocked for now
               @if (!canCollab()) {
                 <span class="pro-badge"><mat-icon>lock</mat-icon> Pro</span>
-              }
+              } -->
               <button mat-flat-button color="primary" class="collab-cta-btn">{{ 'collab.invite' | translate }}</button>
             </div>
           </mat-card-content>
@@ -264,6 +267,7 @@
               <h3><mat-icon>groups</mat-icon> {{ 'collab.title' | translate }}</h3>
             </div>
 
+            <!-- PRO collab lock commented out — collaboration unlocked for now
             @if (!canCollab()) {
               <div class="collab-lock">
                 <mat-icon>lock</mat-icon>
@@ -273,7 +277,7 @@
                   <mat-icon>star</mat-icon> {{ 'collab.upgradePro' | translate }}
                 </button>
               </div>
-            } @else {
+            } @else { -->
               <mat-tab-group [selectedIndex]="collabTabIndex()" (selectedIndexChange)="onCollabTabChange($event)" animationDuration="200ms">
                 <mat-tab>
                   <ng-template mat-tab-label><mat-icon>history</mat-icon><span>{{ 'collab.activity' | translate }}</span></ng-template>
@@ -389,7 +393,7 @@
                   </div>
                 </mat-tab>
               </mat-tab-group>
-            }
+            <!-- } PRO @else closing commented out -->
           </mat-card-content>
         </mat-card>
       }

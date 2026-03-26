@@ -217,19 +217,19 @@ export interface AddItemDialogData {
       }
 
       &:hover {
-        border-color: var(--tc, #6C5CE7);
-        background: color-mix(in srgb, var(--tc, #6C5CE7) 4%, white);
-        mat-icon { color: var(--tc, #6C5CE7); }
-        span { color: var(--tc, #6C5CE7); }
+        border-color: var(--tc, #f97316);
+        background: color-mix(in srgb, var(--tc, #f97316) 4%, white);
+        mat-icon { color: var(--tc, #f97316); }
+        span { color: var(--tc, #f97316); }
       }
 
       &.active {
-        border-color: var(--tc, #6C5CE7);
-        background: color-mix(in srgb, var(--tc, #6C5CE7) 8%, white);
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--tc, #6C5CE7) 20%, transparent);
+        border-color: var(--tc, #f97316);
+        background: color-mix(in srgb, var(--tc, #f97316) 8%, white);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--tc, #f97316) 20%, transparent);
 
-        mat-icon { color: var(--tc, #6C5CE7); }
-        span { color: var(--tc, #6C5CE7); font-weight: 700; }
+        mat-icon { color: var(--tc, #f97316); }
+        span { color: var(--tc, #f97316); font-weight: 700; }
       }
     }
 
@@ -288,15 +288,15 @@ export interface AddItemDialogData {
       }
 
       &:hover {
-        border-color: var(--triply-primary, #6C5CE7);
-        color: var(--triply-primary, #6C5CE7);
+        border-color: var(--triply-primary, #f97316);
+        color: var(--triply-primary, #f97316);
       }
 
       &.active {
-        background: var(--triply-primary, #6C5CE7);
+        background: var(--triply-primary, #f97316);
         color: #fff;
-        border-color: var(--triply-primary, #6C5CE7);
-        box-shadow: 0 2px 6px rgba(108, 92, 231, 0.25);
+        border-color: var(--triply-primary, #f97316);
+        box-shadow: 0 2px 6px rgba(249, 115, 22, 0.25);
       }
 
     }
@@ -342,7 +342,7 @@ export class AddItemDialogComponent {
 
   readonly itemTypes = [
     { value: 'flight', label: 'Voo', icon: 'flight', color: '#2196F3' },
-    { value: 'stay', label: 'Hotel', icon: 'hotel', color: '#7C4DFF' },
+    { value: 'stay', label: 'Hotel', icon: 'hotel', color: '#f97316' },
     { value: 'car-rental', label: 'Carro', icon: 'directions_car', color: '#607D8B' },
     { value: 'activity', label: 'Ativ.', icon: 'local_activity', color: '#43A047' },
     { value: 'transport', label: 'Transp.', icon: 'directions_bus', color: '#78909C' },

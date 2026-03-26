@@ -1,161 +1,183 @@
-<div class="view-header">
-  <h1>{{ 'cars.title' | translate }}</h1>
-  <p>{{ 'cars.subtitle' | translate }}</p>
-</div>
+<div class="dsp">
+  <div class="dsp-header">
+    <h1>{{ 'cars.title' | translate }}</h1>
+  </div>
 
-@if (formCollapsed()) {
-  <div class="search-toggle-bar" (click)="formCollapsed.set(false)">
-    <div class="toggle-info">
+  @if (formCollapsed()) {
+    <div class="dsp-collapsed-bar" (click)="formCollapsed.set(false)">
       <mat-icon>directions_car</mat-icon>
       <span>{{ 'cars.searchToggle' | translate }}</span>
+      <div class="dsp-edit">
+        <span>{{ 'cars.editSearch' | translate }}</span>
+        <mat-icon>expand_more</mat-icon>
+      </div>
     </div>
-    <div class="toggle-action">
-      <span>{{ 'cars.editSearch' | translate }}</span>
-      <mat-icon>expand_more</mat-icon>
-    </div>
-  </div>
-}
+  }
 
-<mat-card class="search-form-card" [class.collapsed]="formCollapsed()">
-  <mat-card-content>
-    <form [formGroup]="carSearchForm" (ngSubmit)="searchCars()">
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'cars.pickupLocation' | translate }}</mat-label>
-          <input matInput [formControl]="pickupLocationControl" [matAutocomplete]="autoPickup" />
-          <mat-icon matPrefix>location_on</mat-icon>
-          <mat-autocomplete #autoPickup [displayWith]="displayLocation">
-            @for (loc of filteredPickupLocations$ | async; track loc.id) {
-              <mat-option [value]="loc">{{ loc.label }}</mat-option>
-            }
-          </mat-autocomplete>
-          @if (pickupLocationControl.hasError('required')) { <mat-error>{{ 'cars.pickupRequired' | translate }}</mat-error> }
-          @if (pickupLocationControl.hasError('invalidLocation')) { <mat-error>{{ 'cars.selectLocation' | translate }}</mat-error> }
-        </mat-form-field>
-
-        @if (!sameDropOff()) {
-          <mat-form-field appearance="outline" class="dropoff-field">
-            <mat-label>{{ 'cars.dropoffLocation' | translate }}</mat-label>
-            <input matInput [formControl]="dropoffLocationControl" [matAutocomplete]="autoDropoff" />
+  <form [formGroup]="carSearchForm" (ngSubmit)="searchCars()" [class.dsp-form-hidden]="formCollapsed()">
+    <div class="dsp-card">
+      <div class="dsp-row">
+        <!-- Pickup Location -->
+        <div class="dsp-field dsp-field--lg">
+          <label>{{ 'cars.pickupLocation' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input matInput [formControl]="pickupLocationControl" [matAutocomplete]="autoPickup" />
             <mat-icon matPrefix>location_on</mat-icon>
-            <mat-autocomplete #autoDropoff [displayWith]="displayLocation">
-              @for (loc of filteredDropoffLocations$ | async; track loc.id) {
+            <mat-autocomplete #autoPickup [displayWith]="displayLocation">
+              @for (loc of filteredPickupLocations$ | async; track loc.id) {
                 <mat-option [value]="loc">{{ loc.label }}</mat-option>
               }
             </mat-autocomplete>
-            @if (dropoffLocationControl.hasError('required')) { <mat-error>{{ 'cars.dropoffRequired' | translate }}</mat-error> }
-            @if (dropoffLocationControl.hasError('invalidLocation')) { <mat-error>{{ 'cars.selectLocation' | translate }}</mat-error> }
+            @if (pickupLocationControl.hasError('required')) { <mat-error>{{ 'cars.pickupRequired' | translate }}</mat-error> }
+            @if (pickupLocationControl.hasError('invalidLocation')) { <mat-error>{{ 'cars.selectLocation' | translate }}</mat-error> }
           </mat-form-field>
+        </div>
+
+        <div class="dsp-divider"></div>
+
+        <!-- Dropoff Location -->
+        @if (!sameDropOff()) {
+          <div class="dsp-field dsp-field--lg dropoff-field">
+            <label>{{ 'cars.dropoffLocation' | translate | uppercase }}</label>
+            <mat-form-field appearance="fill" class="dsp-input">
+              <input matInput [formControl]="dropoffLocationControl" [matAutocomplete]="autoDropoff" />
+              <mat-icon matPrefix>location_on</mat-icon>
+              <mat-autocomplete #autoDropoff [displayWith]="displayLocation">
+                @for (loc of filteredDropoffLocations$ | async; track loc.id) {
+                  <mat-option [value]="loc">{{ loc.label }}</mat-option>
+                }
+              </mat-autocomplete>
+              @if (dropoffLocationControl.hasError('required')) { <mat-error>{{ 'cars.dropoffRequired' | translate }}</mat-error> }
+              @if (dropoffLocationControl.hasError('invalidLocation')) { <mat-error>{{ 'cars.selectLocation' | translate }}</mat-error> }
+            </mat-form-field>
+          </div>
+
+          <div class="dsp-divider"></div>
         }
-      </div>
 
-      <div class="same-location-row">
-        <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">{{ 'cars.sameDropOff' | translate }}</mat-checkbox>
-      </div>
+        <!-- Date Range -->
+        <div class="dsp-field" formGroupName="dateRange">
+          <label>{{ 'cars.pickupDropoff' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <mat-date-range-input [rangePicker]="rangePicker" [min]="minPickupDate" (click)="rangePicker.open()">
+              <input matStartDate formControlName="start" [placeholder]="'cars.pickup' | translate">
+              <input matEndDate formControlName="end" [placeholder]="'cars.dropoff' | translate">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
+            <mat-date-range-picker #rangePicker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
 
-      <div class="form-row" formGroupName="dateRange">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'cars.pickupDropoff' | translate }}</mat-label>
-          <mat-date-range-input [rangePicker]="rangePicker" [min]="minPickupDate" (click)="rangePicker.open()">
-            <input matStartDate formControlName="start" [placeholder]="'cars.pickup' | translate">
-            <input matEndDate formControlName="end" [placeholder]="'cars.dropoff' | translate">
-          </mat-date-range-input>
-          <mat-datepicker-toggle matIconSuffix [for]="rangePicker"></mat-datepicker-toggle>
-          <mat-date-range-picker #rangePicker></mat-date-range-picker>
-        </mat-form-field>
-      </div>
+        <div class="dsp-divider"></div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'cars.pickupTime' | translate }}</mat-label>
-          <input matInput type="time" formControlName="pickupTime" />
-          <mat-icon matPrefix>schedule</mat-icon>
-        </mat-form-field>
+        <!-- Pickup Time -->
+        <div class="dsp-field dsp-field--sm">
+          <label>{{ 'cars.pickupTime' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input matInput type="time" formControlName="pickupTime" />
+            <mat-icon matPrefix>schedule</mat-icon>
+          </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'cars.dropoffTime' | translate }}</mat-label>
-          <input matInput type="time" formControlName="dropoffTime" />
-          <mat-icon matPrefix>schedule</mat-icon>
-        </mat-form-field>
-      </div>
+        <div class="dsp-divider"></div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'cars.driverAge' | translate }}</mat-label>
-          <input matInput type="number" formControlName="driverAge" min="18" max="99" />
-          <mat-icon matPrefix>person</mat-icon>
-          @if (carSearchForm.get('driverAge')?.hasError('required')) { <mat-error>{{ 'cars.driverAgeRequired' | translate }}</mat-error> }
-          @if (carSearchForm.get('driverAge')?.hasError('min') || carSearchForm.get('driverAge')?.hasError('max')) { <mat-error>{{ 'cars.driverAgeRange' | translate }}</mat-error> }
-        </mat-form-field>
-      </div>
+        <!-- Dropoff Time -->
+        <div class="dsp-field dsp-field--sm">
+          <label>{{ 'cars.dropoffTime' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input matInput type="time" formControlName="dropoffTime" />
+            <mat-icon matPrefix>schedule</mat-icon>
+          </mat-form-field>
+        </div>
 
-      @if (isSearching()) {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="true">
-          <mat-spinner diameter="20"></mat-spinner>
-          <span>{{ 'cars.searching' | translate }}</span>
+        <div class="dsp-divider"></div>
+
+        <!-- Driver Age -->
+        <div class="dsp-field dsp-field--sm">
+          <label>{{ 'cars.driverAge' | translate | uppercase }}</label>
+          <mat-form-field appearance="fill" class="dsp-input">
+            <input matInput type="number" formControlName="driverAge" min="18" max="99" />
+            <mat-icon matPrefix>person</mat-icon>
+            @if (carSearchForm.get('driverAge')?.hasError('required')) { <mat-error>{{ 'cars.driverAgeRequired' | translate }}</mat-error> }
+            @if (carSearchForm.get('driverAge')?.hasError('min') || carSearchForm.get('driverAge')?.hasError('max')) { <mat-error>{{ 'cars.driverAgeRange' | translate }}</mat-error> }
+          </mat-form-field>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="dsp-btn" [disabled]="carSearchForm.invalid || isSearching()">
+          @if (isSearching()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            {{ 'cars.searchCars' | translate }}
+          }
         </button>
-      } @else {
-        <button mat-raised-button color="primary" type="submit" class="search-button" [disabled]="carSearchForm.invalid">
-          <mat-icon>search</mat-icon>
-          <span>{{ 'cars.searchCars' | translate }}</span>
-        </button>
-      }
-    </form>
+      </div>
+    </div>
 
-    <div class="manual-entry-section">
-      <button mat-stroked-button (click)="openManualCarDialog()">
+    <div class="dsp-footer">
+      <mat-checkbox [checked]="sameDropOff()" (change)="toggleSameDropOff($event.checked)">{{ 'cars.sameDropOff' | translate }}</mat-checkbox>
+      <button mat-stroked-button class="dsp-manual-btn" (click)="openManualCarDialog()" type="button">
         <mat-icon>edit_note</mat-icon>
         {{ 'cars.addManually' | translate }}
       </button>
-      <span class="manual-hint">{{ 'cars.manualHint' | translate }}</span>
     </div>
-  </mat-card-content>
-</mat-card>
+  </form>
+</div>
 
-@if (errorMessage()) {
-  <app-error-banner [source]="errorSource() ?? ('cars.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
-}
+<div class="dsp-results">
+  @if (!hasSearched() && !isSearching()) {
+    <div class="search-hint">
+      <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+      <h3>Busque o carro ideal</h3>
+      <p>Preencha o local e as datas acima e clique em <strong>Buscar Carros</strong> para ver os resultados</p>
+    </div>
+  }
 
-@if (searchResults().length > 0) {
-  <div class="results-section">
-    <div class="results-header">
-      <h2>{{ filteredCars().length }} {{ 'cars.carsFound' | translate }}</h2>
+  @if (errorMessage()) {
+    <app-error-banner [source]="errorSource() ?? ('cars.title' | translate)" [message]="errorMessage()!" (dismiss)="dismissError()" />
+  }
 
-      <div class="filter-controls">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>{{ 'cars.vehicleType' | translate }}</mat-label>
-          <mat-select (selectionChange)="setVehicleTypeFilter($any($event).value)" [value]="vehicleTypeFilter()">
-            <mat-option value="">{{ 'cars.allTypes' | translate }}</mat-option>
-            @for (type of vehicleTypes; track type) {
-              <mat-option [value]="type">{{ type }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+  @if (searchResults().length > 0) {
+    <div class="results-section">
+      <div class="results-header">
+        <h2>{{ filteredCars().length }} {{ 'cars.carsFound' | translate }}</h2>
 
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>{{ 'cars.maxPrice' | translate }}</mat-label>
-          <input matInput type="number" (input)="setMaxPriceFilter($any($event.target).value)" />
-          <mat-icon matPrefix>attach_money</mat-icon>
-        </mat-form-field>
+        <div class="filter-controls">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>{{ 'cars.vehicleType' | translate }}</mat-label>
+            <mat-select (selectionChange)="setVehicleTypeFilter($any($event).value)" [value]="vehicleTypeFilter()">
+              <mat-option value="">{{ 'cars.allTypes' | translate }}</mat-option>
+              @for (type of vehicleTypes; track type) {
+                <mat-option [value]="type">{{ type }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>{{ 'cars.maxPrice' | translate }}</mat-label>
+            <input matInput type="number" (input)="setMaxPriceFilter($any($event.target).value)" />
+            <mat-icon matPrefix>attach_money</mat-icon>
+          </mat-form-field>
+        </div>
       </div>
+
+      @for (car of filteredCars(); track car.id) {
+        <app-list-item-base
+          [config]="toListItem(car)"
+          (primaryClick)="selectById($event)"
+          (secondaryClick)="openDetailById($event)"
+          (cardClick)="openDetailById($event)"
+        />
+      }
     </div>
+  }
 
-    @for (car of filteredCars(); track car.id) {
-      <app-list-item-base
-        [config]="toListItem(car)"
-        (primaryClick)="selectById($event)"
-        (secondaryClick)="openDetailById($event)"
-        (cardClick)="openDetailById($event)"
-      />
-    }
-  </div>
-}
-
-@if (searchResults().length === 0 && !isSearching() && hasSearched()) {
-  <mat-card class="empty-state">
-    <mat-card-content>
-      <mat-icon>directions_car</mat-icon>
-      <p>{{ 'cars.emptyState' | translate }}</p>
-    </mat-card-content>
-  </mat-card>
-}
+  @if (searchResults().length === 0 && !isSearching() && hasSearched()) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon>directions_car</mat-icon>
+        <p>{{ 'cars.emptyState' | translate }}</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

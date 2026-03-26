@@ -1,20 +1,26 @@
 // ════════════════════════════════════════════════════════════
-// Trip Wizard — Compact, Modern Stepper
+// Trip Wizard — Dark Panel Pattern
 // ════════════════════════════════════════════════════════════
+
+// ── Host bleed (match sidebar/topbar edge-to-edge) ────────
+:host {
+  display: block;
+  margin: -16px;
+  @media (min-width: 960px) { margin: -28px -40px; }
+}
 
 .wizard-shell {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--triply-topbar-height) - 32px);
+  height: calc(100vh - var(--triply-topbar-height));
 }
 
-// ── Progress Bar ───────────────────────────────────────────
-
+// ── Progress Bar (dark midnight) ─────────────────────────
 .wizard-progress {
   display: flex;
   align-items: center;
-  padding: 12px 0;
-  margin-bottom: var(--triply-spacing-sm);
+  padding: 24px 16px 16px;
+  background: #0f172a;
   overflow-x: auto;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
@@ -38,64 +44,64 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--triply-surface-2, #f0f0f4);
-  border: 2px solid var(--triply-border-subtle, #e0e0e4);
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 
   .dot-icon {
     font-size: 14px;
     width: 14px;
     height: 14px;
-    color: var(--triply-text-secondary);
+    color: rgba(255, 255, 255, 0.4);
     transition: all 0.3s ease;
   }
 
   .step-number {
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--triply-text-secondary);
+    color: rgba(255, 255, 255, 0.4);
     transition: all 0.3s ease;
   }
 
   .active & {
-    background: var(--triply-primary);
-    border-color: var(--triply-primary);
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+    background: #f97316;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
 
     .dot-icon, .step-number { color: #fff; }
   }
 
   .complete & {
-    background: var(--triply-success, #22c55e);
-    border-color: var(--triply-success, #22c55e);
+    background: #14b8a6;
+    border-color: #14b8a6;
 
     .dot-icon { color: #fff; }
   }
 
   .skipped & {
-    background: var(--triply-surface-2);
-    border-color: var(--triply-border-subtle);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.05);
     opacity: 0.5;
 
-    .step-number { color: var(--triply-text-tertiary); }
+    .step-number { color: rgba(255, 255, 255, 0.3); }
   }
 }
 
 .step-label {
   font-size: 0.6rem;
   font-weight: 600;
-  color: var(--triply-text-tertiary, #999);
+  color: rgba(255, 255, 255, 0.4);
   text-align: center;
   white-space: nowrap;
   transition: color 0.2s ease;
 
   .active & {
-    color: var(--triply-primary);
+    color: #fff;
     font-weight: 700;
   }
 
   .complete & {
-    color: var(--triply-success, #22c55e);
+    color: #14b8a6;
   }
 }
 
@@ -103,23 +109,23 @@
   flex: 1;
   height: 2px;
   min-width: 16px;
-  background: var(--triply-border-subtle, #e0e0e4);
+  background: rgba(255, 255, 255, 0.1);
   margin: 0 2px;
   margin-bottom: 18px;
   border-radius: 1px;
   transition: background 0.3s ease;
 
   &.complete {
-    background: var(--triply-success, #22c55e);
+    background: #14b8a6;
   }
 }
 
 // ── Content ────────────────────────────────────────────────
-
 .wizard-content {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  padding: 16px;
   animation: slideIn 0.25s ease;
 }
 
@@ -129,23 +135,26 @@
 }
 
 // ── Navigation ─────────────────────────────────────────────
-
 .wizard-nav {
   display: flex;
   align-items: center;
   gap: var(--triply-spacing-sm);
-  padding: var(--triply-spacing-sm) 0;
-  padding-bottom: env(safe-area-inset-bottom, 8px);
+  padding: 16px;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
   flex-shrink: 0;
   flex-wrap: wrap;
   background: var(--triply-surface-1);
+  border-top: 1px solid var(--triply-border-subtle, #e5e7eb);
 }
 
 .nav-back-btn {
   font-size: 0.82rem !important;
   color: var(--triply-text-secondary) !important;
-  border-color: var(--triply-border-subtle) !important;
+  border: 1px solid var(--triply-border-subtle, #e0e0e4) !important;
+  background: transparent !important;
+  border-radius: 100px !important;
   min-height: 40px;
+  padding: 0 20px !important;
 
   mat-icon {
     font-size: 18px;
@@ -182,8 +191,11 @@
   font-size: 0.9rem !important;
   font-weight: 700 !important;
   padding: 0 28px !important;
-  border-radius: var(--triply-radius-full, 24px) !important;
-  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.25);
+  border-radius: 100px !important;
+  background: #f97316 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
 
   mat-icon {
     font-size: 18px;
@@ -193,13 +205,13 @@
   }
 
   &:hover {
-    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.35);
+    background: #ea680c !important;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
     transform: translateY(-1px);
   }
 }
 
 // ── Hover ──────────────────────────────────────────────────
-
 @media (hover: hover) {
   .progress-step:hover .step-dot {
     transform: scale(1.08);
@@ -207,17 +219,7 @@
 }
 
 // ── Responsive ─────────────────────────────────────────────
-
 @media (min-width: 600px) {
-  .wizard-shell {
-    height: calc(100vh - var(--triply-topbar-height) - 48px);
-  }
-
-  .wizard-progress {
-    padding: 14px 0;
-    margin-bottom: var(--triply-spacing-md);
-  }
-
   .step-dot {
     width: 32px;
     height: 32px;
@@ -239,10 +241,23 @@
 
   .wizard-nav {
     flex-wrap: nowrap;
-    padding: var(--triply-spacing-md) 0;
 
     .skip-link {
       order: 0;
     }
+  }
+}
+
+@media (min-width: 960px) {
+  .wizard-progress {
+    padding: 28px 40px 20px;
+  }
+
+  .wizard-content {
+    padding: 28px 40px;
+  }
+
+  .wizard-nav {
+    padding: 16px 40px;
   }
 }

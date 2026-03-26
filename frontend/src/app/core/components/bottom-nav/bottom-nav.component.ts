@@ -81,7 +81,7 @@ import { TripStateService } from '../../services/trip-state.service';
       }
 
       .tab.active {
-        color: var(--triply-primary, #7c3aed);
+        color: var(--triply-primary, #f97316);
       }
 
       .fab-circle {
@@ -91,10 +91,10 @@ import { TripStateService } from '../../services/trip-state.service';
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: var(--triply-primary, #7c3aed);
+        background: var(--triply-primary, #f97316);
         color: #fff;
         margin-top: -18px;
-        box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35);
+        box-shadow: 0 2px 10px rgba(249, 115, 22, 0.35);
         transition: transform 0.2s ease;
 
         mat-icon {
@@ -105,13 +105,13 @@ import { TripStateService } from '../../services/trip-state.service';
       }
 
       .center .tab-label {
-        color: var(--triply-primary, #7c3aed);
+        color: var(--triply-primary, #f97316);
         font-weight: 600;
       }
 
       .center.active .fab-circle {
         transform: scale(1.08);
-        box-shadow: 0 4px 16px rgba(124, 58, 237, 0.45);
+        box-shadow: 0 4px 16px rgba(249, 115, 22, 0.45);
       }
     }
   `],

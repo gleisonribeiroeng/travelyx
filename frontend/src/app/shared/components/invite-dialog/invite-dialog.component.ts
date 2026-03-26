@@ -136,14 +136,14 @@ export interface InviteDialogData {
       .header-icon-wrap {
         width: 44px; height: 44px;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(108,92,231,0.12), rgba(108,92,231,0.04));
+        background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(249,115,22,0.04));
         display: flex; align-items: center; justify-content: center;
         flex-shrink: 0;
       }
 
       .header-icon {
         font-size: 22px; width: 22px; height: 22px;
-        color: #6C5CE7;
+        color: #f97316;
       }
 
       h2 {
@@ -206,16 +206,16 @@ export interface InviteDialogData {
       }
 
       &:hover {
-        border-color: rgba(108,92,231,0.4);
-        background: rgba(108,92,231,0.02);
+        border-color: rgba(249,115,22,0.4);
+        background: rgba(249,115,22,0.02);
       }
 
       &.selected {
-        border-color: #6C5CE7;
-        background: rgba(108,92,231,0.05);
-        box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+        border-color: #f97316;
+        background: rgba(249,115,22,0.05);
+        box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
 
-        > mat-icon:first-child { color: #6C5CE7; }
+        > mat-icon:first-child { color: #f97316; }
       }
     }
 
@@ -241,7 +241,7 @@ export interface InviteDialogData {
 
     .check-icon {
       font-size: 18px; width: 18px; height: 18px;
-      color: #6C5CE7;
+      color: #f97316;
       position: absolute;
       top: 10px; right: 10px;
     }
@@ -308,7 +308,7 @@ export interface InviteDialogData {
       border-radius: 50%;
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       flex-shrink: 0;
 
       img { width: 100%; height: 100%; object-fit: cover; }
@@ -339,7 +339,7 @@ export interface InviteDialogData {
       flex-shrink: 0;
     }
 
-    .badge-owner { background: rgba(108,92,231,0.1); color: #6C5CE7; }
+    .badge-owner { background: rgba(249,115,22,0.1); color: #f97316; }
     .badge-editor { background: rgba(16,185,129,0.1); color: #10b981; }
     .badge-viewer { background: rgba(158,158,158,0.1); color: #9e9e9e; }
 

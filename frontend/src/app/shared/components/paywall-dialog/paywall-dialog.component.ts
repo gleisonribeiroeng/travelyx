@@ -67,7 +67,7 @@ export interface PaywallDialogData {
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -88,7 +88,7 @@ export interface PaywallDialogData {
 
     .feature-name {
       font-weight: 600;
-      color: #7c3aed;
+      color: #f97316;
       margin: 0 0 4px;
     }
 
@@ -115,7 +115,7 @@ export interface PaywallDialogData {
     }
 
     .plan-badge {
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      background: linear-gradient(135deg, #f97316, #fb923c);
       color: white;
       padding: 4px 12px;
       border-radius: 20px;
@@ -150,7 +150,7 @@ export interface PaywallDialogData {
         color: #333;
 
         mat-icon {
-          color: #7c3aed;
+          color: #f97316;
           font-size: 18px;
           width: 18px;
           height: 18px;
@@ -165,7 +165,7 @@ export interface PaywallDialogData {
     }
 
     .upgrade-btn {
-      background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+      background: linear-gradient(135deg, #f97316, #fb923c) !important;
       color: white !important;
       padding: 8px 24px;
       font-size: 1rem;
