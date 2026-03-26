@@ -731,7 +731,7 @@ function formatDate(iso: string): string {
         @if (data.type === 'flight' && asF().flightNumber) {
           <div class="buy-hint">
             <mat-icon>info_outline</mat-icon>
-            <span>Para comprar, busque o voo <strong>{{ asF().flightNumber }}</strong> de <strong>{{ asF().origin }} → {{ asF().destination }}</strong> em <strong>{{ asF().departureAt | date:'dd/MM/yyyy' }}</strong> no site da companhia aérea ou em sites como Booking.com, Decolar ou Google Flights.</span>
+            <span>Para comprar, busque o voo <strong>{{ asF().flightNumber }}</strong> de <strong>{{ asF().origin }} → {{ asF().destination }}</strong> em <strong>{{ asF().departureAt | date:'dd/MM/yyyy' }}</strong> no site da companhia aérea ou em sites como Booking.com ou Decolar.</span>
           </div>
         }
 

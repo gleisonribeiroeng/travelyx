@@ -337,9 +337,6 @@ export class FlightsService {
     const arrCode = outbound.arrivalAirport?.code || '';
     const depDate = (outbound.departureTime || '').split('T')[0];
 
-    // Google Flights deep link — reliable and always finds the flight by IATA codes
-    const bookingUrl = `https://www.google.com/travel/flights?q=flights%20from%20${depCode}%20to%20${arrCode}%20on%20${depDate}&curr=BRL`;
-
     return {
       id: `bkf-${Date.now()}-${index}`,
       source: 'booking',
@@ -363,8 +360,8 @@ export class FlightsService {
         currency: price.currencyCode || 'BRL',
       },
       link: {
-        url: bookingUrl,
-        provider: 'Google Flights',
+        url: '',
+        provider: 'manual',
       },
     };
   }
