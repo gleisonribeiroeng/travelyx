@@ -737,7 +737,7 @@ function formatDate(iso: string): string {
 
         <!-- External link -->
         @if (externalLink(); as link) {
-          @if (link.url && link.provider !== 'manual') {
+          @if (link.url && link.url !== '#' && link.provider !== 'manual') {
             <a class="external-link" [href]="link.url" target="_blank" rel="noopener noreferrer">
               <mat-icon>open_in_new</mat-icon>
               Ver em {{ link.provider }}

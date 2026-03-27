@@ -68,6 +68,7 @@ export interface ViatorProduct {
 export interface TourSearchParams {
   destination: string; // Free text city name
   keyword?: string;    // Filter keyword for search
+  sorting?: { sort: string; order: string };
 }
 
 /**
@@ -115,7 +116,8 @@ export class TourMapper {
         .map(img => pickBestVariant(img.variants))
         .filter((u): u is string => !!u),
       link: {
-        url: raw.bookingInfo?.bookingUrl || '#',
+        url: raw.bookingInfo?.bookingUrl
+          || (raw.productCode ? `https://www.viator.com/tours/${raw.productCode}` : ''),
         provider: 'Viator',
       },
     };

@@ -14,7 +14,7 @@ import { HotelApiService, DestinationOption } from '../../core/api/hotel-api.ser
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { ScheduleDialogComponent, ScheduleDialogData } from '../../shared/components/schedule-dialog/schedule-dialog.component';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
-import { TourApiService } from '../../core/api/tour-api.service';
+import { TourApiService, TourSearchParams } from '../../core/api/tour-api.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { Activity } from '../../core/models/trip.models';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
@@ -85,7 +85,7 @@ export class TourSearchComponent {
   totalCount = signal(0);
   private currentOffset = 0;
   private readonly PAGE_SIZE = 20;
-  private lastSearchParams: { destination: string } | null = null;
+  private lastSearchParams: TourSearchParams | null = null;
   sortBy = signal<'price' | 'rating'>('price');
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
@@ -95,21 +95,12 @@ export class TourSearchComponent {
     categorizeTours(this.searchResults())
   );
 
-  // Computed signal for sorted results
-  sortedResults = computed(() => {
-    const results = this.searchResults();
+  private getViatorSorting(): { sort: string; order: string } | undefined {
     const sort = this.sortBy();
-    return [...results].sort((a, b) => {
-      if (sort === 'price') return a.price.total - b.price.total;
-      if (sort === 'rating') {
-        if (a.rating === null && b.rating === null) return 0;
-        if (a.rating === null) return 1;
-        if (b.rating === null) return -1;
-        return b.rating - a.rating;
-      }
-      return 0;
-    });
-  });
+    if (sort === 'price') return { sort: 'PRICE', order: 'ASC' };
+    if (sort === 'rating') return { sort: 'TRAVELER_RATING', order: 'DESC' };
+    return undefined;
+  }
 
   // Search tours
   searchTours(): void {
@@ -124,7 +115,7 @@ export class TourSearchComponent {
     this.formCollapsed.set(true);
     this.currentOffset = 0;
     const keyword = this.tourSearchForm.value.keyword?.trim() || '';
-    this.lastSearchParams = { destination, ...(keyword && { keyword }) };
+    this.lastSearchParams = { destination, ...(keyword && { keyword }), sorting: this.getViatorSorting() };
 
     this.tourApi
       .searchToursPaginated(this.lastSearchParams, 0, this.PAGE_SIZE)
@@ -205,9 +196,12 @@ export class TourSearchComponent {
     });
   }
 
-  // Set sort by
+  // Set sort by — triggers new server-side search
   setSortBy(value: string): void {
     this.sortBy.set(value as 'price' | 'rating');
+    if (this.hasSearched()) {
+      this.searchTours();
+    }
   }
 
   // Get category tag for a tour

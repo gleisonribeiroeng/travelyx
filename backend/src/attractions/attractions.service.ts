@@ -126,7 +126,7 @@ export class AttractionsService {
     }
 
     try {
-      const viatorBody = {
+      const viatorBody: any = {
         filtering: {
           destination: destinationId,
           tags: body.filtering?.tags || [21910, 21911, 21912],
@@ -135,6 +135,9 @@ export class AttractionsService {
         currency: body?.currency || 'BRL',
         pagination: body.pagination || { offset: 0, limit: 20 },
       };
+      if (body?.sorting) {
+        viatorBody.sorting = body.sorting;
+      }
 
       const { data } = await firstValueFrom(
         this.httpService.post(
@@ -148,13 +151,14 @@ export class AttractionsService {
         data?.products || data?.data?.products || data?.data || [];
       if (!Array.isArray(products) || products.length === 0) {
         this.logger.log('Viator attractions: 0 results');
-        return { products: [] };
+        return { products: [], totalCount: 0 };
       }
 
+      const totalCount = data?.totalCount ?? products.length;
       this.logger.log(
-        `Viator attractions: ${products.length} results`,
+        `Viator attractions: ${products.length} results (total: ${totalCount})`,
       );
-      return data;
+      return { ...data, totalCount };
     } catch (error: any) {
       const status = error?.response?.status;
       const errorBody = error?.response?.data;

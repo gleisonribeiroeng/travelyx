@@ -122,7 +122,7 @@
 
     <div class="results-section">
       <div class="results-header">
-        <h2>{{ sortedResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
+        <h2>{{ searchResults().length }} {{ 'activities.activitiesFound' | translate }}</h2>
 
         <!-- Sort Dropdown -->
         <mat-form-field appearance="outline" class="sort-field">
@@ -134,7 +134,7 @@
         </mat-form-field>
       </div>
 
-      @for (tour of sortedResults(); track tour.id) {
+      @for (tour of searchResults(); track tour.id) {
         <app-list-item-base
           [config]="toListItem(tour)"
           (primaryClick)="selectById($event)"

@@ -65,9 +65,11 @@ export class AttractionMapper {
       images: (raw.images || [])
         .map(img => pickBestVariant(img.variants))
         .filter((u): u is string => !!u),
-      link: raw.bookingInfo?.bookingUrl
-        ? { url: raw.bookingInfo.bookingUrl, provider: 'Viator' }
-        : null,
+      link: {
+        url: raw.bookingInfo?.bookingUrl
+          || (raw.productCode ? `https://www.viator.com/tours/${raw.productCode}` : ''),
+        provider: 'Viator',
+      },
     };
   }
 

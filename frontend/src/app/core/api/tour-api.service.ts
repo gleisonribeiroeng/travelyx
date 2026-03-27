@@ -46,6 +46,9 @@ export class TourApiService extends BaseApiService {
     if (params.keyword?.trim()) {
       body.searchTerm = params.keyword.trim();
     }
+    if (params.sorting) {
+      body.sorting = params.sorting;
+    }
     return this.post<any>('/partner/products/search', body).pipe(
       withBackoff(),
       map((response): PaginatedResult<Activity> => {

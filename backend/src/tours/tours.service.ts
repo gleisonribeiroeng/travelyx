@@ -142,16 +142,17 @@ export class ToursService {
       destinationId = resolved;
     }
 
-    // Build clean body — strip sorting (Viator sandbox rejects unknown sorts)
-    const { sorting, ...bodyWithoutSorting } = body || {};
-    const searchBody = {
-      ...bodyWithoutSorting,
+    const searchBody: any = {
       filtering: {
         ...body?.filtering,
         destination: destinationId,
       },
+      pagination: body?.pagination || { offset: 0, limit: 20 },
       currency: body?.currency || 'BRL',
     };
+    if (body?.sorting) {
+      searchBody.sorting = body.sorting;
+    }
 
     try {
       const { data } = await firstValueFrom(
@@ -164,8 +165,9 @@ export class ToursService {
 
       const products =
         data?.products || data?.data?.products || data?.data || [];
-      this.logger.log(`Viator: ${Array.isArray(products) ? products.length : 0} results`);
-      return data;
+      const totalCount = data?.totalCount ?? (Array.isArray(products) ? products.length : 0);
+      this.logger.log(`Viator: ${Array.isArray(products) ? products.length : 0} results (total: ${totalCount})`);
+      return { ...data, totalCount };
     } catch (error: any) {
       const status = error?.response?.status;
       const errorBody = error?.response?.data;
