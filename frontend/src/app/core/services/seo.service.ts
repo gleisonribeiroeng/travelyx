@@ -8,6 +8,7 @@ export interface SeoConfig {
   url?: string;
   image?: string;
   keywords?: string;
+  jsonLd?: Record<string, any>;
 }
 
 const DEFAULTS: SeoConfig = {
@@ -25,6 +26,7 @@ export class SeoService {
   private readonly meta = inject(Meta);
   private readonly titleService = inject(Title);
   private readonly doc = inject(DOCUMENT);
+  private jsonLdElement: HTMLScriptElement | null = null;
 
   update(cfg: Partial<SeoConfig>): void {
     const c = { ...DEFAULTS, ...cfg };
@@ -61,9 +63,35 @@ export class SeoService {
     if (!link.parentElement) {
       this.doc.head.appendChild(link);
     }
+
+    // JSON-LD structured data
+    if (c.jsonLd) {
+      this.setJsonLd(c.jsonLd);
+    }
+  }
+
+  setJsonLd(data: Record<string, any>): void {
+    if (this.jsonLdElement) {
+      this.jsonLdElement.textContent = JSON.stringify(data);
+    } else {
+      const script = this.doc.createElement('script');
+      script.type = 'application/ld+json';
+      script.id = 'dynamic-jsonld';
+      script.textContent = JSON.stringify(data);
+      this.doc.head.appendChild(script);
+      this.jsonLdElement = script;
+    }
+  }
+
+  removeJsonLd(): void {
+    if (this.jsonLdElement?.parentElement) {
+      this.jsonLdElement.parentElement.removeChild(this.jsonLdElement);
+      this.jsonLdElement = null;
+    }
   }
 
   reset(): void {
+    this.removeJsonLd();
     this.update(DEFAULTS);
   }
 }

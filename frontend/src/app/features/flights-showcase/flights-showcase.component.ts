@@ -23,6 +23,7 @@ import { ListItemBaseComponent } from '../../shared/components/list-item-base/li
 import { ListItemConfig, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-flights-showcase',
@@ -35,6 +36,7 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
   private readonly router = inject(Router);
   private readonly api = inject(FlightShowcaseApiService);
   private readonly el = inject(ElementRef);
+  private readonly seo = inject(SeoService);
   readonly authService = inject(AuthService);
   readonly i18n = inject(TranslationService);
 
@@ -49,6 +51,12 @@ export class FlightsShowcaseComponent implements OnInit, AfterViewInit, OnDestro
   private observer!: IntersectionObserver;
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Voos Baratos - Travelyx',
+      description: 'Compare voos nacionais e internacionais com os melhores preços. Encontre passagens aéreas baratas no Travelyx.',
+      url: 'https://travelyx.com.br/voos',
+      keywords: 'voos baratos, passagens aéreas, voos nacionais, voos internacionais, viagem, travelyx',
+    });
     this.api.getShowcase().subscribe({
       next: (res) => {
         this.deals.set(res.deals);

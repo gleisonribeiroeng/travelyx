@@ -23,6 +23,7 @@ import { ListItemBaseComponent } from '../../shared/components/list-item-base/li
 import { ListItemConfig, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-hotels-showcase',
@@ -35,6 +36,7 @@ export class HotelsShowcaseComponent implements OnInit, AfterViewInit, OnDestroy
   private readonly router = inject(Router);
   private readonly api = inject(HotelShowcaseApiService);
   private readonly el = inject(ElementRef);
+  private readonly seo = inject(SeoService);
   readonly authService = inject(AuthService);
   readonly i18n = inject(TranslationService);
 
@@ -49,6 +51,12 @@ export class HotelsShowcaseComponent implements OnInit, AfterViewInit, OnDestroy
   private observer!: IntersectionObserver;
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Hotéis e Hospedagens - Travelyx',
+      description: 'Compare hotéis, pousadas e hospedagens com os melhores preços. Encontre a estadia ideal para sua viagem no Travelyx.',
+      url: 'https://travelyx.com.br/hoteis',
+      keywords: 'hotéis, hospedagem, pousadas, reservas, viagem, travelyx',
+    });
     this.api.getShowcase().subscribe({
       next: (res) => {
         this.bestPrices.set(res.bestPrices);

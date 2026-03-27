@@ -20,6 +20,7 @@ import { ListItemBaseComponent } from '../../shared/components/list-item-base/li
 import { ListItemConfig, ListItemInfoLine, ListItemTag } from '../../shared/components/list-item-base/list-item-base.model';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-tours-showcase',
@@ -32,6 +33,7 @@ export class ToursShowcaseComponent implements OnInit, AfterViewInit, OnDestroy 
   private readonly router = inject(Router);
   private readonly api = inject(TourShowcaseApiService);
   private readonly el = inject(ElementRef);
+  private readonly seo = inject(SeoService);
   readonly authService = inject(AuthService);
   readonly i18n = inject(TranslationService);
 
@@ -46,6 +48,12 @@ export class ToursShowcaseComponent implements OnInit, AfterViewInit, OnDestroy 
   private observer!: IntersectionObserver;
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Passeios e Atividades - Travelyx',
+      description: 'Descubra os melhores passeios, tours guiados e experiências turísticas. Compare preços e avaliações no Travelyx.',
+      url: 'https://travelyx.com.br/passeios',
+      keywords: 'passeios, tours, atividades turísticas, experiências, viagem, travelyx',
+    });
     this.api.getShowcase().subscribe({
       next: (res) => {
         this.mostBooked.set(res.mostBooked);

@@ -11,6 +11,7 @@ import { debounceTime, distinctUntilChanged, switchMap, map, catchError } from '
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { TourApiService } from '../../core/api/tour-api.service';
+import { SeoService } from '../../core/services/seo.service';
 
 interface WizardResult {
   flights: { origin: string; destination: string; price: number; airline: string; departure: string; duration: string }[];
@@ -33,6 +34,7 @@ export class PublicWizardComponent implements OnInit {
   private readonly tourApi = inject(TourApiService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly seo = inject(SeoService);
 
   // Wizard state
   readonly currentStep = signal(0);
@@ -79,6 +81,12 @@ export class PublicWizardComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Planeje sua Viagem Grátis - Travelyx',
+      description: 'Monte seu roteiro de viagem completo em minutos: voos, hotéis, passeios e atividades. Planejamento gratuito no Travelyx.',
+      url: 'https://travelyx.com.br/planejar',
+      keywords: 'planejar viagem, roteiro de viagem, planejamento gratuito, voos, hotéis, passeios, travelyx',
+    });
     this.filteredDestinations$ = this.destinationControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),

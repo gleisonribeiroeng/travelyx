@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { SeoService } from '../../core/services/seo.service';
 import { environment } from '../../../environments/environment';
 
 interface PublicTrip {
@@ -543,6 +544,7 @@ export class PublicItineraryComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly i18n = inject(TranslationService);
+  private readonly seo = inject(SeoService);
   private readonly baseUrl = `${environment.apiBaseUrl}/api`;
 
   readonly loading = signal(true);
@@ -587,6 +589,22 @@ export class PublicItineraryComponent implements OnInit {
       next: (data) => {
         this.trip.set(data);
         this.loading.set(false);
+        this.seo.update({
+          title: `${data.name || data.destination} - Roteiro de Viagem | Travelyx`,
+          description: `Confira o roteiro de viagem para ${data.destination} com ${data.itineraryItems?.length || 0} atividades planejadas no Travelyx.`,
+          url: `https://travelyx.com.br/v/${slug}`,
+          image: data.coverImage || undefined,
+          keywords: `roteiro ${data.destination}, viagem ${data.destination}, itinerário, travelyx`,
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': 'TravelAction',
+            'name': data.name || `Viagem para ${data.destination}`,
+            'description': `Roteiro de viagem para ${data.destination}`,
+            'toLocation': { '@type': 'Place', 'name': data.destination },
+            'startTime': data.dates?.start,
+            'endTime': data.dates?.end,
+          },
+        });
       },
       error: () => {
         this.error.set(true);
