@@ -1,5 +1,6 @@
 <div class="calendar-page">
   <!-- ═══ Header: title + actions ═══ -->
+  @if (!embedded()) {
   <div class="calendar-header page-dark-header">
     <h1>{{ 'itinerary.title' | translate }}</h1>
     <div class="header-actions">
@@ -23,6 +24,7 @@
       </mat-menu>
     </div>
   </div>
+  }
 
   <!-- ═══ Custom calendar toolbar ═══ -->
   <div class="cal-toolbar">

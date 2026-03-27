@@ -62,7 +62,7 @@
   </div>
 
   @if (viewMode() === 'calendar') {
-    <app-itinerary />
+    <app-itinerary [embedded]="true" />
   } @else {
 
   <!-- ═══ LINE 2: Filters + secondary actions ═══ -->

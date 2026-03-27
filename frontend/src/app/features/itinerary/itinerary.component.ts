@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, viewChild, AfterViewInit } from '@angular/core';
+import { Component, computed, inject, input, signal, viewChild, AfterViewInit } from '@angular/core';
 import { KeyValuePipe, DatePipe } from '@angular/common';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
@@ -56,6 +56,7 @@ const TYPE_COLORS: Record<string, string> = {
   styleUrl: './itinerary.component.scss',
 })
 export class ItineraryComponent {
+  readonly embedded = input(false);
   protected readonly tripState = inject(TripStateService);
   private readonly notify = inject(NotificationService);
   private readonly calendarApi = inject(CalendarApiService);

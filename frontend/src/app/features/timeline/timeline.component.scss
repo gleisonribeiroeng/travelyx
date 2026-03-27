@@ -35,10 +35,6 @@
   }
 }
 
-// Hide embedded itinerary's own header when inside timeline
-::ng-deep app-itinerary .calendar-header {
-  display: none;
-}
 
 // ── Header Row 1: Title + summary pills + add button ──
 .header-row-1 {
