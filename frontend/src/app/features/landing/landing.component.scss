@@ -1601,11 +1601,15 @@ $radius-full: 100px;
   }
 
   .v2-google-btn--nav {
-    padding: 6px 12px;
-    font-size: 0.7rem;
-    gap: 6px;
+    padding: 8px;
+    border-radius: 50%;
+    gap: 0;
+    min-width: 34px;
+    min-height: 34px;
+    justify-content: center;
 
-    svg { width: 14px; height: 14px; }
+    .nav-btn-label { display: none; }
+    svg { width: 16px; height: 16px; }
   }
 
   .v2-nav-cta {
