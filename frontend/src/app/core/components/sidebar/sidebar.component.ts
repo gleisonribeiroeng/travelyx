@@ -49,7 +49,7 @@ export class SidebarComponent {
       return [
         { label: '', items: [
           { icon: 'luggage', label: this.i18n.t('nav.myTrips'), route: '/viagens' },
-          { icon: 'notifications_active', label: 'Alertas de Preço', route: '/alertas-preco', pro: true, proFeature: 'priceAlerts' },
+          { icon: 'notifications_active', label: this.i18n.t('nav.alerts'), route: '/alertas', pro: true, proFeature: 'priceAlerts' },
         ]},
       ];
     }
@@ -72,8 +72,7 @@ export class SidebarComponent {
       ]},
       { label: this.i18n.t('nav.sectionOrganization'), items: [
         { icon: 'account_balance_wallet', label: this.i18n.t('nav.budget'), route: `${base}/budget`, pro: true, proFeature: 'budget' },
-        { icon: 'notifications_active', label: 'Alertas de Preço', route: '/alertas-preco', pro: true, proFeature: 'priceAlerts' },
-        { icon: 'notification_important', label: this.i18n.t('nav.alerts'), route: `${base}/conflicts`, pro: true, proFeature: 'conflictDetails' },
+        { icon: 'notifications_active', label: this.i18n.t('nav.alerts'), route: '/alertas', pro: true, proFeature: 'priceAlerts' },
         { icon: 'checklist', label: this.i18n.t('nav.checklist'), route: `${base}/checklist`, pro: true, proFeature: 'checklist' },
         { icon: 'description', label: this.i18n.t('nav.documents'), route: `${base}/documents`, pro: true, proFeature: 'documents' },
       ]},

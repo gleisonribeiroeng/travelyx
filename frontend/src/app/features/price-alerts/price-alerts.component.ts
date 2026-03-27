@@ -11,22 +11,42 @@ import {
 import { PlanService } from '../../core/services/plan.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
+import { TripStateService } from '../../core/services/trip-state.service';
+import { ConflictsComponent } from '../conflicts/conflicts.component';
 
 @Component({
   selector: 'app-price-alerts',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe],
+  imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe, ConflictsComponent],
   template: `
     <div class="page-container">
       <div class="page-header">
         <div class="header-left">
           <mat-icon class="header-icon">notifications_active</mat-icon>
           <div>
-            <h1>Alertas de Preço</h1>
-            <p>Monitore preços de voos e hotéis e receba avisos quando caírem</p>
+            <h1>Alertas</h1>
+            <p>Monitore preços e conflitos do seu roteiro</p>
           </div>
         </div>
       </div>
+
+      <!-- Toggle switch -->
+      <mat-button-toggle-group [value]="activeTab()" (change)="activeTab.set($any($event).value)" class="alert-toggle">
+        <mat-button-toggle value="price">
+          <mat-icon>price_check</mat-icon>
+          Alertas de Preço
+        </mat-button-toggle>
+        <mat-button-toggle value="conflicts" [disabled]="!hasActiveTrip()">
+          <mat-icon>notification_important</mat-icon>
+          Alertas de Roteiro
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @if (activeTab() === 'conflicts') {
+        @if (hasActiveTrip()) {
+          <app-conflicts />
+        }
+      } @else {
 
       @if (loading()) {
         <div class="loading-state">
@@ -182,6 +202,8 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
           }
         </div>
       }
+
+      } <!-- end @else price tab -->
     </div>
   `,
   styles: [`
@@ -219,6 +241,18 @@ import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
         margin: 1px 0 0;
         font-size: 0.78rem;
         color: var(--triply-text-secondary, #6b7280);
+      }
+    }
+
+    .alert-toggle {
+      width: 100%;
+      margin-bottom: 20px;
+      border-radius: 10px !important;
+      overflow: hidden;
+
+      mat-button-toggle {
+        flex: 1;
+        mat-icon { margin-right: 6px; font-size: 18px; width: 18px; height: 18px; }
       }
     }
 
@@ -543,7 +577,10 @@ export class PriceAlertsComponent implements OnInit {
   private readonly api = inject(PriceAlertApiService);
   private readonly notify = inject(NotificationService);
   private readonly planService = inject(PlanService);
+  private readonly tripState = inject(TripStateService);
 
+  readonly activeTab = signal<'price' | 'conflicts'>('price');
+  readonly hasActiveTrip = computed(() => !!this.tripState.activeTripId());
   readonly loading = signal(true);
   readonly alerts = signal<PriceAlert[]>([]);
   readonly expandedId = signal<string | null>(null);
