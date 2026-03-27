@@ -19,17 +19,12 @@ import { ConflictsComponent } from '../conflicts/conflicts.component';
   standalone: true,
   imports: [MATERIAL_IMPORTS, CommonModule, DynamicCurrencyPipe, ConflictsComponent],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <div class="header-left">
-          <mat-icon class="header-icon">notifications_active</mat-icon>
-          <div>
-            <h1>Alertas</h1>
-            <p>Monitore preços e conflitos do seu roteiro</p>
-          </div>
-        </div>
-      </div>
+    <div class="page-header page-dark-header">
+      <h1>Alertas</h1>
+      <p>Monitore preços e conflitos do seu roteiro</p>
+    </div>
 
+    <div class="page-container">
       <!-- Toggle switch -->
       <mat-button-toggle-group [value]="activeTab()" (change)="activeTab.set($any($event).value)" class="alert-toggle">
         <mat-button-toggle value="price">
@@ -212,36 +207,8 @@ import { ConflictsComponent } from '../conflicts/conflicts.component';
       margin: 0 auto;
     }
 
-    .page-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 16px;
-
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .header-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
-        color: var(--triply-primary);
-      }
-
-      h1 {
-        margin: 0;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--triply-text-primary, #1a1a2e);
-      }
-
-      p {
-        margin: 1px 0 0;
-        font-size: 0.78rem;
-        color: var(--triply-text-secondary, #6b7280);
-      }
+    :host ::ng-deep app-conflicts .page-dark-header {
+      display: none;
     }
 
     .alert-toggle {
