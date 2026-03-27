@@ -19,6 +19,27 @@
   max-width: none;
 }
 
+// ── View toggle ──
+.view-toggle-row {
+  padding: 12px 16px 4px;
+}
+
+.view-toggle {
+  width: 100%;
+  border-radius: 10px !important;
+  overflow: hidden;
+
+  mat-button-toggle {
+    flex: 1;
+    mat-icon { margin-right: 6px; font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+// Hide embedded itinerary's own dark header
+::ng-deep app-itinerary .page-dark-header {
+  display: none;
+}
+
 // ── Header Row 1: Title + summary pills + add button ──
 .header-row-1 {
   display: flex;

@@ -47,6 +47,24 @@
     </mat-menu>
   </div>
 
+  <!-- ═══ View mode toggle ═══ -->
+  <div class="view-toggle-row">
+    <mat-button-toggle-group [value]="viewMode()" (change)="viewMode.set($any($event).value)" class="view-toggle">
+      <mat-button-toggle value="timeline">
+        <mat-icon>view_timeline</mat-icon>
+        Linha do Tempo
+      </mat-button-toggle>
+      <mat-button-toggle value="calendar">
+        <mat-icon>event_note</mat-icon>
+        Agenda
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (viewMode() === 'calendar') {
+    <app-itinerary />
+  } @else {
+
   <!-- ═══ LINE 2: Filters + secondary actions ═══ -->
   @if (hasDates()) {
     <div class="header-row-2">
@@ -346,4 +364,6 @@
       }
     </div>
   }
+
+  } <!-- end @else timeline view -->
 </div>

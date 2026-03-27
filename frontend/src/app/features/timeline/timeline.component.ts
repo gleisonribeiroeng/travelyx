@@ -19,11 +19,12 @@ import { ExportService } from '../../core/services/export.service';
 import { PlanService } from '../../core/services/plan.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
+import { ItineraryComponent } from '../itinerary/itinerary.component';
 
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, DragDropModule, TranslatePipe],
+  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, DragDropModule, TranslatePipe, ItineraryComponent],
   templateUrl: './timeline.component.html',
   styleUrl: './timeline.component.scss',
 })
@@ -40,6 +41,7 @@ export class TimelineComponent implements OnInit {
   private readonly router = inject(Router);
   private calendarJustConnected = false;
 
+  readonly viewMode = signal<'timeline' | 'calendar'>('timeline');
   readonly syncing = signal(false);
   readonly exporting = signal(false);
   readonly optimizing = signal(false);

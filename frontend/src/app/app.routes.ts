@@ -203,11 +203,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/timeline/timeline.component').then(m => m.TimelineComponent),
       },
-      {
-        path: 'itinerary',
-        loadComponent: () =>
-          import('./features/itinerary/itinerary.component').then(m => m.ItineraryComponent),
-      },
+      { path: 'itinerary', redirectTo: 'timeline', pathMatch: 'full' },
       {
         path: 'budget',
         canActivate: [planGuard('budget')],

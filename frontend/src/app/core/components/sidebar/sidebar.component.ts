@@ -67,7 +67,6 @@ export class SidebarComponent {
       ]},
       { label: this.i18n.t('nav.sectionItinerary'), items: [
         { icon: 'route', label: this.i18n.t('nav.assistant'), route: `${base}/planner` },
-        { icon: 'event_note', label: this.i18n.t('nav.myItinerary'), route: `${base}/itinerary` },
         { icon: 'view_timeline', label: this.i18n.t('nav.timeline'), route: `${base}/timeline` },
       ]},
       { label: this.i18n.t('nav.sectionOrganization'), items: [
