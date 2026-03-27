@@ -1589,6 +1589,61 @@ $radius-full: 100px;
 
 @media (max-width: 599px) {
   .v2-hero-visual { display: none; }
+
+  .v2-nav-inner { padding: 0 12px; }
+  .v2-nav-logo { height: 28px; }
+
+  .v2-nav-actions { gap: 8px; }
+
+  .v2-lang-toggle {
+    padding: 4px 10px;
+    font-size: 0.65rem;
+  }
+
+  .v2-google-btn--nav {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    gap: 6px;
+
+    svg { width: 14px; height: 14px; }
+  }
+
+  .v2-nav-cta {
+    padding: 6px 14px;
+    font-size: 0.72rem;
+  }
+
+  .v2-user-chip {
+    padding: 3px 10px 3px 3px;
+    gap: 6px;
+    font-size: 0.72rem;
+
+    img { width: 24px; height: 24px; }
+  }
+
+  .v2-hero {
+    padding-top: 80px;
+  }
+
+  .v2-hero-title {
+    font-size: 1.8rem;
+    line-height: 1.15;
+  }
+
+  .v2-hero-sub {
+    font-size: 0.85rem;
+  }
+
+  .hero-search-card {
+    .hero-search-row {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .hero-search-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 @media (min-width: 960px) {
