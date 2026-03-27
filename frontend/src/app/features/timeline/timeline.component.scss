@@ -35,8 +35,8 @@
   }
 }
 
-// Hide embedded itinerary's own dark header
-::ng-deep app-itinerary .page-dark-header {
+// Hide embedded itinerary's own header when inside timeline
+::ng-deep app-itinerary .calendar-header {
   display: none;
 }
 
