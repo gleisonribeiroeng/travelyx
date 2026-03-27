@@ -267,10 +267,24 @@
   }
 
   .user-chip {
-    padding: 4px;
+    padding: 2px;
+    border: none;
+    background: transparent;
 
+    .user-name,
     .dropdown-arrow {
       display: none;
     }
+  }
+
+  .user-avatar {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+  }
+
+  .topbar-actions {
+    gap: 0;
+    flex-shrink: 0;
   }
 }
