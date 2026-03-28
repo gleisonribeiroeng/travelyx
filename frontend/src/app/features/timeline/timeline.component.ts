@@ -319,6 +319,8 @@ export class TimelineComponent implements OnInit {
 
   openTimeEditor(item: ItineraryItem, event: Event): void {
     event.stopPropagation();
+    // Flights are locked — never allow time editing
+    if (item.type === 'flight') return;
     const ref = this.dialog.open(TimeEditorDialogComponent, {
       width: '380px',
       data: { label: item.label, type: item.type, timeSlot: item.timeSlot, durationMinutes: item.durationMinutes },
@@ -379,10 +381,14 @@ export class TimelineComponent implements OnInit {
   }
 
   onDrop(event: CdkDragDrop<ItineraryItem[]>, targetDate: string): void {
-    // Drop from block palette → open quick-add modal
+    // Drop from block palette → open quick-add modal with time context
     if (event.previousContainer.id === 'block-palette') {
       const blockType = event.item.data as ItineraryItemType;
-      this.openQuickAddModal(blockType, targetDate, event.currentIndex);
+      const targetItems = event.container.data;
+      const insertIdx = event.currentIndex;
+      // Pass the time of the item at the insertion position so the new item can inherit it
+      const timeAtPosition = targetItems[insertIdx]?.timeSlot ?? null;
+      this.openQuickAddModal(blockType, targetDate, insertIdx, timeAtPosition);
       return;
     }
     // Regular reorder
@@ -393,20 +399,71 @@ export class TimelineComponent implements OnInit {
     }
   }
 
-  openQuickAddModal(type: ItineraryItemType, date: string, insertIndex: number): void {
+  openQuickAddModal(type: ItineraryItemType, date: string, insertIndex: number, inheritTime?: string | null): void {
     const ref = this.dialog.open(QuickAddDialogComponent, {
       width: '420px',
       panelClass: 'mobile-fullscreen-dialog',
-      data: { type, date, insertIndex } as QuickAddDialogData,
+      data: { type, date, insertIndex, inheritTime: inheritTime ?? null } as QuickAddDialogData,
     });
     ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
       if (!item) return;
       this.tripState.addItineraryItem(item);
+      // Cascade times: push items below the new one forward
+      if (item.timeSlot && item.durationMinutes) {
+        this.cascadeTimesAfterInsert(item);
+      }
       const next = new Set(this.expandedDays());
       next.add(item.date);
       this.expandedDays.set(next);
       this.notify.success('Item adicionado!');
     });
+  }
+
+  /**
+   * After inserting a new timed item, push all subsequent items on the same day
+   * so they start after the new item ends. Flights are never moved.
+   */
+  private cascadeTimesAfterInsert(newItem: ItineraryItem): void {
+    if (!newItem.timeSlot || !newItem.durationMinutes) return;
+
+    const trip = this.tripState.trip();
+    const sameDayItems = trip.itineraryItems
+      .filter(i => i.date === newItem.date && i.timeSlot && i.id !== newItem.id)
+      .sort((a, b) => (a.timeSlot! > b.timeSlot! ? 1 : -1));
+
+    const newEndMinutes = this.timeToMinutes(newItem.timeSlot) + newItem.durationMinutes;
+
+    let cursor = newEndMinutes;
+    for (const item of sameDayItems) {
+      const itemStart = this.timeToMinutes(item.timeSlot!);
+      // Only shift items that overlap or come after the new item's start
+      if (itemStart < this.timeToMinutes(newItem.timeSlot)) continue;
+      // Flights are locked — never change their time
+      if (item.type === 'flight') {
+        // Skip flight but continue cursor from its end
+        cursor = itemStart + (item.durationMinutes || 0);
+        continue;
+      }
+      if (itemStart < cursor) {
+        // Needs shifting
+        this.tripState.updateItineraryItem({ ...item, timeSlot: this.minutesToTime(cursor) });
+        cursor = cursor + (item.durationMinutes || 0);
+      } else {
+        // No overlap — stop cascading
+        break;
+      }
+    }
+  }
+
+  private timeToMinutes(time: string): number {
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  private minutesToTime(minutes: number): string {
+    const h = Math.floor(minutes / 60) % 24;
+    const m = minutes % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   }
 
   onMobileBlockSelected(type: ItineraryItemType): void {
@@ -419,7 +476,10 @@ export class TimelineComponent implements OnInit {
     this.insertionMode.set(false);
     this.insertionType.set(null);
     if (type) {
-      this.openQuickAddModal(type, date, index);
+      // Find the item at this position to inherit its time
+      const day = this.timeline().find(d => d.date === date);
+      const timeAtPosition = day?.timedItems[index]?.timeSlot ?? null;
+      this.openQuickAddModal(type, date, index, timeAtPosition);
     }
   }
 

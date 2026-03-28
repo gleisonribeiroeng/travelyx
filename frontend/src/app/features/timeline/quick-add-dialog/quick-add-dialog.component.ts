@@ -9,6 +9,7 @@ export interface QuickAddDialogData {
   type: ItineraryItemType;
   date: string;
   insertIndex: number;
+  inheritTime?: string | null;
 }
 
 interface TypeOption {
@@ -285,7 +286,7 @@ export class QuickAddDialogComponent {
   readonly selectedMode = signal('uber');
 
   label = '';
-  timeSlot = '';
+  timeSlot = this.data.inheritTime ?? '';
   trajectoryFrom = '';
   trajectoryTo = '';
 

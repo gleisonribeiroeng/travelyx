@@ -779,43 +779,78 @@
   gap: 0;
   min-height: 4px;
 
-  // Puzzle-piece connectors: tab at bottom of each card
+  // Puzzle-piece connectors: tab at bottom + socket at top
   .activity-card {
     position: relative;
 
-    // Bottom tab (puzzle tongue)
+    // Bottom tab (puzzle tongue protruding down)
     &::after {
       content: '';
       position: absolute;
-      bottom: -3px;
+      bottom: -6px;
       left: 50%;
       transform: translateX(-50%);
-      width: 28px;
-      height: 5px;
-      background: color-mix(in srgb, var(--type-color, #f97316) 30%, transparent);
-      border-radius: 0 0 6px 6px;
+      width: 32px;
+      height: 6px;
+      background: color-mix(in srgb, var(--type-color, #f97316) 40%, var(--triply-surface-1, #fff));
+      border-radius: 0 0 8px 8px;
+      border: 1px solid color-mix(in srgb, var(--type-color, #f97316) 20%, transparent);
+      border-top: none;
       z-index: 2;
+      transition: background 0.2s, height 0.2s;
     }
 
-    // Top notch (puzzle socket) — skip the first card
+    &:hover::after {
+      height: 8px;
+      background: color-mix(in srgb, var(--type-color, #f97316) 55%, var(--triply-surface-1, #fff));
+    }
+
+    // Top notch (puzzle socket — indent to receive the tongue from above)
     &:not(:first-child)::before {
       content: '';
       position: absolute;
-      top: -3px;
+      top: -6px;
       left: 50%;
       transform: translateX(-50%);
-      width: 28px;
-      height: 5px;
-      background: color-mix(in srgb, var(--type-color, #f97316) 30%, transparent);
-      border-radius: 6px 6px 0 0;
+      width: 32px;
+      height: 6px;
+      background: color-mix(in srgb, var(--type-color, #f97316) 25%, var(--triply-surface-1, #fff));
+      border-radius: 8px 8px 0 0;
+      border: 1px solid color-mix(in srgb, var(--type-color, #f97316) 15%, transparent);
+      border-bottom: none;
       z-index: 2;
     }
 
-    // Slight margin for interlock visual on non-first items
+    // Margin between cards for puzzle interlock
     &:not(:first-child) {
-      margin-top: 4px;
+      margin-top: 8px;
+    }
+
+    // Flight locked indicator
+    &.flight-locked {
+      border-left: 3px solid #2196F3;
+      background: linear-gradient(90deg, rgba(33, 150, 243, 0.03), transparent);
     }
   }
+}
+
+// ── Flight time lock ──
+.time-locked {
+  cursor: default !important;
+  pointer-events: none;
+
+  &:hover {
+    background: transparent !important;
+  }
+}
+
+.time-lock-icon {
+  font-size: 10px !important;
+  width: 10px !important;
+  height: 10px !important;
+  color: #2196F3;
+  opacity: 0.6;
+  margin-top: 2px;
 }
 
 // Trajectory-specific thin connector card

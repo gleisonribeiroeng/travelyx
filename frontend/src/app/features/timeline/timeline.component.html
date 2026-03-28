@@ -316,10 +316,15 @@
                         }
                       }
 
-                      <div class="activity-card timed" [attr.data-type]="item.type" cdkDrag [cdkDragData]="item"
+                      <div class="activity-card timed" [attr.data-type]="item.type"
+                           [class.flight-locked]="item.type === 'flight'"
+                           cdkDrag [cdkDragData]="item"
+                           [matTooltip]="item.label" matTooltipPosition="above" [matTooltipShowDelay]="400"
                            (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
                         <div class="card-color-bar"></div>
-                        <div class="card-time" (click)="openTimeEditor(item, $event)" matTooltip="Editar horário">
+                        <div class="card-time" (click)="item.type !== 'flight' ? openTimeEditor(item, $event) : $event.stopPropagation()"
+                             [matTooltip]="item.type === 'flight' ? 'Horário fixo (voo)' : 'Editar horário'"
+                             [class.time-locked]="item.type === 'flight'">
                           <span class="time-start">{{ item.timeSlot }}</span>
                           @if (getEndTime(item)) {
                             <span class="time-separator">–</span>
@@ -328,7 +333,11 @@
                           @if (item.durationMinutes) {
                             <span class="time-duration-pill">{{ formatDuration(item.durationMinutes) }}</span>
                           }
-                          <mat-icon class="time-edit-icon">edit</mat-icon>
+                          @if (item.type === 'flight') {
+                            <mat-icon class="time-lock-icon">lock</mat-icon>
+                          } @else {
+                            <mat-icon class="time-edit-icon">edit</mat-icon>
+                          }
                         </div>
                         <div class="card-icon"><mat-icon>{{ getTypeIcon(item.type) }}</mat-icon></div>
                         <div class="card-body">
@@ -353,7 +362,7 @@
                                 }
                               }
                             </mat-menu>
-                            <mat-icon class="action-icon drag-handle" cdkDragHandle [matTooltip]="'timeline.drag' | translate">drag_indicator</mat-icon>
+                            <mat-icon class="action-icon drag-handle" cdkDragHandle [matTooltip]="item.label">drag_indicator</mat-icon>
                             <mat-icon class="action-icon delete" [matTooltip]="'timeline.remove' | translate"
                                       (click)="removeItem(item.id, $event)">close</mat-icon>
                           </div>
