@@ -773,91 +773,65 @@
 // TIMED ITEMS ZONE — JIGSAW PUZZLE PIECE CARDS
 // ═══════════════════════════════════════════════════════════
 //
-// Each card is CLIPPED into a puzzle piece shape via SVG clipPath.
-// The entire card silhouette becomes a jigsaw piece:
-//   • First card: flat top, knob at bottom
-//   • Middle cards: hole at top, knob at bottom (interlock!)
-//   • Last card: hole at top, flat bottom
-// Cards overlap via negative margin so the knob of card N
-// fills the hole of card N+1.
-
-// Hidden SVG element for clipPath definitions
-.puzzle-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
+// Each card looks like a puzzle piece with a small knob on the
+// right side. filter: drop-shadow outlines the combined shape
+// (card + knob) for a clean puzzle silhouette.
 
 .timed-items-zone {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 4px;
   min-height: 4px;
   position: relative;
   border-radius: 12px;
-  padding: 4px 4px;
+  padding: 6px 6px;
 
   // ── Puzzle piece cards ──
   .activity-card.timed {
     position: relative;
     overflow: visible;
     border: none;
-    border-radius: 0;
-    background: color-mix(in srgb, var(--type-color, #f97316) 15%, var(--triply-surface-1, #fff));
-    // drop-shadow follows the clip shape (unlike box-shadow)
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+    border-radius: 8px 2px 2px 8px;
+    background: color-mix(in srgb, var(--type-color, #f97316) 12%, var(--triply-surface-1, #fff));
+    border-left: 3px solid color-mix(in srgb, var(--type-color, #f97316) 50%, transparent);
+    // drop-shadow outlines card + pseudo-element knob as one shape
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.10));
     transition: background 0.2s, filter 0.2s;
-    // Default padding — overridden per variant below
-    padding-top: 12px;
-    padding-bottom: 12px;
+    margin-right: 8px;
 
-    // Hide the old flat color bar — the piece shape carries the identity
+    // Hide the old color bar — replaced by border-left
     .card-color-bar {
       display: none;
     }
 
-    // ── Clip-path shape variants ──
-    // Knob protrudes 18% from bottom; notch indents 16% from top.
-    // Card fills full height — no transparent gaps.
-
-    &.puzzle-first:not(.puzzle-only) {
-      clip-path: url(#puzzle-first);
-      padding-bottom: 14px;
+    // ── RIGHT KNOB: small circle on the right edge ──
+    &:not(.puzzle-only)::after {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: inherit;
     }
 
-    &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
-      clip-path: url(#puzzle-middle);
-      padding-top: 14px;
-      padding-bottom: 14px;
-    }
-
-    &.puzzle-last:not(.puzzle-only) {
-      clip-path: url(#puzzle-last);
-      padding-top: 14px;
-    }
-
-    // ── Single item: no puzzle shape, regular card ──
+    // ── Single item: regular card without knob ──
     &.puzzle-only {
-      clip-path: none;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid var(--triply-border-subtle, #eee);
-      padding-top: 0;
-      padding-bottom: 0;
+      border-left: 3px solid color-mix(in srgb, var(--type-color, #f97316) 50%, transparent);
+      background: var(--triply-surface-1, #fff);
       filter: none;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    }
-
-    // ── Interlock: knob from card N fills notch of card N+1 ──
-    & + & {
-      margin-top: -14px;
+      margin-right: 0;
     }
 
     // ── Hover ──
     &:hover {
-      background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
-      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.15));
+      background: color-mix(in srgb, var(--type-color, #f97316) 20%, var(--triply-surface-1, #fff));
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.14));
       transform: none;
 
       .card-actions {
@@ -867,18 +841,9 @@
 
     // ── Flight locked ──
     &.flight-locked {
-      background: color-mix(in srgb, #2196F3 15%, var(--triply-surface-1, #fff));
+      background: color-mix(in srgb, #2196F3 12%, var(--triply-surface-1, #fff));
+      border-left-color: color-mix(in srgb, #2196F3 50%, transparent);
     }
-  }
-
-  // Travel indicators have height:0 + margin:-6px 0 = -12px vertical space.
-  // Add extra negative margin so knob still reaches the notch.
-  .travel-indicator + .activity-card.timed {
-    margin-top: -4px;
-  }
-
-  .insertion-target + .activity-card.timed {
-    margin-top: 0;
   }
 }
 
