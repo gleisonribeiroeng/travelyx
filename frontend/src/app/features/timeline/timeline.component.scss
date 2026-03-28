@@ -819,24 +819,23 @@
     }
 
     // ── Clip-path shape variants ──
-    // Knob/hole = 16% of card height. Padding pushes content clear.
+    // Knob protrudes 18% from bottom; notch indents 16% from top.
+    // Card fills full height — no transparent gaps.
 
     &.puzzle-first:not(.puzzle-only) {
       clip-path: url(#puzzle-first);
-      padding-top: 4px;
-      padding-bottom: 16px;
+      padding-bottom: 14px;
     }
 
     &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
       clip-path: url(#puzzle-middle);
-      padding-top: 16px;
-      padding-bottom: 16px;
+      padding-top: 14px;
+      padding-bottom: 14px;
     }
 
     &.puzzle-last:not(.puzzle-only) {
       clip-path: url(#puzzle-last);
-      padding-top: 16px;
-      padding-bottom: 4px;
+      padding-top: 14px;
     }
 
     // ── Single item: no puzzle shape, regular card ──
@@ -850,9 +849,9 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
 
-    // ── Interlock: adjacent cards overlap so knob fills hole ──
+    // ── Interlock: knob from card N fills notch of card N+1 ──
     & + & {
-      margin-top: -12px;
+      margin-top: -14px;
     }
 
     // ── Hover ──
