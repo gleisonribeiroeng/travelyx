@@ -5,15 +5,17 @@ import { SidebarComponent } from './core/components/sidebar/sidebar.component';
 import { TopBarComponent } from './core/components/top-bar/top-bar.component';
 import { ToastContainerComponent } from './shared/components/toast/toast-container.component';
 import { BottomNavComponent } from './core/components/bottom-nav/bottom-nav.component';
+import { RouteLoaderComponent } from './shared/components/route-loader/route-loader.component';
 import { AuthService } from './core/services/auth.service';
 import { TripStateService } from './core/services/trip-state.service';
 import { TransitionService } from './core/services/transition.service';
+import { NavLoadingService } from './core/services/nav-loading.service';
 import { TranslatePipe } from './core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, BottomNavComponent, TranslatePipe],
+  imports: [RouterOutlet, SidebarComponent, TopBarComponent, ToastContainerComponent, BottomNavComponent, RouteLoaderComponent, TranslatePipe],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -23,6 +25,7 @@ export class App implements OnInit, OnDestroy {
   private readonly zone = inject(NgZone);
   readonly tripState = inject(TripStateService);
   readonly transition = inject(TransitionService);
+  private readonly _navLoading = inject(NavLoadingService);
   readonly isLandingPage = signal(!this.auth.isLoggedIn());
   readonly sidebar = viewChild(SidebarComponent);
 
