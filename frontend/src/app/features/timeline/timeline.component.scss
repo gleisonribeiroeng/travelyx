@@ -773,98 +773,91 @@
 // TIMED ITEMS ZONE — JIGSAW PUZZLE PIECE CARDS
 // ═══════════════════════════════════════════════════════════
 //
-// Each card IS a puzzle piece with visible connectors:
-//   • Right side: knob (circle protruding outward)
-//   • Left side: hole (circle cut inward, matching zone bg)
-//   • Bottom: tab protruding downward into next card
-//   • Top: slot matching the tab from card above
-// Strong type-colored backgrounds make each piece pop.
+// Each card is CLIPPED into a puzzle piece shape via SVG clipPath.
+// The entire card silhouette becomes a jigsaw piece:
+//   • First card: flat top, knob at bottom
+//   • Middle cards: hole at top, knob at bottom (interlock!)
+//   • Last card: hole at top, flat bottom
+// Cards overlap via negative margin so the knob of card N
+// fills the hole of card N+1.
+
+// Hidden SVG element for clipPath definitions
+.puzzle-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
 
 .timed-items-zone {
-  --zone-bg: color-mix(in srgb, var(--triply-text-primary, #333) 4%, var(--triply-surface-1, #fff));
   display: flex;
   flex-direction: column;
   gap: 0;
   min-height: 4px;
   position: relative;
-  background: var(--zone-bg);
   border-radius: 12px;
-  padding: 10px 24px 10px 24px;
+  padding: 4px 4px;
 
   // ── Puzzle piece cards ──
   .activity-card.timed {
     position: relative;
     overflow: visible;
     border: none;
-    border-radius: 10px;
-    border-left: 4px solid color-mix(in srgb, var(--type-color, #f97316) 60%, transparent);
-    background: color-mix(in srgb, var(--type-color, #f97316) 10%, var(--triply-surface-1, #fff));
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    transition: background 0.2s, box-shadow 0.2s;
-    z-index: 1;
+    border-radius: 0;
+    background: color-mix(in srgb, var(--type-color, #f97316) 15%, var(--triply-surface-1, #fff));
+    // drop-shadow follows the clip shape (unlike box-shadow which is clipped)
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.10)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.06));
+    transition: background 0.2s, filter 0.2s;
+    // Extra vertical padding to make knob/hole area visible
+    padding-top: 18px;
+    padding-bottom: 18px;
+    min-height: 70px;
 
-    // Hide the old flat color bar — the piece itself is colored
+    // Hide the old flat color bar — the piece shape carries the identity
     .card-color-bar {
       display: none;
     }
 
-    // ── RIGHT KNOB: circle protruding from right edge ──
-    &::after {
-      content: '';
-      position: absolute;
-      right: -11px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: color-mix(in srgb, var(--type-color, #f97316) 14%, var(--triply-surface-1, #fff));
-      border: 2px solid color-mix(in srgb, var(--type-color, #f97316) 25%, transparent);
-      box-shadow: 2px 1px 5px rgba(0, 0, 0, 0.1);
-      z-index: 0;
+    // ── Clip-path shape variants ──
+
+    &.puzzle-first:not(.puzzle-only) {
+      clip-path: url(#puzzle-first);
+      padding-top: 6px;
+      padding-bottom: 22px;
     }
 
-    // ── LEFT HOLE: circle "cut" into left edge ──
-    &::before {
-      content: '';
-      position: absolute;
-      left: -7px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--zone-bg);
-      z-index: 4;
-      box-shadow: inset 2px 1px 4px rgba(0, 0, 0, 0.1);
+    &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
+      clip-path: url(#puzzle-middle);
     }
 
-    // ── Vertical interlock spacing ──
-    &:not(.puzzle-only) + .activity-card.timed:not(.puzzle-only) {
-      margin-top: 4px;
+    &.puzzle-last:not(.puzzle-only) {
+      clip-path: url(#puzzle-last);
+      padding-top: 22px;
+      padding-bottom: 6px;
     }
 
-    // ── Single item: regular card, no puzzle connectors ──
+    // ── Single item: no puzzle shape, regular card ──
     &.puzzle-only {
+      clip-path: none;
       border-radius: 10px;
       border: 1px solid var(--triply-border-subtle, #eee);
-      border-left: 4px solid color-mix(in srgb, var(--type-color, #f97316) 60%, transparent);
-      background: var(--triply-surface-1, #fff);
-      box-shadow: none;
+      padding-top: 0;
+      padding-bottom: 0;
+      min-height: unset;
+      filter: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
 
-      .card-color-bar {
-        display: none;
-      }
-
-      &::before, &::after {
-        display: none;
-      }
+    // ── Interlock: adjacent cards overlap so knob fills hole ──
+    & + & {
+      margin-top: -18px;
     }
 
     // ── Hover ──
     &:hover {
-      background: color-mix(in srgb, var(--type-color, #f97316) 18%, var(--triply-surface-1, #fff));
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.14)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.08));
       transform: none;
 
       .card-actions {
@@ -874,16 +867,15 @@
 
     // ── Flight locked ──
     &.flight-locked {
-      background: color-mix(in srgb, #2196F3 12%, var(--triply-surface-1, #fff));
-      border-left-color: color-mix(in srgb, #2196F3 60%, transparent);
+      background: color-mix(in srgb, #2196F3 15%, var(--triply-surface-1, #fff));
     }
   }
 
-  // Reset spacing when separated by other elements
+  // When a travel-indicator or insertion-target breaks the sequence,
+  // reset the overlap so pieces don't collide with non-piece elements
   .travel-indicator + .activity-card.timed,
   .insertion-target + .activity-card.timed {
-    margin-top: 4px;
-    margin-bottom: 0;
+    margin-top: 0;
   }
 }
 

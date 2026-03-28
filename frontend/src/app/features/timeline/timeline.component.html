@@ -1,3 +1,21 @@
+<!-- Puzzle piece SVG clip-path definitions (hidden, referenced by CSS) -->
+<svg class="puzzle-defs" aria-hidden="true">
+  <defs>
+    <!-- First piece: flat top, knob at bottom -->
+    <clipPath id="puzzle-first" clipPathUnits="objectBoundingBox">
+      <path d="M0,0 H1 V0.76 H0.58 V0.80 C0.58,0.84 0.67,0.86 0.67,0.92 C0.67,0.98 0.33,0.98 0.33,0.92 C0.33,0.86 0.42,0.84 0.42,0.80 V0.76 H0 Z" />
+    </clipPath>
+    <!-- Middle piece: hole at top, knob at bottom -->
+    <clipPath id="puzzle-middle" clipPathUnits="objectBoundingBox">
+      <path d="M0,0.24 H0.42 V0.20 C0.42,0.16 0.33,0.14 0.33,0.08 C0.33,0.02 0.67,0.02 0.67,0.08 C0.67,0.14 0.58,0.16 0.58,0.20 V0.24 H1 V0.76 H0.58 V0.80 C0.58,0.84 0.67,0.86 0.67,0.92 C0.67,0.98 0.33,0.98 0.33,0.92 C0.33,0.86 0.42,0.84 0.42,0.80 V0.76 H0 Z" />
+    </clipPath>
+    <!-- Last piece: hole at top, flat bottom -->
+    <clipPath id="puzzle-last" clipPathUnits="objectBoundingBox">
+      <path d="M0,0.24 H0.42 V0.20 C0.42,0.16 0.33,0.14 0.33,0.08 C0.33,0.02 0.67,0.02 0.67,0.08 C0.67,0.14 0.58,0.16 0.58,0.20 V0.24 H1 V1 H0 Z" />
+    </clipPath>
+  </defs>
+</svg>
+
 <div class="timeline-page">
   <!-- Block palette panel (desktop: side panel, mobile: FAB) -->
   @if (viewMode() === 'timeline' && hasDates()) {
