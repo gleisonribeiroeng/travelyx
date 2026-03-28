@@ -806,13 +806,12 @@
     border: none;
     border-radius: 0;
     background: color-mix(in srgb, var(--type-color, #f97316) 15%, var(--triply-surface-1, #fff));
-    // drop-shadow follows the clip shape (unlike box-shadow which is clipped)
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.10)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.06));
+    // drop-shadow follows the clip shape (unlike box-shadow)
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
     transition: background 0.2s, filter 0.2s;
-    // Extra vertical padding to make knob/hole area visible
-    padding-top: 18px;
-    padding-bottom: 18px;
-    min-height: 70px;
+    // Default padding — overridden per variant below
+    padding-top: 12px;
+    padding-bottom: 12px;
 
     // Hide the old flat color bar — the piece shape carries the identity
     .card-color-bar {
@@ -820,21 +819,24 @@
     }
 
     // ── Clip-path shape variants ──
+    // Knob/hole = 16% of card height. Padding pushes content clear.
 
     &.puzzle-first:not(.puzzle-only) {
       clip-path: url(#puzzle-first);
-      padding-top: 6px;
-      padding-bottom: 22px;
+      padding-top: 4px;
+      padding-bottom: 16px;
     }
 
     &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
       clip-path: url(#puzzle-middle);
+      padding-top: 16px;
+      padding-bottom: 16px;
     }
 
     &.puzzle-last:not(.puzzle-only) {
       clip-path: url(#puzzle-last);
-      padding-top: 22px;
-      padding-bottom: 6px;
+      padding-top: 16px;
+      padding-bottom: 4px;
     }
 
     // ── Single item: no puzzle shape, regular card ──
@@ -844,20 +846,19 @@
       border: 1px solid var(--triply-border-subtle, #eee);
       padding-top: 0;
       padding-bottom: 0;
-      min-height: unset;
       filter: none;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
 
     // ── Interlock: adjacent cards overlap so knob fills hole ──
     & + & {
-      margin-top: -18px;
+      margin-top: -12px;
     }
 
     // ── Hover ──
     &:hover {
       background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
-      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.14)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.08));
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.15));
       transform: none;
 
       .card-actions {
