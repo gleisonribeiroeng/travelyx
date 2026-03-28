@@ -520,10 +520,15 @@
   border-radius: 8px;
   overflow: hidden;
   transition: background 0.15s, border-color 0.15s, box-shadow 0.2s, transform 0.2s;
-  min-height: 48px;
+  min-height: 38px;
 
   &.clickable {
     cursor: pointer;
+  }
+
+  // Timed cards need overflow visible for puzzle tabs
+  &.timed {
+    overflow: visible;
   }
 
   &:hover {
@@ -546,16 +551,16 @@
   border-radius: 3px 0 0 3px;
 }
 
-// Time column (timed items) — FIXED WIDTH for alignment
+// Time column (timed items) — compact fixed width
 .card-time {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4px 6px;
-  width: 56px;
-  min-width: 56px;
-  max-width: 56px;
+  padding: 3px 5px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
   flex-shrink: 0;
   border-right: 1px solid var(--triply-border-subtle, #f0f0f0);
 }
@@ -575,7 +580,7 @@
 }
 
 .time-start {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: var(--triply-text-primary);
   font-variant-numeric: tabular-nums;
@@ -622,35 +627,35 @@
   .time-start { color: var(--triply-primary); }
 }
 
-// Icon — fixed width with colored circle background
+// Icon — compact with colored circle background
 .card-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  min-width: 38px;
+  width: 32px;
+  min-width: 32px;
   flex-shrink: 0;
 
   mat-icon {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
     color: var(--type-color, var(--triply-primary));
     background: var(--type-bg, rgba(249, 115, 22, 0.10));
-    padding: 5px;
+    padding: 4px;
     border-radius: 50%;
     box-sizing: content-box;
   }
 }
 
-// Body
+// Body — tight for compact cards
 .card-body {
   flex: 1;
   min-width: 0;
-  padding: 5px 4px 5px 0;
+  padding: 3px 4px 3px 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 0;
 }
 
 .card-top {
@@ -682,29 +687,29 @@
 }
 
 .card-title {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--triply-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .card-location {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 0.72rem;
+  gap: 2px;
+  font-size: 0.68rem;
   color: var(--triply-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   mat-icon {
-    font-size: 12px;
-    width: 12px;
-    height: 12px;
+    font-size: 11px;
+    width: 11px;
+    height: 11px;
     color: var(--triply-text-tertiary);
     flex-shrink: 0;
   }
@@ -716,8 +721,8 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  padding: 4px 8px;
-  gap: 3px;
+  padding: 3px 6px;
+  gap: 2px;
   flex-shrink: 0;
 }
 
@@ -770,66 +775,118 @@
 }
 
 // ═══════════════════════════════════════════════════════════
-// TIMED ITEMS ZONE (drag-drop)
+// TIMED ITEMS ZONE — PUZZLE PIECE SYSTEM
 // ═══════════════════════════════════════════════════════════
+//
+// Each timed card is a puzzle piece with:
+//   • Bottom TAB (male/macho) — a rounded tongue protruding down
+//   • Top SOCKET (female/fêmea) — a rounded cavity receiving the tab above
+//
+// First card: tab only (no socket)
+// Middle cards: socket + tab
+// Last card: socket only (no tab)
+// Single card: no connectors
 
 .timed-items-zone {
   display: flex;
   flex-direction: column;
   gap: 0;
   min-height: 4px;
+  --puzzle-bg: var(--triply-surface-1, #fff);
 
-  // Puzzle-piece connectors: tab at bottom + socket at top
-  .activity-card {
+  .activity-card.timed {
     position: relative;
+    overflow: visible;
 
-    // Bottom tab (puzzle tongue protruding down)
-    &::after {
+    // ── BOTTOM TAB (male connector — puzzle tongue) ──
+    // Rounded semicircle protruding down, tinted with type color
+    &:not(.puzzle-last):not(.puzzle-only)::after {
       content: '';
       position: absolute;
-      bottom: -6px;
+      bottom: -15px;
       left: 50%;
       transform: translateX(-50%);
-      width: 32px;
-      height: 6px;
-      background: color-mix(in srgb, var(--type-color, #f97316) 40%, var(--triply-surface-1, #fff));
-      border-radius: 0 0 8px 8px;
-      border: 1px solid color-mix(in srgb, var(--type-color, #f97316) 20%, transparent);
+      width: 46px;
+      height: 15px;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--type-color, #f97316) 12%, var(--triply-surface-1, #fff)) 0%,
+        color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff)) 100%
+      );
+      border-radius: 0 0 23px 23px;
+      border: 1.5px solid color-mix(in srgb, var(--type-color, #f97316) 28%, var(--triply-border-subtle, #ddd));
       border-top: none;
-      z-index: 2;
-      transition: background 0.2s, height 0.2s;
+      z-index: 5;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow:
+        0 4px 10px -2px color-mix(in srgb, var(--type-color, #f97316) 14%, transparent),
+        0 2px 4px -1px rgba(0, 0, 0, 0.05);
     }
 
-    &:hover::after {
-      height: 8px;
-      background: color-mix(in srgb, var(--type-color, #f97316) 55%, var(--triply-surface-1, #fff));
+    // Tab hover — grows and glows
+    &:not(.puzzle-last):not(.puzzle-only):hover::after {
+      height: 19px;
+      bottom: -19px;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--type-color, #f97316) 20%, var(--triply-surface-1, #fff)) 0%,
+        color-mix(in srgb, var(--type-color, #f97316) 35%, var(--triply-surface-1, #fff)) 100%
+      );
+      box-shadow:
+        0 6px 16px -3px color-mix(in srgb, var(--type-color, #f97316) 22%, transparent),
+        0 3px 8px -2px rgba(0, 0, 0, 0.08);
     }
 
-    // Top notch (puzzle socket — indent to receive the tongue from above)
-    &:not(:first-child)::before {
+    // ── TOP SOCKET (female connector — puzzle cavity) ──
+    // Matches parent bg to create cutout illusion, with inset shadow for depth
+    &:not(.puzzle-first):not(.puzzle-only)::before {
       content: '';
       position: absolute;
-      top: -6px;
+      top: -18px;
       left: 50%;
       transform: translateX(-50%);
-      width: 32px;
-      height: 6px;
-      background: color-mix(in srgb, var(--type-color, #f97316) 25%, var(--triply-surface-1, #fff));
-      border-radius: 8px 8px 0 0;
-      border: 1px solid color-mix(in srgb, var(--type-color, #f97316) 15%, transparent);
-      border-bottom: none;
-      z-index: 2;
+      width: 52px;
+      height: 18px;
+      background: var(--puzzle-bg);
+      border-radius: 0 0 26px 26px;
+      border: 1.5px solid color-mix(in srgb, var(--type-color, #f97316) 18%, var(--triply-border-subtle, #ddd));
+      border-top: none;
+      z-index: 3;
+      box-shadow:
+        inset 0 -6px 12px -4px rgba(0, 0, 0, 0.06),
+        inset 0 -2px 4px -2px color-mix(in srgb, var(--type-color, #f97316) 6%, transparent);
     }
 
-    // Margin between cards for puzzle interlock
-    &:not(:first-child) {
-      margin-top: 8px;
+    // ── SPACING — margin for puzzle interlock zone ──
+    &:not(.puzzle-first):not(.puzzle-only) {
+      margin-top: 20px;
     }
 
-    // Flight locked indicator
+    // ── SHAPE VARIANTS ──
+    // First piece: generous top rounding, flat bottom edge for tab
+    &.puzzle-first:not(.puzzle-only) {
+      border-radius: 14px 14px 6px 6px;
+    }
+
+    // Last piece: flat top for socket, generous bottom rounding
+    &.puzzle-last:not(.puzzle-only) {
+      border-radius: 6px 6px 14px 14px;
+    }
+
+    // Middle pieces: subtle rounding
+    &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
+      border-radius: 6px;
+    }
+
+    // Single piece: full rounding, no connectors
+    &.puzzle-only {
+      border-radius: 14px;
+    }
+
+    // Flight locked override
     &.flight-locked {
       border-left: 3px solid #2196F3;
-      background: linear-gradient(90deg, rgba(33, 150, 243, 0.03), transparent);
+      background: linear-gradient(90deg, rgba(33, 150, 243, 0.04), transparent);
     }
   }
 }
@@ -855,7 +912,7 @@
 
 // Trajectory-specific thin connector card
 .activity-card[data-type="trajectory"] {
-  min-height: 36px;
+  min-height: 32px;
   background: linear-gradient(90deg, rgba(139, 92, 246, 0.03), rgba(139, 92, 246, 0.07));
   border: 1px dashed rgba(139, 92, 246, 0.25);
 
@@ -890,7 +947,7 @@
   border-radius: 0;
   opacity: 1;
   padding: 0;
-  margin: 6px 0;
+  margin: 10px 0;
 }
 
 .cdk-drag-animating {
@@ -1077,16 +1134,51 @@
   }
 
   .card-body {
-    padding: 5px 2px 5px 0;
+    padding: 3px 2px 3px 0;
   }
 
   .card-right {
-    padding: 3px 6px;
+    padding: 2px 5px;
   }
 
   .card-time {
-    min-width: 40px;
-    padding: 3px 4px;
+    width: 42px;
+    min-width: 42px;
+    max-width: 42px;
+    padding: 2px 3px;
+  }
+
+  .card-icon {
+    width: 28px;
+    min-width: 28px;
+
+    mat-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      padding: 3px;
+    }
+  }
+
+  // Slightly smaller puzzle connectors on mobile
+  .timed-items-zone .activity-card.timed {
+    &:not(.puzzle-last):not(.puzzle-only)::after {
+      width: 38px;
+      height: 12px;
+      bottom: -12px;
+      border-radius: 0 0 19px 19px;
+    }
+
+    &:not(.puzzle-first):not(.puzzle-only)::before {
+      width: 44px;
+      height: 15px;
+      top: -15px;
+      border-radius: 0 0 22px 22px;
+    }
+
+    &:not(.puzzle-first):not(.puzzle-only) {
+      margin-top: 16px;
+    }
   }
 }
 
@@ -1320,37 +1412,45 @@
 // TRAVEL TIME INDICATOR
 // ═══════════════════════════════════════════════════════════
 
+// Travel indicator — floats within the puzzle connector gap
 .travel-indicator {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 1px 10px;
-  margin: 0 0 0 44px;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  margin: -6px 0;
+  position: relative;
+  z-index: 8;
+  height: 0;
+  overflow: visible;
 }
 
 .travel-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(249, 115, 22, 0.15), transparent);
+  background: linear-gradient(to right, transparent, rgba(249, 115, 22, 0.12), transparent);
 }
 
 .travel-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 10px;
-  border-radius: 12px;
-  background: rgba(249, 115, 22, 0.06);
-  font-size: 0.68rem;
+  gap: 3px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--triply-surface-1, #fff) 92%, var(--triply-primary));
+  border: 1px solid rgba(249, 115, 22, 0.12);
+  font-size: 0.62rem;
   font-weight: 600;
   color: var(--triply-primary);
   white-space: nowrap;
   flex-shrink: 0;
+  backdrop-filter: blur(4px);
 
   mat-icon {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
+    font-size: 11px;
+    width: 11px;
+    height: 11px;
     color: var(--triply-primary);
     opacity: 0.7;
   }
@@ -1359,7 +1459,7 @@
 .travel-km {
   font-weight: 400;
   color: var(--triply-text-tertiary);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1390,5 +1490,6 @@
 @media (max-width: 600px) {
   .hs-pill { font-size: 0.65rem; padding: 2px 6px; }
   .filter-chip { padding: 3px 8px; font-size: 0.68rem; }
-  .travel-indicator { margin-left: 36px; }
+  .travel-indicator { margin: -4px 0; padding: 0 12px; }
+  .travel-badge { font-size: 0.58rem; padding: 1px 6px; }
 }

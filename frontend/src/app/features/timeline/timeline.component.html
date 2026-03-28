@@ -318,6 +318,9 @@
 
                       <div class="activity-card timed" [attr.data-type]="item.type"
                            [class.flight-locked]="item.type === 'flight'"
+                           [class.puzzle-first]="idx === 0"
+                           [class.puzzle-last]="idx === day.timedItems.length - 1"
+                           [class.puzzle-only]="day.timedItems.length === 1"
                            cdkDrag [cdkDragData]="item"
                            [matTooltip]="item.label" matTooltipPosition="above" [matTooltipShowDelay]="400"
                            (click)="openItemDetail(item)" [class.clickable]="item.refId && item.type !== 'custom'">
