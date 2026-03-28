@@ -526,11 +526,6 @@
     cursor: pointer;
   }
 
-  // Timed cards need overflow visible for puzzle tabs
-  &.timed {
-    overflow: visible;
-  }
-
   &:hover {
     background: var(--triply-surface-1, #fff);
     border-color: var(--triply-border-hover, #d4d4d8);
@@ -775,119 +770,104 @@
 }
 
 // ═══════════════════════════════════════════════════════════
-// TIMED ITEMS ZONE — PUZZLE PIECE SYSTEM
+// PUZZLE DEFS (hidden SVG)
+// ═══════════════════════════════════════════════════════════
+
+.puzzle-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TIMED ITEMS ZONE — REAL PUZZLE PIECE SHAPES
 // ═══════════════════════════════════════════════════════════
 //
-// Each timed card is a puzzle piece with:
-//   • Bottom TAB (male/macho) — a rounded tongue protruding down
-//   • Top SOCKET (female/fêmea) — a rounded cavity receiving the tab above
+// Each card IS a puzzle piece — the entire card shape is cut
+// using SVG clip-path to create real jigsaw connectors:
+//   • Knob (macho): rounded protrusion at bottom center
+//   • Hole (fêmea): matching indent at top center
 //
-// First card: tab only (no socket)
-// Middle cards: socket + tab
-// Last card: socket only (no tab)
-// Single card: no connectors
+// Cards overlap via negative margin so the knob of card N
+// fills the hole of card N+1 (visible through clip transparency).
 
 .timed-items-zone {
   display: flex;
   flex-direction: column;
   gap: 0;
   min-height: 4px;
-  --puzzle-bg: var(--triply-surface-1, #fff);
+  position: relative;
 
+  // Subtle contrasting background so puzzle shapes are visible
+  background: color-mix(in srgb, var(--triply-text-primary, #333) 4%, var(--triply-surface-1, #fff));
+  border-radius: 10px;
+  padding: 8px 4px;
+
+  // ── Puzzle piece cards ──
   .activity-card.timed {
     position: relative;
     overflow: visible;
+    border: none;
+    border-radius: 0;
+    // Extra padding for knob/hole areas (17% of card height each)
+    padding-top: 10px;
+    padding-bottom: 10px;
+    // Subtle type-color tint so each piece has identity
+    background: color-mix(in srgb, var(--type-color, #f97316) 4%, var(--triply-surface-1, #fff));
+    transition: background 0.2s, transform 0.15s;
 
-    // ── BOTTOM TAB (male connector — puzzle tongue) ──
-    // Rounded semicircle protruding down, tinted with type color
-    &:not(.puzzle-last):not(.puzzle-only)::after {
-      content: '';
-      position: absolute;
-      bottom: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 46px;
-      height: 15px;
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--type-color, #f97316) 12%, var(--triply-surface-1, #fff)) 0%,
-        color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff)) 100%
-      );
-      border-radius: 0 0 23px 23px;
-      border: 1.5px solid color-mix(in srgb, var(--type-color, #f97316) 28%, var(--triply-border-subtle, #ddd));
-      border-top: none;
-      z-index: 5;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 4px 10px -2px color-mix(in srgb, var(--type-color, #f97316) 14%, transparent),
-        0 2px 4px -1px rgba(0, 0, 0, 0.05);
-    }
+    // ── Clip-path shape variants ──
 
-    // Tab hover — grows and glows
-    &:not(.puzzle-last):not(.puzzle-only):hover::after {
-      height: 19px;
-      bottom: -19px;
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--type-color, #f97316) 20%, var(--triply-surface-1, #fff)) 0%,
-        color-mix(in srgb, var(--type-color, #f97316) 35%, var(--triply-surface-1, #fff)) 100%
-      );
-      box-shadow:
-        0 6px 16px -3px color-mix(in srgb, var(--type-color, #f97316) 22%, transparent),
-        0 3px 8px -2px rgba(0, 0, 0, 0.08);
-    }
-
-    // ── TOP SOCKET (female connector — puzzle cavity) ──
-    // Matches parent bg to create cutout illusion, with inset shadow for depth
-    &:not(.puzzle-first):not(.puzzle-only)::before {
-      content: '';
-      position: absolute;
-      top: -18px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 52px;
-      height: 18px;
-      background: var(--puzzle-bg);
-      border-radius: 0 0 26px 26px;
-      border: 1.5px solid color-mix(in srgb, var(--type-color, #f97316) 18%, var(--triply-border-subtle, #ddd));
-      border-top: none;
-      z-index: 3;
-      box-shadow:
-        inset 0 -6px 12px -4px rgba(0, 0, 0, 0.06),
-        inset 0 -2px 4px -2px color-mix(in srgb, var(--type-color, #f97316) 6%, transparent);
-    }
-
-    // ── SPACING — margin for puzzle interlock zone ──
-    &:not(.puzzle-first):not(.puzzle-only) {
-      margin-top: 20px;
-    }
-
-    // ── SHAPE VARIANTS ──
-    // First piece: generous top rounding, flat bottom edge for tab
     &.puzzle-first:not(.puzzle-only) {
-      border-radius: 14px 14px 6px 6px;
+      clip-path: url(#puzzle-first);
     }
 
-    // Last piece: flat top for socket, generous bottom rounding
-    &.puzzle-last:not(.puzzle-only) {
-      border-radius: 6px 6px 14px 14px;
-    }
-
-    // Middle pieces: subtle rounding
     &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
-      border-radius: 6px;
+      clip-path: url(#puzzle-middle);
     }
 
-    // Single piece: full rounding, no connectors
+    &.puzzle-last:not(.puzzle-only) {
+      clip-path: url(#puzzle-last);
+    }
+
     &.puzzle-only {
-      border-radius: 14px;
+      clip-path: none;
+      border-radius: 10px;
+      border: 1px solid var(--triply-border-subtle, #eee);
+      padding-top: 0;
+      padding-bottom: 0;
     }
 
-    // Flight locked override
-    &.flight-locked {
-      border-left: 3px solid #2196F3;
-      background: linear-gradient(90deg, rgba(33, 150, 243, 0.04), transparent);
+    // ── Interlock: adjacent cards overlap ──
+    // The knob from card N shows through the hole of card N+1
+    & + & {
+      margin-top: -10px;
     }
+
+    // ── Hover ──
+    &:hover {
+      background: color-mix(in srgb, var(--type-color, #f97316) 8%, var(--triply-surface-1, #fff));
+      // No translateY — it breaks the puzzle interlock
+      transform: none;
+      box-shadow: none;
+
+      .card-actions {
+        opacity: 1;
+      }
+    }
+
+    // Flight locked
+    &.flight-locked {
+      background: color-mix(in srgb, #2196F3 5%, var(--triply-surface-1, #fff));
+    }
+  }
+
+  // When a travel-indicator breaks the sequence, reset overlap
+  .travel-indicator + .activity-card.timed,
+  .insertion-target + .activity-card.timed {
+    margin-top: 0;
   }
 }
 
@@ -1160,24 +1140,17 @@
     }
   }
 
-  // Slightly smaller puzzle connectors on mobile
-  .timed-items-zone .activity-card.timed {
-    &:not(.puzzle-last):not(.puzzle-only)::after {
-      width: 38px;
-      height: 12px;
-      bottom: -12px;
-      border-radius: 0 0 19px 19px;
-    }
+  // Tighter puzzle zone on mobile
+  .timed-items-zone {
+    padding: 6px 2px;
 
-    &:not(.puzzle-first):not(.puzzle-only)::before {
-      width: 44px;
-      height: 15px;
-      top: -15px;
-      border-radius: 0 0 22px 22px;
-    }
+    .activity-card.timed {
+      padding-top: 8px;
+      padding-bottom: 8px;
 
-    &:not(.puzzle-first):not(.puzzle-only) {
-      margin-top: 16px;
+      & + & {
+        margin-top: -8px;
+      }
     }
   }
 }
