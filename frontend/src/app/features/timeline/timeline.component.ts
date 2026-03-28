@@ -20,11 +20,13 @@ import { PlanService } from '../../core/services/plan.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 import { ItineraryComponent } from '../itinerary/itinerary.component';
+import { BlockPanelComponent } from './block-panel/block-panel.component';
+import { QuickAddDialogComponent, QuickAddDialogData } from './quick-add-dialog/quick-add-dialog.component';
 
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, DragDropModule, TranslatePipe, ItineraryComponent],
+  imports: [MATERIAL_IMPORTS, CommonModule, FormsModule, DragDropModule, TranslatePipe, ItineraryComponent, BlockPanelComponent],
   templateUrl: './timeline.component.html',
   styleUrl: './timeline.component.scss',
 })
@@ -42,6 +44,8 @@ export class TimelineComponent implements OnInit {
   private calendarJustConnected = false;
 
   readonly viewMode = signal<'timeline' | 'calendar'>('timeline');
+  readonly insertionMode = signal(false);
+  readonly insertionType = signal<ItineraryItemType | null>(null);
   readonly syncing = signal(false);
   readonly exporting = signal(false);
   readonly optimizing = signal(false);
@@ -55,6 +59,7 @@ export class TimelineComponent implements OnInit {
     { value: 'activity', icon: 'local_activity', label: 'Atividades' },
     { value: 'transport', icon: 'directions_bus', label: 'Transporte' },
     { value: 'car-rental', icon: 'directions_car', label: 'Carros' },
+    { value: 'trajectory', icon: 'moving', label: 'Trajetos' },
     { value: 'custom', icon: 'edit_note', label: 'Custom' },
   ];
 
@@ -118,6 +123,11 @@ export class TimelineComponent implements OnInit {
   readonly timeline = computed<TimelineDay[]>(() => {
     const trip = this.tripState.trip();
     return buildTimeline(trip, trip.itineraryItems, this.conflicts());
+  });
+
+  /** Drop list IDs for cross-container drag-drop */
+  readonly connectedDropLists = computed<string[]>(() => {
+    return ['block-palette', ...this.timeline().map(d => 'day-' + d.date)];
   });
 
   /** Timeline filtered by active type filter */
@@ -293,7 +303,7 @@ export class TimelineComponent implements OnInit {
     const map: Record<string, string> = {
       flight: 'flight', stay: 'hotel', 'car-rental': 'directions_car',
       transport: 'directions_bus', activity: 'local_activity',
-      attraction: 'local_activity', custom: 'edit_note',
+      attraction: 'local_activity', trajectory: 'moving', custom: 'edit_note',
     };
     return map[type] || 'event';
   }
@@ -302,7 +312,7 @@ export class TimelineComponent implements OnInit {
     const map: Record<string, string> = {
       flight: 'timeline.typeFlight', stay: 'timeline.typeHotel', 'car-rental': 'timeline.typeCar',
       transport: 'timeline.typeTransport', activity: 'timeline.typeActivity',
-      attraction: 'timeline.typeActivity', custom: 'timeline.typeCustom',
+      attraction: 'timeline.typeActivity', trajectory: 'timeline.typeTrajectory', custom: 'timeline.typeCustom',
     };
     return this.i18n.t(map[type] || type);
   }
@@ -338,6 +348,7 @@ export class TimelineComponent implements OnInit {
       case 'car-rental': return trip.carRentals.find(c => c.id === item.refId)?.price?.total ?? 0;
       case 'transport': return trip.transports.find(t => t.id === item.refId)?.price?.total ?? 0;
       case 'activity': return trip.activities.find(a => a.id === item.refId)?.price?.total ?? 0;
+      case 'trajectory': return 0;
       default: return 0;
     }
   }
@@ -368,11 +379,53 @@ export class TimelineComponent implements OnInit {
   }
 
   onDrop(event: CdkDragDrop<ItineraryItem[]>, targetDate: string): void {
+    // Drop from block palette → open quick-add modal
+    if (event.previousContainer.id === 'block-palette') {
+      const blockType = event.item.data as ItineraryItemType;
+      this.openQuickAddModal(blockType, targetDate, event.currentIndex);
+      return;
+    }
+    // Regular reorder
     const item = event.item.data as ItineraryItem;
     if (!item) return;
     if (item.date !== targetDate || event.previousIndex !== event.currentIndex) {
       this.tripState.updateItineraryItem({ ...item, date: targetDate, order: event.currentIndex });
     }
+  }
+
+  openQuickAddModal(type: ItineraryItemType, date: string, insertIndex: number): void {
+    const ref = this.dialog.open(QuickAddDialogComponent, {
+      width: '420px',
+      panelClass: 'mobile-fullscreen-dialog',
+      data: { type, date, insertIndex } as QuickAddDialogData,
+    });
+    ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
+      if (!item) return;
+      this.tripState.addItineraryItem(item);
+      const next = new Set(this.expandedDays());
+      next.add(item.date);
+      this.expandedDays.set(next);
+      this.notify.success('Item adicionado!');
+    });
+  }
+
+  onMobileBlockSelected(type: ItineraryItemType): void {
+    this.insertionMode.set(true);
+    this.insertionType.set(type);
+  }
+
+  handleInsertionTap(date: string, index: number): void {
+    const type = this.insertionType();
+    this.insertionMode.set(false);
+    this.insertionType.set(null);
+    if (type) {
+      this.openQuickAddModal(type, date, index);
+    }
+  }
+
+  cancelInsertionMode(): void {
+    this.insertionMode.set(false);
+    this.insertionType.set(null);
   }
 
   removeItem(id: string, event: Event): void {

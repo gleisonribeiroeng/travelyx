@@ -358,6 +358,8 @@
   "timeline.typeCar": "Car",
   "timeline.typeTransport": "Transport",
   "timeline.typeActivity": "Activity",
+  "timeline.typeTrajectory": "Trajectory",
+  "timeline.trajectory": "Trajectory",
   "timeline.typeCustom": "Custom",
 
   "itinerary.title": "Agenda",

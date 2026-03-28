@@ -1,4 +1,17 @@
 <div class="timeline-page">
+  <!-- Block palette panel (desktop: side panel, mobile: FAB) -->
+  @if (viewMode() === 'timeline' && hasDates()) {
+    <app-block-panel (mobileBlockSelected)="onMobileBlockSelected($event)" />
+  }
+
+  <!-- Insertion mode banner -->
+  @if (insertionMode()) {
+    <div class="insertion-banner" (click)="cancelInsertionMode()">
+      <mat-icon>touch_app</mat-icon>
+      <span>Toque entre os itens para inserir. Toque aqui para cancelar.</span>
+    </div>
+  }
+
   <!-- ═══ LINE 1: Title + summary pills + add button ═══ -->
   <div class="header-row-1 page-dark-header">
     <h1 class="header-title">{{ 'timeline.title' | translate }}</h1>
@@ -266,8 +279,20 @@
                   }
 
                   <!-- Timed items with travel time indicators -->
-                  <div class="timed-items-zone" cdkDropList [cdkDropListData]="day.timedItems" (cdkDropListDropped)="onDrop($event, day.date)">
+                  <div class="timed-items-zone" cdkDropList
+                       [id]="'day-' + day.date"
+                       [cdkDropListData]="day.timedItems"
+                       [cdkDropListConnectedTo]="connectedDropLists()"
+                       (cdkDropListDropped)="onDrop($event, day.date)">
                     @for (item of day.timedItems; track item.id; let idx = $index) {
+                      <!-- Insertion target (mobile mode) -->
+                      @if (insertionMode() && idx === 0) {
+                        <div class="insertion-target" (click)="handleInsertionTap(day.date, 0)">
+                          <div class="insertion-line"></div>
+                          <mat-icon>add_circle</mat-icon>
+                          <div class="insertion-line"></div>
+                        </div>
+                      }
                       <!-- Travel time indicator between items -->
                       @if (idx > 0) {
                         @if (getTravelTime(day.timedItems[idx - 1], item); as travel) {
@@ -279,6 +304,14 @@
                               <span class="travel-km">{{ travel.km }}km</span>
                             </div>
                             <div class="travel-line"></div>
+                          </div>
+                        }
+                        <!-- Insertion target between items (mobile mode) -->
+                        @if (insertionMode()) {
+                          <div class="insertion-target" (click)="handleInsertionTap(day.date, idx)">
+                            <div class="insertion-line"></div>
+                            <mat-icon>add_circle</mat-icon>
+                            <div class="insertion-line"></div>
                           </div>
                         }
                       }

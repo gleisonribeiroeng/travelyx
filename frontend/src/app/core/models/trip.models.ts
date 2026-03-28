@@ -194,6 +194,7 @@ export type ItineraryItemType =
   | 'transport'
   | 'activity'
   | 'attraction'
+  | 'trajectory'
   | 'custom';
 
 export interface AttachmentMeta {

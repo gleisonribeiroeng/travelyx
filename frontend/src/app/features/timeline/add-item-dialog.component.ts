@@ -181,7 +181,7 @@ export interface AddItemDialogData {
     /* ─── Type selector ─── */
     .type-selector {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(7, 1fr);
       gap: 5px;
       margin-bottom: 8px;
     }
@@ -346,6 +346,7 @@ export class AddItemDialogComponent {
     { value: 'car-rental', label: 'Carro', icon: 'directions_car', color: '#607D8B' },
     { value: 'activity', label: 'Ativ.', icon: 'local_activity', color: '#43A047' },
     { value: 'transport', label: 'Transp.', icon: 'directions_bus', color: '#78909C' },
+    { value: 'trajectory', label: 'Trajeto', icon: 'moving', color: '#8B5CF6' },
     { value: 'custom', label: 'Outro', icon: 'edit_note', color: '#9E9E9E' },
   ];
 

@@ -215,6 +215,7 @@ export class ItineraryItemComponent implements OnInit {
       transport: 'directions_bus',
       activity: 'local_activity',
       attraction: 'museum',
+      trajectory: 'moving',
       custom: 'event',
     };
     return iconMap[type];
@@ -228,6 +229,7 @@ export class ItineraryItemComponent implements OnInit {
       transport: 'type-transport',
       activity: 'type-activity',
       attraction: 'type-attraction',
+      trajectory: 'type-trajectory',
       custom: 'type-custom',
     };
     return classMap[type];

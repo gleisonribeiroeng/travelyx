@@ -9,6 +9,7 @@
 [data-type="transport"]  { --type-color: #78909C; --type-bg: rgba(120, 144, 156, 0.10); }
 [data-type="activity"]   { --type-color: #43A047; --type-bg: rgba(67, 160, 71, 0.10); }
 [data-type="attraction"] { --type-color: #FF9800; --type-bg: rgba(255, 152, 0, 0.10); }
+[data-type="trajectory"] { --type-color: #8B5CF6; --type-bg: rgba(139, 92, 246, 0.10); }
 [data-type="custom"]     { --type-color: #9E9E9E; --type-bg: rgba(158, 158, 158, 0.10); }
 
 // ── Page layout ──
@@ -35,6 +36,64 @@
   }
 }
 
+
+// ── Insertion mode ──
+.insertion-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  margin: 8px 16px;
+  cursor: pointer;
+  color: #8B5CF6;
+  font-size: 0.82rem;
+  font-weight: 600;
+  animation: pulseBanner 2s infinite;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+@keyframes pulseBanner {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.insertion-target {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  .insertion-line {
+    flex: 1;
+    height: 2px;
+    background: var(--triply-primary, #f97316);
+    opacity: 0.25;
+    border-radius: 1px;
+  }
+
+  mat-icon {
+    color: var(--triply-primary, #f97316);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    animation: pulseIcon 1.5s infinite;
+  }
+
+  &:hover {
+    .insertion-line { opacity: 0.6; }
+    mat-icon { transform: scale(1.2); }
+  }
+}
+
+@keyframes pulseIcon {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
 
 // ── Header Row 1: Title + summary pills + add button ──
 .header-row-1 {
@@ -717,8 +776,59 @@
 .timed-items-zone {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 0;
   min-height: 4px;
+
+  // Puzzle-piece connectors: tab at bottom of each card
+  .activity-card {
+    position: relative;
+
+    // Bottom tab (puzzle tongue)
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px;
+      height: 5px;
+      background: color-mix(in srgb, var(--type-color, #f97316) 30%, transparent);
+      border-radius: 0 0 6px 6px;
+      z-index: 2;
+    }
+
+    // Top notch (puzzle socket) — skip the first card
+    &:not(:first-child)::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px;
+      height: 5px;
+      background: color-mix(in srgb, var(--type-color, #f97316) 30%, transparent);
+      border-radius: 6px 6px 0 0;
+      z-index: 2;
+    }
+
+    // Slight margin for interlock visual on non-first items
+    &:not(:first-child) {
+      margin-top: 4px;
+    }
+  }
+}
+
+// Trajectory-specific thin connector card
+.activity-card[data-type="trajectory"] {
+  min-height: 36px;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.03), rgba(139, 92, 246, 0.07));
+  border: 1px dashed rgba(139, 92, 246, 0.25);
+
+  .card-body .card-title {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: #8B5CF6;
+  }
 }
 
 // Drag & drop
@@ -733,6 +843,19 @@
   border: 2px dashed var(--triply-primary);
   border-radius: 8px;
   background: rgba(249, 115, 22, 0.04);
+}
+
+// Enhanced drag placeholder when dragging from palette
+.timed-items-zone.cdk-drop-list-dragging .cdk-drag-placeholder {
+  min-height: 4px;
+  height: 4px;
+  border: none;
+  border-top: 3px dashed var(--triply-primary);
+  background: rgba(249, 115, 22, 0.05);
+  border-radius: 0;
+  opacity: 1;
+  padding: 0;
+  margin: 6px 0;
 }
 
 .cdk-drag-animating {
@@ -866,6 +989,7 @@
 .type-stay { color: #f97316 !important; }
 .type-activity { color: #43A047 !important; }
 .type-attraction { color: #FF9800 !important; }
+.type-trajectory { color: #8B5CF6 !important; }
 .type-transport { color: #78909C !important; }
 .type-custom { color: #9E9E9E !important; }
 
