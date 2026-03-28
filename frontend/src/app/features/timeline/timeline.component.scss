@@ -871,9 +871,12 @@
     }
   }
 
-  // When a travel-indicator or insertion-target breaks the sequence,
-  // reset the overlap so pieces don't collide with non-piece elements
-  .travel-indicator + .activity-card.timed,
+  // Travel indicators have height:0 + margin:-6px 0 = -12px vertical space.
+  // Add extra negative margin so knob still reaches the notch.
+  .travel-indicator + .activity-card.timed {
+    margin-top: -4px;
+  }
+
   .insertion-target + .activity-card.timed {
     margin-top: 0;
   }
