@@ -773,108 +773,117 @@
 // TIMED ITEMS ZONE — JIGSAW PUZZLE PIECE CARDS
 // ═══════════════════════════════════════════════════════════
 //
-// Each card IS a puzzle piece — mask-image with inline SVG
-// cuts the entire card into a real jigsaw shape:
-//   • Knob (macho): rounded protrusion at bottom (neck + head)
-//   • Hole (fêmea): matching indent at top
-//
-// Cards overlap via negative margin so knob N fills hole N+1.
-
-// SVG data-URI fragments (mask: black = visible, transparent = hidden)
-$_svg-open: "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='";
-$_svg-close: "'/%3E%3C/svg%3E";
-
-// Knob at bottom (neck 0.43–0.57, head 0.35–0.65)
-$_knob: "L.57,.83V.87C.57,.9,.65,.925,.65,.96C.65,1,.35,1,.35,.96C.35,.925,.43,.9,.43,.87V.83L0,.83";
-
-// Hole at top (same shape inverted)
-$_hole-start: "L.43,0V.04C.43,.07,.35,.08,.35,.12C.35,.17,.65,.17,.65,.12C.65,.08,.57,.07,.57,.04V0";
-
-$_puzzle-first:  "M0,0H1V.83H.57#{$_knob}Z";
-$_puzzle-middle: "M0,0H.43#{$_hole-start}H1V.83H.57#{$_knob}Z";
-$_puzzle-last:   "M0,0H.43#{$_hole-start}H1V1H0Z";
-
-@mixin puzzle-shape($path) {
-  -webkit-mask-image: url("data:image/svg+xml,#{$_svg-open}#{$path}#{$_svg-close}");
-  mask-image: url("data:image/svg+xml,#{$_svg-open}#{$path}#{$_svg-close}");
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-}
+// Each card IS a puzzle piece with visible connectors:
+//   • Right side: knob (circle protruding outward)
+//   • Left side: hole (circle cut inward, matching zone bg)
+//   • Bottom: tab protruding downward into next card
+//   • Top: slot matching the tab from card above
+// Strong type-colored backgrounds make each piece pop.
 
 .timed-items-zone {
+  --zone-bg: color-mix(in srgb, var(--triply-text-primary, #333) 4%, var(--triply-surface-1, #fff));
   display: flex;
   flex-direction: column;
   gap: 0;
   min-height: 4px;
   position: relative;
-
-  // Contrasting background so puzzle silhouettes pop
-  background: color-mix(in srgb, var(--triply-text-primary, #333) 5%, var(--triply-surface-1, #fff));
-  border-radius: 10px;
-  padding: 8px 4px;
+  background: var(--zone-bg);
+  border-radius: 12px;
+  padding: 10px 24px 10px 24px;
 
   // ── Puzzle piece cards ──
   .activity-card.timed {
     position: relative;
     overflow: visible;
     border: none;
-    border-radius: 0;
-    // Padding reserves space for knob/hole (17% of card height)
-    padding-top: 10px;
-    padding-bottom: 10px;
-    // Type-color tint gives each piece visual identity
-    background: color-mix(in srgb, var(--type-color, #f97316) 5%, var(--triply-surface-1, #fff));
-    transition: background 0.2s;
+    border-radius: 10px;
+    border-left: 4px solid color-mix(in srgb, var(--type-color, #f97316) 60%, transparent);
+    background: color-mix(in srgb, var(--type-color, #f97316) 10%, var(--triply-surface-1, #fff));
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: background 0.2s, box-shadow 0.2s;
+    z-index: 1;
 
-    // ── Mask shape variants ──
-
-    &.puzzle-first:not(.puzzle-only) {
-      @include puzzle-shape($_puzzle-first);
+    // Hide the old flat color bar — the piece itself is colored
+    .card-color-bar {
+      display: none;
     }
 
-    &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
-      @include puzzle-shape($_puzzle-middle);
+    // ── RIGHT KNOB: circle protruding from right edge ──
+    &::after {
+      content: '';
+      position: absolute;
+      right: -11px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--type-color, #f97316) 14%, var(--triply-surface-1, #fff));
+      border: 2px solid color-mix(in srgb, var(--type-color, #f97316) 25%, transparent);
+      box-shadow: 2px 1px 5px rgba(0, 0, 0, 0.1);
+      z-index: 0;
     }
 
-    &.puzzle-last:not(.puzzle-only) {
-      @include puzzle-shape($_puzzle-last);
+    // ── LEFT HOLE: circle "cut" into left edge ──
+    &::before {
+      content: '';
+      position: absolute;
+      left: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--zone-bg);
+      z-index: 4;
+      box-shadow: inset 2px 1px 4px rgba(0, 0, 0, 0.1);
     }
 
+    // ── Vertical interlock spacing ──
+    &:not(.puzzle-only) + .activity-card.timed:not(.puzzle-only) {
+      margin-top: 4px;
+    }
+
+    // ── Single item: regular card, no puzzle connectors ──
     &.puzzle-only {
       border-radius: 10px;
       border: 1px solid var(--triply-border-subtle, #eee);
-      padding-top: 0;
-      padding-bottom: 0;
-    }
+      border-left: 4px solid color-mix(in srgb, var(--type-color, #f97316) 60%, transparent);
+      background: var(--triply-surface-1, #fff);
+      box-shadow: none;
 
-    // ── Interlock: adjacent cards overlap ──
-    & + & {
-      margin-top: -10px;
+      .card-color-bar {
+        display: none;
+      }
+
+      &::before, &::after {
+        display: none;
+      }
     }
 
     // ── Hover ──
     &:hover {
-      background: color-mix(in srgb, var(--type-color, #f97316) 9%, var(--triply-surface-1, #fff));
+      background: color-mix(in srgb, var(--type-color, #f97316) 18%, var(--triply-surface-1, #fff));
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
       transform: none;
-      box-shadow: none;
 
       .card-actions {
         opacity: 1;
       }
     }
 
-    // Flight locked
+    // ── Flight locked ──
     &.flight-locked {
-      background: color-mix(in srgb, #2196F3 6%, var(--triply-surface-1, #fff));
+      background: color-mix(in srgb, #2196F3 12%, var(--triply-surface-1, #fff));
+      border-left-color: color-mix(in srgb, #2196F3 60%, transparent);
     }
   }
 
-  // Reset overlap when separated by other elements
+  // Reset spacing when separated by other elements
   .travel-indicator + .activity-card.timed,
   .insertion-target + .activity-card.timed {
-    margin-top: 0;
+    margin-top: 4px;
+    margin-bottom: 0;
   }
 }
 
