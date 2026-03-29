@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -6,6 +6,7 @@ import { tap, map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
 import { PlanService } from './plan.service';
+import { CurrencyService } from '../i18n/currency.service';
 import { environment } from '../../../environments/environment';
 import {
   Trip,
@@ -52,6 +53,7 @@ export class TripStateService {
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
   private readonly planService = inject(PlanService);
+  private readonly currencyService = inject(CurrencyService);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/trips`;
 
   // ── Core state ──
@@ -77,6 +79,14 @@ export class TripStateService {
   readonly activeTripId = this._activeTripId.asReadonly();
 
   readonly manualExpenses = this._manualExpenses.asReadonly();
+
+  // Sync currency from active trip to CurrencyService
+  private readonly syncCurrency = effect(() => {
+    const trip = this.activeTrip();
+    if (trip?.currency) {
+      this.currencyService.syncFromTrip(trip.currency);
+    }
+  });
 
   readonly flights = computed(() => this.trip().flights);
   readonly stays = computed(() => this.trip().stays);

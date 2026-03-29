@@ -55,7 +55,7 @@ export class BudgetService {
       totalPlanned,
       totalPaid,
       totalPending: totalPlanned - totalPaid,
-      currency: 'BRL',
+      currency: trip.currency || 'BRL',
       byCategory: byCategory as any,
       byDay,
     };
