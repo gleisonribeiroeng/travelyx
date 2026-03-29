@@ -234,9 +234,19 @@
                 </div>
 
                 @if (day.isEmpty) {
+                  <!-- Drop zone for empty day -->
+                  <div class="timed-items-zone" cdkDropList
+                       [id]="'day-' + day.date"
+                       [cdkDropListData]="day.timedItems"
+                       [cdkDropListConnectedTo]="connectedDropLists()"
+                       [cdkDropListSortingDisabled]="true"
+                       (cdkDropListDropped)="onDrop($event, day.date)">
+                    <div class="drop-empty-zone" [class.drop-hover]="dropIndicator()?.date === day.date">
+                      <mat-icon>{{ dropIndicator()?.date === day.date ? 'add_circle' : 'wb_sunny' }}</mat-icon>
+                      <span>{{ dropIndicator()?.date === day.date ? 'Solte aqui para adicionar' : ('timeline.freeDay' | translate) }}</span>
+                    </div>
+                  </div>
                   <div class="empty-day-msg">
-                    <mat-icon>wb_sunny</mat-icon>
-                    <span>{{ 'timeline.freeDay' | translate }}</span>
                     <button mat-stroked-button class="add-day-btn" (click)="$event.stopPropagation(); openAddDialog(undefined, day.date)">
                       <mat-icon>add</mat-icon> {{ 'timeline.add' | translate }}
                     </button>
