@@ -1113,7 +1113,22 @@ mat-card, .mat-mdc-card {
 // DRAG & DROP
 // ═══════════════════════════════════════════════════════════
 
-// Hide CDK placeholder completely — puzzle piece overlap makes it unreliable
+// Collapse CDK placeholder to a thin orange line indicator
+// Cannot use display:none — CDK still reserves gap space via transforms
 .timed-items-zone .cdk-drag-placeholder {
-  display: none !important;
+  height: 4px !important;
+  min-height: 4px !important;
+  max-height: 4px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 2px 16px !important;
+  border: none !important;
+  border-radius: 2px !important;
+  background: var(--triply-primary, #f97316) !important;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.4) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  clip-path: none !important;
+  z-index: 5;
+  position: relative;
 }
