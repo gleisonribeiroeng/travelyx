@@ -813,7 +813,7 @@
     // Bottom: tab (protrusion), Top: slot (indent)
     // Padding reserves space for connectors within the card box.
 
-    // First card: flat top, bottom tab
+    // First card: flat top, bottom fêmea (slot indent at bottom)
     &.puzzle-first:not(.puzzle-only) {
       padding-bottom: 10px;
       clip-path: polygon(
@@ -822,55 +822,55 @@
         calc(100% - 9px) 42%, calc(100% - 5px) 45%, calc(100% - 2px) 50%,
         calc(100% - 5px) 55%, calc(100% - 9px) 58%,
         calc(100% - 12px) 60%,
-        calc(100% - 12px) calc(100% - 10px),
-        calc(50% + 12px) calc(100% - 10px),
-        calc(50% + 8px) calc(100% - 6px), calc(50% + 4px) calc(100% - 3px), 50% calc(100% - 1px),
-        calc(50% - 4px) calc(100% - 3px), calc(50% - 8px) calc(100% - 6px),
-        calc(50% - 12px) calc(100% - 10px),
-        0% calc(100% - 10px),
+        calc(100% - 12px) 100%,
+        calc(50% + 12px) 100%,
+        calc(50% + 8px) calc(100% - 4px), calc(50% + 4px) calc(100% - 7px), 50% calc(100% - 9px),
+        calc(50% - 4px) calc(100% - 7px), calc(50% - 8px) calc(100% - 4px),
+        calc(50% - 12px) 100%,
+        0% 100%,
         0% 60%,
         6px 58%, 9px 55%, 10px 50%, 9px 45%, 6px 42%,
         0% 40%
       );
     }
 
-    // Middle cards: top slot + bottom tab
+    // Middle cards: top macho (tab up) + bottom fêmea (slot indent)
     &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
       padding-top: 10px;
       padding-bottom: 10px;
       clip-path: polygon(
-        0% 10px,
-        calc(50% - 12px) 10px,
-        calc(50% - 8px) 6px, calc(50% - 4px) 3px, 50% 1px,
-        calc(50% + 4px) 3px, calc(50% + 8px) 6px,
-        calc(50% + 12px) 10px,
-        calc(100% - 12px) 10px,
+        0% 0%,
+        calc(50% - 12px) 0%,
+        calc(50% - 8px) 4px, calc(50% - 4px) 7px, 50% 9px,
+        calc(50% + 4px) 7px, calc(50% + 8px) 4px,
+        calc(50% + 12px) 0%,
+        calc(100% - 12px) 0%,
         calc(100% - 12px) 40%,
         calc(100% - 9px) 42%, calc(100% - 5px) 45%, calc(100% - 2px) 50%,
         calc(100% - 5px) 55%, calc(100% - 9px) 58%,
         calc(100% - 12px) 60%,
-        calc(100% - 12px) calc(100% - 10px),
-        calc(50% + 12px) calc(100% - 10px),
-        calc(50% + 8px) calc(100% - 6px), calc(50% + 4px) calc(100% - 3px), 50% calc(100% - 1px),
-        calc(50% - 4px) calc(100% - 3px), calc(50% - 8px) calc(100% - 6px),
-        calc(50% - 12px) calc(100% - 10px),
-        0% calc(100% - 10px),
+        calc(100% - 12px) 100%,
+        calc(50% + 12px) 100%,
+        calc(50% + 8px) calc(100% - 4px), calc(50% + 4px) calc(100% - 7px), 50% calc(100% - 9px),
+        calc(50% - 4px) calc(100% - 7px), calc(50% - 8px) calc(100% - 4px),
+        calc(50% - 12px) 100%,
+        0% 100%,
         0% 60%,
         6px 58%, 9px 55%, 10px 50%, 9px 45%, 6px 42%,
         0% 40%
       );
     }
 
-    // Last card: top slot, flat bottom
+    // Last card: top macho (tab up), flat bottom
     &.puzzle-last:not(.puzzle-only) {
       padding-top: 10px;
       clip-path: polygon(
-        0% 10px,
-        calc(50% - 12px) 10px,
-        calc(50% - 8px) 6px, calc(50% - 4px) 3px, 50% 1px,
-        calc(50% + 4px) 3px, calc(50% + 8px) 6px,
-        calc(50% + 12px) 10px,
-        calc(100% - 12px) 10px,
+        0% 0%,
+        calc(50% - 12px) 0%,
+        calc(50% - 8px) 4px, calc(50% - 4px) 7px, 50% 9px,
+        calc(50% + 4px) 7px, calc(50% + 8px) 4px,
+        calc(50% + 12px) 0%,
+        calc(100% - 12px) 0%,
         calc(100% - 12px) 40%,
         calc(100% - 9px) 42%, calc(100% - 5px) 45%, calc(100% - 2px) 50%,
         calc(100% - 5px) 55%, calc(100% - 9px) 58%,
