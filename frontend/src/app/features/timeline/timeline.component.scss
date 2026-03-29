@@ -1087,6 +1087,15 @@
   background: rgba(249, 115, 22, 0.04);
 }
 
+.timed-items-zone ::ng-deep .block-drop-placeholder {
+  display: block !important;
+  height: 60px;
+  border: 2px dashed var(--triply-primary, #f97316);
+  border-radius: 10px;
+  background: rgba(249, 115, 22, 0.06);
+  margin: 6px 0;
+}
+
 .cdk-drag-animating {
   transition: transform 200ms ease;
 }

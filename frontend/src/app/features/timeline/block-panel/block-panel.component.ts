@@ -55,8 +55,8 @@ const BLOCKS: BlockDef[] = [
                 <span>{{ block.label }}</span>
               </div>
 
-              <!-- Placeholder in palette (invisible) -->
-              <div *cdkDragPlaceholder class="block-placeholder"></div>
+              <!-- Placeholder: styled via .cdk-drag-placeholder in target containers -->
+              <div *cdkDragPlaceholder class="block-drop-placeholder"></div>
             </div>
           }
         </div>
@@ -196,8 +196,18 @@ const BLOCKS: BlockDef[] = [
       }
     }
 
-    .block-placeholder {
+    .block-drop-placeholder {
       display: none;
+    }
+
+    :host-context(.timed-items-zone) .block-drop-placeholder,
+    .cdk-drop-list:not(#block-palette) .block-drop-placeholder {
+      display: block;
+      height: 60px;
+      border: 2px dashed #f97316;
+      border-radius: 10px;
+      background: rgba(249, 115, 22, 0.06);
+      margin: 6px 0;
     }
 
     .mobile-fab {
