@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, viewChild, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -50,6 +50,15 @@ export class TimelineComponent implements OnInit {
   readonly exporting = signal(false);
   readonly optimizing = signal(false);
   readonly draggingOverZone = signal<string | null>(null);
+  private readonly blockPanel = viewChild(BlockPanelComponent);
+
+  private readonly syncBlockPanelLists = effect(() => {
+    const panel = this.blockPanel();
+    const dayIds = this.timeline().map(d => 'day-' + d.date);
+    if (panel && dayIds.length) {
+      panel.setConnectedLists(dayIds);
+    }
+  });
 
   // ── Filters ──
   readonly activeFilter = signal<string>('');
