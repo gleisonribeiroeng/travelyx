@@ -303,12 +303,11 @@
                         }
                       }
 
-                      <!-- Add button between items -->
-                      <div class="add-between" (click)="onAddBetween(day.date, idx)"
-                           matTooltip="Adicionar item aqui">
-                        <div class="add-between-line"></div>
+                      <!-- Insertion target before each item -->
+                      <div class="insertion-target" (click)="onAddBetween(day.date, idx)">
+                        <div class="insertion-line"></div>
                         <mat-icon>add_circle</mat-icon>
-                        <div class="add-between-line"></div>
+                        <div class="insertion-line"></div>
                       </div>
 
                       <div class="puzzle-border-wrap" [attr.data-type]="item.type"
@@ -375,13 +374,11 @@
                       </div><!-- /puzzle-border-wrap -->
                     }
 
-                    <!-- Add button after last item / empty day -->
-                    <div class="add-between add-after-last" [class.add-empty-day]="day.timedItems.length === 0"
-                         (click)="onAddBetween(day.date, day.timedItems.length)"
-                         matTooltip="Adicionar item aqui">
-                      <div class="add-between-line"></div>
+                    <!-- Insertion target after last item / empty day -->
+                    <div class="insertion-target" (click)="onAddBetween(day.date, day.timedItems.length)">
+                      <div class="insertion-line"></div>
                       <mat-icon>add_circle</mat-icon>
-                      <div class="add-between-line"></div>
+                      <div class="insertion-line"></div>
                     </div>
                   </div>
 
