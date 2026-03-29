@@ -303,13 +303,6 @@
                         }
                       }
 
-                      <!-- Insertion target before each item -->
-                      <div class="insertion-target" (click)="onAddBetween(day.date, idx)">
-                        <div class="insertion-line"></div>
-                        <mat-icon>add_circle</mat-icon>
-                        <div class="insertion-line"></div>
-                      </div>
-
                       <div class="puzzle-border-wrap" [attr.data-type]="item.type"
                            [class.puzzle-first]="idx === 0"
                            [class.puzzle-last]="idx === day.timedItems.length - 1"
