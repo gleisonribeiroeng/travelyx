@@ -18,6 +18,7 @@
   flex-direction: column;
   gap: 6px;
   max-width: none;
+  padding-right: 64px; // space for the fixed block-panel (56px + gap)
 }
 
 // ── View toggle ──
@@ -797,17 +798,21 @@
     border-radius: 0;
     background: color-mix(in srgb, var(--type-color, #f97316) 14%, var(--triply-surface-1, #fff));
     // Thick colored border via stacked drop-shadows (follows clip-path + connectors)
-    --border-color: color-mix(in srgb, var(--type-color, #f97316) 70%, #333);
+    --border-color: color-mix(in srgb, var(--type-color, #f97316) 80%, #222);
     filter:
       drop-shadow(0 0 0 var(--border-color))
-      drop-shadow(1px 0 0 var(--border-color))
-      drop-shadow(-1px 0 0 var(--border-color))
-      drop-shadow(0 1px 0 var(--border-color))
-      drop-shadow(0 -1px 0 var(--border-color))
-      drop-shadow(1px 1px 0 var(--border-color))
-      drop-shadow(-1px 1px 0 var(--border-color))
-      drop-shadow(1px -1px 0 var(--border-color))
-      drop-shadow(-1px -1px 0 var(--border-color));
+      drop-shadow(2px 0 0 var(--border-color))
+      drop-shadow(-2px 0 0 var(--border-color))
+      drop-shadow(0 2px 0 var(--border-color))
+      drop-shadow(0 -2px 0 var(--border-color))
+      drop-shadow(2px 2px 0 var(--border-color))
+      drop-shadow(-2px 2px 0 var(--border-color))
+      drop-shadow(2px -2px 0 var(--border-color))
+      drop-shadow(-2px -2px 0 var(--border-color))
+      drop-shadow(3px 0 0 var(--border-color))
+      drop-shadow(-3px 0 0 var(--border-color))
+      drop-shadow(0 3px 0 var(--border-color))
+      drop-shadow(0 -3px 0 var(--border-color));
     transition: background 0.2s, filter 0.2s;
     // Padding keeps content away from clipped connector areas
     padding-left: 14px;
@@ -994,11 +999,11 @@
       background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
       filter:
         drop-shadow(0 0 0 var(--border-color))
-        drop-shadow(2px 0 0 var(--border-color))
-        drop-shadow(-2px 0 0 var(--border-color))
-        drop-shadow(0 2px 0 var(--border-color))
-        drop-shadow(0 -2px 0 var(--border-color))
-        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+        drop-shadow(3px 0 0 var(--border-color))
+        drop-shadow(-3px 0 0 var(--border-color))
+        drop-shadow(0 3px 0 var(--border-color))
+        drop-shadow(0 -3px 0 var(--border-color))
+        drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
       transform: none;
 
       .card-actions {
