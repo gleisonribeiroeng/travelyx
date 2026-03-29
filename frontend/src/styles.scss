@@ -1113,4 +1113,7 @@ mat-card, .mat-mdc-card {
 // DRAG & DROP
 // ═══════════════════════════════════════════════════════════
 
-// CDK sorting is disabled on timed-items-zone — no placeholder needed
+// Hide CDK placeholder — we use our own drop indicator line
+.timed-items-zone .cdk-drag-placeholder {
+  display: none !important;
+}
