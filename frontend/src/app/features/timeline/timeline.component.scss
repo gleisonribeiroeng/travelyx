@@ -1080,20 +1080,21 @@
   background: var(--triply-surface-1, #fff);
 }
 
-.cdk-drag-placeholder {
-  opacity: 0.25;
-  border: 2px dashed var(--triply-primary);
-  border-radius: 8px;
-  background: rgba(249, 115, 22, 0.04);
-}
-
+// Placeholder that opens a gap between puzzle pieces when dragging
+.timed-items-zone .drag-gap-placeholder,
 .timed-items-zone ::ng-deep .block-drop-placeholder {
-  display: block !important;
-  height: 60px;
+  height: 48px;
+  margin-top: 8px !important;
+  margin-bottom: 8px;
   border: 2px dashed var(--triply-primary, #f97316);
   border-radius: 10px;
   background: rgba(249, 115, 22, 0.06);
-  margin: 6px 0;
+  transition: height 0.2s ease;
+}
+
+// Hide default CDK placeholder styling for items being reordered
+.cdk-drag-placeholder {
+  opacity: 0;
 }
 
 .cdk-drag-animating {
