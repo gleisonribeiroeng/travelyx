@@ -41,7 +41,8 @@ const BLOCKS: BlockDef[] = [
              [cdkDropListConnectedTo]="connectedListIds">
           @for (block of blocks; track block.type) {
             <div class="block-item" cdkDrag [cdkDragData]="block.type"
-                 [style.--block-color]="block.color">
+                 [style.--block-color]="block.color"
+                 [matTooltip]="block.label" matTooltipPosition="left" [matTooltipShowDelay]="300">
               <div class="block-icon-wrap">
                 <mat-icon>{{ block.icon }}</mat-icon>
               </div>
@@ -125,8 +126,9 @@ const BLOCKS: BlockDef[] = [
     .block-item {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      padding: 6px 8px;
+      padding: 4px;
       border-radius: 10px;
       cursor: grab;
       transition: background 0.2s, transform 0.15s;

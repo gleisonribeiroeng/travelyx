@@ -93,14 +93,14 @@ const TRAJECTORY_MODES = [
       @if (type() === 'trajectory') {
         <div class="qa-trajectory">
           <mat-form-field appearance="outline" class="qa-field">
-            <mat-label>De</mat-label>
-            <input matInput (input)="trajectoryFrom.set($any($event.target).value)" [value]="trajectoryFrom()" placeholder="Ex: Hotel">
+            <mat-label>De (ex: Hotel)</mat-label>
+            <input matInput (input)="trajectoryFrom.set($any($event.target).value)" [value]="trajectoryFrom()">
             <mat-icon matPrefix>trip_origin</mat-icon>
           </mat-form-field>
           <mat-icon class="qa-arrow">arrow_downward</mat-icon>
           <mat-form-field appearance="outline" class="qa-field">
-            <mat-label>Para</mat-label>
-            <input matInput (input)="trajectoryTo.set($any($event.target).value)" [value]="trajectoryTo()" placeholder="Ex: Aeroporto">
+            <mat-label>Para (ex: Aeroporto)</mat-label>
+            <input matInput (input)="trajectoryTo.set($any($event.target).value)" [value]="trajectoryTo()">
             <mat-icon matPrefix>place</mat-icon>
           </mat-form-field>
           <div class="qa-modes">
@@ -117,7 +117,7 @@ const TRAJECTORY_MODES = [
         <!-- Regular item label -->
         <mat-form-field appearance="outline" class="qa-field">
           <mat-label>Nome</mat-label>
-          <input matInput (input)="label.set($any($event.target).value)" [value]="label()" placeholder="Ex: Passeio no centro" cdkFocusInitial>
+          <input matInput (input)="label.set($any($event.target).value)" [value]="label()" cdkFocusInitial>
         </mat-form-field>
       }
 
@@ -138,12 +138,12 @@ const TRAJECTORY_MODES = [
               </button>
             }
           </div>
-          <mat-form-field appearance="outline" class="qa-duration-input">
-            <mat-label>Min.</mat-label>
-            <input matInput type="number" min="1" max="1440"
+          <div class="qa-duration-manual">
+            <input type="number" min="1" max="1440" class="duration-input"
                    [value]="duration()"
                    (input)="onDurationInput($any($event.target).value)">
-          </mat-form-field>
+            <span class="duration-suffix">min</span>
+          </div>
         </div>
       </div>
 
@@ -326,8 +326,35 @@ const TRAJECTORY_MODES = [
       &:hover:not(.active) { background: rgba(0, 0, 0, 0.04); }
     }
 
-    .qa-duration-input {
-      width: 80px;
+    .qa-duration-manual {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .duration-input {
+      width: 56px;
+      padding: 5px 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus { border-color: var(--triply-primary, #f97316); }
+
+      /* Hide spinner arrows */
+      -moz-appearance: textfield;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    }
+
+    .duration-suffix {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-weight: 500;
     }
 
     .qa-actions {
