@@ -1082,9 +1082,9 @@
 }
 
 // When dragging over the zone, separate puzzle pieces to reveal the drop gap
-.timed-items-zone.cdk-drop-list-dragging {
+.timed-items-zone.drag-active {
   .puzzle-border-wrap:not(.puzzle-only) {
-    margin-top: 4px !important;
+    margin-top: 6px !important;
   }
 }
 
