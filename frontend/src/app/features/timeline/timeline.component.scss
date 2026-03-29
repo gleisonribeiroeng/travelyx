@@ -22,7 +22,7 @@
 
 // ── View toggle ──
 .view-toggle-row {
-  padding: 12px 16px 4px;
+  padding: 12px 0 4px;
 }
 
 .view-toggle {
@@ -282,19 +282,8 @@
   position: relative;
   display: flex;
   gap: 0;
-  padding-left: 28px;
+  padding-left: 0;
   padding-bottom: 4px;
-
-  // Vertical rail line
-  &::before {
-    content: '';
-    position: absolute;
-    left: 9px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--triply-border-subtle, #e0e0e0);
-  }
 
   &.last-day::before {
     height: 20px;
@@ -313,10 +302,7 @@
 
 // ── Day node (dot on the rail) ──
 .day-node {
-  position: absolute;
-  left: 3px;
-  top: 14px;
-  z-index: 2;
+  display: none;
 }
 
 .node-dot {
