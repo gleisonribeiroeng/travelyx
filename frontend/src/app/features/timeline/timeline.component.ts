@@ -423,10 +423,20 @@ export class TimelineComponent implements OnInit {
   }
 
   openQuickAddModal(type: ItineraryItemType, date: string, insertIndex: number, inheritTime?: string | null): void {
+    // Calculate previous item end time and next item start time for context
+    const day = this.timeline().find(d => d.date === date);
+    const items = day?.timedItems ?? [];
+    const prevItem = insertIndex > 0 ? items[insertIndex - 1] : null;
+    const nextItem = items[insertIndex] ?? null;
+    const prevEndTime = prevItem ? this.getEndTime(prevItem) : null;
+    const nextStartTime = nextItem?.timeSlot ?? null;
+    // Default time = end of previous item
+    const defaultTime = inheritTime ?? prevEndTime ?? null;
+
     const ref = this.dialog.open(QuickAddDialogComponent, {
       width: '420px',
       panelClass: 'mobile-fullscreen-dialog',
-      data: { type, date, insertIndex, inheritTime: inheritTime ?? null } as QuickAddDialogData,
+      data: { type, date, insertIndex, inheritTime: defaultTime, prevEndTime, nextStartTime } as QuickAddDialogData,
     });
     ref.afterClosed().subscribe((item: ItineraryItem | undefined) => {
       if (!item) return;

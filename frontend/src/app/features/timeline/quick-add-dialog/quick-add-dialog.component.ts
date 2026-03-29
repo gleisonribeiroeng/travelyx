@@ -10,6 +10,8 @@ export interface QuickAddDialogData {
   date: string;
   insertIndex: number;
   inheritTime?: string | null;
+  prevEndTime?: string | null;
+  nextStartTime?: string | null;
 }
 
 interface TypeOption {
@@ -69,18 +71,36 @@ const TRAJECTORY_MODES = [
         }
       </div>
 
+      <!-- Time context hints -->
+      @if (data.prevEndTime || data.nextStartTime) {
+        <div class="qa-time-context">
+          @if (data.prevEndTime) {
+            <span class="time-hint">
+              <mat-icon>arrow_upward</mat-icon>
+              Item anterior termina às <strong>{{ data.prevEndTime }}</strong>
+            </span>
+          }
+          @if (data.nextStartTime) {
+            <span class="time-hint">
+              <mat-icon>arrow_downward</mat-icon>
+              Próximo item começa às <strong>{{ data.nextStartTime }}</strong>
+            </span>
+          }
+        </div>
+      }
+
       <!-- Trajectory-specific fields -->
       @if (type() === 'trajectory') {
         <div class="qa-trajectory">
           <mat-form-field appearance="outline" class="qa-field">
             <mat-label>De</mat-label>
-            <input matInput [(ngModel)]="trajectoryFrom" placeholder="Ex: Hotel">
+            <input matInput (input)="trajectoryFrom.set($any($event.target).value)" [value]="trajectoryFrom()" placeholder="Ex: Hotel">
             <mat-icon matPrefix>trip_origin</mat-icon>
           </mat-form-field>
           <mat-icon class="qa-arrow">arrow_downward</mat-icon>
           <mat-form-field appearance="outline" class="qa-field">
             <mat-label>Para</mat-label>
-            <input matInput [(ngModel)]="trajectoryTo" placeholder="Ex: Aeroporto">
+            <input matInput (input)="trajectoryTo.set($any($event.target).value)" [value]="trajectoryTo()" placeholder="Ex: Aeroporto">
             <mat-icon matPrefix>place</mat-icon>
           </mat-form-field>
           <div class="qa-modes">
@@ -97,7 +117,7 @@ const TRAJECTORY_MODES = [
         <!-- Regular item label -->
         <mat-form-field appearance="outline" class="qa-field">
           <mat-label>Nome</mat-label>
-          <input matInput [(ngModel)]="label" placeholder="Ex: Passeio no centro" cdkFocusInitial>
+          <input matInput (input)="label.set($any($event.target).value)" [value]="label()" placeholder="Ex: Passeio no centro" cdkFocusInitial>
         </mat-form-field>
       }
 
@@ -105,17 +125,25 @@ const TRAJECTORY_MODES = [
       <div class="qa-time-row">
         <mat-form-field appearance="outline" class="qa-time-field">
           <mat-label>Horário</mat-label>
-          <input matInput type="time" [(ngModel)]="timeSlot">
+          <input matInput type="time" (input)="timeSlot.set($any($event.target).value)" [value]="timeSlot()">
           <mat-icon matPrefix>schedule</mat-icon>
         </mat-form-field>
 
-        <div class="qa-duration-presets">
-          @for (d of durationPresets; track d.value) {
-            <button class="qa-dur-chip" [class.active]="duration() === d.value"
-                    (click)="duration.set(d.value)">
-              {{ d.label }}
-            </button>
-          }
+        <div class="qa-duration-section">
+          <div class="qa-duration-presets">
+            @for (d of durationPresets; track d.value) {
+              <button class="qa-dur-chip" [class.active]="duration() === d.value"
+                      (click)="duration.set(d.value)">
+                {{ d.label }}
+              </button>
+            }
+          </div>
+          <mat-form-field appearance="outline" class="qa-duration-input">
+            <mat-label>Min.</mat-label>
+            <input matInput type="number" min="1" max="1440"
+                   [value]="duration()"
+                   (input)="onDurationInput($any($event.target).value)">
+          </mat-form-field>
         </div>
       </div>
 
@@ -172,6 +200,34 @@ const TRAJECTORY_MODES = [
       }
 
       &:hover:not(.active) { background: rgba(0, 0, 0, 0.08); }
+    }
+
+    .qa-time-context {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      background: rgba(249, 115, 22, 0.06);
+      border-radius: 8px;
+      border-left: 3px solid var(--triply-primary, #f97316);
+    }
+
+    .time-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: #64748b;
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: var(--triply-primary, #f97316);
+      }
+
+      strong { color: #334155; }
     }
 
     .qa-field {
@@ -236,6 +292,13 @@ const TRAJECTORY_MODES = [
       flex-shrink: 0;
     }
 
+    .qa-duration-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
     .qa-duration-presets {
       display: flex;
       gap: 5px;
@@ -263,6 +326,10 @@ const TRAJECTORY_MODES = [
       &:hover:not(.active) { background: rgba(0, 0, 0, 0.04); }
     }
 
+    .qa-duration-input {
+      width: 80px;
+    }
+
     .qa-actions {
       display: flex;
       justify-content: flex-end;
@@ -285,10 +352,10 @@ export class QuickAddDialogComponent {
   readonly duration = signal(30);
   readonly selectedMode = signal('uber');
 
-  label = '';
-  timeSlot = this.data.inheritTime ?? '';
-  trajectoryFrom = '';
-  trajectoryTo = '';
+  readonly label = signal('');
+  readonly timeSlot = signal(this.data.inheritTime ?? '');
+  readonly trajectoryFrom = signal('');
+  readonly trajectoryTo = signal('');
 
   readonly selectedType = computed(() =>
     this.typeOptions.find(t => t.value === this.type()) ?? this.typeOptions[0]
@@ -296,10 +363,15 @@ export class QuickAddDialogComponent {
 
   readonly canSubmit = computed(() => {
     if (this.type() === 'trajectory') {
-      return this.trajectoryFrom.trim().length > 0 && this.trajectoryTo.trim().length > 0;
+      return this.trajectoryFrom().trim().length > 0 && this.trajectoryTo().trim().length > 0;
     }
-    return this.label.trim().length > 0;
+    return this.label().trim().length > 0;
   });
+
+  onDurationInput(val: string): void {
+    const n = parseInt(val, 10);
+    if (n > 0) this.duration.set(n);
+  }
 
   cancel(): void {
     this.dialogRef.close();
@@ -307,8 +379,8 @@ export class QuickAddDialogComponent {
 
   submit(): void {
     const itemLabel = this.type() === 'trajectory'
-      ? `${this.trajectoryFrom.trim()} → ${this.trajectoryTo.trim()}`
-      : this.label.trim();
+      ? `${this.trajectoryFrom().trim()} → ${this.trajectoryTo().trim()}`
+      : this.label().trim();
 
     const notes = this.type() === 'trajectory'
       ? this.trajectoryModes.find(m => m.value === this.selectedMode())?.label ?? ''
@@ -319,7 +391,7 @@ export class QuickAddDialogComponent {
       type: this.type(),
       refId: null,
       date: this.data.date,
-      timeSlot: this.timeSlot || null,
+      timeSlot: this.timeSlot() || null,
       durationMinutes: this.duration(),
       label: itemLabel,
       notes,
