@@ -787,6 +787,7 @@
 
     &:not(.puzzle-only) {
       margin-top: -28px;
+      transition: margin-top 0.25s ease;
       &.puzzle-first { margin-top: 0; }
     }
 
@@ -1080,21 +1081,31 @@
   background: var(--triply-surface-1, #fff);
 }
 
-// Placeholder that opens a gap between puzzle pieces when dragging
+// When dragging over the zone, separate puzzle pieces to reveal the drop gap
+.timed-items-zone.cdk-drop-list-dragging {
+  .puzzle-border-wrap:not(.puzzle-only) {
+    margin-top: 4px !important;
+  }
+}
+
+// Placeholder visible in the gap between separated cards
 .timed-items-zone .drag-gap-placeholder,
 .timed-items-zone ::ng-deep .block-drop-placeholder {
   height: 48px;
-  margin-top: 8px !important;
-  margin-bottom: 8px;
+  margin: 4px 0 !important;
   border: 2px dashed var(--triply-primary, #f97316);
   border-radius: 10px;
   background: rgba(249, 115, 22, 0.06);
-  transition: height 0.2s ease;
 }
 
-// Hide default CDK placeholder styling for items being reordered
-.cdk-drag-placeholder {
+// Hide the default placeholder (we use custom ones above)
+.cdk-drag-placeholder:not(.drag-gap-placeholder):not(.block-drop-placeholder) {
   opacity: 0;
+  height: 0 !important;
+  overflow: hidden;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
 }
 
 .cdk-drag-animating {
