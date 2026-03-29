@@ -390,6 +390,10 @@ export class TimelineComponent implements OnInit {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: this.tripState.trip().currency || 'BRL' });
   }
 
+  onAddBetween(date: string, index: number): void {
+    this.openQuickAddModal('activity', date, index);
+  }
+
   onDragEntered(event: CdkDragEnter, dayDate: string): void {
     console.log('[DRAG] ENTERED zone:', dayDate, 'element classes:', event.container.element.nativeElement.classList.toString());
     this.draggingOverZone.set(dayDate);

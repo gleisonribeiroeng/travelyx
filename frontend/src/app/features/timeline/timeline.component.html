@@ -288,14 +288,6 @@
                        (cdkDropListExited)="onDragExited($event, day.date)"
                        (cdkDropListDropped)="onDrop($event, day.date)">
                     @for (item of day.timedItems; track item.id; let idx = $index) {
-                      <!-- Insertion target (mobile mode) -->
-                      @if (insertionMode() && idx === 0) {
-                        <div class="insertion-target" (click)="handleInsertionTap(day.date, 0)">
-                          <div class="insertion-line"></div>
-                          <mat-icon>add_circle</mat-icon>
-                          <div class="insertion-line"></div>
-                        </div>
-                      }
                       <!-- Travel time indicator between items -->
                       @if (idx > 0) {
                         @if (getTravelTime(day.timedItems[idx - 1], item); as travel) {
@@ -309,15 +301,15 @@
                             <div class="travel-line"></div>
                           </div>
                         }
-                        <!-- Insertion target between items (mobile mode) -->
-                        @if (insertionMode()) {
-                          <div class="insertion-target" (click)="handleInsertionTap(day.date, idx)">
-                            <div class="insertion-line"></div>
-                            <mat-icon>add_circle</mat-icon>
-                            <div class="insertion-line"></div>
-                          </div>
-                        }
                       }
+
+                      <!-- Add button between items -->
+                      <div class="add-between" (click)="onAddBetween(day.date, idx)"
+                           matTooltip="Adicionar item aqui">
+                        <div class="add-between-line"></div>
+                        <mat-icon>add_circle</mat-icon>
+                        <div class="add-between-line"></div>
+                      </div>
 
                       <div class="puzzle-border-wrap" [attr.data-type]="item.type"
                            [class.puzzle-first]="idx === 0"
@@ -381,6 +373,16 @@
                         </div>
                       </div>
                       </div><!-- /puzzle-border-wrap -->
+                    }
+
+                    <!-- Add button after last item -->
+                    @if (day.timedItems.length > 0) {
+                      <div class="add-between add-after-last" (click)="onAddBetween(day.date, day.timedItems.length)"
+                           matTooltip="Adicionar item aqui">
+                        <div class="add-between-line"></div>
+                        <mat-icon>add_circle</mat-icon>
+                        <div class="add-between-line"></div>
+                      </div>
                     }
                   </div>
 
