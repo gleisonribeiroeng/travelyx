@@ -382,10 +382,12 @@ export class TimelineComponent implements OnInit {
   }
 
   onDragEntered(event: CdkDragEnter, dayDate: string): void {
+    console.log('[DRAG] ENTERED zone:', dayDate, 'element classes:', event.container.element.nativeElement.classList.toString());
     this.draggingOverZone.set(dayDate);
   }
 
   onDragExited(event: CdkDragExit, dayDate: string): void {
+    console.log('[DRAG] EXITED zone:', dayDate);
     if (this.draggingOverZone() === dayDate) {
       this.draggingOverZone.set(null);
     }
