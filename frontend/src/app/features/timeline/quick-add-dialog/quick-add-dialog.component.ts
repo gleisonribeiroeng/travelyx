@@ -31,14 +31,6 @@ const TYPE_OPTIONS: TypeOption[] = [
   { value: 'custom', label: 'Outro', icon: 'edit_note', color: '#9E9E9E' },
 ];
 
-const DURATION_PRESETS = [
-  { label: '15min', value: 15 },
-  { label: '30min', value: 30 },
-  { label: '1h', value: 60 },
-  { label: '2h', value: 120 },
-  { label: '3h', value: 180 },
-];
-
 const TRAJECTORY_MODES = [
   { value: 'walking', icon: 'directions_walk', label: 'A pé' },
   { value: 'uber', icon: 'local_taxi', label: 'Uber/Taxi' },
@@ -121,30 +113,25 @@ const TRAJECTORY_MODES = [
         </mat-form-field>
       }
 
-      <!-- Time -->
+      <!-- Time: start and end -->
       <div class="qa-time-row">
         <mat-form-field appearance="outline" class="qa-time-field">
-          <mat-label>Horário</mat-label>
+          <mat-label>Início</mat-label>
           <input matInput type="time" (input)="timeSlot.set($any($event.target).value)" [value]="timeSlot()">
           <mat-icon matPrefix>schedule</mat-icon>
         </mat-form-field>
 
-        <div class="qa-duration-section">
-          <div class="qa-duration-presets">
-            @for (d of durationPresets; track d.value) {
-              <button class="qa-dur-chip" [class.active]="duration() === d.value"
-                      (click)="duration.set(d.value)">
-                {{ d.label }}
-              </button>
-            }
-          </div>
-          <div class="qa-duration-manual">
-            <input type="number" min="1" max="1440" class="duration-input"
-                   [value]="duration()"
-                   (input)="onDurationInput($any($event.target).value)">
-            <span class="duration-suffix">min</span>
-          </div>
-        </div>
+        <span class="qa-time-separator">–</span>
+
+        <mat-form-field appearance="outline" class="qa-time-field">
+          <mat-label>Fim</mat-label>
+          <input matInput type="time" (input)="endTime.set($any($event.target).value)" [value]="endTime()">
+          <mat-icon matPrefix>schedule</mat-icon>
+        </mat-form-field>
+
+        @if (durationLabel()) {
+          <span class="qa-duration-badge">{{ durationLabel() }}</span>
+        }
       </div>
 
       <!-- Actions -->
@@ -282,79 +269,31 @@ const TRAJECTORY_MODES = [
 
     .qa-time-row {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      align-items: center;
+      gap: 8px;
       margin-top: 4px;
     }
 
     .qa-time-field {
-      width: 130px;
+      width: 120px;
       flex-shrink: 0;
     }
 
-    .qa-duration-section {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-    }
-
-    .qa-duration-presets {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      padding-top: 8px;
-    }
-
-    .qa-dur-chip {
-      padding: 4px 10px;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 16px;
-      background: transparent;
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: #64748b;
-      cursor: pointer;
-      transition: all 0.15s;
-
-      &.active {
-        background: var(--triply-primary, #f97316);
-        border-color: var(--triply-primary, #f97316);
-        color: #fff;
-      }
-
-      &:hover:not(.active) { background: rgba(0, 0, 0, 0.04); }
-    }
-
-    .qa-duration-manual {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .duration-input {
-      width: 56px;
-      padding: 5px 8px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-align: center;
-      outline: none;
-      transition: border-color 0.2s;
-
-      &:focus { border-color: var(--triply-primary, #f97316); }
-
-      /* Hide spinner arrows */
-      -moz-appearance: textfield;
-      &::-webkit-outer-spin-button,
-      &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    }
-
-    .duration-suffix {
-      font-size: 0.75rem;
+    .qa-time-separator {
+      font-size: 1.2rem;
       color: #94a3b8;
-      font-weight: 500;
+      margin-top: -18px;
+    }
+
+    .qa-duration-badge {
+      padding: 4px 10px;
+      background: rgba(249, 115, 22, 0.1);
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--triply-primary, #f97316);
+      white-space: nowrap;
+      margin-top: -18px;
     }
 
     .qa-actions {
@@ -372,21 +311,42 @@ export class QuickAddDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<QuickAddDialogComponent>);
 
   readonly typeOptions = TYPE_OPTIONS;
-  readonly durationPresets = DURATION_PRESETS;
   readonly trajectoryModes = TRAJECTORY_MODES;
 
   readonly type = signal<ItineraryItemType>(this.data.type);
-  readonly duration = signal(30);
   readonly selectedMode = signal('uber');
 
   readonly label = signal('');
   readonly timeSlot = signal(this.data.inheritTime ?? '');
+  readonly endTime = signal(this.calcDefaultEndTime());
   readonly trajectoryFrom = signal('');
   readonly trajectoryTo = signal('');
 
   readonly selectedType = computed(() =>
     this.typeOptions.find(t => t.value === this.type()) ?? this.typeOptions[0]
   );
+
+  /** Auto-calculated duration in minutes from start → end */
+  readonly duration = computed(() => {
+    const start = this.timeSlot();
+    const end = this.endTime();
+    if (!start || !end) return 0;
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    let diff = (eh * 60 + em) - (sh * 60 + sm);
+    if (diff <= 0) diff += 24 * 60; // crosses midnight
+    return diff;
+  });
+
+  readonly durationLabel = computed(() => {
+    const d = this.duration();
+    if (d <= 0) return '';
+    const h = Math.floor(d / 60);
+    const m = d % 60;
+    if (h === 0) return `${m}min`;
+    if (m === 0) return `${h}h`;
+    return `${h}h${m}min`;
+  });
 
   readonly canSubmit = computed(() => {
     if (this.type() === 'trajectory') {
@@ -395,9 +355,14 @@ export class QuickAddDialogComponent {
     return this.label().trim().length > 0;
   });
 
-  onDurationInput(val: string): void {
-    const n = parseInt(val, 10);
-    if (n > 0) this.duration.set(n);
+  private calcDefaultEndTime(): string {
+    const start = this.data.inheritTime;
+    if (!start) return '';
+    const [h, m] = start.split(':').map(Number);
+    const total = h * 60 + m + 30; // default 30min
+    const endH = Math.floor(total / 60) % 24;
+    const endM = total % 60;
+    return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
   }
 
   cancel(): void {
