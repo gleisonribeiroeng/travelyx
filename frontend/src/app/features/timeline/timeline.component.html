@@ -367,11 +367,11 @@
                       </div><!-- /puzzle-border-wrap -->
                     }
 
-                    <!-- Drop indicator for empty day -->
-                    @if (day.timedItems.length === 0 && dropIndicator()?.date === day.date) {
-                      <div class="drop-empty-zone">
-                        <mat-icon>add_circle_outline</mat-icon>
-                        <span>Solte aqui para adicionar</span>
+                    <!-- Empty day drop zone -->
+                    @if (day.timedItems.length === 0) {
+                      <div class="drop-empty-zone" [class.drop-hover]="dropIndicator()?.date === day.date">
+                        <mat-icon>{{ dropIndicator()?.date === day.date ? 'add_circle' : 'add_circle_outline' }}</mat-icon>
+                        <span>{{ dropIndicator()?.date === day.date ? 'Solte aqui para adicionar' : 'Arraste um bloco aqui' }}</span>
                       </div>
                     }
                   </div>

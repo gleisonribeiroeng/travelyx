@@ -775,10 +775,6 @@
   min-height: 4px;
   position: relative;
 
-  // When empty, ensure enough height for drop target
-  &:not(:has(.puzzle-border-wrap)) {
-    min-height: 48px;
-  }
   border-radius: 12px;
   padding: 6px 4px;
 
@@ -1116,17 +1112,25 @@
   justify-content: center;
   gap: 8px;
   padding: 14px;
-  border: 2px dashed var(--triply-primary, #f97316);
+  border: 2px dashed rgba(0, 0, 0, 0.1);
   border-radius: 12px;
-  background: rgba(249, 115, 22, 0.05);
-  color: var(--triply-primary, #f97316);
-  font-size: 0.82rem;
-  font-weight: 600;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s;
 
   mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
+  }
+
+  &.drop-hover {
+    border-color: var(--triply-primary, #f97316);
+    background: rgba(249, 115, 22, 0.06);
+    color: var(--triply-primary, #f97316);
+    font-weight: 600;
   }
 }
 
