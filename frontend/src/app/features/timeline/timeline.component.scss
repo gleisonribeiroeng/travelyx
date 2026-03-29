@@ -823,9 +823,13 @@
     // Bottom tab macho (protrusion ~10px down, carries card color)
     // Top slot fêmea (indent ~10px into card, receives tab from above)
 
-    // First card: flat top, bottom MACHO (tab going down with card color)
+    // ── Connector dimensions ──
+    // Vertical: 14px tall, 30px wide (radius 15px)
+    // Horizontal: 12px wide, side knob/notch
+
+    // First card: flat top, bottom MACHO (tab 14px down)
     &.puzzle-first:not(.puzzle-only) {
-      padding-bottom: 12px;
+      padding-bottom: 16px;
       clip-path: polygon(
         0% 0%, calc(100% - 12px) 0%,
         calc(100% - 12px) 40%,
@@ -834,16 +838,18 @@
         calc(100% - 3px) 52%, calc(100% - 5px) 55%,
         calc(100% - 8px) 57%, calc(100% - 10px) 59%,
         calc(100% - 12px) 60%,
-        calc(100% - 12px) calc(100% - 10px),
-        calc(50% + 12px) calc(100% - 10px),
+        calc(100% - 12px) calc(100% - 14px),
+        calc(50% + 15px) calc(100% - 14px),
+        calc(50% + 14px) calc(100% - 12px), calc(50% + 13px) calc(100% - 10px),
         calc(50% + 11px) calc(100% - 8px), calc(50% + 9px) calc(100% - 6px),
         calc(50% + 7px) calc(100% - 4px), calc(50% + 4px) calc(100% - 2px),
         calc(50% + 2px) calc(100% - 1px), 50% 100%,
         calc(50% - 2px) calc(100% - 1px), calc(50% - 4px) calc(100% - 2px),
         calc(50% - 7px) calc(100% - 4px), calc(50% - 9px) calc(100% - 6px),
-        calc(50% - 11px) calc(100% - 8px),
-        calc(50% - 12px) calc(100% - 10px),
-        0% calc(100% - 10px),
+        calc(50% - 11px) calc(100% - 8px), calc(50% - 13px) calc(100% - 10px),
+        calc(50% - 14px) calc(100% - 12px),
+        calc(50% - 15px) calc(100% - 14px),
+        0% calc(100% - 14px),
         0% 60%,
         2px 59%, 4px 57%, 6px 55%, 8px 52%, 9px 50%,
         8px 48%, 6px 45%, 4px 43%, 2px 41%,
@@ -851,20 +857,22 @@
       );
     }
 
-    // Middle cards: top FÊMEA (concave slot) + bottom MACHO (tab)
+    // Middle cards: top FÊMEA (concave 14px) + bottom MACHO (tab 14px)
     &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
-      padding-top: 12px;
-      padding-bottom: 12px;
+      padding-top: 16px;
+      padding-bottom: 16px;
       clip-path: polygon(
         0% 0%,
-        calc(50% - 12px) 0%,
-        calc(50% - 11px) 2px, calc(50% - 9px) 4px,
-        calc(50% - 7px) 6px, calc(50% - 4px) 8px,
-        calc(50% - 2px) 9px, 50% 10px,
-        calc(50% + 2px) 9px, calc(50% + 4px) 8px,
-        calc(50% + 7px) 6px, calc(50% + 9px) 4px,
-        calc(50% + 11px) 2px,
-        calc(50% + 12px) 0%,
+        calc(50% - 15px) 0%,
+        calc(50% - 14px) 2px, calc(50% - 13px) 4px,
+        calc(50% - 11px) 6px, calc(50% - 9px) 8px,
+        calc(50% - 7px) 10px, calc(50% - 4px) 12px,
+        calc(50% - 2px) 13px, 50% 14px,
+        calc(50% + 2px) 13px, calc(50% + 4px) 12px,
+        calc(50% + 7px) 10px, calc(50% + 9px) 8px,
+        calc(50% + 11px) 6px, calc(50% + 13px) 4px,
+        calc(50% + 14px) 2px,
+        calc(50% + 15px) 0%,
         calc(100% - 12px) 0%,
         calc(100% - 12px) 40%,
         calc(100% - 10px) 41%, calc(100% - 8px) 43%, calc(100% - 5px) 45%,
@@ -872,16 +880,18 @@
         calc(100% - 3px) 52%, calc(100% - 5px) 55%,
         calc(100% - 8px) 57%, calc(100% - 10px) 59%,
         calc(100% - 12px) 60%,
-        calc(100% - 12px) calc(100% - 10px),
-        calc(50% + 12px) calc(100% - 10px),
+        calc(100% - 12px) calc(100% - 14px),
+        calc(50% + 15px) calc(100% - 14px),
+        calc(50% + 14px) calc(100% - 12px), calc(50% + 13px) calc(100% - 10px),
         calc(50% + 11px) calc(100% - 8px), calc(50% + 9px) calc(100% - 6px),
         calc(50% + 7px) calc(100% - 4px), calc(50% + 4px) calc(100% - 2px),
         calc(50% + 2px) calc(100% - 1px), 50% 100%,
         calc(50% - 2px) calc(100% - 1px), calc(50% - 4px) calc(100% - 2px),
         calc(50% - 7px) calc(100% - 4px), calc(50% - 9px) calc(100% - 6px),
-        calc(50% - 11px) calc(100% - 8px),
-        calc(50% - 12px) calc(100% - 10px),
-        0% calc(100% - 10px),
+        calc(50% - 11px) calc(100% - 8px), calc(50% - 13px) calc(100% - 10px),
+        calc(50% - 14px) calc(100% - 12px),
+        calc(50% - 15px) calc(100% - 14px),
+        0% calc(100% - 14px),
         0% 60%,
         2px 59%, 4px 57%, 6px 55%, 8px 52%, 9px 50%,
         8px 48%, 6px 45%, 4px 43%, 2px 41%,
@@ -889,19 +899,21 @@
       );
     }
 
-    // Last card: top FÊMEA (concave slot), flat bottom
+    // Last card: top FÊMEA (concave 14px), flat bottom
     &.puzzle-last:not(.puzzle-only) {
-      padding-top: 12px;
+      padding-top: 16px;
       clip-path: polygon(
         0% 0%,
-        calc(50% - 12px) 0%,
-        calc(50% - 11px) 2px, calc(50% - 9px) 4px,
-        calc(50% - 7px) 6px, calc(50% - 4px) 8px,
-        calc(50% - 2px) 9px, 50% 10px,
-        calc(50% + 2px) 9px, calc(50% + 4px) 8px,
-        calc(50% + 7px) 6px, calc(50% + 9px) 4px,
-        calc(50% + 11px) 2px,
-        calc(50% + 12px) 0%,
+        calc(50% - 15px) 0%,
+        calc(50% - 14px) 2px, calc(50% - 13px) 4px,
+        calc(50% - 11px) 6px, calc(50% - 9px) 8px,
+        calc(50% - 7px) 10px, calc(50% - 4px) 12px,
+        calc(50% - 2px) 13px, 50% 14px,
+        calc(50% + 2px) 13px, calc(50% + 4px) 12px,
+        calc(50% + 7px) 10px, calc(50% + 9px) 8px,
+        calc(50% + 11px) 6px, calc(50% + 13px) 4px,
+        calc(50% + 14px) 2px,
+        calc(50% + 15px) 0%,
         calc(100% - 12px) 0%,
         calc(100% - 12px) 40%,
         calc(100% - 10px) 41%, calc(100% - 8px) 43%, calc(100% - 5px) 45%,
@@ -919,7 +931,7 @@
 
     // ── Interlock: cards overlap so macho tab fills fêmea slot ──
     & + & {
-      margin-top: -10px;
+      margin-top: -14px;
     }
 
     // ── Single item: no puzzle shape ──
@@ -951,9 +963,10 @@
     }
   }
 
-  // Travel indicators between puzzle pieces: allow partial overlap
+  // Travel indicators (height:0, margin:-6px) sit between pieces.
+  // Extra negative margin so tab still reaches the slot.
   .travel-indicator + .activity-card.timed {
-    margin-top: -2px;
+    margin-top: -4px;
   }
 
   .insertion-target + .activity-card.timed {
