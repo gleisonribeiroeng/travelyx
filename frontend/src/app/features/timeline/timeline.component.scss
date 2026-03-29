@@ -1087,19 +1087,6 @@
   background: rgba(249, 115, 22, 0.04);
 }
 
-// Enhanced drag placeholder when dragging from palette
-.timed-items-zone.cdk-drop-list-dragging .cdk-drag-placeholder {
-  min-height: 4px;
-  height: 4px;
-  border: none;
-  border-top: 3px dashed var(--triply-primary);
-  background: rgba(249, 115, 22, 0.05);
-  border-radius: 0;
-  opacity: 1;
-  padding: 0;
-  margin: 10px 0;
-}
-
 .cdk-drag-animating {
   transition: transform 200ms ease;
 }
