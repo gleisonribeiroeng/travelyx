@@ -318,7 +318,7 @@ export class QuickAddDialogComponent {
 
   readonly label = signal('');
   readonly timeSlot = signal(this.data.inheritTime ?? '');
-  readonly endTime = signal(this.calcDefaultEndTime());
+  readonly endTime = signal('');
   readonly trajectoryFrom = signal('');
   readonly trajectoryTo = signal('');
 
@@ -355,15 +355,6 @@ export class QuickAddDialogComponent {
     return this.label().trim().length > 0;
   });
 
-  private calcDefaultEndTime(): string {
-    const start = this.data.inheritTime;
-    if (!start) return '';
-    const [h, m] = start.split(':').map(Number);
-    const total = h * 60 + m + 30; // default 30min
-    const endH = Math.floor(total / 60) % 24;
-    const endM = total % 60;
-    return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
-  }
 
   cancel(): void {
     this.dialogRef.close();

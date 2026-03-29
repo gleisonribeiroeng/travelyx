@@ -448,7 +448,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
       const day = this.timeline().find(d => d.date === targetDate);
       const items = day?.timedItems ?? [];
       const insertIdx = indicator?.date === targetDate ? indicator.index : items.length;
-      console.log('[DROP]', { targetDate, insertIdx, totalItems: items.length, indicatorDate: indicator?.date, indicatorIdx: indicator?.index, prevItem: items[insertIdx - 1]?.label, prevEndTime: items[insertIdx - 1] ? this.getEndTime(items[insertIdx - 1]) : null, nextItem: items[insertIdx]?.label, nextStartTime: items[insertIdx]?.timeSlot });
       this.onBlockDragEnd();
       this.openQuickAddModal(blockType, targetDate, insertIdx);
       return;
