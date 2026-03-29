@@ -367,6 +367,13 @@
                       </div><!-- /puzzle-border-wrap -->
                     }
 
+                    <!-- Drop indicator for empty day -->
+                    @if (day.timedItems.length === 0 && dropIndicator()?.date === day.date) {
+                      <div class="drop-empty-zone">
+                        <mat-icon>add_circle_outline</mat-icon>
+                        <span>Solte aqui para adicionar</span>
+                      </div>
+                    }
                   </div>
 
                   <!-- Free slots -->

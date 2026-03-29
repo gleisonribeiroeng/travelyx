@@ -775,12 +775,9 @@
   min-height: 4px;
   position: relative;
 
-  // When empty, show a visible drop area
-  &:empty, &:not(:has(.puzzle-border-wrap)) {
+  // When empty, ensure enough height for drop target
+  &:not(:has(.puzzle-border-wrap)) {
     min-height: 48px;
-    border: 2px dashed rgba(0, 0, 0, 0.08);
-    border-radius: 10px;
-    margin: 4px 0;
   }
   border-radius: 12px;
   padding: 6px 4px;
@@ -1111,6 +1108,26 @@
 
 .puzzle-border-wrap.drop-below::after {
   bottom: 0;
+}
+
+.drop-empty-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border: 2px dashed var(--triply-primary, #f97316);
+  border-radius: 12px;
+  background: rgba(249, 115, 22, 0.05);
+  color: var(--triply-primary, #f97316);
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .cdk-drag-animating {
