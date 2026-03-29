@@ -1159,28 +1159,9 @@ mat-card, .mat-mdc-card {
   margin-top: 6px !important;
 }
 
-// Transform CDK placeholder into a thin drop indicator line
+// Hide CDK placeholder completely — the drag preview already shows what's being dragged
 .timed-items-zone .cdk-drag-placeholder {
-  all: unset !important;
-  display: block !important;
-  height: 4px !important;
-  min-height: 4px !important;
-  max-height: 4px !important;
-  margin: -2px 20px !important;
-  padding: 0 !important;
-  border: none !important;
-  border-radius: 2px !important;
-  background: var(--triply-primary, #f97316) !important;
-  box-shadow: 0 0 8px rgba(249, 115, 22, 0.5) !important;
-  position: relative !important;
-  z-index: 10 !important;
-  opacity: 1 !important;
-  overflow: hidden !important;
-  filter: none !important;
-  clip-path: none !important;
-
-  // Hide all children (cloned card content)
-  * { display: none !important; }
+  display: none !important;
 }
 
 @keyframes insertionGapPulse {
