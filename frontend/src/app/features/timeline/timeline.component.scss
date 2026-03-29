@@ -774,9 +774,11 @@
 // TIMED ITEMS ZONE — JIGSAW PUZZLE PIECE CARDS
 // ═══════════════════════════════════════════════════════════
 //
-// Each card looks like a puzzle piece with a small knob on the
-// right side. filter: drop-shadow outlines the combined shape
-// (card + knob) for a clean puzzle silhouette.
+// Each card is clipped into a puzzle piece shape via polygon().
+// Right side: knob (semicircle protruding)
+// Left side: notch (semicircle indent)
+// Uses calc() with pixel values so connectors have fixed size
+// regardless of card width.
 
 .timed-items-zone {
   display: flex;
@@ -785,57 +787,73 @@
   min-height: 4px;
   position: relative;
   border-radius: 12px;
-  padding: 6px 6px;
+  padding: 6px 4px;
 
   // ── Puzzle piece cards ──
   .activity-card.timed {
     position: relative;
-    overflow: visible !important;
+    overflow: hidden;
     border: none;
-    border-radius: 8px 2px 2px 8px;
-    background: color-mix(in srgb, var(--type-color, #f97316) 12%, var(--triply-surface-1, #fff));
-    border-left: 3px solid color-mix(in srgb, var(--type-color, #f97316) 50%, transparent);
-    // drop-shadow outlines card + pseudo-element knob as one shape
+    border-radius: 0;
+    background: color-mix(in srgb, var(--type-color, #f97316) 14%, var(--triply-surface-1, #fff));
+    // drop-shadow follows the clip shape
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.10));
     transition: background 0.2s, filter 0.2s;
-    margin-right: 12px;
+    // Padding keeps content away from clipped connector areas
+    padding-left: 14px;
+    padding-right: 16px;
 
-    // Hide the old color bar — replaced by border-left
+    // Hide the old flat color bar
     .card-color-bar {
       display: none;
     }
 
-    // ── RIGHT KNOB: small circle on the right edge ──
-    // Card has margin-right to keep knob within day-card bounds
-    // (day-card has overflow:hidden, so knob can't extend past it).
-    &:not(.puzzle-only)::after {
-      content: '';
-      position: absolute;
-      right: -7px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: inherit;
-      border-left: 3px solid color-mix(in srgb, var(--type-color, #f97316) 50%, transparent);
+    // ── Puzzle piece clip shape ──
+    // Right: knob (10px protrusion from straight edge)
+    // Left: notch (10px indent into card)
+    &:not(.puzzle-only) {
+      clip-path: polygon(
+        // Top edge
+        0% 0%, calc(100% - 12px) 0%,
+        // Right edge → knob
+        calc(100% - 12px) 35%,
+        calc(100% - 8px) 38%,
+        calc(100% - 4px) 42%,
+        calc(100% - 2px) 47%,
+        calc(100% - 2px) 53%,
+        calc(100% - 4px) 58%,
+        calc(100% - 8px) 62%,
+        calc(100% - 12px) 65%,
+        // Bottom edge
+        calc(100% - 12px) 100%, 0% 100%,
+        // Left edge ↑ notch
+        0% 65%,
+        6px 62%,
+        9px 58%,
+        10px 53%,
+        10px 47%,
+        9px 42%,
+        6px 38%,
+        0% 35%
+      );
     }
 
-    // ── Single item: regular card without knob ──
+    // ── Single item: no puzzle shape ──
     &.puzzle-only {
+      clip-path: none;
       border-radius: 8px;
       border: 1px solid var(--triply-border-subtle, #eee);
-      border-left: 3px solid color-mix(in srgb, var(--type-color, #f97316) 50%, transparent);
       background: var(--triply-surface-1, #fff);
       filter: none;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
     }
 
     // ── Hover ──
     &:hover {
-      background: color-mix(in srgb, var(--type-color, #f97316) 20%, var(--triply-surface-1, #fff));
-      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.14));
+      background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.15));
       transform: none;
 
       .card-actions {
@@ -845,8 +863,7 @@
 
     // ── Flight locked ──
     &.flight-locked {
-      background: color-mix(in srgb, #2196F3 12%, var(--triply-surface-1, #fff));
-      border-left-color: color-mix(in srgb, #2196F3 50%, transparent);
+      background: color-mix(in srgb, #2196F3 14%, var(--triply-surface-1, #fff));
     }
   }
 }
