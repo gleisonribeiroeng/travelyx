@@ -484,6 +484,7 @@
 
 .day-body {
   padding: 4px 8px 8px;
+  padding-right: 16px; // extra space for puzzle knob
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -789,7 +790,7 @@
   // ── Puzzle piece cards ──
   .activity-card.timed {
     position: relative;
-    overflow: visible;
+    overflow: visible !important;
     border: none;
     border-radius: 8px 2px 2px 8px;
     background: color-mix(in srgb, var(--type-color, #f97316) 12%, var(--triply-surface-1, #fff));
@@ -797,7 +798,7 @@
     // drop-shadow outlines card + pseudo-element knob as one shape
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.10));
     transition: background 0.2s, filter 0.2s;
-    margin-right: 8px;
+    margin-right: 12px;
 
     // Hide the old color bar — replaced by border-left
     .card-color-bar {
@@ -805,16 +806,19 @@
     }
 
     // ── RIGHT KNOB: small circle on the right edge ──
+    // Card has margin-right to keep knob within day-card bounds
+    // (day-card has overflow:hidden, so knob can't extend past it).
     &:not(.puzzle-only)::after {
       content: '';
       position: absolute;
-      right: -5px;
+      right: -7px;
       top: 50%;
       transform: translateY(-50%);
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: inherit;
+      border-left: 3px solid color-mix(in srgb, var(--type-color, #f97316) 50%, transparent);
     }
 
     // ── Single item: regular card without knob ──
