@@ -1081,32 +1081,8 @@
   background: var(--triply-surface-1, #fff);
 }
 
-// When dragging over the zone, separate puzzle pieces to reveal the drop gap
-.timed-items-zone.drag-active {
-  .puzzle-border-wrap:not(.puzzle-only) {
-    margin-top: 6px !important;
-  }
-}
-
-// Placeholder visible in the gap between separated cards
-.timed-items-zone .drag-gap-placeholder,
-.timed-items-zone ::ng-deep .block-drop-placeholder {
-  height: 48px;
-  margin: 4px 0 !important;
-  border: 2px dashed var(--triply-primary, #f97316);
-  border-radius: 10px;
-  background: rgba(249, 115, 22, 0.06);
-}
-
-// Hide the default placeholder (we use custom ones above)
-.cdk-drag-placeholder:not(.drag-gap-placeholder):not(.block-drop-placeholder) {
-  opacity: 0;
-  height: 0 !important;
-  overflow: hidden;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-}
+// Drag placeholder and gap styles are in global styles.scss
+// to avoid Angular encapsulation issues with CDK classes
 
 .cdk-drag-animating {
   transition: transform 200ms ease;
