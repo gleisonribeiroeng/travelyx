@@ -774,6 +774,14 @@
   gap: 0;
   min-height: 4px;
   position: relative;
+
+  // When empty, show a visible drop area
+  &:empty, &:not(:has(.puzzle-border-wrap)) {
+    min-height: 48px;
+    border: 2px dashed rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    margin: 4px 0;
+  }
   border-radius: 12px;
   padding: 6px 4px;
 

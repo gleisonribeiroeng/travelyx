@@ -399,6 +399,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // ── Block drag indicator tracking ──
   onBlockDragStart(): void {
     this.isDraggingBlock = true;
+    // Expand all days so empty days have a visible drop zone
+    this.expandAll();
     document.addEventListener('pointermove', this.pointerMoveHandler);
   }
 
