@@ -1151,33 +1151,12 @@ mat-card, .mat-mdc-card {
 }
 
 // ═══════════════════════════════════════════════════════════
-// DRAG & DROP – puzzle piece gap on drag
-// Global styles so CDK dynamic classes are not blocked by encapsulation
+// DRAG & DROP
 // ═══════════════════════════════════════════════════════════
 
 // When dragging over the zone, separate puzzle pieces to show drop position
 .timed-items-zone.drag-active .puzzle-border-wrap:not(.puzzle-only) {
   margin-top: 6px !important;
-}
-
-// Placeholder shown in the gap between cards
-.timed-items-zone .drag-gap-placeholder,
-.timed-items-zone .block-drop-placeholder {
-  height: 48px;
-  margin: 6px 0 !important;
-  border: 2px dashed var(--triply-primary, #f97316);
-  border-radius: 10px;
-  background: rgba(249, 115, 22, 0.06);
-}
-
-// Hide the default CDK placeholder clone (we use custom placeholders)
-.timed-items-zone .cdk-drag-placeholder:not(.drag-gap-placeholder):not(.block-drop-placeholder) {
-  opacity: 0;
-  height: 0 !important;
-  overflow: hidden;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
 }
 
 @keyframes insertionGapPulse {

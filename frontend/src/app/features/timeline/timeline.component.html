@@ -308,8 +308,6 @@
                            [class.puzzle-last]="idx === day.timedItems.length - 1"
                            [class.puzzle-only]="day.timedItems.length === 1"
                            cdkDrag [cdkDragData]="item">
-                      <!-- Visible drop placeholder that forces cards apart -->
-                      <div *cdkDragPlaceholder class="drag-gap-placeholder"></div>
                       <div class="activity-card timed" [attr.data-type]="item.type"
                            [class.flight-locked]="item.type === 'flight'"
                            [class.puzzle-first]="idx === 0"

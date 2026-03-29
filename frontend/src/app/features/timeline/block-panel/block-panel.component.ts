@@ -1,7 +1,7 @@
 import { Component, signal, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
-import { CdkDrag, CdkDropList, CdkDragPreview, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDropList, CdkDragPreview } from '@angular/cdk/drag-drop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ItineraryItemType } from '../../../core/models/trip.models';
 import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
@@ -26,7 +26,7 @@ const BLOCKS: BlockDef[] = [
 @Component({
   selector: 'app-block-panel',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, CdkDrag, CdkDropList, CdkDragPreview, CdkDragPlaceholder, MatBottomSheetModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, CdkDrag, CdkDropList, CdkDragPreview, MatBottomSheetModule],
   template: `
     <!-- Desktop: floating side panel -->
     @if (!isMobile()) {
@@ -56,8 +56,6 @@ const BLOCKS: BlockDef[] = [
                 <span>{{ block.label }}</span>
               </div>
 
-              <!-- Placeholder: styled via .cdk-drag-placeholder in target containers -->
-              <div *cdkDragPlaceholder class="block-drop-placeholder"></div>
             </div>
           }
         </div>
@@ -196,20 +194,6 @@ const BLOCKS: BlockDef[] = [
       span {
         letter-spacing: 0.02em;
       }
-    }
-
-    .block-drop-placeholder {
-      display: none;
-    }
-
-    :host-context(.timed-items-zone) .block-drop-placeholder,
-    .cdk-drop-list:not(#block-palette) .block-drop-placeholder {
-      display: block;
-      height: 60px;
-      border: 2px dashed #f97316;
-      border-radius: 10px;
-      background: rgba(249, 115, 22, 0.06);
-      margin: 6px 0;
     }
 
     .mobile-fab {
