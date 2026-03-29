@@ -798,22 +798,12 @@
     border: none;
     border-radius: 0;
     background: color-mix(in srgb, var(--type-color, #f97316) 14%, var(--triply-surface-1, #fff));
-    // Thick colored border via stacked drop-shadows (follows clip-path + connectors)
-    --border-color: color-mix(in srgb, var(--type-color, #f97316) 80%, #222);
+    // Thick border that follows clip-path (including connectors).
+    // Uses 3 compounding drop-shadows for ~3px visible outline.
     filter:
-      drop-shadow(0 0 0 var(--border-color))
-      drop-shadow(2px 0 0 var(--border-color))
-      drop-shadow(-2px 0 0 var(--border-color))
-      drop-shadow(0 2px 0 var(--border-color))
-      drop-shadow(0 -2px 0 var(--border-color))
-      drop-shadow(2px 2px 0 var(--border-color))
-      drop-shadow(-2px 2px 0 var(--border-color))
-      drop-shadow(2px -2px 0 var(--border-color))
-      drop-shadow(-2px -2px 0 var(--border-color))
-      drop-shadow(3px 0 0 var(--border-color))
-      drop-shadow(-3px 0 0 var(--border-color))
-      drop-shadow(0 3px 0 var(--border-color))
-      drop-shadow(0 -3px 0 var(--border-color));
+      drop-shadow(0 0 1.5px color-mix(in srgb, var(--type-color, #f97316) 80%, #000))
+      drop-shadow(0 0 1px color-mix(in srgb, var(--type-color, #f97316) 80%, #000))
+      drop-shadow(0 0 0.5px color-mix(in srgb, var(--type-color, #f97316) 80%, #000));
     transition: background 0.2s, filter 0.2s;
     // Padding keeps content away from clipped connector areas
     padding-left: 14px;
@@ -999,12 +989,10 @@
     &:hover {
       background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
       filter:
-        drop-shadow(0 0 0 var(--border-color))
-        drop-shadow(3px 0 0 var(--border-color))
-        drop-shadow(-3px 0 0 var(--border-color))
-        drop-shadow(0 3px 0 var(--border-color))
-        drop-shadow(0 -3px 0 var(--border-color))
-        drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+        drop-shadow(0 0 2px color-mix(in srgb, var(--type-color, #f97316) 80%, #000))
+        drop-shadow(0 0 1.5px color-mix(in srgb, var(--type-color, #f97316) 80%, #000))
+        drop-shadow(0 0 1px color-mix(in srgb, var(--type-color, #f97316) 80%, #000))
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
       transform: none;
 
       .card-actions {
