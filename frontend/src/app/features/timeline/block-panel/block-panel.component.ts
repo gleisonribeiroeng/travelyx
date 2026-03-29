@@ -169,20 +169,30 @@ const BLOCKS: BlockDef[] = [
     .block-drag-preview {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
+      gap: 12px;
+      padding: 12px 24px 12px 14px;
+      min-width: 180px;
       background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      font-size: 0.82rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06);
+      font-size: 0.9rem;
       font-weight: 700;
-      color: var(--block-color);
-      border-left: 3px solid var(--block-color);
+      color: #333;
+      border-left: 4px solid var(--block-color);
 
       mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        color: var(--block-color);
+        background: color-mix(in srgb, var(--block-color) 12%, #fff);
+        padding: 6px;
+        border-radius: 8px;
+        box-sizing: content-box;
+      }
+
+      span {
+        letter-spacing: 0.02em;
       }
     }
 
