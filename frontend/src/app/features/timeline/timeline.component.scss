@@ -851,21 +851,21 @@
       );
     }
 
-    // Middle cards: top FÊMEA (slot) + bottom MACHO (tab)
+    // Middle cards: top FÊMEA (concave slot) + bottom MACHO (tab)
     &:not(.puzzle-first):not(.puzzle-last):not(.puzzle-only) {
       padding-top: 12px;
       padding-bottom: 12px;
       clip-path: polygon(
-        0% 10px,
-        calc(50% - 12px) 10px,
-        calc(50% - 11px) 8px, calc(50% - 9px) 6px,
-        calc(50% - 7px) 4px, calc(50% - 4px) 2px,
-        calc(50% - 2px) 1px, 50% 0%,
-        calc(50% + 2px) 1px, calc(50% + 4px) 2px,
-        calc(50% + 7px) 4px, calc(50% + 9px) 6px,
-        calc(50% + 11px) 8px,
-        calc(50% + 12px) 10px,
-        calc(100% - 12px) 10px,
+        0% 0%,
+        calc(50% - 12px) 0%,
+        calc(50% - 11px) 2px, calc(50% - 9px) 4px,
+        calc(50% - 7px) 6px, calc(50% - 4px) 8px,
+        calc(50% - 2px) 9px, 50% 10px,
+        calc(50% + 2px) 9px, calc(50% + 4px) 8px,
+        calc(50% + 7px) 6px, calc(50% + 9px) 4px,
+        calc(50% + 11px) 2px,
+        calc(50% + 12px) 0%,
+        calc(100% - 12px) 0%,
         calc(100% - 12px) 40%,
         calc(100% - 10px) 41%, calc(100% - 8px) 43%, calc(100% - 5px) 45%,
         calc(100% - 3px) 48%, calc(100% - 2px) 50%,
@@ -889,20 +889,20 @@
       );
     }
 
-    // Last card: top FÊMEA (slot), flat bottom
+    // Last card: top FÊMEA (concave slot), flat bottom
     &.puzzle-last:not(.puzzle-only) {
       padding-top: 12px;
       clip-path: polygon(
-        0% 10px,
-        calc(50% - 12px) 10px,
-        calc(50% - 11px) 8px, calc(50% - 9px) 6px,
-        calc(50% - 7px) 4px, calc(50% - 4px) 2px,
-        calc(50% - 2px) 1px, 50% 0%,
-        calc(50% + 2px) 1px, calc(50% + 4px) 2px,
-        calc(50% + 7px) 4px, calc(50% + 9px) 6px,
-        calc(50% + 11px) 8px,
-        calc(50% + 12px) 10px,
-        calc(100% - 12px) 10px,
+        0% 0%,
+        calc(50% - 12px) 0%,
+        calc(50% - 11px) 2px, calc(50% - 9px) 4px,
+        calc(50% - 7px) 6px, calc(50% - 4px) 8px,
+        calc(50% - 2px) 9px, 50% 10px,
+        calc(50% + 2px) 9px, calc(50% + 4px) 8px,
+        calc(50% + 7px) 6px, calc(50% + 9px) 4px,
+        calc(50% + 11px) 2px,
+        calc(50% + 12px) 0%,
+        calc(100% - 12px) 0%,
         calc(100% - 12px) 40%,
         calc(100% - 10px) 41%, calc(100% - 8px) 43%, calc(100% - 5px) 45%,
         calc(100% - 3px) 48%, calc(100% - 2px) 50%,
