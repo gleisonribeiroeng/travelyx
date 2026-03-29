@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit, viewChild, effect } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, OnDestroy, viewChild, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +30,7 @@ import { QuickAddDialogComponent, QuickAddDialogData } from './quick-add-dialog/
   templateUrl: './timeline.component.html',
   styleUrl: './timeline.component.scss',
 })
-export class TimelineComponent implements OnInit {
+export class TimelineComponent implements OnInit, OnDestroy {
   protected readonly tripState = inject(TripStateService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
@@ -49,6 +49,9 @@ export class TimelineComponent implements OnInit {
   readonly syncing = signal(false);
   readonly exporting = signal(false);
   readonly optimizing = signal(false);
+  readonly dropIndicator = signal<{ date: string; index: number } | null>(null);
+  private isDraggingBlock = false;
+  private pointerMoveHandler = this.onPointerMoveDuringDrag.bind(this);
   private readonly blockPanel = viewChild(BlockPanelComponent);
 
   private readonly syncBlockPanelLists = effect(() => {
@@ -393,15 +396,57 @@ export class TimelineComponent implements OnInit {
     this.openQuickAddModal('activity', date, index);
   }
 
+  // ── Block drag indicator tracking ──
+  onBlockDragStart(): void {
+    this.isDraggingBlock = true;
+    document.addEventListener('pointermove', this.pointerMoveHandler);
+  }
+
+  onBlockDragEnd(): void {
+    this.isDraggingBlock = false;
+    this.dropIndicator.set(null);
+    document.removeEventListener('pointermove', this.pointerMoveHandler);
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('pointermove', this.pointerMoveHandler);
+  }
+
+  private onPointerMoveDuringDrag(event: PointerEvent): void {
+    const zones = document.querySelectorAll('.timed-items-zone');
+    for (const zone of zones) {
+      const dayDate = zone.id.replace('day-', '');
+      const cards = zone.querySelectorAll('.puzzle-border-wrap');
+
+      for (let i = 0; i < cards.length; i++) {
+        const rect = cards[i].getBoundingClientRect();
+        if (event.clientY >= rect.top && event.clientY <= rect.bottom) {
+          const midY = rect.top + rect.height / 2;
+          const idx = event.clientY < midY ? i : i + 1;
+          this.dropIndicator.set({ date: dayDate, index: idx });
+          return;
+        }
+      }
+
+      // Cursor is in the zone but below all cards
+      const zoneRect = zone.getBoundingClientRect();
+      if (event.clientX >= zoneRect.left && event.clientX <= zoneRect.right &&
+          event.clientY >= zoneRect.top && event.clientY <= zoneRect.bottom) {
+        this.dropIndicator.set({ date: dayDate, index: cards.length });
+        return;
+      }
+    }
+    this.dropIndicator.set(null);
+  }
+
   onDrop(event: CdkDragDrop<ItineraryItem[]>, targetDate: string): void {
-    // Drop from block palette → open quick-add modal with time context
+    // Drop from block palette → use our tracked indicator index
     if (event.previousContainer.id === 'block-palette') {
       const blockType = event.item.data as ItineraryItemType;
-      const targetItems = event.container.data;
-      const insertIdx = event.currentIndex;
-      // Pass the time of the item at the insertion position so the new item can inherit it
-      const timeAtPosition = targetItems[insertIdx]?.timeSlot ?? null;
-      this.openQuickAddModal(blockType, targetDate, insertIdx, timeAtPosition);
+      const indicator = this.dropIndicator();
+      const insertIdx = indicator?.date === targetDate ? indicator.index : event.currentIndex;
+      this.onBlockDragEnd();
+      this.openQuickAddModal(blockType, targetDate, insertIdx);
       return;
     }
     // Regular reorder

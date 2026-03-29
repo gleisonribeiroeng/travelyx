@@ -42,7 +42,8 @@ const BLOCKS: BlockDef[] = [
           @for (block of blocks; track block.type) {
             <div class="block-item" cdkDrag [cdkDragData]="block.type"
                  [style.--block-color]="block.color"
-                 [matTooltip]="block.label" matTooltipPosition="left" [matTooltipShowDelay]="300">
+                 [matTooltip]="block.label" matTooltipPosition="left" [matTooltipShowDelay]="300"
+                 (cdkDragStarted)="blockDragStarted.emit()" (cdkDragEnded)="blockDragEnded.emit()">
               <div class="block-icon-wrap">
                 <mat-icon>{{ block.icon }}</mat-icon>
               </div>
@@ -214,6 +215,8 @@ export class BlockPanelComponent {
   private readonly bottomSheet = inject(MatBottomSheet);
 
   readonly mobileBlockSelected = output<ItineraryItemType>();
+  readonly blockDragStarted = output<void>();
+  readonly blockDragEnded = output<void>();
 
   toggleExpanded(): void {
     this.expanded.update(v => !v);

@@ -1081,8 +1081,22 @@
   background: var(--triply-surface-1, #fff);
 }
 
-// Drag placeholder and gap styles are in global styles.scss
-// to avoid Angular encapsulation issues with CDK classes
+// ── Drop indicator line (shown when dragging blocks from panel) ──
+.drop-indicator-line {
+  height: 4px;
+  margin: 2px 12px;
+  border-radius: 2px;
+  background: var(--triply-primary, #f97316);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+  position: relative;
+  z-index: 10;
+  animation: dropIndicatorPulse 1s ease infinite;
+}
+
+@keyframes dropIndicatorPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
 
 .cdk-drag-animating {
   transition: transform 200ms ease;

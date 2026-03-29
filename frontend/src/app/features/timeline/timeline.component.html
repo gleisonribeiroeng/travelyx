@@ -1,7 +1,9 @@
 <div class="timeline-page">
   <!-- Block palette panel (desktop: side panel, mobile: FAB) -->
   @if (viewMode() === 'timeline' && hasDates()) {
-    <app-block-panel (mobileBlockSelected)="onMobileBlockSelected($event)" />
+    <app-block-panel (mobileBlockSelected)="onMobileBlockSelected($event)"
+                     (blockDragStarted)="onBlockDragStart()"
+                     (blockDragEnded)="onBlockDragEnd()" />
   }
 
   <!-- Insertion mode banner -->
@@ -301,6 +303,11 @@
                         }
                       }
 
+                      <!-- Drop indicator: before this card -->
+                      @if (dropIndicator()?.date === day.date && dropIndicator()?.index === idx) {
+                        <div class="drop-indicator-line"></div>
+                      }
+
                       <div class="puzzle-border-wrap" [attr.data-type]="item.type"
                            [class.puzzle-first]="idx === 0"
                            [class.puzzle-last]="idx === day.timedItems.length - 1"
@@ -363,6 +370,10 @@
                       </div><!-- /puzzle-border-wrap -->
                     }
 
+                    <!-- Drop indicator: after last card -->
+                    @if (dropIndicator()?.date === day.date && dropIndicator()?.index === day.timedItems.length) {
+                      <div class="drop-indicator-line"></div>
+                    }
                   </div>
 
                   <!-- Free slots -->
