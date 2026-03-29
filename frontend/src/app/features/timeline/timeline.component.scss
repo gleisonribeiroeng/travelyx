@@ -780,6 +780,7 @@
   // ── Puzzle border wrapper ──
   // filter on wrapper, clip-path on inner card = border follows the clip shape
   .puzzle-border-wrap {
+    position: relative;
     filter:
       drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
       drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
@@ -1081,16 +1082,27 @@
   background: var(--triply-surface-1, #fff);
 }
 
-// ── Drop indicator line (shown when dragging blocks from panel) ──
-.drop-indicator-line {
-  height: 3px;
-  margin: -1px 0;
-  border-radius: 1px;
+// ── Drop indicator (pseudo-element on targeted card) ──
+.puzzle-border-wrap.drop-above::before,
+.puzzle-border-wrap.drop-below::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
   background: var(--triply-primary, #f97316);
+  border-radius: 2px;
   box-shadow: 0 0 12px rgba(249, 115, 22, 0.6), 0 0 4px rgba(249, 115, 22, 0.8);
-  position: relative;
   z-index: 20;
   pointer-events: none;
+}
+
+.puzzle-border-wrap.drop-above::before {
+  top: 0;
+}
+
+.puzzle-border-wrap.drop-below::after {
+  bottom: 0;
 }
 
 .cdk-drag-animating {
