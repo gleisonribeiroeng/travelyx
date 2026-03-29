@@ -791,6 +791,27 @@
   border-radius: 12px;
   padding: 6px 4px;
 
+  // ── Puzzle border wrapper ──
+  // filter on wrapper, clip-path on inner card = border follows the clip shape
+  .puzzle-border-wrap {
+    filter:
+      drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+    transition: filter 0.2s;
+
+    &:not(.puzzle-only) {
+      margin-top: -28px;
+      &.puzzle-first { margin-top: 0; }
+    }
+
+    &:hover {
+      filter:
+        drop-shadow(0 0 3px rgba(0, 0, 0, 0.55))
+        drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.6))
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+    }
+  }
+
   // ── Puzzle piece cards ──
   .activity-card.timed {
     position: relative;
@@ -798,13 +819,7 @@
     border: none;
     border-radius: 0;
     background: color-mix(in srgb, var(--type-color, #f97316) 14%, var(--triply-surface-1, #fff));
-    // Thick border that follows clip-path (including connectors).
-    // Compounding blur drop-shadows create a visible ~3px outline.
-    filter:
-      drop-shadow(0 0 2px rgba(0, 0, 0, 0.45))
-      drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.35))
-      drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.5));
-    transition: background 0.2s, filter 0.2s;
+    transition: background 0.2s;
     // Padding keeps content away from clipped connector areas
     padding-left: 14px;
     padding-right: 16px;
@@ -967,11 +982,7 @@
       );
     }
 
-    // ── Interlock: ALL non-first timed cards pull up to connect ──
-    // Using nth-child to skip the very first element in the zone
-    &:not(.puzzle-first) {
-      margin-top: -28px !important;
-    }
+    // Interlock margin is on .puzzle-border-wrap, not the card
 
     // ── Single item: no puzzle shape ──
     &.puzzle-only {
@@ -988,10 +999,6 @@
     // ── Hover ──
     &:hover {
       background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
-      filter:
-        drop-shadow(0 0 3px rgba(0, 0, 0, 0.5))
-        drop-shadow(0 0 1px rgba(0, 0, 0, 0.5))
-        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
       transform: none;
 
       .card-actions {
@@ -1007,7 +1014,7 @@
 
   // Travel indicators sit between pieces — the card's own
   // negative margin handles the overlap already.
-  .insertion-target + .activity-card.timed {
+  .insertion-target + .puzzle-border-wrap {
     margin-top: 0 !important;
   }
 }
