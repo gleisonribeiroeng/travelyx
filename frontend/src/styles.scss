@@ -1159,6 +1159,11 @@ mat-card, .mat-mdc-card {
   margin-top: 6px !important;
 }
 
+// Hide CDK default placeholder (cloned element with dashed border)
+.timed-items-zone .cdk-drag-placeholder {
+  display: none !important;
+}
+
 @keyframes insertionGapPulse {
   0%, 100% {
     border-color: rgba(139, 92, 246, 0.3);
