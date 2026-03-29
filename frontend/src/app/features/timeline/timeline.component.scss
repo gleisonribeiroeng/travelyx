@@ -929,9 +929,10 @@
       );
     }
 
-    // ── Interlock: cards overlap so macho tab fills fêmea slot ──
-    & + & {
-      margin-top: -20px;
+    // ── Interlock: ALL non-first timed cards pull up to connect ──
+    // Using nth-child to skip the very first element in the zone
+    &:not(.puzzle-first) {
+      margin-top: -28px !important;
     }
 
     // ── Single item: no puzzle shape ──
@@ -963,14 +964,10 @@
     }
   }
 
-  // Travel indicators (height:0, margin:-6px) sit between pieces.
-  // Extra negative margin so tab still reaches the slot.
-  .travel-indicator + .activity-card.timed {
-    margin-top: -10px;
-  }
-
+  // Travel indicators sit between pieces — the card's own
+  // negative margin handles the overlap already.
   .insertion-target + .activity-card.timed {
-    margin-top: 0;
+    margin-top: 0 !important;
   }
 }
 
