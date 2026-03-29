@@ -1,7 +1,7 @@
 import { Component, signal, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
-import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDropList, CdkDragPreview, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ItineraryItemType } from '../../../core/models/trip.models';
 import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
@@ -26,7 +26,7 @@ const BLOCKS: BlockDef[] = [
 @Component({
   selector: 'app-block-panel',
   standalone: true,
-  imports: [MATERIAL_IMPORTS, CommonModule, CdkDrag, CdkDropList, MatBottomSheetModule],
+  imports: [MATERIAL_IMPORTS, CommonModule, CdkDrag, CdkDropList, CdkDragPreview, CdkDragPlaceholder, MatBottomSheetModule],
   template: `
     <!-- Desktop: floating side panel -->
     @if (!isMobile()) {
