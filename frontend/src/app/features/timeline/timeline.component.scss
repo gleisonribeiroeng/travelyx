@@ -796,11 +796,18 @@
     border: none;
     border-radius: 0;
     background: color-mix(in srgb, var(--type-color, #f97316) 14%, var(--triply-surface-1, #fff));
-    // drop-shadow follows the clip shape: colored border + soft shadow
+    // Thick colored border via stacked drop-shadows (follows clip-path + connectors)
+    --border-color: color-mix(in srgb, var(--type-color, #f97316) 70%, #333);
     filter:
-      drop-shadow(0 0 0.5px color-mix(in srgb, var(--type-color, #f97316) 60%, #333))
-      drop-shadow(0 0 1px color-mix(in srgb, var(--type-color, #f97316) 40%, #555))
-      drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+      drop-shadow(0 0 0 var(--border-color))
+      drop-shadow(1px 0 0 var(--border-color))
+      drop-shadow(-1px 0 0 var(--border-color))
+      drop-shadow(0 1px 0 var(--border-color))
+      drop-shadow(0 -1px 0 var(--border-color))
+      drop-shadow(1px 1px 0 var(--border-color))
+      drop-shadow(-1px 1px 0 var(--border-color))
+      drop-shadow(1px -1px 0 var(--border-color))
+      drop-shadow(-1px -1px 0 var(--border-color));
     transition: background 0.2s, filter 0.2s;
     // Padding keeps content away from clipped connector areas
     padding-left: 14px;
@@ -986,8 +993,12 @@
     &:hover {
       background: color-mix(in srgb, var(--type-color, #f97316) 22%, var(--triply-surface-1, #fff));
       filter:
-        drop-shadow(0 0 1px color-mix(in srgb, var(--type-color, #f97316) 60%, #333))
-        drop-shadow(0 2px 5px rgba(0, 0, 0, 0.15));
+        drop-shadow(0 0 0 var(--border-color))
+        drop-shadow(2px 0 0 var(--border-color))
+        drop-shadow(-2px 0 0 var(--border-color))
+        drop-shadow(0 2px 0 var(--border-color))
+        drop-shadow(0 -2px 0 var(--border-color))
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
       transform: none;
 
       .card-actions {
