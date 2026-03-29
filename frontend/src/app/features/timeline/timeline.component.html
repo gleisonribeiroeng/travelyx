@@ -283,9 +283,7 @@
                        [id]="'day-' + day.date"
                        [cdkDropListData]="day.timedItems"
                        [cdkDropListConnectedTo]="connectedDropLists()"
-                       [class.drag-active]="draggingOverZone() === day.date"
-                       (cdkDropListEntered)="onDragEntered($event, day.date)"
-                       (cdkDropListExited)="onDragExited($event, day.date)"
+                       [cdkDropListSortingDisabled]="true"
                        (cdkDropListDropped)="onDrop($event, day.date)">
                     @for (item of day.timedItems; track item.id; let idx = $index) {
                       <!-- Travel time indicator between items -->

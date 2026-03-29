@@ -10,7 +10,7 @@ import { WeatherService, DayWeather } from '../../core/services/weather.service'
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 import { buildTimeline, TimelineDay } from '../../core/utils/timeline-builder.util';
 import { ItineraryItem, ItineraryItemType, ConflictAlert } from '../../core/models/trip.models';
-import { CdkDragDrop, CdkDragEnter, CdkDragExit, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { AddItemDialogComponent } from './add-item-dialog.component';
 import { ItemDetailDialogComponent, ItemDetailData, ItemDetailResult } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
@@ -49,7 +49,6 @@ export class TimelineComponent implements OnInit {
   readonly syncing = signal(false);
   readonly exporting = signal(false);
   readonly optimizing = signal(false);
-  readonly draggingOverZone = signal<string | null>(null);
   private readonly blockPanel = viewChild(BlockPanelComponent);
 
   private readonly syncBlockPanelLists = effect(() => {
@@ -394,20 +393,7 @@ export class TimelineComponent implements OnInit {
     this.openQuickAddModal('activity', date, index);
   }
 
-  onDragEntered(event: CdkDragEnter, dayDate: string): void {
-    console.log('[DRAG] ENTERED zone:', dayDate, 'element classes:', event.container.element.nativeElement.classList.toString());
-    this.draggingOverZone.set(dayDate);
-  }
-
-  onDragExited(event: CdkDragExit, dayDate: string): void {
-    console.log('[DRAG] EXITED zone:', dayDate);
-    if (this.draggingOverZone() === dayDate) {
-      this.draggingOverZone.set(null);
-    }
-  }
-
   onDrop(event: CdkDragDrop<ItineraryItem[]>, targetDate: string): void {
-    this.draggingOverZone.set(null);
     // Drop from block palette → open quick-add modal with time context
     if (event.previousContainer.id === 'block-palette') {
       const blockType = event.item.data as ItineraryItemType;
