@@ -931,7 +931,7 @@
 
     // ── Interlock: cards overlap so macho tab fills fêmea slot ──
     & + & {
-      margin-top: -14px;
+      margin-top: -20px;
     }
 
     // ── Single item: no puzzle shape ──
@@ -966,7 +966,7 @@
   // Travel indicators (height:0, margin:-6px) sit between pieces.
   // Extra negative margin so tab still reaches the slot.
   .travel-indicator + .activity-card.timed {
-    margin-top: -4px;
+    margin-top: -10px;
   }
 
   .insertion-target + .activity-card.timed {
