@@ -11,7 +11,7 @@
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>language</mat-icon>
-        <mat-card-title>{{ 'settings.langCurrency' | translate }}</mat-card-title>
+        <mat-card-title>{{ 'settings.language' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="setting-row">
@@ -25,21 +25,6 @@
           <mat-select [value]="language" (selectionChange)="onLanguageChange($event.value)" class="setting-select">
             <mat-option value="pt">Português</mat-option>
             <mat-option value="en">English</mat-option>
-          </mat-select>
-        </div>
-        <mat-divider></mat-divider>
-        <div class="setting-row">
-          <div class="setting-info">
-            <mat-icon>payments</mat-icon>
-            <div>
-              <strong>{{ 'settings.currency' | translate }}</strong>
-              <p>{{ 'settings.currencyDesc' | translate }}</p>
-            </div>
-          </div>
-          <mat-select [value]="currency" (selectionChange)="onCurrencyChange($event.value)" class="setting-select">
-            <mat-option value="BRL">R$ BRL</mat-option>
-            <mat-option value="USD">$ USD</mat-option>
-            <mat-option value="EUR">€ EUR</mat-option>
           </mat-select>
         </div>
       </mat-card-content>

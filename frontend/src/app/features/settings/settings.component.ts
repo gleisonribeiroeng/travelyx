@@ -8,7 +8,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { TranslationService } from '../../core/i18n/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
-import { CurrencyService, CurrencyCode } from '../../core/i18n/currency.service';
 import { AuthService } from '../../core/services/auth.service';
 
 interface SettingToggle {
@@ -33,9 +32,6 @@ interface SettingToggle {
 export class SettingsComponent {
   protected readonly i18n = inject(TranslationService);
   protected readonly auth = inject(AuthService);
-  private readonly currencyService = inject(CurrencyService);
-
-  currency = this.currencyService.currency();
   language = this.i18n.lang();
 
   notifications: SettingToggle[] = [
@@ -79,11 +75,6 @@ export class SettingsComponent {
   onLanguageChange(lang: 'pt' | 'en'): void {
     this.language = lang;
     this.i18n.setLang(lang);
-  }
-
-  onCurrencyChange(currency: CurrencyCode): void {
-    this.currency = currency;
-    this.currencyService.setCurrency(currency);
   }
 
   onToggle(setting: SettingToggle): void {
