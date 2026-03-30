@@ -84,7 +84,7 @@ export class BudgetService {
         const ci = new Date(stay.checkIn);
         const co = new Date(stay.checkOut);
         const nights = Math.max(1, Math.round((co.getTime() - ci.getTime()) / 86400000));
-        return stay.pricePerNight.total * nights;
+        return Math.round(stay.pricePerNight.total * nights * 100) / 100;
       }
       case 'car-rental':
         return trip.carRentals.find(c => c.id === item.refId)?.price.total ?? null;

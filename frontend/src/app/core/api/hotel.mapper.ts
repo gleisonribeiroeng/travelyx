@@ -48,7 +48,7 @@ export class HotelMapper implements Mapper<BookingComHotel, Stay> {
     const currency = this.currencyService.currency();
 
     const nights = this.calculateNights(ci, co);
-    const pricePerNight = nights > 0 ? totalPrice / nights : totalPrice;
+    const pricePerNight = nights > 0 ? Math.round((totalPrice / nights) * 100) / 100 : totalPrice;
 
     // Convert 0-10 review score to 0-5 rating
     const rating =
