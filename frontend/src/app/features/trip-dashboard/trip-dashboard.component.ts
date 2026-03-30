@@ -240,11 +240,11 @@ export class TripDashboardComponent implements OnInit {
     const ref = this.dialog.open(TripCreateDialogComponent, {
       width: '440px',
       panelClass: 'mobile-fullscreen-dialog',
-      data: { name: t.name, destination: t.destination, dates: t.dates } as TripEditData,
+      data: { name: t.name, destination: t.destination, dates: t.dates, currency: t.currency } as TripEditData,
     });
     ref.afterClosed().subscribe((result: TripCreateDialogResult | undefined) => {
       if (!result) return;
-      this.tripState.setTripMeta(result.name, result.destination, result.dates);
+      this.tripState.setTripMeta(result.name, result.destination, result.dates, result.currency);
       this.notify.success(this.i18n.t('dash.tripUpdated'));
     });
   }

@@ -48,13 +48,14 @@ export class BudgetService {
       }
     }
 
-    const totalPlanned = Object.values(byCategory).reduce((s, c) => s + c.planned, 0);
-    const totalPaid = Object.values(byCategory).reduce((s, c) => s + c.paid, 0);
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const totalPlanned = round2(Object.values(byCategory).reduce((s, c) => s + c.planned, 0));
+    const totalPaid = round2(Object.values(byCategory).reduce((s, c) => s + c.paid, 0));
 
     return {
       totalPlanned,
       totalPaid,
-      totalPending: totalPlanned - totalPaid,
+      totalPending: round2(totalPlanned - totalPaid),
       currency: trip.currency || 'BRL',
       byCategory: byCategory as any,
       byDay,

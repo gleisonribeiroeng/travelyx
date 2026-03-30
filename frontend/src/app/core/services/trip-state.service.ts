@@ -266,7 +266,8 @@ export class TripStateService {
   setTripMeta(
     name: string,
     destination: string,
-    dates: { start: string; end: string }
+    dates: { start: string; end: string },
+    currency?: string,
   ): void {
     const prev = this.activeTrip();
     this.updateActiveTrip(t => ({
@@ -274,6 +275,7 @@ export class TripStateService {
       name,
       destination,
       dates,
+      ...(currency ? { currency } : {}),
       updatedAt: new Date().toISOString(),
     }));
     this.scheduleSyncToApi();

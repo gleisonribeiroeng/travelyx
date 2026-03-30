@@ -133,13 +133,13 @@ export class TripListComponent implements OnInit {
     const ref = this.dialog.open(TripCreateDialogComponent, {
       width: '440px',
       panelClass: 'mobile-fullscreen-dialog',
-      data: { name: trip.name, destination: trip.destination, dates: trip.dates } as TripEditData,
+      data: { name: trip.name, destination: trip.destination, dates: trip.dates, currency: trip.currency } as TripEditData,
     });
     ref.afterClosed().subscribe((result: TripCreateDialogResult | undefined) => {
       if (!result) return;
       const prevActive = this.tripState.activeTripId();
       this.tripState.selectTrip(id);
-      this.tripState.setTripMeta(result.name, result.destination, result.dates);
+      this.tripState.setTripMeta(result.name, result.destination, result.dates, result.currency);
       if (prevActive && prevActive !== id) this.tripState.selectTrip(prevActive);
       this.notify.success(this.i18n.t('trips.updatedSuccess'));
     });

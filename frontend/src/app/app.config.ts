@@ -4,6 +4,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import localePtPT from '@angular/common/locales/pt-PT';
+import localeEn from '@angular/common/locales/en';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/api/interceptors/auth.interceptor';
@@ -11,6 +13,8 @@ import { errorInterceptor } from './core/api/interceptors/error.interceptor';
 import { loadingInterceptor } from './core/api/interceptors/loading.interceptor';
 
 registerLocaleData(localePt, 'pt-BR');
+registerLocaleData(localePtPT, 'pt-PT');
+registerLocaleData(localeEn, 'en-US');
 
 export const appConfig: ApplicationConfig = {
   providers: [
