@@ -1539,6 +1539,15 @@ $radius-full: 100px;
   justify-content: center;
   font-weight: 700;
   font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.v2-testimonial-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .v2-testimonial-info {

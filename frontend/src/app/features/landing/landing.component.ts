@@ -80,13 +80,13 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       city: 'Orlando',
       tag: 'FAMÍLIA',
       flightFrom: 2100,
-      image: 'https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1575931953324-fcac7094999e?w=800&q=80',
     },
     {
       city: 'Gramado',
       tag: 'INVERNO',
       flightFrom: 380,
-      image: 'https://images.unsplash.com/photo-1609942571893-c87dde449c5e?w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
     },
     {
       city: 'Buenos Aires',
@@ -110,9 +110,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Testimonials
   readonly testimonials = [
-    { name: 'Marina S.', text: 'Planejei minha lua de mel pra Portugal inteira no Travelyx. Antes eu tinha 15 abas abertas e uma planilha que ficou tão complicada que desisti três vezes. Aqui montei tudo em uma tarde.', trip: 'Lisboa e Porto · 10 dias' },
-    { name: 'Ricardo M.', text: 'O alerta de preço me salvou R$ 800 no voo pra Orlando. Eu tinha setado o preço-alvo e esqueci. Duas semanas depois recebi o aviso que caiu. Comprei na hora.', trip: 'Orlando · 7 dias em família' },
-    { name: 'Camila L.', text: 'Éramos 4 amigos planejando Gramado e ninguém concordava em nada. No Travelyx cada um adicionou o que queria e votamos nas opções. Ficou muito mais fácil.', trip: 'Gramado · 5 dias com amigos' },
+    { name: 'Marina S.', text: 'Planejei minha lua de mel pra Portugal inteira no Travelyx. Antes eu tinha 15 abas abertas e uma planilha que ficou tão complicada que desisti três vezes. Aqui montei tudo em uma tarde.', trip: 'Lisboa e Porto · 10 dias', photo: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&h=80&fit=crop&crop=face' },
+    { name: 'Ricardo M.', text: 'O alerta de preço me salvou R$ 800 no voo pra Orlando. Eu tinha setado o preço-alvo e esqueci. Duas semanas depois recebi o aviso que caiu. Comprei na hora.', trip: 'Orlando · 7 dias em família', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face' },
+    { name: 'Camila L.', text: 'Éramos 4 amigos planejando Gramado e ninguém concordava em nada. No Travelyx cada um adicionou o que queria e votamos nas opções. Ficou muito mais fácil.', trip: 'Gramado · 5 dias com amigos', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face' },
   ];
 
   // FAQs

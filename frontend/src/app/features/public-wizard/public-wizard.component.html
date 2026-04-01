@@ -208,6 +208,29 @@
             @if (includeActivities()) { <mat-icon class="pw-cat-check">check_circle</mat-icon> }
           </button>
         </div>
+
+        <!-- Style preferences -->
+        <div class="pw-style-section">
+          <p class="pw-style-label">Onde você prefere ficar?</p>
+          <div class="pw-style-grid">
+            @for (tipo of accommodationTypes; track tipo.id) {
+              <button class="pw-style-btn" [class.selected]="accommodationStyle() === tipo.id" (click)="accommodationStyle.set(tipo.id)">
+                <span class="pw-style-emoji">{{ tipo.emoji }}</span>
+                {{ tipo.label }}
+              </button>
+            }
+          </div>
+
+          <p class="pw-style-label">Como você curte explorar?</p>
+          <div class="pw-style-grid">
+            @for (estilo of explorationStyles; track estilo.id) {
+              <button class="pw-style-btn" [class.selected]="explorationStyle() === estilo.id" (click)="explorationStyle.set(estilo.id)">
+                <span class="pw-style-emoji">{{ estilo.emoji }}</span>
+                {{ estilo.label }}
+              </button>
+            }
+          </div>
+        </div>
       </div>
     }
 
@@ -216,9 +239,14 @@
       <div class="pw-step-content pw-results">
         @if (isSearching()) {
           <div class="pw-loading">
-            <mat-spinner diameter="48"></mat-spinner>
+            <div class="pw-loading-icon">{{ loadingTexts[loadingPhase() % loadingTexts.length].slice(-2) }}</div>
             <h3>{{ loadingText() }}</h3>
-            <p>{{ loadingTip() }}</p>
+            <p class="pw-loading-tip">{{ loadingTip() }}</p>
+            <div class="pw-loading-dots">
+              @for (t of loadingTexts; track $index) {
+                <div class="pw-loading-dot" [class.active]="$index <= loadingPhase() % loadingTexts.length"></div>
+              }
+            </div>
           </div>
         }
 
@@ -258,7 +286,7 @@
               }
               <div class="pw-hotel-info">
                 <strong>{{ r.hotels[0].name }}</strong>
-                <span>{{ r.hotels[0].nights }} noites &middot; {{ r.hotels[0].rating }} estrelas</span>
+                <span>{{ r.hotels[0].nights }} noites &middot; {{ formatRating(r.hotels[0].rating) }} estrelas</span>
                 <span class="pw-hotel-price">{{ r.hotels[0].pricePerNight | dynamicCurrency }}/noite &middot; <strong>{{ r.hotels[0].total | dynamicCurrency }}</strong> total</span>
               </div>
             </div>
@@ -280,7 +308,7 @@
                       <strong>{{ act.name }}</strong>
                       <div class="pw-act-meta">
                         @if (act.duration) { <span><mat-icon>schedule</mat-icon> {{ act.duration }}</span> }
-                        @if (act.rating) { <span><mat-icon>star</mat-icon> {{ act.rating }}</span> }
+                        @if (act.rating) { <span><mat-icon>star</mat-icon> {{ formatRating(act.rating) }}</span> }
                       </div>
                     </div>
                     <span class="pw-act-price">{{ act.price | dynamicCurrency }}</span>

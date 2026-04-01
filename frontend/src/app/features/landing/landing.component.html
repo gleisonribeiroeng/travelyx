@@ -359,7 +359,11 @@
           <div class="v2-testimonial-card">
             <p class="v2-testimonial-text">"{{ t.text }}"</p>
             <div class="v2-testimonial-author">
-              <div class="v2-testimonial-avatar">{{ t.name.charAt(0) }}</div>
+              @if (t.photo) {
+                <img [src]="t.photo" [alt]="t.name" class="v2-testimonial-avatar-img" loading="lazy" referrerpolicy="no-referrer">
+              } @else {
+                <div class="v2-testimonial-avatar">{{ t.name.charAt(0) }}</div>
+              }
               <div class="v2-testimonial-info">
                 <strong>{{ t.name }}</strong>
                 <span>{{ t.trip }}</span>
@@ -375,18 +379,18 @@
   <section class="v2-proof reveal">
     <div class="v2-proof-strip">
       <div class="v2-proof-item">
-        <span class="v2-proof-num">190+</span>
-        <span class="v2-proof-label">{{ 'landing.proof.destinations' | translate }}</span>
+        <span class="v2-proof-num">500+</span>
+        <span class="v2-proof-label">{{ 'landing.proof.tripsCreated' | translate }}</span>
       </div>
       <div class="v2-proof-sep"></div>
       <div class="v2-proof-item">
         <span class="v2-proof-num">100%</span>
-        <span class="v2-proof-label">{{ 'landing.proof.freeToStart' | translate }}</span>
+        <span class="v2-proof-label">{{ 'landing.proof.freeAlways' | translate }}</span>
       </div>
       <div class="v2-proof-sep"></div>
       <div class="v2-proof-item">
-        <span class="v2-proof-num">5 min</span>
-        <span class="v2-proof-label">{{ 'landing.proof.buildItinerary' | translate }}</span>
+        <span class="v2-proof-num">2 min</span>
+        <span class="v2-proof-label">{{ 'landing.proof.firstItinerary' | translate }}</span>
       </div>
     </div>
   </section>

@@ -72,7 +72,7 @@ export class PublicWizardComponent implements OnInit {
   result = signal<WizardResult | null>(null);
 
   // Rotating loading text
-  private loadingPhase = signal(0);
+  readonly loadingPhase = signal(0);
   private loadingInterval: any;
 
   readonly loadingTexts = [
@@ -150,6 +150,23 @@ export class PublicWizardComponent implements OnInit {
     return '';
   });
 
+  // Style preferences (Step 4)
+  readonly accommodationStyle = signal<string>('');
+  readonly accommodationTypes = [
+    { id: 'hotel_comfort', emoji: '🏨', label: 'Hotel confortável' },
+    { id: 'hotel_budget', emoji: '🛏️', label: 'Econômico e bem localizado' },
+    { id: 'hostel', emoji: '🎒', label: 'Hostel / Mochilão' },
+    { id: 'apartment', emoji: '🏠', label: 'Apartamento' },
+  ];
+
+  readonly explorationStyle = signal<string>('');
+  readonly explorationStyles = [
+    { id: 'free', emoji: '🗺️', label: 'Explorar livremente' },
+    { id: 'guided', emoji: '🎧', label: 'Passeios guiados' },
+    { id: 'food', emoji: '🍷', label: 'Foco em gastronomia' },
+    { id: 'adventure', emoji: '🧗', label: 'Aventura e natureza' },
+  ];
+
   // Trip type
   readonly tripType = signal<string>('couple');
   readonly tripTypes = [
@@ -166,8 +183,8 @@ export class PublicWizardComponent implements OnInit {
     { city: 'Paris', country: 'França', emoji: '🗼', destId: '-1456928', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=75' },
     { city: 'Lisboa', country: 'Portugal', emoji: '🏛️', destId: '-2167973', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=400&q=75' },
     { city: 'Buenos Aires', country: 'Argentina', emoji: '💃', destId: '-979186', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=400&q=75' },
-    { city: 'Orlando', country: 'EUA', emoji: '🎢', destId: '-2092174', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?w=400&q=75' },
-    { city: 'Santiago', country: 'Chile', emoji: '🏔️', destId: '-1279579', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1569272031118-b78017f20a75?w=400&q=75' },
+    { city: 'Orlando', country: 'EUA', emoji: '🎢', destId: '-2092174', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1575931953324-fcac7094999e?w=400&q=75' },
+    { city: 'Santiago', country: 'Chile', emoji: '🏔️', destId: '-1279579', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=400&q=75' },
   ];
 
   ngOnInit(): void {
@@ -395,7 +412,7 @@ export class PublicWizardComponent implements OnInit {
         const activities = (activityResult?.data || []).slice(0, 5).map((a: any) => ({
           name: a.name || 'Atividade',
           price: a.price?.total || 0,
-          photo: a.photoUrl || a.photo || '',
+          photo: a.images?.[0] || a.photoUrl || a.photo || '',
           duration: a.durationMinutes ? `${Math.floor(a.durationMinutes / 60)}h` : '',
           rating: a.rating || 0,
         }));
@@ -457,6 +474,12 @@ export class PublicWizardComponent implements OnInit {
     };
     localStorage.setItem('travelyx_public_wizard', JSON.stringify(state));
     window.location.href = this.authService.getGoogleLoginUrl();
+  }
+
+  /** Format rating to 1 decimal place */
+  formatRating(rating: number | undefined): string {
+    if (!rating || isNaN(rating)) return '—';
+    return (Math.round(rating * 10) / 10).toFixed(1);
   }
 
   // Helpers
