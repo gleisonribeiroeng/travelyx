@@ -22,6 +22,7 @@ import { TranslationService } from '../../core/i18n/translation.service';
 import { ItineraryComponent } from '../itinerary/itinerary.component';
 import { BlockPanelComponent } from './block-panel/block-panel.component';
 import { QuickAddDialogComponent, QuickAddDialogData } from './quick-add-dialog/quick-add-dialog.component';
+import { DESTINATION_ACTIVITIES, DestinationActivity } from '../../core/data/destination-activities.data';
 
 @Component({
   selector: 'app-timeline',
@@ -274,6 +275,15 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // ── Weather for date ──
   getWeather(date: string): DayWeather | null {
     return this.weather.getForDate(date);
+  }
+
+  /** Get a curated activity suggestion for an empty day (varies by day number) */
+  getEmptyDaySuggestion(dayNumber: number): DestinationActivity | null {
+    const dest = this.tripState.trip().destination;
+    if (!dest) return null;
+    const activities = DESTINATION_ACTIVITIES[dest];
+    if (!activities?.length) return null;
+    return activities[dayNumber % activities.length];
   }
 
   // ── Existing methods (preserved) ──

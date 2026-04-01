@@ -479,6 +479,32 @@
 }
 
 // ── Empty day message ──
+.empty-day-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--triply-text-tertiary, #999);
+  margin-top: 2px;
+}
+
+.empty-day-title {
+  font-weight: 600;
+}
+
+.day-suggestion-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(249, 115, 22, 0.06);
+  border: 1px dashed rgba(249, 115, 22, 0.25);
+  border-radius: 10px;
+
+  .suggestion-emoji { font-size: 1.3rem; line-height: 1; }
+  .suggestion-info { display: flex; flex-direction: column; }
+  .suggestion-name { font-size: 0.8rem; font-weight: 600; color: var(--triply-text-primary, #1a1a2e); font-style: normal; }
+  .suggestion-meta { font-size: 0.7rem; color: var(--triply-text-tertiary, #999); font-style: normal; }
+}
+
 .empty-day-msg {
   display: flex;
   align-items: center;
@@ -487,6 +513,7 @@
   color: var(--triply-text-tertiary);
   font-size: 0.82rem;
   font-style: italic;
+  flex-wrap: wrap;
 
   mat-icon {
     font-size: 18px;

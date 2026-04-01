@@ -242,11 +242,26 @@
                        [cdkDropListSortingDisabled]="true"
                        (cdkDropListDropped)="onDrop($event, day.date)">
                     <div class="drop-empty-zone" [class.drop-hover]="dropIndicator()?.date === day.date">
-                      <mat-icon>{{ dropIndicator()?.date === day.date ? 'add_circle' : 'wb_sunny' }}</mat-icon>
-                      <span>{{ dropIndicator()?.date === day.date ? 'Solte aqui para adicionar' : ('timeline.freeDay' | translate) }}</span>
+                      @if (dropIndicator()?.date === day.date) {
+                        <mat-icon>add_circle</mat-icon>
+                        <span>Solte aqui para adicionar</span>
+                      } @else {
+                        <mat-icon>wb_sunny</mat-icon>
+                        <span class="empty-day-title">{{ 'timeline.freeDay' | translate }}</span>
+                        <span class="empty-day-hint">Aproveite para explorar {{ tripState.trip().destination || 'o destino' }}!</span>
+                      }
                     </div>
                   </div>
                   <div class="empty-day-msg">
+                    @if (getEmptyDaySuggestion(day.dayNumber); as suggestion) {
+                      <div class="day-suggestion-card">
+                        <span class="suggestion-emoji">{{ suggestion.categoryEmoji }}</span>
+                        <div class="suggestion-info">
+                          <span class="suggestion-name">{{ suggestion.name }}</span>
+                          <span class="suggestion-meta">{{ suggestion.duration }} · {{ suggestion.priceRange }}</span>
+                        </div>
+                      </div>
+                    }
                     <button mat-stroked-button class="add-day-btn" (click)="$event.stopPropagation(); openAddDialog(undefined, day.date)">
                       <mat-icon>add</mat-icon> {{ 'timeline.add' | translate }}
                     </button>
