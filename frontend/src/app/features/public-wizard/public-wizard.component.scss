@@ -183,25 +183,38 @@ $muted: #64748b;
 }
 
 .pw-dest-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 20px 14px;
-  border: 2px solid #e2e8f0;
+  justify-content: flex-end;
+  min-height: 120px;
+  border: 2px solid transparent;
   border-radius: 16px;
-  background: #fff;
+  background-color: $midnight;
+  background-size: cover;
+  background-position: center;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit;
+  overflow: hidden;
 
-  &:hover { border-color: rgba(249, 115, 22, 0.4); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06); }
-  &.selected { border-color: $coral; background: rgba(249, 115, 22, 0.03); box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
+  &:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); }
+  &.selected { border-color: $coral; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25); }
 }
 
-.pw-dest-emoji { font-size: 2rem; line-height: 1; }
-.pw-dest-city { font-family: $font-display; font-size: 0.88rem; font-weight: 700; color: $text; }
-.pw-dest-country { font-size: 0.72rem; color: $muted; }
+.pw-dest-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 14px;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 100%);
+  width: 100%;
+}
+
+.pw-dest-emoji { font-size: 1.4rem; line-height: 1; margin-bottom: 2px; }
+.pw-dest-city { font-family: $font-display; font-size: 0.88rem; font-weight: 700; color: #fff; }
+.pw-dest-country { font-size: 0.72rem; color: rgba(255,255,255,0.7); }
 
 .pw-or-divider {
   display: flex;

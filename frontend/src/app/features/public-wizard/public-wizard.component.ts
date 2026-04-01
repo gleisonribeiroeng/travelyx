@@ -184,7 +184,7 @@ export class PublicWizardComponent implements OnInit {
     { city: 'Lisboa', country: 'Portugal', emoji: '🏛️', destId: '-2167973', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=400&q=75' },
     { city: 'Buenos Aires', country: 'Argentina', emoji: '💃', destId: '-979186', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=400&q=75' },
     { city: 'Orlando', country: 'EUA', emoji: '🎢', destId: '-2092174', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1597466599360-3b9775841aec?w=400&q=75' },
-    { city: 'Santiago', country: 'Chile', emoji: '🏔️', destId: '-1279579', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=400&q=75' },
+    { city: 'Gramado', country: 'Brasil', emoji: '❄️', destId: '-631243', searchType: 'CITY', photo: 'images/gramado.jpg' },
   ];
 
   ngOnInit(): void {
