@@ -22,6 +22,7 @@ export interface TrendingDestination {
   name: string;
   price: number;
   gradient: string;
+  imageUrl?: string;
 }
 
 @Component({
@@ -56,12 +57,12 @@ export class TripListComponent implements OnInit {
   });
 
   readonly trendingDestinations: TrendingDestination[] = [
-    { name: 'Santiago', price: 890, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-    { name: 'Jericoacoara', price: 450, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-    { name: 'Montevideu', price: 720, gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-    { name: 'Bonito', price: 380, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-    { name: 'Lisboa', price: 2890, gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
-    { name: 'Buenos Aires', price: 650, gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
+    { name: 'Santiago', price: 890, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', imageUrl: 'https://images.unsplash.com/photo-1510519138101-570d1dca3d66?w=300&q=80' },
+    { name: 'Jericoacoara', price: 450, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', imageUrl: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=300&q=80' },
+    { name: 'Montevidéu', price: 720, gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80' },
+    { name: 'Bonito', price: 380, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', imageUrl: 'https://images.unsplash.com/photo-1585123334904-845d60e97b29?w=300&q=80' },
+    { name: 'Lisboa', price: 2890, gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', imageUrl: 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=300&q=80' },
+    { name: 'Buenos Aires', price: 650, gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', imageUrl: 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=300&q=80' },
   ];
 
   ngOnInit(): void {

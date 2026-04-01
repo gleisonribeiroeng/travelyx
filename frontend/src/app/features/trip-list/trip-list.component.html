@@ -132,7 +132,10 @@
         <div class="inspiration-scroll">
           @for (dest of trendingDestinations; track dest.name) {
             <div class="inspiration-card" (click)="openCreateDialog()">
-              <div class="inspiration-cover" [style.background]="dest.gradient">
+              <div class="inspiration-cover" [style.background]="dest.imageUrl ? '' : dest.gradient">
+                @if (dest.imageUrl) {
+                  <img [src]="dest.imageUrl" [alt]="dest.name" class="inspiration-cover-img" loading="lazy">
+                }
                 <span class="inspiration-name">{{ dest.name }}</span>
               </div>
               <div class="inspiration-body">
