@@ -86,7 +86,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       city: 'Gramado',
       tag: 'INVERNO',
       flightFrom: 380,
-      image: 'https://images.unsplash.com/photo-1590075865003-e48277faa558?w=800&q=80',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Gramado_Dezembro_2013_%28cropped%29.JPG/1280px-Gramado_Dezembro_2013_%28cropped%29.JPG?w=800&q=80',
     },
     {
       city: 'Buenos Aires',
