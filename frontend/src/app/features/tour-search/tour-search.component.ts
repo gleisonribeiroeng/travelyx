@@ -24,6 +24,7 @@ import { activityToListItem, TourTagType } from '../../shared/components/list-it
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
+import { DESTINATION_ACTIVITIES, DestinationActivity } from '../../core/data/destination-activities.data';
 
 @Component({
   selector: 'app-tour-search',
@@ -50,6 +51,13 @@ export class TourSearchComponent {
     { icon: 'shopping_bag', label: 'Compras' },
     { icon: 'photo_camera', label: 'Fotografico' },
   ];
+
+  /** Curated activities for the trip's destination (fallback when API returns empty) */
+  readonly curatedActivities = computed(() => {
+    const dest = this.tripDestination;
+    if (!dest) return [];
+    return DESTINATION_ACTIVITIES[dest] ?? [];
+  });
 
   // Autocomplete destination control
   readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);

@@ -193,11 +193,41 @@
   }
 
   @if (searchResults().length === 0 && !isSearching() && hasSearched()) {
-    <mat-card class="empty-state">
-      <mat-card-content>
-        <mat-icon>local_activity</mat-icon>
-        <p>{{ 'activities.emptyState' | translate }}</p>
-      </mat-card-content>
-    </mat-card>
+    @if (curatedActivities().length > 0) {
+      <div class="curated-fallback">
+        <h3 class="curated-title">
+          <mat-icon>auto_awesome</mat-icon>
+          Sugestões para {{ tripDestination }}
+        </h3>
+        <p class="curated-subtitle">Não encontramos resultados online, mas estas são atividades populares:</p>
+        <div class="curated-grid">
+          @for (item of curatedActivities(); track item.name) {
+            <mat-card class="curated-card">
+              <mat-card-content>
+                <div class="curated-header">
+                  <span class="curated-emoji">{{ item.categoryEmoji }}</span>
+                  <div>
+                    <h4>{{ item.name }}</h4>
+                    <div class="curated-meta">
+                      <span><mat-icon>schedule</mat-icon> {{ item.duration }}</span>
+                      <span><mat-icon>payments</mat-icon> {{ item.priceRange }}</span>
+                      <span><mat-icon>star</mat-icon> {{ item.rating }}/5</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="curated-tip">{{ item.tip }}</p>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </div>
+    } @else {
+      <mat-card class="empty-state">
+        <mat-card-content>
+          <mat-icon>local_activity</mat-icon>
+          <p>{{ 'activities.emptyState' | translate }}</p>
+        </mat-card-content>
+      </mat-card>
+    }
   }
 </div>
