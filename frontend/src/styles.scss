@@ -1117,3 +1117,22 @@ mat-card, .mat-mdc-card {
 .timed-items-zone .cdk-drag-placeholder {
   display: none !important;
 }
+
+// ═══════════════════════════════════════════════════════════
+// MICRO-ANIMATIONS & CELEBRATORY FEEDBACK
+// ═══════════════════════════════════════════════════════════
+
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes badge-unlock {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.badge-unlocked {
+  animation: badge-unlock 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}

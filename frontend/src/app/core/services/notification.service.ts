@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { ConfettiService } from './confetti.service';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 export type ToastVariant = 'minimal' | 'bold';
@@ -27,6 +28,7 @@ const DEFAULT_DURATIONS: Record<ToastType, number> = {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
+  private readonly confetti = inject(ConfettiService);
   private nextId = 0;
   private readonly _toasts = signal<Toast[]>([]);
   private readonly timers = new Map<number, ReturnType<typeof setTimeout>>();
@@ -50,6 +52,12 @@ export class NotificationService {
 
   info(message: string, options?: ToastOptions): void {
     this.add('info', message, options);
+  }
+
+  /** Show a success toast AND fire confetti — use for milestone events */
+  celebrate(message: string, options?: ToastOptions): void {
+    this.add('success', message, { duration: 4000, ...options });
+    this.confetti.fire();
   }
 
   dismiss(id: number): void {
