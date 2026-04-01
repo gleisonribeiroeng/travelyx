@@ -1490,80 +1490,59 @@ $radius-full: 100px;
 // TESTIMONIALS
 // ═══════════════════════════════════════════════════════════════
 
-.v2-testimonials-section {
+// ═══ Why Travelyx Section ═══
+
+.v2-why-section {
   background: #fff;
 }
 
-.v2-testimonial-grid {
+.v2-why-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
   max-width: 960px;
   margin: 24px auto 0;
 
-  @media (min-width: 768px) {
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 960px) {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-.v2-testimonial-card {
+.v2-why-card {
   padding: 24px;
   background: $surface;
   border-radius: 16px;
   border: 1px solid rgba(0,0,0,0.04);
   text-align: left;
-}
+  transition: all 0.2s ease;
 
-.v2-testimonial-text {
-  margin: 0 0 16px;
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: $text-primary;
-  font-style: italic;
-}
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  }
 
-.v2-testimonial-author {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.v2-testimonial-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $coral, #fb923c);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.v2-testimonial-avatar-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.v2-testimonial-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  strong {
-    font-size: 0.85rem;
+  h3 {
+    margin: 12px 0 6px;
+    font-family: $font-display;
+    font-size: 0.95rem;
+    font-weight: 700;
     color: $text-primary;
   }
 
-  span {
-    font-size: 0.75rem;
+  p {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.55;
     color: $text-muted;
   }
+}
+
+.v2-why-icon {
+  font-size: 1.5rem;
 }
 
 // ═══════════════════════════════════════════════════════════════

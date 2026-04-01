@@ -348,29 +348,43 @@
     </div>
   </section>
 
-  <!-- Testimonials -->
-  <section class="v2-section v2-testimonials-section reveal">
+  <!-- Why Travelyx — Real benefits, no fake testimonials -->
+  <section class="v2-section v2-why-section reveal">
     <div class="v2-section-inner">
-      <span class="v2-badge">O QUE DIZEM NOSSOS VIAJANTES</span>
-      <h2 class="v2-section-title">Quem usou, recomenda</h2>
+      <span class="v2-badge">POR QUE O TRAVELYX</span>
+      <h2 class="v2-section-title">Planeje do seu jeito, sem intermediários</h2>
 
-      <div class="v2-testimonial-grid">
-        @for (t of testimonials; track t.name) {
-          <div class="v2-testimonial-card">
-            <p class="v2-testimonial-text">"{{ t.text }}"</p>
-            <div class="v2-testimonial-author">
-              @if (t.photo) {
-                <img [src]="t.photo" [alt]="t.name" class="v2-testimonial-avatar-img" loading="lazy" referrerpolicy="no-referrer">
-              } @else {
-                <div class="v2-testimonial-avatar">{{ t.name.charAt(0) }}</div>
-              }
-              <div class="v2-testimonial-info">
-                <strong>{{ t.name }}</strong>
-                <span>{{ t.trip }}</span>
-              </div>
-            </div>
-          </div>
-        }
+      <div class="v2-why-grid">
+        <div class="v2-why-card">
+          <div class="v2-why-icon">🔍</div>
+          <h3>Preços direto da fonte</h3>
+          <p>Buscamos voos, hotéis e atividades em Booking, Kiwi e Travelpayouts. Você vê o preço real, sem markup de agência.</p>
+        </div>
+        <div class="v2-why-card">
+          <div class="v2-why-icon">📋</div>
+          <h3>Roteiro visual dia a dia</h3>
+          <p>Arraste voos, hotéis e atividades para cada dia. O app detecta conflitos de horário e avisa o que falta.</p>
+        </div>
+        <div class="v2-why-card">
+          <div class="v2-why-icon">👥</div>
+          <h3>Planeje com quem vai junto</h3>
+          <p>Convide amigos ou família. Todo mundo edita em tempo real, vota em opções e divide gastos.</p>
+        </div>
+        <div class="v2-why-card">
+          <div class="v2-why-icon">🔔</div>
+          <h3>Alerta quando o preço cai</h3>
+          <p>Defina um preço-alvo pro voo ou hotel. A gente te avisa quando baixar — sem precisar ficar checando.</p>
+        </div>
+        <div class="v2-why-card">
+          <div class="v2-why-icon">🔒</div>
+          <h3>Grátis e sem pegadinhas</h3>
+          <p>Login via Google, sem cartão de crédito, sem período de teste. Seus dados ficam com o Google, não conosco.</p>
+        </div>
+        <div class="v2-why-card">
+          <div class="v2-why-icon">📱</div>
+          <h3>Funciona em qualquer lugar</h3>
+          <p>No celular ou computador. No dia da viagem, o "Modo Viagem" mostra tudo que você precisa na tela.</p>
+        </div>
       </div>
     </div>
   </section>
