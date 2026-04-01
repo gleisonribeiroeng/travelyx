@@ -87,6 +87,74 @@ export class EmailService implements OnModuleInit {
     }
   }
 
+  async sendPriceAlertEmail(
+    to: string,
+    typeLabel: string,
+    label: string,
+    oldPrice: number,
+    newPrice: number,
+    dropPercent: number,
+    currency: string,
+  ): Promise<void> {
+    if (!this.transporter) {
+      this.logger.warn(`Skipping price alert email to ${to} — SMTP not configured.`);
+      return;
+    }
+
+    const subject = `🎉 ${typeLabel} mais barato! ${label}`;
+    const savings = (oldPrice - newPrice).toFixed(2);
+
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f3f8;font-family:'Segoe UI',Roboto,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3f8;padding:40px 0;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;">
+<tr><td style="background:linear-gradient(135deg,#f97316,#ea580c);padding:32px 40px;text-align:center;">
+<h1 style="margin:0;color:#fff;font-size:24px;">🎉 Preço caiu!</h1>
+</td></tr>
+<tr><td style="padding:32px 40px;">
+<p style="font-size:16px;color:#2d3436;line-height:1.6;">
+<strong>${label}</strong> está mais barato!
+</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;background:#f8fafc;border-radius:12px;padding:20px;">
+<tr>
+<td style="text-align:center;padding:12px;">
+<p style="margin:0;font-size:13px;color:#999;">Preço anterior</p>
+<p style="margin:4px 0 0;font-size:20px;color:#999;text-decoration:line-through;">R$ ${oldPrice.toFixed(2)}</p>
+</td>
+<td style="text-align:center;padding:12px;">
+<p style="margin:0;font-size:13px;color:#16a34a;">Novo preço</p>
+<p style="margin:4px 0 0;font-size:24px;font-weight:700;color:#16a34a;">R$ ${newPrice.toFixed(2)}</p>
+</td>
+</tr>
+</table>
+<p style="text-align:center;font-size:14px;color:#f97316;font-weight:600;">
+Economia de R$ ${savings} (${dropPercent}% de desconto)
+</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 0;">
+<tr><td align="center">
+<a href="https://travelyx.com.br/alertas" style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;font-size:16px;font-weight:600;padding:14px 40px;border-radius:12px;">
+Ver meus alertas →
+</a>
+</td></tr></table>
+</td></tr>
+<tr><td style="padding:16px 40px 24px;text-align:center;">
+<p style="font-size:12px;color:#b2bec3;">Travelyx — Planeje viagens com inteligência</p>
+</td></tr>
+</table>
+</td></tr></table></body></html>`;
+
+    const text = `${label} caiu de R$${oldPrice.toFixed(2)} para R$${newPrice.toFixed(2)} (${dropPercent}% de desconto). Ver: https://travelyx.com.br/alertas`;
+
+    try {
+      await this.transporter.sendMail({ from: this.fromAddress, to, subject, html, text });
+      this.logger.log(`Price alert email sent to ${to}`);
+    } catch (error) {
+      this.logger.error(`Failed to send price alert email to ${to}`, error);
+    }
+  }
+
   // ─── HTML Builder ────────────────────────────────────────────────────────────
 
   private buildInviteHtml(

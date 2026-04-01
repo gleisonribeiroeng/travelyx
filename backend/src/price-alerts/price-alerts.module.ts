@@ -7,6 +7,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { FlightsService } from '../flights/flights.service';
 import { HotelsService } from '../hotels/hotels.service';
 import { CollaborationModule } from '../collaboration/collaboration.module';
+import { EmailService } from '../common/email.service';
 
 @Module({
   imports: [NotificationsModule, HttpModule, CollaborationModule],
@@ -16,6 +17,7 @@ import { CollaborationModule } from '../collaboration/collaboration.module';
     PriceCheckCron,
     FlightsService,
     HotelsService,
+    EmailService,
   ],
 })
 export class PriceAlertsModule {}

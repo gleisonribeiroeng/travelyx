@@ -5,6 +5,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { FlightsService } from '../flights/flights.service';
 import { HotelsService } from '../hotels/hotels.service';
 import { CollaborationGateway } from '../collaboration/collaboration.gateway';
+import { EmailService } from '../common/email.service';
 
 @Injectable()
 export class PriceCheckCron {
@@ -17,6 +18,7 @@ export class PriceCheckCron {
     private readonly flightsService: FlightsService,
     private readonly hotelsService: HotelsService,
     private readonly collabGateway: CollaborationGateway,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -124,6 +126,19 @@ export class PriceCheckCron {
       this.collabGateway.emitNotification(alert.userId, notification);
     } catch {
       // User might not be online
+    }
+
+    // Send email notification
+    const userEmail = (alert.user as any)?.email;
+    if (userEmail) {
+      try {
+        await this.emailService.sendPriceAlertEmail(
+          userEmail, typeLabel, alert.label,
+          alert.currentPrice, newPrice, dropPercent, currency,
+        );
+      } catch (err: any) {
+        this.logger.warn(`Failed to send price alert email: ${err.message}`);
+      }
     }
 
     this.logger.log(`ALERT TRIGGERED: ${alert.label} — ${currency} ${alert.currentPrice} → ${newPrice} (-${dropPercent}%)`);

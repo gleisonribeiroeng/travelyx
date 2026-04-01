@@ -62,7 +62,7 @@ export class PriceAlertsService {
   async getActiveAlerts() {
     return this.prisma.priceAlert.findMany({
       where: { active: true },
-      include: { user: { select: { id: true, plan: true, role: true } } },
+      include: { user: { select: { id: true, plan: true, role: true, email: true } } },
     });
   }
 
