@@ -72,6 +72,23 @@
     </div>
   }
 
+  <!-- Where I Left Off -->
+  @if (lastPosition(); as pos) {
+    <div class="where-left-off">
+      <div class="wlo-content">
+        <mat-icon>history</mat-icon>
+        <div>
+          <span class="wlo-title">Bem-vindo de volta!</span>
+          <span class="wlo-detail">Você parou no Dia {{ pos.dayNumber }} da Linha do Tempo.</span>
+        </div>
+      </div>
+      <button mat-flat-button color="primary" class="wlo-btn"
+              (click)="router.navigate(['/viagem', pos.tripId, 'timeline'], { queryParams: { expandDay: pos.date } })">
+        Continuar de onde parei →
+      </button>
+    </div>
+  }
+
   <!-- Resume Banner -->
   @if (resumeBanner(); as banner) {
     <div class="resume-banner">

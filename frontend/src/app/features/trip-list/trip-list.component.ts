@@ -109,6 +109,21 @@ export class TripListComponent implements OnInit {
     return trips.filter(t => t.id !== hero.id);
   });
 
+  /** "Where I left off" — reads last position from localStorage */
+  readonly lastPosition = computed(() => {
+    const hero = this.heroTrip();
+    if (!hero) return null;
+    try {
+      const stored = localStorage.getItem(`travelyx_lastPosition_${hero.id}`);
+      if (!stored) return null;
+      const data = JSON.parse(stored);
+      if (!data.dayNumber || !data.date) return null;
+      // Only show if less than 7 days old
+      if (Date.now() - (data.timestamp || 0) > 7 * 86400000) return null;
+      return { tripId: hero.id, tripName: hero.name || hero.destination, dayNumber: data.dayNumber, date: data.date };
+    } catch { return null; }
+  });
+
   /** Resume banner — shows pending items for the hero trip */
   readonly resumeBanner = computed(() => {
     const hero = this.heroTrip();

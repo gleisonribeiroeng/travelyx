@@ -88,6 +88,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
         this.router.navigate([], { queryParams: {}, replaceUrl: true });
         setTimeout(() => this.doAutoSync(), 2000);
       }
+      // Auto-expand day from "where I left off" link
+      if (params['expandDay']) {
+        const day = params['expandDay'];
+        this.expandedDays.update(s => { const next = new Set(s); next.add(day); return next; });
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+      }
     });
 
     // Fetch weather if trip has destination with coords and dates
@@ -307,6 +313,14 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const next = new Set(this.expandedDays());
     if (next.has(date)) { next.delete(date); } else { next.add(date); }
     this.expandedDays.set(next);
+    // Save last position for "where I left off" widget
+    if (next.has(date)) {
+      const tripId = this.tripState.trip().id;
+      const dayNum = this.timeline().find(d => d.date === date)?.dayNumber;
+      if (tripId && dayNum) {
+        localStorage.setItem(`travelyx_lastPosition_${tripId}`, JSON.stringify({ date, dayNumber: dayNum, timestamp: Date.now() }));
+      }
+    }
   }
 
   isDayExpanded(date: string): boolean {

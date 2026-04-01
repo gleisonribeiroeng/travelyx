@@ -283,6 +283,53 @@
   box-shadow: 0 2px 12px rgba(249, 115, 22, 0.3);
 }
 
+// ── Where I Left Off ──────────────────────────────────────
+
+.where-left-off {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--triply-surface-1, #fff);
+  border: 1px solid var(--triply-border, #e5e7eb);
+  border-radius: 14px;
+  margin-bottom: 16px;
+
+  .wlo-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    > mat-icon { font-size: 24px; width: 24px; height: 24px; color: var(--triply-primary); }
+  }
+
+  .wlo-title {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--triply-text-primary, #1a1a2e);
+  }
+
+  .wlo-detail {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--triply-text-secondary, #64748b);
+  }
+
+  .wlo-btn {
+    font-size: 0.78rem !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    align-items: flex-start;
+    .wlo-btn { align-self: flex-end; }
+  }
+}
+
 // ── Resume Banner ─────────────────────────────────────────
 
 .resume-banner {
