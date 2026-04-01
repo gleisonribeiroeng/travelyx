@@ -72,6 +72,24 @@
     </div>
   }
 
+  <!-- Resume Banner -->
+  @if (resumeBanner(); as banner) {
+    <div class="resume-banner">
+      <div class="resume-header">
+        <mat-icon>play_circle</mat-icon>
+        <span>Continue planejando <strong>{{ banner.tripName }}</strong></span>
+      </div>
+      <div class="resume-actions">
+        @for (item of banner.items; track item.route) {
+          <button mat-stroked-button class="resume-action-btn"
+                  (click)="router.navigate(['/viagem', banner.tripId, item.route])">
+            <mat-icon>{{ item.icon }}</mat-icon> {{ item.label }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
   <!-- Filter Bar -->
   <div class="filter-bar">
     <mat-chip-listbox aria-label="Filtrar por status">

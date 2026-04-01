@@ -34,7 +34,7 @@ export interface TrendingDestination {
 })
 export class TripListComponent implements OnInit {
   protected readonly tripState = inject(TripStateService);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
   protected readonly planService = inject(PlanService);
@@ -107,6 +107,24 @@ export class TripListComponent implements OnInit {
     const trips = this.filteredTrips();
     if (!hero) return trips;
     return trips.filter(t => t.id !== hero.id);
+  });
+
+  /** Resume banner — shows pending items for the hero trip */
+  readonly resumeBanner = computed(() => {
+    const hero = this.heroTrip();
+    if (!hero) return null;
+    const items: { icon: string; label: string; route: string }[] = [];
+
+    if (!hero.flights?.length) items.push({ icon: 'flight', label: 'Buscar voos', route: 'search' });
+    if (!hero.stays?.length) items.push({ icon: 'hotel', label: 'Reservar hospedagem', route: 'hotels' });
+    const acts = (hero.activities?.length ?? 0) + (hero.attractions?.length ?? 0);
+    if (!acts) items.push({ icon: 'local_activity', label: 'Adicionar atividades', route: 'tours' });
+    if (!hero.itineraryItems?.length) items.push({ icon: 'view_timeline', label: 'Montar roteiro', route: 'timeline' });
+    const unchecked = (hero.checklist ?? []).filter(i => !i.isChecked).length;
+    if (unchecked > 3) items.push({ icon: 'checklist', label: `${unchecked} itens no checklist`, route: 'checklist' });
+
+    if (items.length === 0) return null;
+    return { tripId: hero.id, tripName: hero.name || hero.destination, items: items.slice(0, 3) };
   });
 
   // ── Helpers ──
