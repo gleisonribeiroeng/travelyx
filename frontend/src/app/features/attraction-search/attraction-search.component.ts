@@ -38,6 +38,17 @@ export class AttractionSearchComponent {
   private readonly dialog = inject(MatDialog);
   private readonly t = inject(TranslationService);
 
+  // Trip destination for rich empty state
+  readonly tripDestination = this.tripState.trip().destination || '';
+  readonly activityCategories = [
+    { icon: 'restaurant', label: 'Gastronomico' },
+    { icon: 'account_balance', label: 'Cultural' },
+    { icon: 'park', label: 'Natureza' },
+    { icon: 'terrain', label: 'Aventura' },
+    { icon: 'shopping_bag', label: 'Compras' },
+    { icon: 'photo_camera', label: 'Fotografico' },
+  ];
+
   // Autocomplete city control
   readonly cityControl = new FormControl<string | DestinationOption>('', Validators.required);
 

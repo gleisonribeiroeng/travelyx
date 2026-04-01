@@ -1,96 +1,534 @@
-.active-trip {
-  display: flex; flex-direction: column; gap: var(--triply-spacing-lg);
-  max-width: 480px; margin: 0 auto;
+// ─── Travel Mode — Clean, mobile-first "during travel" interface ────────────
+
+.travel-mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--triply-spacing-md);
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 80px; // space for fixed bottom bar
+  min-height: 100vh;
 }
 
-.active-header {
-  display: flex; justify-content: space-between; align-items: center;
+// ─── Simplified Header ─────────────────────────────────────────────────────
+
+.tm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--triply-spacing-md) 0;
 }
 
-.header-info {
-  .day-label { font-size: 0.8rem; color: var(--triply-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-  h1 { margin: 4px 0 0; font-size: 1.5rem; font-weight: 700; color: var(--triply-text-primary); }
+.tm-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.trip-progress { border-radius: 4px; }
-
-.now-card {
-  background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.02)) !important;
-  border-left: 4px solid var(--triply-primary) !important;
+.tm-trip-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--triply-text-primary);
+  margin: 0;
+  line-height: 1.2;
 }
 
-.now-label, .next-label {
-  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
-  display: block; margin-bottom: 8px;
+.tm-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--triply-text-secondary);
+  cursor: pointer;
+  transition: color 0.15s;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: var(--triply-primary);
+  }
 }
 
-.now-label { color: var(--triply-primary); }
-.next-label { color: #FF9800; }
+// ─── Day Header ─────────────────────────────────────────────────────────────
 
-.now-content, .next-content {
-  display: flex; align-items: center; gap: 12px;
+.tm-day-header {
+  background: #0f172a;
+  border-radius: var(--triply-radius-lg);
+  padding: var(--triply-spacing-lg) var(--triply-spacing-md);
+  color: #fff;
 }
 
-.now-icon, .next-icon {
-  font-size: 28px; width: 28px; height: 28px;
+.tm-day-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
-.now-icon { color: var(--triply-primary); }
-.next-icon { color: #FF9800; }
+.tm-destination {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
 
-.now-info, .next-info {
+.tm-day-sep {
+  opacity: 0.4;
+  font-size: 1.2rem;
+}
+
+.tm-day-counter {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tm-day-bottom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tm-day-date {
+  font-size: 0.9rem;
+  opacity: 0.65;
+  text-transform: capitalize;
+}
+
+.tm-weather {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+// ─── Section Labels ─────────────────────────────────────────────────────────
+
+.tm-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--triply-spacing-sm);
+}
+
+.tm-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0 2px;
+}
+
+.tm-label-now {
+  color: var(--triply-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tm-countdown {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.tm-label-next {
+  color: #FF9800;
+}
+
+.tm-label-later {
+  color: var(--triply-text-tertiary);
+}
+
+// ─── Now Card (large, prominent) ────────────────────────────────────────────
+
+.tm-now-card {
+  display: flex;
+  align-items: center;
+  gap: var(--triply-spacing-md);
+  padding: var(--triply-spacing-md);
+  background: var(--triply-surface-1);
+  border-radius: var(--triply-radius-lg);
+  box-shadow: var(--triply-shadow-md);
+  border-left: 4px solid var(--triply-primary);
+}
+
+.tm-now-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--triply-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+  }
+}
+
+.tm-now-details {
   flex: 1;
-  strong { font-size: 1.05rem; color: var(--triply-text-primary); display: block; }
-  span { font-size: 0.8rem; color: var(--triply-text-secondary); }
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.now-notes { font-size: 0.8rem; color: var(--triply-text-tertiary, #999); display: block; margin-top: 2px; }
+.tm-now-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--triply-text-primary);
+  line-height: 1.3;
+}
 
-.next-card { border-left: 4px solid #FF9800 !important; }
-.next-countdown { font-size: 1.2rem; font-weight: 700; color: #FF9800; display: block; margin-bottom: 8px; }
+.tm-now-time {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--triply-text-secondary);
+}
 
-.free-card {
-  text-align: center;
-  mat-card-content {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    padding: var(--triply-spacing-xl) !important;
+.tm-now-notes {
+  font-size: 0.78rem;
+  color: var(--triply-text-tertiary);
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.tm-maps-btn {
+  color: var(--triply-primary) !important;
+  flex-shrink: 0;
+}
+
+// ─── Free Day Card ──────────────────────────────────────────────────────────
+
+.tm-free-card {
+  display: flex;
+  align-items: center;
+  gap: var(--triply-spacing-md);
+  padding: var(--triply-spacing-lg) var(--triply-spacing-md);
+  background: var(--triply-surface-1);
+  border-radius: var(--triply-radius-lg);
+  box-shadow: var(--triply-shadow-sm);
+
+  > mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: #FFC107;
   }
-  mat-icon { font-size: 40px; width: 40px; height: 40px; color: #FFC107; }
-  strong { font-size: 1.1rem; color: var(--triply-text-primary); }
-  span { font-size: 0.85rem; color: var(--triply-text-secondary); }
 }
 
-.schedule-section, .tomorrow-section {
+.tm-free-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 1.05rem;
+    color: var(--triply-text-primary);
+  }
+
+  span {
+    font-size: 0.82rem;
+    color: var(--triply-text-secondary);
+  }
+}
+
+// ─── Compact Items (Next / Later) ──────────────────────────────────────────
+
+.tm-compact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px var(--triply-spacing-md);
+  background: var(--triply-surface-1);
+  border-radius: var(--triply-radius-md);
+  box-shadow: var(--triply-shadow-xs);
+}
+
+.tm-compact-later {
+  opacity: 0.75;
+}
+
+.tm-compact-icon {
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.tm-compact-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tm-compact-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--triply-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tm-compact-time {
+  font-size: 0.75rem;
+  color: var(--triply-text-secondary);
+}
+
+.tm-maps-btn-sm {
+  flex-shrink: 0;
+  color: var(--triply-text-tertiary) !important;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ─── Slide-up Panels ────────────────────────────────────────────────────────
+
+.tm-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+.tm-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--triply-surface-1);
+  border-radius: var(--triply-radius-xl) var(--triply-radius-xl) 0 0;
+  box-shadow: var(--triply-shadow-xl);
+  z-index: 101;
+  max-width: 480px;
+  margin: 0 auto;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tm-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--triply-spacing-md) var(--triply-spacing-md) 0;
+
   h3 {
-    font-size: 0.9rem; font-weight: 700; color: var(--triply-text-primary);
-    margin: 0 0 var(--triply-spacing-sm); text-transform: uppercase; letter-spacing: 0.03em;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--triply-text-primary);
   }
 }
 
-.schedule-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; border-radius: var(--triply-radius-sm);
-  margin-bottom: 2px;
-
-  &.past { opacity: 0.5; .schedule-label { text-decoration: line-through; } }
-  &.current { background: rgba(249, 115, 22, 0.06); font-weight: 600; }
-  &.tomorrow { opacity: 0.7; }
-
-  mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--triply-primary); }
+.tm-panel-body {
+  padding: var(--triply-spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--triply-spacing-sm);
 }
 
-.schedule-time {
-  font-size: 0.8rem; font-weight: 600; color: var(--triply-text-secondary);
-  min-width: 40px;
+.tm-panel-empty {
+  align-items: center;
+  padding: var(--triply-spacing-xl) var(--triply-spacing-md);
+  text-align: center;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--triply-text-tertiary);
+    margin-bottom: var(--triply-spacing-sm);
+  }
+
+  span {
+    color: var(--triply-text-secondary);
+    font-size: 0.9rem;
+  }
 }
 
-.schedule-label { font-size: 0.9rem; color: var(--triply-text-primary); flex: 1; }
+.tm-hotel-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
-.more-items {
-  font-size: 0.8rem; color: var(--triply-text-secondary); padding-left: 62px;
+  mat-icon {
+    color: var(--triply-cat-stay);
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  strong {
+    font-size: 1.05rem;
+    color: var(--triply-text-primary);
+  }
 }
 
-.quick-actions {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--triply-spacing-sm);
-  button { justify-content: flex-start; font-size: 0.85rem; }
+.tm-hotel-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-left: 2px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--triply-text-tertiary);
+    margin-top: 1px;
+  }
+
+  span {
+    font-size: 0.85rem;
+    color: var(--triply-text-secondary);
+    line-height: 1.4;
+  }
+}
+
+.tm-hotel-maps {
+  margin-top: var(--triply-spacing-sm);
+  align-self: flex-start;
+}
+
+// ─── Emergency Panel ────────────────────────────────────────────────────────
+
+.tm-emergency-number {
+  display: flex;
+  align-items: center;
+  gap: var(--triply-spacing-md);
+  padding: var(--triply-spacing-md);
+  background: rgba(239, 68, 68, 0.06);
+  border-radius: var(--triply-radius-md);
+
+  > mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: var(--triply-error);
+  }
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.tm-emergency-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--triply-text-secondary);
+}
+
+.tm-emergency-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--triply-error);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ─── Fixed Bottom Bar ───────────────────────────────────────────────────────
+
+.tm-bottom-spacer {
+  height: 20px;
+}
+
+.tm-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  background: var(--triply-surface-1);
+  border-top: 1px solid var(--triply-border);
+  padding: 8px 0;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  z-index: 50;
+  max-width: 100%;
+
+  // Center within max-width on desktop
+  @media (min-width: 520px) {
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: var(--triply-radius-lg) var(--triply-radius-lg) 0 0;
+    box-shadow: var(--triply-shadow-md);
+  }
+}
+
+.tm-bottom-action {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--triply-text-secondary);
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &:hover, &.active {
+    color: var(--triply-primary);
+  }
+
+  &.tm-action-emergency {
+    &:hover, &.active {
+      color: var(--triply-error);
+    }
+  }
 }

@@ -41,6 +41,13 @@ export class SidebarComponent {
 
   mobileOpen = signal(false);
 
+  /** Expandable "Explore" sub-menu state */
+  exploreOpen = signal(false);
+
+  toggleExplore(): void {
+    this.exploreOpen.update(v => !v);
+  }
+
   readonly navGroups = computed<NavGroup[]>(() => {
     const id = this.tripState.activeTripId();
     const base = id ? `/viagem/${id}` : '';
@@ -58,21 +65,17 @@ export class SidebarComponent {
       { label: '', items: [
         { icon: 'luggage', label: this.i18n.t('nav.myTrips'), route: '/viagens' },
         { icon: 'space_dashboard', label: this.i18n.t('nav.overview'), route: `${base}/home` },
+        { icon: 'view_timeline', label: this.i18n.t('nav.timeline'), route: `${base}/timeline` },
+        { icon: 'account_balance_wallet', label: this.i18n.t('nav.budget'), route: `${base}/budget`, pro: true, proFeature: 'budget' },
+        { icon: 'checklist', label: this.i18n.t('nav.checklist'), route: `${base}/checklist`, pro: true, proFeature: 'checklist' },
+        { icon: 'notifications_active', label: this.i18n.t('nav.alerts'), route: '/alertas', pro: true, proFeature: 'priceAlerts' },
       ]},
       { label: this.i18n.t('nav.sectionExplore'), items: [
+        { icon: 'route', label: this.i18n.t('nav.assistant'), route: `${base}/planner` },
         { icon: 'flight', label: this.i18n.t('nav.flights'), route: `${base}/search` },
         { icon: 'hotel', label: this.i18n.t('nav.hotels'), route: `${base}/hotels` },
         { icon: 'directions_car', label: this.i18n.t('nav.cars'), route: `${base}/cars` },
         { icon: 'local_activity', label: this.i18n.t('nav.activities'), route: `${base}/tours` },
-      ]},
-      { label: this.i18n.t('nav.sectionItinerary'), items: [
-        { icon: 'route', label: this.i18n.t('nav.assistant'), route: `${base}/planner` },
-        { icon: 'view_timeline', label: this.i18n.t('nav.timeline'), route: `${base}/timeline` },
-      ]},
-      { label: this.i18n.t('nav.sectionOrganization'), items: [
-        { icon: 'account_balance_wallet', label: this.i18n.t('nav.budget'), route: `${base}/budget`, pro: true, proFeature: 'budget' },
-        { icon: 'notifications_active', label: this.i18n.t('nav.alerts'), route: '/alertas', pro: true, proFeature: 'priceAlerts' },
-        { icon: 'checklist', label: this.i18n.t('nav.checklist'), route: `${base}/checklist`, pro: true, proFeature: 'checklist' },
         { icon: 'description', label: this.i18n.t('nav.documents'), route: `${base}/documents`, pro: true, proFeature: 'documents' },
       ]},
     ];

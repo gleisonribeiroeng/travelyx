@@ -127,6 +127,125 @@
 }
 
 
+// ── Rich Empty State ──
+
+.rich-empty-state {
+  padding: 32px 24px 40px;
+  text-align: center;
+}
+
+.rich-empty-header {
+  margin-bottom: 28px;
+
+  .rich-empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--triply-primary);
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--triply-text-primary);
+  }
+
+  .rich-empty-subtitle {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--triply-text-secondary);
+  }
+}
+
+.category-section {
+  max-width: 520px;
+  margin: 0 auto 24px;
+
+  h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--triply-text-primary);
+    margin: 0 0 14px;
+  }
+}
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: rgba(249, 115, 22, 0.08);
+  color: var(--triply-primary);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  cursor: pointer;
+  transition: background var(--triply-transition-normal), transform var(--triply-transition-normal);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: rgba(249, 115, 22, 0.18);
+    transform: translateY(-1px);
+  }
+}
+
+.rich-empty-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto 24px;
+  padding: 14px 16px;
+  border-radius: var(--triply-radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--triply-cat-flight);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--triply-text-secondary);
+    line-height: 1.5;
+  }
+}
+
+.rich-empty-cta {
+  background: var(--triply-primary) !important;
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 24px;
+  border-radius: var(--triply-radius-md);
+
+  mat-icon {
+    margin-right: 6px;
+  }
+}
+
 // ── Empty state ──
 
 .empty-state {

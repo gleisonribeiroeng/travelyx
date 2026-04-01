@@ -125,12 +125,57 @@
 </div>
 
 <div class="dsp-results">
-  @if (!hasSearched() && !isSearching()) {
-    <div class="search-hint">
-      <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
-      <h3>Busque o carro ideal</h3>
-      <p>Preencha o local e as datas acima e clique em <strong>Buscar Carros</strong> para ver os resultados</p>
-    </div>
+  @if (!hasSearched() && !isSearching() && !skippedCar()) {
+    @if (tripDestination) {
+      <div class="rich-empty-state">
+        <div class="rich-empty-header">
+          <mat-icon class="rich-empty-icon">commute</mat-icon>
+          <h2>Voce precisa de carro em {{ tripDestination }}?</h2>
+        </div>
+
+        @if (hasGoodTransport) {
+          <div class="transport-card transport-card--public">
+            <mat-icon class="transport-verdict-icon">check_circle</mat-icon>
+            <div class="transport-card-body">
+              <strong>{{ tripDestination }} tem otimo transporte publico</strong>
+              <ul>
+                <li>Metro, onibus e trens cobrem as principais areas turisticas</li>
+                <li>Aplicativos de transporte disponíveis como alternativa</li>
+                <li>Estacionamento pode ser caro e dificil de encontrar no centro</li>
+              </ul>
+            </div>
+          </div>
+        } @else {
+          <div class="transport-card transport-card--car">
+            <mat-icon class="transport-verdict-icon">directions_car</mat-icon>
+            <div class="transport-card-body">
+              <strong>Carro recomendado para explorar {{ tripDestination }}</strong>
+              <ul>
+                <li>Transporte publico pode ser limitado em algumas areas</li>
+                <li>Carro oferece mais liberdade para explorar a regiao</li>
+                <li>Diaria media estimada: ~R$ 120 - R$ 250</li>
+              </ul>
+            </div>
+          </div>
+        }
+
+        <div class="rich-empty-actions">
+          <button mat-flat-button class="rich-empty-cta" (click)="searchCars()">
+            <mat-icon>search</mat-icon>
+            Buscar carros em {{ tripDestination }}
+          </button>
+          <button mat-stroked-button class="rich-empty-skip" (click)="skipCar()">
+            Pular — nao preciso de carro
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="search-hint">
+        <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+        <h3>Busque o carro ideal</h3>
+        <p>Preencha o local e as datas acima e clique em <strong>Buscar Carros</strong> para ver os resultados</p>
+      </div>
+    }
   }
 
   @if (errorMessage()) {

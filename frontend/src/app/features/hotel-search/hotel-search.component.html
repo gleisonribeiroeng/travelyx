@@ -111,11 +111,52 @@
 
 <div class="dsp-results">
   @if (!hasSearched() && !isSearching()) {
-    <div class="search-hint">
-      <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
-      <h3>Busque a hospedagem ideal</h3>
-      <p>Preencha destino e datas acima e clique em <strong>Buscar Hospedagem</strong> para ver os resultados</p>
-    </div>
+    @if (tripDestination) {
+      <div class="rich-empty-state">
+        <div class="rich-empty-header">
+          <mat-icon class="rich-empty-icon">explore</mat-icon>
+          <h2>Hospedagem para {{ tripDestination }}</h2>
+          <p class="rich-empty-subtitle">Encontre o lugar perfeito para ficar</p>
+        </div>
+
+        <div class="rich-empty-areas">
+          <h3><mat-icon>place</mat-icon> Bairros populares</h3>
+          <div class="area-chips">
+            @for (area of popularAreas; track area) {
+              <span class="area-chip">{{ area }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="rich-empty-tips">
+          <div class="tip-card">
+            <mat-icon>lightbulb</mat-icon>
+            <div>
+              <strong>Dica</strong>
+              <p>Reserve com antecedencia para alta temporada. Hospedagens centrais tendem a lotar rapido.</p>
+            </div>
+          </div>
+          <div class="tip-card">
+            <mat-icon>payments</mat-icon>
+            <div>
+              <strong>Faixa de preco estimada</strong>
+              <p>Diarias a partir de ~R$ 150 (economico) ate R$ 800+ (premium) por noite</p>
+            </div>
+          </div>
+        </div>
+
+        <button mat-flat-button class="rich-empty-cta" (click)="searchHotels()">
+          <mat-icon>search</mat-icon>
+          Buscar hoteis em {{ tripDestination }}
+        </button>
+      </div>
+    } @else {
+      <div class="search-hint">
+        <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+        <h3>Busque a hospedagem ideal</h3>
+        <p>Preencha destino e datas acima e clique em <strong>Buscar Hospedagem</strong> para ver os resultados</p>
+      </div>
+    }
   }
 
   <!-- Error Banner -->

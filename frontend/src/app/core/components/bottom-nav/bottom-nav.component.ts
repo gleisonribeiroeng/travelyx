@@ -120,11 +120,11 @@ export class BottomNavComponent {
   readonly tripState = inject(TripStateService);
 
   readonly tabs = [
-    { icon: 'space_dashboard', label: 'Inicio', path: 'home', center: false },
-    { icon: 'flight', label: 'Voos', path: 'search', center: false },
+    { icon: 'space_dashboard', label: 'Início', path: 'home', center: false },
+    { icon: 'view_timeline', label: 'Roteiro', path: 'timeline', center: false },
     { icon: 'route', label: 'Planejar', path: 'planner', center: true },
-    { icon: 'hotel', label: 'Hoteis', path: 'hotels', center: false },
-    { icon: 'event_note', label: 'Roteiro', path: 'itinerary', center: false },
+    { icon: 'account_balance_wallet', label: 'Orçamento', path: 'budget', center: false },
+    { icon: 'checklist', label: 'Checklist', path: 'checklist', center: false },
   ];
 
   getRoute(path: string): string {

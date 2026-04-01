@@ -258,10 +258,21 @@ interface PublicActivity {
         <div class="cta-section">
           <mat-card class="cta-card">
             <mat-card-content>
+              <mat-icon class="cta-icon">content_copy</mat-icon>
+              <h3>{{ 'public.copyTitle' | translate }}</h3>
+              <p>{{ 'public.copyDesc' | translate }}</p>
+              <a mat-flat-button color="primary" href="/landing" class="cta-btn">
+                {{ 'public.copyButton' | translate }}
+                <mat-icon>arrow_forward</mat-icon>
+              </a>
+            </mat-card-content>
+          </mat-card>
+          <mat-card class="cta-card cta-secondary">
+            <mat-card-content>
               <mat-icon class="cta-icon">flight_takeoff</mat-icon>
               <h3>{{ 'public.ctaTitle' | translate }}</h3>
               <p>{{ 'public.ctaDesc' | translate }}</p>
-              <a mat-flat-button color="primary" href="/landing" class="cta-btn">
+              <a mat-flat-button href="/landing" class="cta-btn secondary">
                 {{ 'public.ctaButton' | translate }}
                 <mat-icon>arrow_forward</mat-icon>
               </a>

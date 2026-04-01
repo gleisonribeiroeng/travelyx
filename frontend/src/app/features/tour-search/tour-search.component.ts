@@ -40,6 +40,17 @@ export class TourSearchComponent {
   private readonly dialog = inject(MatDialog);
   private readonly t = inject(TranslationService);
 
+  // Trip destination for rich empty state
+  readonly tripDestination = this.tripState.trip().destination || '';
+  readonly activityCategories = [
+    { icon: 'restaurant', label: 'Gastronomico' },
+    { icon: 'account_balance', label: 'Cultural' },
+    { icon: 'park', label: 'Natureza' },
+    { icon: 'terrain', label: 'Aventura' },
+    { icon: 'shopping_bag', label: 'Compras' },
+    { icon: 'photo_camera', label: 'Fotografico' },
+  ];
+
   // Autocomplete destination control
   readonly destinationControl = new FormControl<string | DestinationOption>('', Validators.required);
 
@@ -247,6 +258,11 @@ export class TourSearchComponent {
       if (result.action === 'add') this.addToItinerary(tour);
       else if (result.action === 'remove') this.removeFromItinerary(tour.id);
     });
+  }
+
+  searchWithCategory(category: string): void {
+    this.tourSearchForm.get('keyword')?.setValue(category);
+    this.searchTours();
   }
 
   removeFromItinerary(id: string): void {

@@ -60,6 +60,10 @@ export class HotelSearchComponent {
   private readonly priceAlertApi = inject(PriceAlertApiService);
   private readonly planService = inject(PlanService);
 
+  // Trip destination for rich empty state
+  readonly tripDestination = this.tripState.trip().destination || '';
+  readonly popularAreas = this.getPopularAreas(this.tripDestination);
+
   // Form controls with custom destination validator
   destinationControl = new FormControl<DestinationOption | null>(null, [
     Validators.required,
@@ -486,5 +490,23 @@ export class HotelSearchComponent {
       this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
     );
     this.notify.success(this.t.t('hotels.hotelRemoved'));
+  }
+
+  private getPopularAreas(destination: string): string[] {
+    const areas: Record<string, string[]> = {
+      'Lisboa': ['Baixa-Chiado', 'Alfama', 'Bairro Alto', 'Belem'],
+      'Paris': ['Le Marais', 'Saint-Germain', 'Montmartre', 'Champs-Elysees'],
+      'Londres': ['Westminster', 'Covent Garden', 'Shoreditch', 'South Bank'],
+      'Roma': ['Centro Storico', 'Trastevere', 'Monti', 'Testaccio'],
+      'Barcelona': ['Gothic Quarter', 'Eixample', 'Gracia', 'Barceloneta'],
+      'Amsterdam': ['Jordaan', 'De Pijp', 'Canal Ring', 'Museumkwartier'],
+      'Berlim': ['Mitte', 'Kreuzberg', 'Prenzlauer Berg', 'Charlottenburg'],
+      'Toquio': ['Shinjuku', 'Shibuya', 'Asakusa', 'Ginza'],
+      'Nova York': ['Manhattan', 'Brooklyn', 'SoHo', 'Upper East Side'],
+      'Buenos Aires': ['Palermo', 'San Telmo', 'Recoleta', 'Puerto Madero'],
+      'Santiago': ['Providencia', 'Bellavista', 'Lastarria', 'Las Condes'],
+    };
+    const key = Object.keys(areas).find(k => destination.toLowerCase().includes(k.toLowerCase()));
+    return key ? areas[key] : ['Centro', 'Zona Turistica', 'Zona Comercial', 'Arredores'];
   }
 }

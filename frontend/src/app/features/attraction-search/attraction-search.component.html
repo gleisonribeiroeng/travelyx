@@ -46,11 +46,43 @@
 
 <div class="dsp-results">
   @if (!hasSearched() && !isSearching()) {
-    <div class="search-hint">
-      <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
-      <h3>Explore atracoes no destino</h3>
-      <p>Preencha a cidade acima e clique em <strong>Buscar</strong> para ver os resultados</p>
-    </div>
+    @if (tripDestination) {
+      <div class="rich-empty-state">
+        <div class="rich-empty-header">
+          <mat-icon class="rich-empty-icon">museum</mat-icon>
+          <h2>O que fazer em {{ tripDestination }}</h2>
+          <p class="rich-empty-subtitle">Descubra atracoes imperdíveis no seu destino</p>
+        </div>
+
+        <div class="category-section">
+          <h3>Explore por categoria</h3>
+          <div class="category-chips">
+            @for (cat of activityCategories; track cat.label) {
+              <span class="category-chip">
+                <mat-icon>{{ cat.icon }}</mat-icon>
+                {{ cat.label }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <div class="rich-empty-tip">
+          <mat-icon>lightbulb</mat-icon>
+          <p>Dica: As melhores experiencias geralmente sao descobertas localmente. Explore as atracoes mais visitadas.</p>
+        </div>
+
+        <button mat-flat-button class="rich-empty-cta" (click)="searchAttractions()">
+          <mat-icon>search</mat-icon>
+          Buscar atracoes em {{ tripDestination }}
+        </button>
+      </div>
+    } @else {
+      <div class="search-hint">
+        <img src="assets/illustrations/undraw-search-hint.svg" alt="" loading="lazy">
+        <h3>Explore atracoes no destino</h3>
+        <p>Preencha a cidade acima e clique em <strong>Buscar</strong> para ver os resultados</p>
+      </div>
+    }
   }
 
   @if (errorMessage()) {

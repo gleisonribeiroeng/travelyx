@@ -48,6 +48,10 @@ export class CarSearchComponent {
   private readonly dialog = inject(MatDialog);
   private readonly t = inject(TranslationService);
 
+  // Trip destination for rich empty state
+  readonly tripDestination = this.tripState.trip().destination || '';
+  readonly hasGoodTransport = this.checkGoodTransport(this.tripDestination);
+
   // Same drop-off location toggle (default: true)
   sameDropOff = signal(true);
 
@@ -354,6 +358,22 @@ export class CarSearchComponent {
       });
       this.notify.success(this.t.t('cars.manualCarAdded'));
     });
+  }
+
+  private checkGoodTransport(destination: string): boolean {
+    const goodTransportCities = [
+      'Lisboa', 'Paris', 'Londres', 'Toquio', 'Barcelona',
+      'Roma', 'Amsterdam', 'Berlim', 'Buenos Aires', 'Santiago',
+      'Nova York', 'Madri', 'Praga', 'Viena', 'Singapura',
+    ];
+    return goodTransportCities.some(c => destination.toLowerCase().includes(c.toLowerCase()));
+  }
+
+  // Signal to track user skipping car
+  skippedCar = signal(false);
+
+  skipCar(): void {
+    this.skippedCar.set(true);
   }
 
   // Set vehicle type filter

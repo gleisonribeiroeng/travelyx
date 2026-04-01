@@ -16,6 +16,7 @@ import { PollsService } from '../../core/services/polls.service';
 import { ExpensesService } from '../../core/services/expenses.service';
 import { computeAllConflicts } from '../../core/utils/conflict-engine.util';
 import { ConflictAlert, TripStatus } from '../../core/models/trip.models';
+import { DESTINATION_DB } from '../../core/data/destinations.data';
 import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from '../../shared/components/trip-create-dialog/trip-create-dialog.component';
 import { CollaboratorAvatarsComponent } from '../../shared/components/collaborator-avatars/collaborator-avatars.component';
 import { ViewerBannerComponent } from '../../shared/components/viewer-banner/viewer-banner.component';
@@ -189,6 +190,76 @@ export class TripDashboardComponent implements OnInit {
     { icon: 'local_activity', label: this.i18n.t('dash.quickActivities'), count: this.tripState.activities().length + this.tripState.attractions().length, route: 'tours', color: 'var(--triply-cat-activity)' },
     { icon: 'directions_bus', label: this.i18n.t('dash.quickTransports'), count: this.tripState.transports().length, route: 'transport', color: 'var(--triply-cat-transport)' },
   ].filter(s => s.count > 0));
+
+  // ═══ NEW: Visual Readiness Checklist ═══
+  readonly readinessChecklist = computed(() => {
+    const t = this.trip();
+    const hasFlights = this.tripState.flights().length > 0;
+    const hasStays = this.tripState.stays().length > 0;
+    const hasActivities = this.tripState.activities().length > 0 || this.tripState.attractions().length > 0;
+    const hasItinerary = this.tripState.itineraryItems().length > 0;
+    const hasBudget = this.budget.summary().totalPlanned > 0;
+    const checklistDone = this.checklist.progress().percentage >= 80;
+    const hasDates = !!t.dates.start && !!t.dates.end;
+
+    const steps = [
+      { key: 'destination', icon: 'place', label: this.i18n.t('dash.stepDestination'), done: !!t.destination, route: 'home', cta: '' },
+      { key: 'dates', icon: 'calendar_today', label: this.i18n.t('dash.stepDates'), done: hasDates, route: 'home', cta: '' },
+      { key: 'flights', icon: 'flight', label: this.i18n.t('dash.stepFlights'), done: hasFlights, route: 'search', cta: this.i18n.t('dash.stepFlightsCta') },
+      { key: 'stays', icon: 'hotel', label: this.i18n.t('dash.stepStays'), done: hasStays, route: 'hotels', cta: this.i18n.t('dash.stepStaysCta') },
+      { key: 'activities', icon: 'local_activity', label: this.i18n.t('dash.stepActivities'), done: hasActivities, route: 'tours', cta: this.i18n.t('dash.stepActivitiesCta') },
+      { key: 'itinerary', icon: 'view_timeline', label: this.i18n.t('dash.stepItinerary'), done: hasItinerary, route: 'timeline', cta: this.i18n.t('dash.stepItineraryCta') },
+      { key: 'budget', icon: 'account_balance_wallet', label: this.i18n.t('dash.stepBudget'), done: hasBudget, route: 'budget', cta: this.i18n.t('dash.stepBudgetCta') },
+    ];
+
+    const completed = steps.filter(s => s.done).length;
+    const total = steps.length;
+    const percentage = Math.round((completed / total) * 100);
+
+    return { steps, completed, total, percentage };
+  });
+
+  /** Next 3 incomplete steps for quick action */
+  readonly nextActions = computed(() => {
+    return this.readinessChecklist().steps
+      .filter(s => !s.done)
+      .slice(0, 3);
+  });
+
+  // ═══ NEW: Destination Info Widgets ═══
+  readonly destinationMeta = computed(() => {
+    const dest = this.trip().destination;
+    if (!dest) return null;
+    // Try to match country from destination string
+    for (const [country, meta] of Object.entries(DESTINATION_DB)) {
+      if (dest.toLowerCase().includes(country.toLowerCase())) {
+        return { country, ...meta };
+      }
+    }
+    return null;
+  });
+
+  readonly weatherInfo = computed(() => {
+    const meta = this.destinationMeta();
+    const t = this.trip();
+    if (!meta || !t.dates.start) return null;
+    const month = new Date(t.dates.start + 'T00:00:00').getMonth() + 1;
+    const temp = meta.avgTempByMonth[month];
+    const isHighSeason = meta.highSeasonMonths.includes(month);
+    return { temp, climate: meta.climate, isHighSeason };
+  });
+
+  readonly exchangeInfo = computed(() => {
+    const meta = this.destinationMeta();
+    if (!meta || meta.currency === 'BRL') return null;
+    return { currency: meta.currency, timezone: meta.timezone };
+  });
+
+  /** First conflict detail for actionable card */
+  readonly topConflict = computed(() => {
+    const c = this.conflicts();
+    return c.length > 0 ? c[0] : null;
+  });
 
   getTypeIcon(type: string): string {
     const map: Record<string, string> = {

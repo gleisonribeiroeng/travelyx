@@ -1,112 +1,195 @@
-<div class="active-trip">
-  <!-- Header -->
-  <div class="active-header page-dark-header">
-    <div class="header-info">
-      <span class="day-label">{{ 'activeTrip.dayOf' | translate }} {{ dayNumber() }} {{ 'activeTrip.of' | translate }} {{ totalDays() }}</span>
-      <h1>{{ trip().destination || ('activeTrip.defaultName' | translate) }}</h1>
+<div class="travel-mode">
+  <!-- Simplified Header -->
+  <div class="tm-header">
+    <div class="tm-header-left">
+      <h1 class="tm-trip-name">{{ trip().name || ('activeTrip.defaultName' | translate) }}</h1>
+      <a class="tm-back-link" (click)="navigateTo('home')">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'activeTrip.backToPlanning' | translate }}
+      </a>
     </div>
-    <button mat-icon-button (click)="navigateTo('home')" [matTooltip]="'activeTrip.backToDashboard' | translate">
-      <mat-icon>close</mat-icon>
-    </button>
+    <mat-progress-spinner
+      mode="determinate"
+      [value]="progressPercent()"
+      diameter="44"
+      strokeWidth="4">
+    </mat-progress-spinner>
   </div>
 
-  <!-- Progress -->
-  <mat-progress-bar mode="determinate" [value]="progressPercent()" class="trip-progress"></mat-progress-bar>
+  <!-- Day Header -->
+  <div class="tm-day-header">
+    <div class="tm-day-top">
+      <span class="tm-destination">{{ trip().destination || ('activeTrip.defaultName' | translate) }}</span>
+      <span class="tm-day-sep">&middot;</span>
+      <span class="tm-day-counter">{{ 'activeTrip.dayOf' | translate }} {{ dayNumber() }} {{ 'activeTrip.of' | translate }} {{ totalDays() }}</span>
+    </div>
+    <div class="tm-day-bottom">
+      <span class="tm-day-date">{{ dayOfWeek() }}, {{ formattedDate() }}</span>
+      @if (estimatedTemp() !== null) {
+        <span class="tm-weather">{{ estimatedTemp() }}&deg;C</span>
+      }
+    </div>
+  </div>
 
-  <!-- Current/Next Item -->
-  @if (currentItem(); as item) {
-    <mat-card class="now-card">
-      <mat-card-content>
-        <span class="now-label">{{ 'activeTrip.now' | translate }}</span>
-        <div class="now-content">
-          <mat-icon class="now-icon">{{ getTypeIcon(item.type) }}</mat-icon>
-          <div class="now-info">
-            <strong>{{ item.label }}</strong>
-            @if (item.timeSlot) {
-              <span>{{ item.timeSlot }} · {{ item.durationMinutes ?? 60 }} {{ 'activeTrip.min' | translate }}</span>
-            }
-            @if (item.notes) {
-              <span class="now-notes">{{ item.notes }}</span>
-            }
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  } @else if (nextItem(); as next) {
-    <mat-card class="next-card">
-      <mat-card-content>
-        <span class="next-label">{{ 'activeTrip.next' | translate }}</span>
-        @if (minutesUntilNext() !== null) {
-          <span class="next-countdown">{{ 'activeTrip.inMinutes' | translate }} {{ minutesUntilNext() }} {{ 'activeTrip.min' | translate }}</span>
+  <!-- Agora / Now Section -->
+  <div class="tm-section tm-section-now">
+    @if (currentItem(); as item) {
+      <div class="tm-section-label tm-label-now">
+        @if (isCurrentItemActive()) {
+          {{ 'activeTrip.now' | translate }}
+        } @else {
+          {{ 'activeTrip.next' | translate }}
+          @if (minutesUntilCurrent(); as mins) {
+            <span class="tm-countdown">&middot; {{ 'activeTrip.inMinutes' | translate }} {{ mins }} {{ 'activeTrip.min' | translate }}</span>
+          }
         }
-        <div class="next-content">
-          <mat-icon class="next-icon">{{ getTypeIcon(next.type) }}</mat-icon>
-          <div class="next-info">
-            <strong>{{ next.label }}</strong>
-            @if (next.timeSlot) {
-              <span>{{ next.timeSlot }}</span>
-            }
-          </div>
+      </div>
+      <div class="tm-now-card">
+        <div class="tm-now-icon-wrap" [style.background-color]="getTypeColor(item.type) + '18'">
+          <mat-icon [style.color]="getTypeColor(item.type)">{{ getTypeIcon(item.type) }}</mat-icon>
         </div>
-      </mat-card-content>
-    </mat-card>
-  } @else {
-    <mat-card class="free-card">
-      <mat-card-content>
+        <div class="tm-now-details">
+          <span class="tm-now-name">{{ item.label }}</span>
+          @if (item.timeSlot) {
+            <span class="tm-now-time">{{ item.timeSlot }}
+              @if (item.durationMinutes) {
+                &middot; {{ item.durationMinutes }} {{ 'activeTrip.min' | translate }}
+              }
+            </span>
+          }
+          @if (item.notes) {
+            <span class="tm-now-notes">{{ item.notes }}</span>
+          }
+        </div>
+        <button mat-icon-button class="tm-maps-btn" (click)="openInMaps(item.label)"
+                [matTooltip]="'activeTrip.openMaps' | translate">
+          <mat-icon>place</mat-icon>
+        </button>
+      </div>
+    } @else {
+      <div class="tm-free-card">
         <mat-icon>wb_sunny</mat-icon>
-        <strong>{{ 'activeTrip.freeDay' | translate }}</strong>
-        <span>{{ 'activeTrip.freeDayDesc' | translate }}</span>
-      </mat-card-content>
-    </mat-card>
+        <div class="tm-free-text">
+          <strong>{{ 'activeTrip.freeDay' | translate }}</strong>
+          <span>{{ 'activeTrip.freeDayDesc' | translate }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Proximo / Next Section -->
+  @if (nextItem(); as next) {
+    <div class="tm-section tm-section-next">
+      <div class="tm-section-label tm-label-next">{{ 'activeTrip.nextUp' | translate }}</div>
+      <div class="tm-compact-item">
+        <div class="tm-compact-icon" [style.color]="getTypeColor(next.type)">
+          <mat-icon>{{ getTypeIcon(next.type) }}</mat-icon>
+        </div>
+        <div class="tm-compact-info">
+          <span class="tm-compact-name">{{ next.label }}</span>
+          <span class="tm-compact-time">{{ next.timeSlot || '' }}</span>
+        </div>
+        <button mat-icon-button class="tm-maps-btn-sm" (click)="openInMaps(next.label)">
+          <mat-icon>place</mat-icon>
+        </button>
+      </div>
+    </div>
   }
 
-  <!-- Today's Schedule -->
-  @if (todayItems().length > 0) {
-    <div class="schedule-section">
-      <h3>{{ 'activeTrip.todaySchedule' | translate }}</h3>
-      @for (item of todayItems(); track item.id) {
-        <div class="schedule-item" [class.past]="item.timeSlot && item.timeSlot < currentTime()"
-             [class.current]="item.id === currentItem()?.id">
-          <span class="schedule-time">{{ item.timeSlot || '—' }}</span>
-          <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
-          <span class="schedule-label">{{ item.label }}</span>
+  <!-- Depois / Later Section -->
+  @if (laterItems().length > 0) {
+    <div class="tm-section tm-section-later">
+      <div class="tm-section-label tm-label-later">{{ 'activeTrip.later' | translate }}</div>
+      @for (item of laterItems(); track item.id) {
+        <div class="tm-compact-item tm-compact-later">
+          <div class="tm-compact-icon" [style.color]="getTypeColor(item.type)">
+            <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
+          </div>
+          <div class="tm-compact-info">
+            <span class="tm-compact-name">{{ item.label }}</span>
+            <span class="tm-compact-time">{{ item.timeSlot || '' }}</span>
+          </div>
+          <button mat-icon-button class="tm-maps-btn-sm" (click)="openInMaps(item.label)">
+            <mat-icon>place</mat-icon>
+          </button>
         </div>
       }
     </div>
   }
 
-  <!-- Tomorrow Preview -->
-  @if (tomorrowItems().length > 0) {
-    <div class="tomorrow-section">
-      <h3>{{ 'activeTrip.tomorrow' | translate }}</h3>
-      @for (item of tomorrowItems(); track item.id; let i = $index) {
-        @if (i < 3) {
-          <div class="schedule-item tomorrow">
-            <span class="schedule-time">{{ item.timeSlot || '—' }}</span>
-            <mat-icon>{{ getTypeIcon(item.type) }}</mat-icon>
-            <span class="schedule-label">{{ item.label }}</span>
+  <!-- Slide-up panels -->
+  @if (showHotelPanel()) {
+    <div class="tm-panel-overlay" (click)="toggleHotel()"></div>
+    <div class="tm-panel">
+      <div class="tm-panel-header">
+        <h3>{{ 'activeTrip.myHotel' | translate }}</h3>
+        <button mat-icon-button (click)="toggleHotel()"><mat-icon>close</mat-icon></button>
+      </div>
+      @if (currentStay(); as stay) {
+        <div class="tm-panel-body">
+          <div class="tm-hotel-name">
+            <mat-icon>hotel</mat-icon>
+            <strong>{{ stay.name }}</strong>
           </div>
-        }
-      }
-      @if (tomorrowItems().length > 3) {
-        <span class="more-items">+{{ tomorrowItems().length - 3 }} {{ 'activeTrip.more' | translate }}</span>
+          @if (stay.address) {
+            <div class="tm-hotel-detail">
+              <mat-icon>place</mat-icon>
+              <span>{{ stay.address }}</span>
+            </div>
+          }
+          <div class="tm-hotel-detail">
+            <mat-icon>calendar_today</mat-icon>
+            <span>{{ stay.checkIn }} &rarr; {{ stay.checkOut }}</span>
+          </div>
+          <button mat-stroked-button class="tm-hotel-maps" (click)="openInMaps(stay.name)">
+            <mat-icon>map</mat-icon>
+            {{ 'activeTrip.openMaps' | translate }}
+          </button>
+        </div>
+      } @else {
+        <div class="tm-panel-body tm-panel-empty">
+          <mat-icon>hotel</mat-icon>
+          <span>{{ 'activeTrip.noHotel' | translate }}</span>
+        </div>
       }
     </div>
   }
 
-  <!-- Quick Actions -->
-  <div class="quick-actions">
-    <button mat-stroked-button (click)="navigateTo('documents')">
-      <mat-icon>description</mat-icon> {{ 'activeTrip.documents' | translate }}
+  @if (showEmergencyPanel()) {
+    <div class="tm-panel-overlay" (click)="toggleEmergency()"></div>
+    <div class="tm-panel">
+      <div class="tm-panel-header">
+        <h3>{{ 'activeTrip.emergency' | translate }}</h3>
+        <button mat-icon-button (click)="toggleEmergency()"><mat-icon>close</mat-icon></button>
+      </div>
+      <div class="tm-panel-body">
+        <div class="tm-emergency-number">
+          <mat-icon>phone</mat-icon>
+          <div>
+            <span class="tm-emergency-label">{{ 'activeTrip.emergencyNumber' | translate }}</span>
+            <a class="tm-emergency-value" href="tel:{{ emergencyNumber() }}">{{ emergencyNumber() }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Bottom spacer for fixed bar -->
+  <div class="tm-bottom-spacer"></div>
+
+  <!-- Fixed Bottom Quick Actions Bar -->
+  <div class="tm-bottom-bar">
+    <button class="tm-bottom-action" (click)="toggleHotel()" [class.active]="showHotelPanel()">
+      <mat-icon>hotel</mat-icon>
+      <span>{{ 'activeTrip.myHotel' | translate }}</span>
     </button>
-    <button mat-stroked-button (click)="navigateTo('budget')">
-      <mat-icon>account_balance_wallet</mat-icon> {{ 'activeTrip.budget' | translate }}
+    <button class="tm-bottom-action tm-action-emergency" (click)="toggleEmergency()" [class.active]="showEmergencyPanel()">
+      <mat-icon>emergency</mat-icon>
+      <span>{{ 'activeTrip.emergency' | translate }}</span>
     </button>
-    <button mat-stroked-button (click)="navigateTo('checklist')">
-      <mat-icon>checklist</mat-icon> {{ 'activeTrip.checklist' | translate }}
-    </button>
-    <button mat-stroked-button (click)="navigateTo('itinerary')">
-      <mat-icon>map</mat-icon> {{ 'activeTrip.itinerary' | translate }}
+    <button class="tm-bottom-action" (click)="navigateTo('documents')">
+      <mat-icon>description</mat-icon>
+      <span>{{ 'activeTrip.documents' | translate }}</span>
     </button>
   </div>
 </div>

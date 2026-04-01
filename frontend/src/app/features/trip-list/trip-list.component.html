@@ -12,8 +12,62 @@
     </button>
   </div>
 
+  <!-- Streak Widget -->
+  @if (streak.currentStreak() > 0) {
+    <div class="streak-widget">
+      <span class="streak-emoji">{{ streak.getStreakEmoji() }}</span>
+      <span class="streak-text">{{ streak.currentStreak() }} dias planejando!</span>
+    </div>
+  }
+
+  <!-- Badge Progress Widget -->
+  <div class="badge-widget" matRipple>
+    <span class="badge-icon">&#x1F3C6;</span>
+    <span class="badge-text">{{ badgeService.unlockedCount() }}/{{ badgeService.totalCount() }} conquistas</span>
+    <mat-icon class="badge-arrow">chevron_right</mat-icon>
+  </div>
+
   <!-- Pending Invites -->
   <app-pending-invites></app-pending-invites>
+
+  <!-- Hero Next Trip -->
+  @if (heroTrip(); as hero) {
+    <div class="hero-card" (click)="openTrip(hero.id)">
+      <div class="hero-cover" [class.has-image]="!!hero.coverImage">
+        @if (hero.coverImage) {
+          <img [src]="hero.coverImage" [alt]="hero.destination" class="hero-cover-img" loading="lazy" />
+        }
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+          @if (getDaysUntil(hero) !== null && getDaysUntil(hero)! > 0) {
+            <div class="hero-countdown">
+              <span class="hero-countdown-num">{{ getDaysUntil(hero) }}</span>
+              <span class="hero-countdown-label">{{ getDaysUntil(hero) === 1 ? ('dash.day' | translate) : ('dash.days' | translate) }} para {{ hero.destination }}</span>
+            </div>
+          } @else {
+            <h2 class="hero-title">{{ hero.name }}</h2>
+            <p class="hero-destination">{{ hero.destination }}</p>
+          }
+
+          <div class="hero-progress-section">
+            <div class="hero-progress-bar">
+              <div class="hero-progress-fill" [style.width.%]="getTripCompletion(hero)" [style.background]="getCompletionColor(getTripCompletion(hero))"></div>
+            </div>
+            <span class="hero-progress-label">{{ getTripCompletion(hero) }}% planejado</span>
+          </div>
+
+          <p class="hero-next-step">
+            <mat-icon>arrow_forward</mat-icon>
+            Proximo passo: {{ getNextStep(hero) }}
+          </p>
+
+          <button mat-flat-button class="hero-cta" (click)="$event.stopPropagation(); openTrip(hero.id)">
+            Continuar planejando
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Filter Bar -->
   <div class="filter-bar">
@@ -56,20 +110,43 @@
           {{ 'trips.clearFilter' | translate }}
         </button>
       } @else {
-        <h2>{{ 'trips.emptyTitle' | translate }}</h2>
-        <p class="empty-text">{{ 'trips.emptyDesc' | translate }}</p>
-        <button mat-flat-button color="primary" class="empty-cta" (click)="openCreateDialog()">
+        <h2 class="empty-warm-title">Nenhuma viagem ainda</h2>
+        <p class="empty-text">Mas a gente sabe que voce ja ta pensando em algum lugar. Qual vai ser?</p>
+        <button mat-flat-button color="primary" class="empty-cta-large" (click)="openCreateDialog()">
           <mat-icon>add</mat-icon>
-          {{ 'trips.createNew' | translate }}
+          Planejar nova viagem
         </button>
       }
     </div>
+
+    <!-- Inspiration section in empty state -->
+    @if (!statusFilter()) {
+      <section class="inspiration-section">
+        <h3 class="inspiration-title">
+          <mat-icon>trending_up</mat-icon>
+          Destinos em alta
+        </h3>
+        <div class="inspiration-scroll">
+          @for (dest of trendingDestinations; track dest.name) {
+            <div class="inspiration-card" (click)="openCreateDialog()">
+              <div class="inspiration-cover" [style.background]="dest.gradient">
+                <span class="inspiration-name">{{ dest.name }}</span>
+              </div>
+              <div class="inspiration-body">
+                <span class="inspiration-city">{{ dest.name }}</span>
+                <span class="inspiration-price">a partir de R$ {{ dest.price | number:'1.0-0':'pt-BR' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
   }
 
   <!-- Trip Cards Grid -->
   @else {
     <div class="trips-grid">
-      @for (trip of filteredTrips(); track trip.id; let i = $index) {
+      @for (trip of (heroTrip() ? nonHeroTrips() : filteredTrips()); track trip.id; let i = $index) {
         <div class="trip-card" [class.is-next]="isNextTrip(trip)" (click)="openTrip(trip.id)">
           <!-- Cover Image -->
           <div class="card-cover" [class.has-image]="!!trip.coverImage">
@@ -97,10 +174,6 @@
               </button>
               <button mat-menu-item (click)="cloneTrip(trip.id, trip.name)">
                 <mat-icon>content_copy</mat-icon> <span>{{ 'trips.clone' | translate }}</span>
-                <!-- PRO lock commented out — all features unlocked for now
-                @if (!planService.hasFeature('tripClone')) {
-                  <mat-icon class="menu-pro-lock">lock</mat-icon>
-                } -->
               </button>
               <mat-divider></mat-divider>
               <button mat-menu-item class="delete-menu-item" (click)="deleteTrip(trip.id)">
@@ -159,8 +232,39 @@
               </div>
             }
           </div>
+
+          <!-- Completion Progress Bar -->
+          <div class="card-completion">
+            <div class="card-completion-bar">
+              <div class="card-completion-fill"
+                   [style.width.%]="getTripCompletion(trip)"
+                   [style.background]="getCompletionColor(getTripCompletion(trip))">
+              </div>
+            </div>
+          </div>
         </div>
       }
     </div>
+
+    <!-- Inspiration section after trip cards -->
+    <section class="inspiration-section">
+      <h3 class="inspiration-title">
+        <mat-icon>trending_up</mat-icon>
+        Destinos em alta
+      </h3>
+      <div class="inspiration-scroll">
+        @for (dest of trendingDestinations; track dest.name) {
+          <div class="inspiration-card" (click)="openCreateDialog()">
+            <div class="inspiration-cover" [style.background]="dest.gradient">
+              <span class="inspiration-name">{{ dest.name }}</span>
+            </div>
+            <div class="inspiration-body">
+              <span class="inspiration-city">{{ dest.name }}</span>
+              <span class="inspiration-price">a partir de R$ {{ dest.price | number:'1.0-0':'pt-BR' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
   }
 </div>

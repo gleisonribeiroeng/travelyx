@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TripStateService } from '../../core/services/trip-state.service';
 import { TransitionService } from '../../core/services/transition.service';
+import { OnboardingComponent } from '../onboarding/onboarding.component';
 
 @Component({
   selector: 'app-auth-callback',
@@ -56,7 +57,10 @@ export class AuthCallbackComponent implements OnInit {
 
     this.tripState.loadFromApi().subscribe({
       next: (trips) => {
-        if (trips.length === 1) {
+        // Show onboarding for first-time users
+        if (trips.length === 0 && !OnboardingComponent.isCompleted()) {
+          this.router.navigate(['/onboarding']);
+        } else if (trips.length === 1) {
           this.router.navigate(['/viagem', trips[0].id, 'home']);
         } else {
           this.router.navigate(['/viagens']);

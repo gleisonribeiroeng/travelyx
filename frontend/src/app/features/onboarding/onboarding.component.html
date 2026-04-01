@@ -1,0 +1,111 @@
+<div class="onboarding">
+  <!-- Progress bar -->
+  <div class="progress-track">
+    <div class="progress-fill" [style.width.%]="((step() + 1) / 3) * 100"></div>
+  </div>
+
+  <!-- Step 0: Welcome -->
+  @if (step() === 0) {
+    <div class="step step-welcome">
+      <div class="welcome-avatar">
+        @if (userPicture()) {
+          <img [src]="userPicture()" [alt]="userName()" class="avatar-img" />
+        } @else {
+          <div class="avatar-placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+        }
+      </div>
+
+      <h1 class="welcome-title">Oi, {{ userName() || 'viajante' }}!</h1>
+      <p class="welcome-subtitle">Que bom ter você aqui. Vamos personalizar sua experiência em 30 segundos?</p>
+
+      <button class="btn-primary" (click)="nextStep()">
+        Bora lá
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+      <button class="btn-skip" (click)="skip()">Pular e explorar</button>
+    </div>
+  }
+
+  <!-- Step 1: Traveler Profile -->
+  @if (step() === 1) {
+    <div class="step step-profile">
+      <h2 class="step-title">Como você costuma viajar?</h2>
+
+      <div class="type-grid">
+        @for (type of travelerTypes; track type.value) {
+          <button
+            class="type-card"
+            [class.selected]="data().travelerType === type.value"
+            (click)="selectTravelerType(type.value)"
+          >
+            <span class="type-emoji">{{ type.icon }}</span>
+            <span class="type-label">{{ type.label }}</span>
+            <span class="type-desc">{{ type.desc }}</span>
+          </button>
+        }
+      </div>
+
+      <h3 class="subsection-title">Qual é seu foco ao planejar?</h3>
+      <div class="chip-group">
+        @for (opt of focusOptions; track opt.value) {
+          <button
+            class="chip"
+            [class.selected]="data().planningFocus === opt.value"
+            (click)="selectFocus(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+
+      <h3 class="subsection-title">Já tem uma viagem em mente?</h3>
+      <div class="chip-group vertical">
+        @for (opt of intentOptions; track opt.value) {
+          <button
+            class="chip wide"
+            [class.selected]="data().tripIntent === opt.value"
+            (click)="selectIntent(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+
+      <button
+        class="btn-primary"
+        [disabled]="!data().travelerType || !data().planningFocus || !data().tripIntent"
+        (click)="finishProfile()"
+      >
+        Continuar
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+      <button class="btn-skip" (click)="skip()">Pular</button>
+    </div>
+  }
+
+  <!-- Step 2: Create First Trip (shown only if intent is 'has_trip') -->
+  @if (step() === 2) {
+    <div class="step step-first-trip">
+      <div class="celebration-icon">🎉</div>
+      <h2 class="step-title">Perfeito! Vamos criar sua primeira viagem.</h2>
+      <p class="step-subtitle">Você pode ajustar tudo depois. O importante é começar!</p>
+
+      <div class="cta-cards">
+        <button class="cta-card" (click)="complete()">
+          <mat-icon>route</mat-icon>
+          <span class="cta-label">Planejamento Guiado</span>
+          <span class="cta-desc">A gente te guia passo a passo</span>
+        </button>
+        <button class="cta-card" (click)="complete()">
+          <mat-icon>add_circle_outline</mat-icon>
+          <span class="cta-label">Criar viagem manual</span>
+          <span class="cta-desc">Eu sei o que quero, me deixa montar</span>
+        </button>
+      </div>
+
+      <button class="btn-skip" (click)="complete()">Ir direto para o app</button>
+    </div>
+  }
+</div>

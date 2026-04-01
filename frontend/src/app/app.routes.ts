@@ -92,6 +92,12 @@ export const routes: Routes = [
   },
   { path: 'alertas-preco', redirectTo: 'alertas', pathMatch: 'full' },
   {
+    path: 'onboarding',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/onboarding/onboarding.component').then(m => m.OnboardingComponent),
+  },
+  {
     path: 'viagens',
     canActivate: [authGuard],
     loadComponent: () =>

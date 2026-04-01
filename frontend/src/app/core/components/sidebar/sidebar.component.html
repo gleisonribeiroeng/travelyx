@@ -8,25 +8,17 @@
   </div>
 
   <nav class="nav-groups">
-    @for (group of navGroups(); track group.label) {
+    @for (group of navGroups(); track group.label; let i = $index) {
       <div class="nav-group">
         @if (group.label) {
-          <span class="group-label">{{ group.label }}</span>
+          <button class="group-label-btn" (click)="toggleExplore()" type="button">
+            <span class="group-label">{{ group.label }}</span>
+            <mat-icon class="group-chevron" [class.open]="exploreOpen()">expand_more</mat-icon>
+          </button>
         }
-        @for (item of group.items; track item.route) {
-          <!-- PRO gate commented out — all features unlocked for now
-          @if (item.pro && !planService.isPro()) {
-            <button
-              class="nav-item locked"
-              (click)="handleProClick(item)"
-              [attr.aria-label]="item.label + ' — recurso PRO, clique para ver detalhes'"
-              type="button"
-            >
-              <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-              <span class="nav-label">{{ item.label }}</span>
-              <span class="pro-badge" aria-hidden="true">PRO</span>
-            </button>
-          } @else { -->
+
+        @if (!group.label || exploreOpen()) {
+          @for (item of group.items; track item.route) {
             <a
               class="nav-item"
               [routerLink]="item.route"
@@ -37,7 +29,7 @@
               <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
               <span class="nav-label">{{ item.label }}</span>
             </a>
-          <!-- } -->
+          }
         }
       </div>
     }

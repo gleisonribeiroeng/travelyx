@@ -34,7 +34,7 @@
           }
         </div>
         <div class="hero-right">
-          @if (daysUntilTrip() !== null && daysUntilTrip()! > 0 && daysUntilTrip()! <= 30) {
+          @if (daysUntilTrip() !== null && daysUntilTrip()! > 0 && daysUntilTrip()! <= 60) {
             <div class="hero-countdown" [class.imminent]="tripPhase() === 'imminent'">
               <span class="countdown-number">{{ daysUntilTrip() }}</span>
               <span class="countdown-label">{{ daysUntilTrip() === 1 ? ('dash.day' | translate) : ('dash.days' | translate) }}</span>
@@ -45,6 +45,33 @@
           }
         </div>
       </div>
+
+      <!-- Hero info widgets: weather + exchange + timezone -->
+      @if (weatherInfo() || exchangeInfo()) {
+        <div class="hero-widgets">
+          @if (weatherInfo(); as w) {
+            <div class="hero-widget">
+              <mat-icon>{{ w.temp > 25 ? 'wb_sunny' : w.temp > 15 ? 'partly_cloudy_day' : 'ac_unit' }}</mat-icon>
+              <span class="widget-value">{{ w.temp }}°C</span>
+              <span class="widget-label">{{ w.climate }}</span>
+            </div>
+          }
+          @if (exchangeInfo(); as ex) {
+            <div class="hero-widget">
+              <mat-icon>currency_exchange</mat-icon>
+              <span class="widget-value">{{ ex.currency }}</span>
+              <span class="widget-label">{{ ex.timezone }}</span>
+            </div>
+          }
+          @if (weatherInfo()?.isHighSeason) {
+            <div class="hero-widget hero-widget-warn">
+              <mat-icon>trending_up</mat-icon>
+              <span class="widget-value">{{ 'dash.highSeason' | translate }}</span>
+            </div>
+          }
+        </div>
+      }
+
       <div class="hero-actions">
         <button mat-flat-button class="hero-action-btn primary" (click)="openShareDialog()">
           <mat-icon>people</mat-icon> {{ 'collab.share' | translate }}
@@ -82,6 +109,16 @@
 
     <!-- ═══ SECTION 2: Guided Steps (empty trip) or Dashboard content ═══ -->
     @if (!hasContent()) {
+      <!-- ═══ GUIDED PLANNING: Prominent CTA for new trips ═══ -->
+      <div class="guided-planning-hero" (click)="navigateTo('planner')" tabindex="0" role="button">
+        <div class="gp-icon-wrap"><mat-icon>route</mat-icon></div>
+        <div class="gp-text">
+          <h3>{{ 'dash.guidedPlanning' | translate }}</h3>
+          <p>{{ 'dash.guidedPlanningDesc' | translate }}</p>
+        </div>
+        <mat-icon class="gp-arrow">arrow_forward</mat-icon>
+      </div>
+
       <div class="guided-steps">
         <h3 class="guided-title">
           <mat-icon>rocket_launch</mat-icon>
@@ -101,22 +138,72 @@
         }
       </div>
     } @else {
-      <!-- ═══ METRICS: Clean pill grid (like timeline summary) ═══ -->
-      <div class="metrics-grid">
-        <!-- Readiness (replaces score circle) -->
-        <mat-card class="metric-card readiness-metric" (click)="navigateTo('checklist')">
-          <mat-card-content>
-            <div class="metric-circle" [style.--score-color]="readinessColor()">
-              <svg viewBox="0 0 36 36" class="score-svg">
-                <path class="score-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path class="score-fill" [attr.stroke-dasharray]="(readiness()?.percentage ?? score.score().total) + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <span class="score-value">{{ readiness()?.percentage ?? score.score().total }}</span>
-            </div>
-            <span class="metric-label">{{ readiness() ? readinessLabel() : score.scoreLabel() }}</span>
-          </mat-card-content>
-        </mat-card>
+      <!-- ═══ GUIDED PLANNING: Prominent CTA for trips < 50% ready ═══ -->
+      @if (readinessChecklist().percentage < 50) {
+        <div class="guided-planning-hero" (click)="navigateTo('planner')" tabindex="0" role="button">
+          <div class="gp-icon-wrap"><mat-icon>route</mat-icon></div>
+          <div class="gp-text">
+            <h3>{{ 'dash.guidedPlanning' | translate }}</h3>
+            <p>{{ 'dash.guidedPlanningDesc' | translate }}</p>
+          </div>
+          <mat-icon class="gp-arrow">arrow_forward</mat-icon>
+        </div>
+      }
 
+      <!-- ═══ VISUAL READINESS CHECKLIST (replaces numeric score) ═══ -->
+      <mat-card class="readiness-checklist-card">
+        <mat-card-content>
+          <div class="readiness-header">
+            <div class="readiness-title-row">
+              <h3>{{ 'dash.howIsYourPlan' | translate }}</h3>
+              <span class="readiness-badge" [class]="'readiness-' + (readinessChecklist().percentage >= 85 ? 'ready' : readinessChecklist().percentage >= 50 ? 'progress' : 'starting')">
+                {{ readinessChecklist().completed }}/{{ readinessChecklist().total }}
+              </span>
+            </div>
+            <div class="readiness-bar-track">
+              <div class="readiness-bar-fill" [style.width.%]="readinessChecklist().percentage"
+                   [class]="'fill-' + (readinessChecklist().percentage >= 85 ? 'ready' : readinessChecklist().percentage >= 50 ? 'progress' : 'starting')">
+              </div>
+            </div>
+          </div>
+
+          <div class="readiness-steps">
+            @for (step of readinessChecklist().steps; track step.key) {
+              <div class="readiness-step" [class.done]="step.done" (click)="!step.done ? navigateTo(step.route) : null">
+                <mat-icon class="step-check">{{ step.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <mat-icon class="step-type-icon">{{ step.icon }}</mat-icon>
+                <span class="step-text" [class.done]="step.done">{{ step.label }}</span>
+                @if (!step.done && step.cta) {
+                  <span class="step-cta">{{ step.cta }}</span>
+                  <mat-icon class="step-go">chevron_right</mat-icon>
+                }
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ═══ NEXT 3 ACTIONS (always visible when incomplete) ═══ -->
+      @if (nextActions().length > 0) {
+        <div class="next-actions">
+          <h3 class="section-title"><mat-icon>tips_and_updates</mat-icon> {{ 'dash.whatsMissing' | translate }}</h3>
+          <div class="next-actions-grid">
+            @for (action of nextActions(); track action.key; let i = $index) {
+              <button class="next-action-card" (click)="navigateTo(action.route)">
+                <div class="action-number">{{ i + 1 }}</div>
+                <mat-icon class="action-icon">{{ action.icon }}</mat-icon>
+                <span class="action-label">{{ action.label }}</span>
+                @if (action.cta) {
+                  <span class="action-cta">{{ action.cta }} →</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ═══ METRICS: Actionable cards ═══ -->
+      <div class="metrics-grid">
         <!-- Budget -->
         <mat-card class="metric-card budget-card" (click)="navigateTo('budget')">
           <mat-card-content>
@@ -126,21 +213,27 @@
             @if (budget.summary().totalPaid > 0) {
               <span class="metric-sub">{{ budget.summary().totalPaid | dynamicCurrency:'symbol':'1.0-0' }} {{ 'dash.paid' | translate }}</span>
             }
+            <span class="metric-cta">{{ 'dash.viewDetails' | translate }} →</span>
           </mat-card-content>
         </mat-card>
 
-        <!-- Conflicts -->
+        <!-- Conflicts (actionable) -->
         <mat-card class="metric-card conflicts-card" (click)="navigateTo('conflicts')"
                   [class.clean]="conflicts().length === 0">
           <mat-card-content>
             @if (conflicts().length === 0) {
               <mat-icon class="metric-icon clean-icon">check_circle</mat-icon>
               <span class="metric-value clean-text">OK</span>
+              <span class="metric-label">{{ 'dash.noConflicts' | translate }}</span>
             } @else {
               <mat-icon class="metric-icon conflict-icon">{{ errorCount() > 0 ? 'error' : 'warning' }}</mat-icon>
               <span class="metric-value">{{ conflicts().length }}</span>
+              <span class="metric-label">{{ conflicts().length === 1 ? ('dash.conflict' | translate) : ('dash.conflicts' | translate) }}</span>
+              @if (topConflict(); as c) {
+                <span class="metric-sub conflict-detail">{{ c.message }}</span>
+              }
+              <span class="metric-cta conflict-cta">{{ 'dash.resolveNow' | translate }} →</span>
             }
-            <span class="metric-label">{{ conflicts().length === 0 ? ('dash.noConflicts' | translate) : (conflicts().length === 1 ? ('dash.conflict' | translate) : ('dash.conflicts' | translate)) }}</span>
           </mat-card-content>
         </mat-card>
 
@@ -151,17 +244,31 @@
             <span class="metric-value">{{ checklist.progress().percentage }}%</span>
             <span class="metric-label">Checklist</span>
             <span class="metric-sub">{{ checklist.progress().done }}/{{ checklist.progress().total }}</span>
+            <span class="metric-cta">{{ 'dash.viewList' | translate }} →</span>
           </mat-card-content>
         </mat-card>
+
+        <!-- Next on itinerary -->
+        @if (nextItems().length > 0) {
+          <mat-card class="metric-card next-item-card" (click)="navigateTo('timeline')">
+            <mat-card-content>
+              <mat-icon class="metric-icon next-icon">event</mat-icon>
+              <span class="metric-value next-item-name">{{ nextItems()[0].label }}</span>
+              <span class="metric-label">{{ 'dash.nextItem' | translate }}</span>
+              <span class="metric-sub">{{ formatShortDate(nextItems()[0].date) }}{{ nextItems()[0].timeSlot ? ' · ' + nextItems()[0].timeSlot : '' }}</span>
+              <span class="metric-cta">{{ 'dash.viewItinerary' | translate }} →</span>
+            </mat-card-content>
+          </mat-card>
+        }
       </div>
 
-      <!-- ═══ NEXT ITEMS (moved to top — most important info) ═══ -->
-      @if (nextItems().length > 0) {
+      <!-- ═══ NEXT ITEMS ═══ -->
+      @if (nextItems().length > 1) {
         <mat-card class="next-items-card">
           <mat-card-content>
             <div class="section-header">
               <h3><mat-icon>schedule</mat-icon> {{ 'dash.nextOnItinerary' | translate }}</h3>
-              <button mat-button class="view-all-btn" (click)="navigateTo('itinerary')">
+              <button mat-button class="view-all-btn" (click)="navigateTo('timeline')">
                 {{ 'dash.viewAll' | translate }} <mat-icon>arrow_forward</mat-icon>
               </button>
             </div>
@@ -192,32 +299,6 @@
         </mat-card>
       }
 
-      <!-- ═══ READINESS: What's missing (only if items exist) ═══ -->
-      @if (readiness() && readiness()!.missing.length > 0) {
-        <mat-card class="readiness-card">
-          <mat-card-content>
-            <div class="readiness-missing">
-              <!-- PRO limit commented out — was: planService.isPro() ? 10 : 2 -->
-              @for (item of readiness()!.missing.slice(0, 10); track item.category) {
-                <button class="missing-item" [class]="'priority-' + item.priority" (click)="navigateTo(getMissingRoute(item.category))">
-                  <mat-icon>{{ item.icon }}</mat-icon>
-                  <span>{{ item.message }}</span>
-                  <mat-icon class="missing-arrow">chevron_right</mat-icon>
-                </button>
-              }
-              <!-- PRO upsell commented out — all features unlocked for now
-              @if (!planService.isPro() && readiness()!.missing.length > 2) {
-                <button class="missing-item pro-upsell" (click)="planService.showPaywall('checklist')">
-                  <mat-icon>lock</mat-icon>
-                  <span>{{ 'dash.readinessProHint' | translate }}</span>
-                  <span class="pro-badge-sm">PRO</span>
-                </button>
-              } -->
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-
       <!-- ═══ PAYMENTS (only when > 0%) ═══ -->
       @if (paidProgress().total > 0 && paidProgress().percentage > 0) {
         <mat-card class="paid-progress-card" (click)="navigateTo('budget')">
@@ -237,8 +318,6 @@
         </mat-card>
       }
 
-      <!-- Quick actions removed — sidebar already provides these navigation options -->
-
       <!-- ═══ COLLAB CTA (only if no collaborators) ═══ -->
       @if (!hasCollaborators()) {
         <mat-card class="collab-cta-card" (click)="openShareDialog()">
@@ -249,10 +328,6 @@
               <p>{{ 'collab.planTogetherDesc' | translate }}</p>
             </div>
             <div class="collab-cta-action">
-              <!-- PRO badge commented out — collaboration unlocked for now
-              @if (!canCollab()) {
-                <span class="pro-badge"><mat-icon>lock</mat-icon> Pro</span>
-              } -->
               <button mat-flat-button color="primary" class="collab-cta-btn">{{ 'collab.invite' | translate }}</button>
             </div>
           </mat-card-content>
@@ -267,17 +342,6 @@
               <h3><mat-icon>groups</mat-icon> {{ 'collab.title' | translate }}</h3>
             </div>
 
-            <!-- PRO collab lock commented out — collaboration unlocked for now
-            @if (!canCollab()) {
-              <div class="collab-lock">
-                <mat-icon>lock</mat-icon>
-                <p>{{ 'collab.proRequired' | translate }}</p>
-                <p class="lock-desc">{{ 'collab.proRequiredDesc' | translate }}</p>
-                <button mat-flat-button color="primary" (click)="planService.showPaywall('collaboration')">
-                  <mat-icon>star</mat-icon> {{ 'collab.upgradePro' | translate }}
-                </button>
-              </div>
-            } @else { -->
               <mat-tab-group [selectedIndex]="collabTabIndex()" (selectedIndexChange)="onCollabTabChange($event)" animationDuration="200ms">
                 <mat-tab>
                   <ng-template mat-tab-label><mat-icon>history</mat-icon><span>{{ 'collab.activity' | translate }}</span></ng-template>
@@ -393,17 +457,9 @@
                   </div>
                 </mat-tab>
               </mat-tab-group>
-            <!-- } PRO @else closing commented out -->
           </mat-card-content>
         </mat-card>
       }
-
-      <!-- ═══ GUIDED PLANNING (small banner at bottom) ═══ -->
-      <div class="hero-banner-mini" (click)="navigateTo('planner')" tabindex="0" role="button">
-        <mat-icon>explore</mat-icon>
-        <span>{{ 'dash.guidedPlanning' | translate }}</span>
-        <mat-icon class="mini-arrow">arrow_forward</mat-icon>
-      </div>
     }
   } @else {
     <!-- Empty State -->
