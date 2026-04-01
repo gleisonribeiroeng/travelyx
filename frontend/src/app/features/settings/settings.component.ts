@@ -66,6 +66,13 @@ export class SettingsComponent {
       icon: 'view_compact',
       value: this.loadBool('triply_compact_mode', false),
     },
+    {
+      key: 'travelyx_theme',
+      label: 'Tema escuro',
+      description: 'Ativa o modo escuro em toda a plataforma',
+      icon: 'dark_mode',
+      value: this.loadBool('travelyx_theme', false),
+    },
   ];
 
   goBack(): void {
@@ -79,6 +86,9 @@ export class SettingsComponent {
 
   onToggle(setting: SettingToggle): void {
     localStorage.setItem(setting.key, String(setting.value));
+    if (setting.key === 'travelyx_theme') {
+      document.documentElement.classList.toggle('dark', setting.value);
+    }
   }
 
   clearCache(): void {
