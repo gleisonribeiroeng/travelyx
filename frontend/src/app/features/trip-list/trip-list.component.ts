@@ -13,6 +13,8 @@ import { TripCreateDialogComponent, TripCreateDialogResult, TripEditData } from 
 import { PendingInvitesComponent } from '../../shared/components/pending-invites/pending-invites.component';
 import { CollaboratorAvatarsComponent } from '../../shared/components/collaborator-avatars/collaborator-avatars.component';
 import { PlanService } from '../../core/services/plan.service';
+import { AuthService } from '../../core/services/auth.service';
+import { getDestinationPhoto } from '../../core/data/destination-photos.data';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationService } from '../../core/i18n/translation.service';
 
@@ -39,8 +41,19 @@ export class TripListComponent implements OnInit {
   protected readonly collabService = inject(CollaborationService);
   protected readonly streak = inject(StreakService);
   protected readonly badgeService = inject(BadgeService);
+  private readonly auth = inject(AuthService);
 
   readonly statusFilter = signal<string>('');
+
+  /** Time-based greeting with user's first name */
+  readonly greeting = computed(() => {
+    const user = this.auth.user();
+    const firstName = user?.name?.split(' ')[0] || '';
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return firstName ? `Bom dia, ${firstName}! ☀️` : 'Bom dia! ☀️';
+    if (hour >= 12 && hour < 18) return firstName ? `Boa tarde, ${firstName}! ✈️` : 'Boa tarde! ✈️';
+    return firstName ? `Boa noite, ${firstName}! 🌙` : 'Boa noite! 🌙';
+  });
 
   readonly trendingDestinations: TrendingDestination[] = [
     { name: 'Santiago', price: 890, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
@@ -122,6 +135,13 @@ export class TripListComponent implements OnInit {
     if (!acts) return 'Adicionar atividades';
     if (!trip.itineraryItems?.length) return 'Montar roteiro';
     return 'Revisar planejamento';
+  }
+
+  /** Get trip image: cover image or destination photo fallback */
+  getHeroImage(trip: Trip): string | null {
+    if (trip.coverImage) return trip.coverImage;
+    if (trip.destination) return getDestinationPhoto(trip.destination);
+    return null;
   }
 
   isNextTrip(trip: Trip): boolean {

@@ -12,6 +12,9 @@
     </button>
   </div>
 
+  <!-- Greeting -->
+  <h2 class="greeting-text">{{ greeting() }}</h2>
+
   <!-- Streak Widget -->
   @if (streak.currentStreak() > 0) {
     <div class="streak-widget">
@@ -33,9 +36,9 @@
   <!-- Hero Next Trip -->
   @if (heroTrip(); as hero) {
     <div class="hero-card" (click)="openTrip(hero.id)">
-      <div class="hero-cover" [class.has-image]="!!hero.coverImage">
-        @if (hero.coverImage) {
-          <img [src]="hero.coverImage" [alt]="hero.destination" class="hero-cover-img" loading="lazy" />
+      <div class="hero-cover" [class.has-image]="!!getHeroImage(hero)">
+        @if (getHeroImage(hero); as heroImg) {
+          <img [src]="heroImg" [alt]="hero.destination" class="hero-cover-img" loading="lazy" />
         }
         <div class="hero-gradient"></div>
         <div class="hero-content">
@@ -149,9 +152,9 @@
       @for (trip of (heroTrip() ? nonHeroTrips() : filteredTrips()); track trip.id; let i = $index) {
         <div class="trip-card" [class.is-next]="isNextTrip(trip)" (click)="openTrip(trip.id)">
           <!-- Cover Image -->
-          <div class="card-cover" [class.has-image]="!!trip.coverImage">
-            @if (trip.coverImage) {
-              <img [src]="trip.coverImage" [alt]="trip.destination" class="cover-img" loading="lazy" />
+          <div class="card-cover" [class.has-image]="!!getHeroImage(trip)">
+            @if (getHeroImage(trip); as tripImg) {
+              <img [src]="tripImg" [alt]="trip.destination" class="cover-img" loading="lazy" />
             }
             <div class="cover-gradient"></div>
 
