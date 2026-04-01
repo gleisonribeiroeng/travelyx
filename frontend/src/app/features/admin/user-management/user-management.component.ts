@@ -1,5 +1,6 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MATERIAL_IMPORTS } from '../../../core/material.exports';
 import { AdminService, AdminUser } from '../../../core/services/admin.service';
@@ -12,7 +13,7 @@ import { TranslationService } from '../../../core/i18n/translation.service';
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, MATERIAL_IMPORTS, TranslatePipe],
+  imports: [CommonModule, FormsModule, MATERIAL_IMPORTS, TranslatePipe],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss',
 })
@@ -26,6 +27,16 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   readonly users = signal<AdminUser[]>([]);
   readonly loading = signal(true);
+  readonly searchQuery = signal('');
+
+  readonly filteredUsers = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    const all = this.users();
+    if (!q) return all;
+    return all.filter(u =>
+      u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+    );
+  });
 
   ngOnInit(): void {
     this.presence.connect();

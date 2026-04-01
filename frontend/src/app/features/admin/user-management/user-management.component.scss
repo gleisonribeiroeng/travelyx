@@ -37,6 +37,21 @@
   padding: 64px 0;
 }
 
+.user-count {
+  font-size: 0.82rem;
+  color: var(--triply-text-tertiary);
+  margin: 4px 0 0 44px;
+}
+
+.admin-search {
+  margin-bottom: 16px;
+
+  .search-field {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
 .users-table-wrapper {
   background: var(--triply-surface-1);
   border-radius: 12px;

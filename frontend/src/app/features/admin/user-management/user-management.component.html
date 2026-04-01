@@ -5,6 +5,7 @@
       {{ 'admin.title' | translate }}
     </h1>
     <p class="subtitle">{{ 'admin.subtitle' | translate }}</p>
+    <p class="user-count">{{ users().length }} usuários cadastrados</p>
   </div>
 
   @if (loading()) {
@@ -12,6 +13,15 @@
       <mat-spinner diameter="40"></mat-spinner>
     </div>
   } @else {
+    <!-- Search -->
+    <div class="admin-search">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Buscar por nome ou email</mat-label>
+        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+      </mat-form-field>
+    </div>
+
     <div class="users-table-wrapper">
       <table class="users-table">
         <thead>
@@ -27,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (user of users(); track user.id) {
+          @for (user of filteredUsers(); track user.id) {
             <tr [class.inactive]="!user.isActive">
               <td class="user-cell">
                 <div class="avatar-wrapper">
