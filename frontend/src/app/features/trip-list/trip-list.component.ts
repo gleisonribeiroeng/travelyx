@@ -71,8 +71,8 @@ export class TripListComponent implements OnInit {
 
     const futureTrips = trips.filter(t => {
       if (!t.dates.start) return false;
-      const start = new Date(t.dates.start + 'T00:00:00');
-      return start.getTime() > today.getTime();
+      const end = t.dates.end ? new Date(t.dates.end + 'T00:00:00') : new Date(t.dates.start + 'T00:00:00');
+      return end.getTime() >= today.getTime();
     });
 
     if (futureTrips.length === 0) return null;

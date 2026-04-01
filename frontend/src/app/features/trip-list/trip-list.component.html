@@ -16,7 +16,7 @@
   @if (streak.currentStreak() > 0) {
     <div class="streak-widget">
       <span class="streak-emoji">{{ streak.getStreakEmoji() }}</span>
-      <span class="streak-text">{{ streak.currentStreak() }} dias planejando!</span>
+      <span class="streak-text">{{ streak.currentStreak() }} {{ streak.currentStreak() === 1 ? 'dia' : 'dias' }} planejando!</span>
     </div>
   }
 
