@@ -131,6 +131,11 @@ $muted: #64748b;
   @media (min-width: 768px) { padding: 40px 20px 100px; }
 }
 
+// Results step gets more width for better content display
+.pw.pw-results-active {
+  max-width: 780px;
+}
+
 .pw-step-content {
   animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
