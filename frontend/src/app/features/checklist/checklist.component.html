@@ -59,7 +59,7 @@
       </h3>
       @for (item of getFilteredItems(checklist.byCategory()[cat]); track item.id) {
         <div class="checklist-row" [class.checked]="item.isChecked" [class.overdue]="isOverdue(item)">
-          <mat-checkbox [checked]="item.isChecked" (change)="checklist.toggle(item.id)" color="primary"></mat-checkbox>
+          <mat-checkbox [checked]="item.isChecked" (change)="onToggle(item.id)" [class.just-toggled]="justToggledId() === item.id" color="primary"></mat-checkbox>
           <div class="item-content">
             <span class="item-label">{{ item.label }}</span>
             <div class="item-meta">

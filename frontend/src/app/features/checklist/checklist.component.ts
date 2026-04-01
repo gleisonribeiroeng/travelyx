@@ -1,4 +1,5 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
+import confetti from 'canvas-confetti';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -27,10 +28,24 @@ export class ChecklistComponent implements OnInit {
 
   readonly filterCategory = signal<string>('');
   readonly filterMyTasks = signal(false);
+  readonly justToggledId = signal<string | null>(null);
+  private previousPercentage = 0;
 
   readonly hasCollaborators = computed(() => this.collabService.collaborators().length > 1);
 
   readonly categoryOrder: ChecklistItem['category'][] = ['documents', 'finance', 'logistics', 'packing', 'health'];
+
+  constructor() {
+    // Confetti when checklist reaches 100%
+    effect(() => {
+      const pct = this.checklist.progress().percentage;
+      const total = this.checklist.progress().total;
+      if (pct === 100 && this.previousPercentage < 100 && total > 0) {
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#f97316', '#fb923c', '#4caf50', '#2196f3', '#9c27b0'] });
+      }
+      this.previousPercentage = pct;
+    });
+  }
 
   ngOnInit(): void {
     // If no saved items, generate from trip rules
@@ -38,6 +53,12 @@ export class ChecklistComponent implements OnInit {
     if (saved.length === 0) {
       this.checklist.regenerate();
     }
+  }
+
+  onToggle(id: string): void {
+    this.checklist.toggle(id);
+    this.justToggledId.set(id);
+    setTimeout(() => this.justToggledId.set(null), 400);
   }
 
   filteredCategories(): string[] {
