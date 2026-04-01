@@ -108,7 +108,7 @@ export class PublicWizardComponent implements OnInit {
       'orlando': 'https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?w=800&q=80',
       'buenos aires': 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=800&q=80',
       'santiago': 'https://images.unsplash.com/photo-1569272031118-b78017f20a75?w=800&q=80',
-      'gramado': 'https://images.unsplash.com/photo-1609942571893-c87dde449c5e?w=800&q=80',
+      'gramado': 'images/gramado.jpg',
     };
     for (const [key, url] of Object.entries(photos)) {
       if (dest.includes(key)) return url;
