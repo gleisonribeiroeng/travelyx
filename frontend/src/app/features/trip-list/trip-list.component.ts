@@ -112,13 +112,29 @@ export class TripListComponent implements OnInit {
 
   getTripCompletion(trip: Trip): number {
     let score = 0;
-    if (trip.flights?.length) score += 20;
-    if (trip.stays?.length) score += 20;
+    if (trip.dates.start && trip.dates.end) score += 15;
+    if (trip.flights?.length) score += 15;
+    if (trip.stays?.length) score += 15;
     const acts = (trip.activities?.length ?? 0) + (trip.attractions?.length ?? 0);
-    if (acts > 0) score += 20;
-    if (trip.itineraryItems?.length) score += 20;
-    if (trip.dates.start && trip.dates.end) score += 20;
-    return score;
+    if (acts > 0) score += 10;
+
+    // Itinerary: proportional to days with items (30% weight)
+    if (trip.dates.start && trip.dates.end && trip.itineraryItems?.length) {
+      const start = new Date(trip.dates.start + 'T00:00:00');
+      const end = new Date(trip.dates.end + 'T00:00:00');
+      const totalDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+      const datesWithItems = new Set(trip.itineraryItems.map(i => i.date));
+      score += Math.round(30 * Math.min(datesWithItems.size / totalDays, 1));
+    }
+
+    // Checklist progress (15% weight)
+    const checklist = trip.checklist ?? [];
+    if (checklist.length > 0) {
+      const done = checklist.filter(i => i.isChecked).length;
+      score += Math.round(15 * (done / checklist.length));
+    }
+
+    return Math.min(100, score);
   }
 
   getCompletionColor(pct: number): string {
@@ -134,7 +150,26 @@ export class TripListComponent implements OnInit {
     const acts = (trip.activities?.length ?? 0) + (trip.attractions?.length ?? 0);
     if (!acts) return 'Adicionar atividades';
     if (!trip.itineraryItems?.length) return 'Montar roteiro';
-    return 'Revisar planejamento';
+
+    // Check for empty days in itinerary
+    if (trip.itineraryItems.length > 0 && trip.dates.start && trip.dates.end) {
+      const datesWithItems = new Set(trip.itineraryItems.map(i => i.date));
+      const start = new Date(trip.dates.start + 'T00:00:00');
+      const end = new Date(trip.dates.end + 'T00:00:00');
+      let emptyDays = 0;
+      const cursor = new Date(start);
+      while (cursor <= end) {
+        if (!datesWithItems.has(cursor.toISOString().split('T')[0])) emptyDays++;
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      if (emptyDays > 0) return `Preencher ${emptyDays} ${emptyDays === 1 ? 'dia' : 'dias'} no roteiro`;
+    }
+
+    // Check pending checklist items
+    const unchecked = (trip.checklist ?? []).filter(i => !i.isChecked).length;
+    if (unchecked > 0) return `Concluir ${unchecked} ${unchecked === 1 ? 'item' : 'itens'} do checklist`;
+
+    return 'Tudo pronto! Revise seu roteiro';
   }
 
   /** Get trip image: cover image or destination photo fallback */
