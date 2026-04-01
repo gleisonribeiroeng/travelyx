@@ -29,6 +29,57 @@
     </mat-card>
   </div>
 
+  <!-- Budget Goal -->
+  <div class="budget-goal-section">
+    <div class="budget-goal-header">
+      <mat-icon>flag</mat-icon>
+      <span>Meta de gastos</span>
+    </div>
+    @if (editingGoal()) {
+      <div class="budget-goal-edit">
+        <mat-form-field appearance="outline" class="goal-field">
+          <mat-label>Valor da meta (R$)</mat-label>
+          <input matInput type="number" [ngModel]="goalInput()" (ngModelChange)="goalInput.set($event)" (keyup.enter)="saveGoal()">
+        </mat-form-field>
+        <button mat-flat-button color="primary" (click)="saveGoal()">Salvar</button>
+      </div>
+    } @else if (budgetGoal()) {
+      <div class="budget-goal-bar">
+        <div class="goal-amounts">
+          <span class="goal-planned">{{ budget.summary().totalPlanned | dynamicCurrency:'symbol':'1.0-0' }}</span>
+          <span class="goal-divider">/</span>
+          <span class="goal-total">{{ budgetGoal()! | dynamicCurrency:'symbol':'1.0-0' }}</span>
+        </div>
+        <mat-progress-bar mode="determinate"
+          [value]="goalPercentage()"
+          [color]="goalPercentage() > 100 ? 'warn' : 'primary'">
+        </mat-progress-bar>
+        <span class="goal-pct" [class.over-budget]="goalPercentage() > 100">{{ goalPercentage() }}% do orçamento</span>
+        <button mat-icon-button (click)="startEditGoal()"><mat-icon>edit</mat-icon></button>
+      </div>
+    } @else {
+      <button mat-stroked-button (click)="startEditGoal()">
+        <mat-icon>add</mat-icon> Definir meta
+      </button>
+    }
+  </div>
+
+  <!-- Pie Chart -->
+  @if (pieSegments().length > 0) {
+    <div class="pie-chart-section">
+      <div class="pie-chart" [style.background]="conicGradient()"></div>
+      <div class="pie-legend">
+        @for (seg of pieSegments(); track seg.category) {
+          <div class="pie-legend-item">
+            <span class="legend-dot" [style.background]="seg.color"></span>
+            <span class="legend-label">{{ seg.label }}</span>
+            <span class="legend-pct">{{ seg.percentage | number:'1.0-0' }}%</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   <!-- Progress -->
   <div class="progress-section">
     <div class="progress-header">

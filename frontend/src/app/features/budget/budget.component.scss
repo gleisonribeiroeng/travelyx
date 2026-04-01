@@ -19,6 +19,89 @@
   }
 }
 
+// ── Budget Goal ──
+.budget-goal-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: rgba(59, 130, 246, 0.06);
+  border-radius: 14px;
+  border: 1px solid rgba(59, 130, 246, 0.12);
+
+  .budget-goal-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--triply-text-primary, #1a1a2e);
+    mat-icon { font-size: 20px; width: 20px; height: 20px; color: #3b82f6; }
+  }
+
+  .budget-goal-edit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    .goal-field { width: 160px; }
+  }
+
+  .budget-goal-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+
+    .goal-amounts {
+      font-size: 0.88rem;
+      font-weight: 700;
+      white-space: nowrap;
+      .goal-divider { color: var(--triply-text-tertiary, #999); margin: 0 2px; }
+      .goal-total { color: var(--triply-text-tertiary, #999); font-weight: 500; }
+    }
+
+    mat-progress-bar { flex: 1; }
+    .goal-pct { font-size: 0.75rem; color: var(--triply-text-secondary); white-space: nowrap;
+      &.over-budget { color: #ef4444; font-weight: 600; }
+    }
+  }
+}
+
+// ── Pie Chart ──
+.pie-chart-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 0;
+  @media (max-width: 480px) { flex-direction: column; }
+}
+
+.pie-chart {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-label { flex: 1; color: var(--triply-text-primary, #1a1a2e); }
+  .legend-pct { font-weight: 600; color: var(--triply-text-secondary); min-width: 32px; text-align: right; }
+}
+
 .summary-cards {
   display: grid;
   grid-template-columns: 1fr;
