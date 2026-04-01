@@ -274,6 +274,24 @@
                 <span>/pessoa</span>
               </div>
             </div>
+            @if (r.flights.length > 1) {
+              <details class="pw-alternatives">
+                <summary>Ver alternativas de voo ({{ r.flights.length - 1 }})</summary>
+                @for (flight of r.flights.slice(1); track flight.airline) {
+                  <div class="pw-result-card pw-result-card--alt">
+                    <div class="pw-rc-icon"><mat-icon>flight</mat-icon></div>
+                    <div class="pw-rc-info">
+                      <strong>{{ flight.origin }} → {{ flight.destination }}</strong>
+                      <span>{{ flight.airline }} &middot; {{ flight.duration }}</span>
+                    </div>
+                    <div class="pw-rc-price">
+                      <strong>{{ flight.price | dynamicCurrency }}</strong>
+                      <span>/pessoa</span>
+                    </div>
+                  </div>
+                }
+              </details>
+            }
           }
 
           <!-- Hotel card with photo -->
@@ -290,6 +308,25 @@
                 <span class="pw-hotel-price">{{ r.hotels[0].pricePerNight | dynamicCurrency }}/noite &middot; <strong>{{ r.hotels[0].total | dynamicCurrency }}</strong> total</span>
               </div>
             </div>
+            @if (r.hotels.length > 1) {
+              <details class="pw-alternatives">
+                <summary>Ver hotéis alternativos ({{ r.hotels.length - 1 }})</summary>
+                @for (hotel of r.hotels.slice(1); track hotel.name) {
+                  <div class="pw-hotel-card pw-hotel-card--alt">
+                    @if (hotel.photo) {
+                      <img [src]="hotel.photo" alt="" class="pw-hotel-photo" loading="lazy" referrerpolicy="no-referrer">
+                    } @else {
+                      <div class="pw-hotel-photo pw-hotel-photo--placeholder"><mat-icon>hotel</mat-icon></div>
+                    }
+                    <div class="pw-hotel-info">
+                      <strong>{{ hotel.name }}</strong>
+                      <span>{{ hotel.nights }} noites &middot; {{ formatRating(hotel.rating) }} estrelas</span>
+                      <span class="pw-hotel-price">{{ hotel.pricePerNight | dynamicCurrency }}/noite &middot; <strong>{{ hotel.total | dynamicCurrency }}</strong> total</span>
+                    </div>
+                  </div>
+                }
+              </details>
+            }
           }
 
           <!-- Activities -->

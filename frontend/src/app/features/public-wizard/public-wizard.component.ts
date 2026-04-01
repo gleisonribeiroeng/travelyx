@@ -426,8 +426,8 @@ export class PublicWizardComponent implements OnInit {
         const savings = Math.round(totalCost * 0.28);
 
         this.result.set({
-          flights: flights.length > 0 ? [flights[0]] : [],
-          hotels: hotels.length > 0 ? [hotels[0]] : [],
+          flights: flights.slice(0, 3),
+          hotels: hotels.slice(0, 3),
           activities,
           totalCost,
           savings,

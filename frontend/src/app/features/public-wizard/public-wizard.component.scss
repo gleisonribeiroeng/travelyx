@@ -407,6 +407,36 @@ $muted: #64748b;
   strong { color: $teal; font-weight: 700; }
 }
 
+// Alternatives (expandable)
+.pw-alternatives {
+  margin: -4px 0 10px;
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: $coral;
+    cursor: pointer;
+    list-style: none;
+    transition: color 0.2s;
+
+    &::-webkit-details-marker { display: none; }
+    &::before { content: '↓ '; }
+    &:hover { color: darken($coral, 10%); }
+  }
+
+  &[open] summary::before { content: '↑ '; }
+
+  .pw-result-card--alt, .pw-hotel-card--alt {
+    opacity: 0.85;
+    margin-bottom: 6px;
+  }
+}
+
 // Activities section
 .pw-activities-section {
   margin-top: 16px;
