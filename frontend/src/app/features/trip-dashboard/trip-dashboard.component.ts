@@ -226,6 +226,49 @@ export class TripDashboardComponent implements OnInit {
       .slice(0, 3);
   });
 
+  /** Top 3 completed modules as visual pills */
+  readonly topModules = computed(() => {
+    const t = this.trip();
+    const modules: { label: string; color: string }[] = [];
+    const items = this.tripState.itineraryItems();
+
+    if (t.dates.start && t.dates.end) {
+      const start = new Date(t.dates.start + 'T00:00:00');
+      const end = new Date(t.dates.end + 'T00:00:00');
+      const totalDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+      const filledDays = new Set(items.map(i => i.date)).size;
+      modules.push({ label: `Roteiro ${filledDays}/${totalDays} dias ${filledDays === totalDays ? '✅' : '📋'}`, color: '#2196F3' });
+    }
+
+    const budgetTotal = this.budget.summary().totalPlanned;
+    if (budgetTotal > 0) {
+      modules.push({ label: `Orçamento ${budgetTotal.toLocaleString('pt-BR', { style: 'currency', currency: t.currency || 'BRL', maximumFractionDigits: 0 })} ✅`, color: '#4CAF50' });
+    }
+
+    const cl = this.checklist.progress();
+    if (cl.total > 0) {
+      modules.push({ label: `Checklist ${cl.done}/${cl.total} ${cl.percentage === 100 ? '✅' : '📋'}`, color: '#FF9800' });
+    }
+
+    if (this.tripState.flights().length > 0) modules.push({ label: `${this.tripState.flights().length} voo${this.tripState.flights().length > 1 ? 's' : ''} ✅`, color: '#2196F3' });
+    if (this.tripState.stays().length > 0) modules.push({ label: `${this.tripState.stays().length} hospedagem ✅`, color: '#f97316' });
+
+    return modules.slice(0, 3);
+  });
+
+  /** Motivational insight line */
+  readonly planInsight = computed(() => {
+    const pct = this.readinessChecklist().percentage;
+    const missing = this.readinessChecklist().steps.filter(s => !s.done);
+    if (pct === 100) return '🎉 Sua viagem está pronta! Aproveite cada momento.';
+    if (pct >= 85) {
+      const item = missing[0];
+      return item ? `Quase lá! Falta só ${item.label.toLowerCase()}.` : 'Sua viagem está quase pronta!';
+    }
+    if (pct >= 50) return `Sua viagem está tomando forma! ${missing.length} ${missing.length === 1 ? 'passo falta' : 'passos faltam'}.`;
+    return `Comece a dar vida à sua viagem — ${missing.length} passos para completar.`;
+  });
+
   // ═══ NEW: Destination Info Widgets ═══
   readonly destinationMeta = computed(() => {
     const dest = this.trip().destination;

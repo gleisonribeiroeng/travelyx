@@ -150,57 +150,55 @@
         </div>
       }
 
-      <!-- ═══ VISUAL READINESS CHECKLIST (replaces numeric score) ═══ -->
-      <mat-card class="readiness-checklist-card">
+      <!-- ═══ PLAN PROGRESS — Visual, Inspirational ═══ -->
+      <mat-card class="plan-progress-card">
         <mat-card-content>
-          <div class="readiness-header">
-            <div class="readiness-title-row">
-              <h3>{{ 'dash.howIsYourPlan' | translate }}</h3>
-              <span class="readiness-badge" [class]="'readiness-' + (readinessChecklist().percentage >= 85 ? 'ready' : readinessChecklist().percentage >= 50 ? 'progress' : 'starting')">
-                {{ readinessChecklist().completed }}/{{ readinessChecklist().total }}
-              </span>
-            </div>
-            <div class="readiness-bar-track">
-              <div class="readiness-bar-fill" [style.width.%]="readinessChecklist().percentage"
-                   [class]="'fill-' + (readinessChecklist().percentage >= 85 ? 'ready' : readinessChecklist().percentage >= 50 ? 'progress' : 'starting')">
+          <div class="plan-progress-top">
+            <!-- Circular progress with destination photo -->
+            <div class="plan-progress-ring">
+              <svg viewBox="0 0 120 120" class="progress-svg">
+                <circle cx="60" cy="60" r="52" class="ring-bg"/>
+                <circle cx="60" cy="60" r="52" class="ring-fill"
+                  [style.stroke-dasharray]="2 * 3.14159 * 52"
+                  [style.stroke-dashoffset]="2 * 3.14159 * 52 * (1 - readinessChecklist().percentage / 100)"
+                  [class]="'ring-' + (readinessChecklist().percentage >= 85 ? 'ready' : readinessChecklist().percentage >= 50 ? 'progress' : 'starting')"/>
+              </svg>
+              <div class="ring-center">
+                <span class="ring-pct">{{ readinessChecklist().percentage }}%</span>
               </div>
+            </div>
+
+            <div class="plan-progress-info">
+              <h3>{{ 'dash.howIsYourPlan' | translate }}</h3>
+              <p class="plan-insight">{{ planInsight() }}</p>
             </div>
           </div>
 
-          <div class="readiness-steps">
-            @for (step of readinessChecklist().steps; track step.key) {
-              <div class="readiness-step" [class.done]="step.done" (click)="!step.done ? navigateTo(step.route) : null">
-                <mat-icon class="step-check">{{ step.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-                <mat-icon class="step-type-icon">{{ step.icon }}</mat-icon>
-                <span class="step-text" [class.done]="step.done">{{ step.label }}</span>
-                @if (!step.done && step.cta) {
-                  <span class="step-cta">{{ step.cta }}</span>
-                  <mat-icon class="step-go">chevron_right</mat-icon>
-                }
-              </div>
-            }
-          </div>
+          <!-- Module pills -->
+          @if (topModules().length > 0) {
+            <div class="plan-pills">
+              @for (mod of topModules(); track mod.label) {
+                <span class="plan-pill" [style.--pill-color]="mod.color">{{ mod.label }}</span>
+              }
+            </div>
+          }
+
+          <!-- Quick actions for incomplete steps (compact) -->
+          @if (nextActions().length > 0) {
+            <div class="plan-quick-actions">
+              @for (action of nextActions(); track action.key) {
+                <button class="plan-action-btn" (click)="navigateTo(action.route)">
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                  <span>{{ action.label }}</span>
+                  <mat-icon class="action-arrow">chevron_right</mat-icon>
+                </button>
+              }
+            </div>
+          }
         </mat-card-content>
       </mat-card>
 
-      <!-- ═══ NEXT 3 ACTIONS (always visible when incomplete) ═══ -->
-      @if (nextActions().length > 0) {
-        <div class="next-actions">
-          <h3 class="section-title"><mat-icon>tips_and_updates</mat-icon> {{ 'dash.whatsMissing' | translate }}</h3>
-          <div class="next-actions-grid">
-            @for (action of nextActions(); track action.key; let i = $index) {
-              <button class="next-action-card" (click)="navigateTo(action.route)">
-                <div class="action-number">{{ i + 1 }}</div>
-                <mat-icon class="action-icon">{{ action.icon }}</mat-icon>
-                <span class="action-label">{{ action.label }}</span>
-                @if (action.cta) {
-                  <span class="action-cta">{{ action.cta }} →</span>
-                }
-              </button>
-            }
-          </div>
-        </div>
-      }
+      <!-- Next actions are now integrated in plan-progress-card above -->
 
       <!-- ═══ METRICS: Actionable cards ═══ -->
       <div class="metrics-grid">
