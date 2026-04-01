@@ -44,16 +44,19 @@
       <div class="pw-step-content">
         <div class="pw-step-header">
           <img src="assets/illustrations/undraw-plan-trip.svg" alt="" class="pw-illust" loading="lazy">
-          <h2>Para onde voce quer ir?</h2>
+          <h2>Para onde você quer ir?</h2>
           <p>Escolha seu destino dos sonhos</p>
         </div>
 
         <div class="pw-popular-grid">
           @for (dest of popularDestinations; track dest.city) {
-            <button class="pw-dest-card" [class.selected]="selectedDestination()?.name === dest.city" (click)="selectPopularDestination(dest)">
-              <span class="pw-dest-emoji">{{ dest.emoji }}</span>
-              <span class="pw-dest-city">{{ dest.city }}</span>
-              <span class="pw-dest-country">{{ dest.country }}</span>
+            <button class="pw-dest-card" [class.selected]="selectedDestination()?.name === dest.city" (click)="selectPopularDestination(dest)"
+                    [style.background-image]="dest.photo ? 'url(' + dest.photo + ')' : ''">
+              <div class="pw-dest-overlay">
+                <span class="pw-dest-emoji">{{ dest.emoji }}</span>
+                <span class="pw-dest-city">{{ dest.city }}</span>
+                <span class="pw-dest-country">{{ dest.country }}</span>
+              </div>
             </button>
           }
         </div>
@@ -75,7 +78,7 @@
 
         <!-- Origin (optional) -->
         <mat-form-field appearance="outline" class="pw-full-field">
-          <mat-label>De onde voce sai? (opcional)</mat-label>
+          <mat-label>De onde você sai? (opcional)</mat-label>
           <mat-icon matPrefix>flight_takeoff</mat-icon>
           <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin">
           <mat-autocomplete #autoOrigin [displayWith]="displayAirport">
@@ -93,7 +96,7 @@
     @if (currentStep() === 1) {
       <div class="pw-step-content">
         <div class="pw-step-header">
-          <h2>Quando voce vai viajar?</h2>
+          <h2>Quando você vai viajar?</h2>
           <p>Escolha as datas da sua viagem para {{ selectedDestination()?.name }}</p>
         </div>
 
@@ -113,8 +116,15 @@
           </mat-form-field>
         </div>
 
+        @if (destinationClimate()) {
+          <div class="pw-climate-tip">
+            <mat-icon>tips_and_updates</mat-icon>
+            <span>{{ climateTipText() }}</span>
+          </div>
+        }
+
         <mat-slide-toggle [checked]="flexibleDates()" (change)="flexibleDates.set($event.checked)">
-          Ainda nao defini as datas exatas
+          Ainda não defini as datas exatas
         </mat-slide-toggle>
       </div>
     }
@@ -123,8 +133,22 @@
     @if (currentStep() === 2) {
       <div class="pw-step-content">
         <div class="pw-step-header">
-          <h2>Quantas pessoas vao viajar?</h2>
+          <h2>Quantas pessoas vão viajar?</h2>
           <p>Viagem para {{ selectedDestination()?.name }}</p>
+        </div>
+
+        <div class="pw-trip-type">
+          <p class="pw-trip-type-label">Tipo de viagem:</p>
+          <div class="pw-trip-type-grid">
+            @for (type of tripTypes; track type.value) {
+              <button class="pw-trip-type-btn"
+                      [class.selected]="tripType() === type.value"
+                      (click)="tripType.set(type.value)">
+                <span class="pw-trip-type-icon">{{ type.icon }}</span>
+                <span class="pw-trip-type-name">{{ type.label }}</span>
+              </button>
+            }
+          </div>
         </div>
 
         <div class="pw-travelers-grid">
@@ -138,11 +162,11 @@
 
         <div class="pw-children-toggle">
           <mat-slide-toggle [checked]="hasChildren()" (change)="hasChildren.set($event.checked)">
-            Tem criancas?
+            Tem crianças?
           </mat-slide-toggle>
           @if (hasChildren()) {
             <mat-form-field appearance="outline" class="pw-children-field">
-              <mat-label>Quantas criancas?</mat-label>
+              <mat-label>Quantas crianças?</mat-label>
               <mat-select [ngModel]="children()" (ngModelChange)="children.set($event)">
                 @for (n of [1, 2, 3, 4]; track n) {
                   <mat-option [value]="n">{{ n }}</mat-option>
@@ -158,7 +182,7 @@
     @if (currentStep() === 3) {
       <div class="pw-step-content">
         <div class="pw-step-header">
-          <h2>O que voce quer incluir?</h2>
+          <h2>O que você quer incluir?</h2>
           <p>Selecione o que faz parte da sua viagem</p>
         </div>
 
@@ -193,16 +217,20 @@
         @if (isSearching()) {
           <div class="pw-loading">
             <mat-spinner diameter="48"></mat-spinner>
-            <h3>Buscando as melhores opcoes...</h3>
-            <p>Comparando precos em tempo real para {{ selectedDestination()?.name }}</p>
+            <h3>{{ loadingText() }}</h3>
+            <p>{{ loadingTip() }}</p>
           </div>
         }
 
         @if (hasResults() && result(); as r) {
-          <div class="pw-result-header">
-            <img src="assets/illustrations/undraw-savings-result.svg" alt="" class="pw-result-illust" loading="lazy">
-            <h2>Seu roteiro para {{ selectedDestination()?.name }}</h2>
-            <p>{{ adults() }} {{ adults() === 1 ? 'viajante' : 'viajantes' }} &middot; {{ departureDate() | date:'d MMM' }} a {{ returnDate() | date:'d MMM yyyy' }}</p>
+          <div class="pw-result-hero" [style.background-image]="destinationPhotoUrl() ? 'url(' + destinationPhotoUrl() + ')' : ''">
+            <div class="pw-result-hero-overlay">
+              <h2>✈️ Seu roteiro para {{ selectedDestination()?.name }}</h2>
+              <p>{{ adults() }} {{ adults() === 1 ? 'viajante' : 'viajantes' }} &middot; {{ departureDate() | date:'d MMM' }} a {{ returnDate() | date:'d MMM yyyy' }}</p>
+              @if (destinationClimate()) {
+                <span class="pw-result-climate">{{ destinationClimate() }}</span>
+              }
+            </div>
           </div>
 
           <!-- Flight card -->
@@ -268,10 +296,15 @@
               <span>Custo total estimado</span>
               <strong class="pw-total-value">{{ r.totalCost | dynamicCurrency }}</strong>
             </div>
-            <div class="pw-savings-row">
-              <mat-icon>info</mat-icon>
-              <span>Precos reais consultados direto das fontes — sem markup de intermediarios</span>
+            <div class="pw-installment-row">
+              <mat-icon>credit_card</mat-icon>
+              <span>12x de {{ r.totalCost / 12 | dynamicCurrency:'symbol':'1.0-0' }} sem juros*</span>
             </div>
+            <div class="pw-savings-row">
+              <mat-icon>trending_down</mat-icon>
+              <span>Economia estimada vs agência: ~{{ r.savings | dynamicCurrency:'symbol':'1.0-0' }}</span>
+            </div>
+            <p class="pw-total-disclaimer">* Valores de referência. Você compra direto nos sites oficiais. O Travelyx é grátis.</p>
           </div>
 
           <!-- Locked features -->
@@ -284,7 +317,7 @@
               </div>
               <div class="pw-locked-item">
                 <mat-icon>notifications</mat-icon>
-                <span>Receber alertas quando o preco cair</span>
+                <span>Receber alertas quando o preço cair</span>
               </div>
               <div class="pw-locked-item">
                 <mat-icon>group</mat-icon>
@@ -306,7 +339,7 @@
               Salvar meu roteiro — Login com Google
             </button>
 
-            <p class="pw-cta-hint">100% gratuito. Seus dados estao seguros.</p>
+            <p class="pw-cta-hint">🔒 100% gratuito. Login seguro via Google. Não vendemos seus dados.</p>
           </div>
         }
       </div>

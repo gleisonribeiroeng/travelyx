@@ -76,16 +76,62 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       flightFrom: 2490,
       image: 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=800&q=80',
     },
+    {
+      city: 'Orlando',
+      tag: 'FAMÍLIA',
+      flightFrom: 2100,
+      image: 'https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?w=800&q=80',
+    },
+    {
+      city: 'Gramado',
+      tag: 'INVERNO',
+      flightFrom: 380,
+      image: 'https://images.unsplash.com/photo-1609942571893-c87dde449c5e?w=800&q=80',
+    },
+    {
+      city: 'Buenos Aires',
+      tag: 'CULTURAL',
+      flightFrom: 650,
+      image: 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=800&q=80',
+    },
   ];
 
   readonly destinations = signal<FeaturedDestination[]>(this.fallbackDestinations);
   readonly stats = signal({ destinations: 0, tripsPlanned: 0, reviews: 0 });
   readonly loading = signal(false);
 
+  // Hero rotating photos
+  readonly heroPhotos = [
+    { city: 'Paris', url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80' },
+    { city: 'Rio de Janeiro', url: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1920&q=80' },
+    { city: 'Lisboa', url: 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=1920&q=80' },
+  ];
+  readonly heroPhotoIndex = signal(0);
+
+  // Testimonials
+  readonly testimonials = [
+    { name: 'Marina S.', text: 'Planejei minha lua de mel pra Portugal inteira no Travelyx. Antes eu tinha 15 abas abertas e uma planilha que ficou tão complicada que desisti três vezes. Aqui montei tudo em uma tarde.', trip: 'Lisboa e Porto · 10 dias' },
+    { name: 'Ricardo M.', text: 'O alerta de preço me salvou R$ 800 no voo pra Orlando. Eu tinha setado o preço-alvo e esqueci. Duas semanas depois recebi o aviso que caiu. Comprei na hora.', trip: 'Orlando · 7 dias em família' },
+    { name: 'Camila L.', text: 'Éramos 4 amigos planejando Gramado e ninguém concordava em nada. No Travelyx cada um adicionou o que queria e votamos nas opções. Ficou muito mais fácil.', trip: 'Gramado · 5 dias com amigos' },
+  ];
+
+  // FAQs
+  readonly faqs = [
+    { q: 'O Travelyx é realmente grátis?', a: 'Sim, 100% grátis. Sem período de teste, sem cartão de crédito, sem cobranças escondidas. O plano básico inclui tudo que você precisa para planejar uma viagem completa.' },
+    { q: 'Vocês vendem meus dados?', a: 'Não. Usamos login via Google para facilitar o acesso. Não temos acesso à sua senha e não vendemos dados para terceiros.' },
+    { q: 'Como o Travelyx ganha dinheiro se é grátis?', a: 'Somos uma startup em fase inicial e o produto é 100% gratuito. No futuro, teremos planos premium opcionais — mas o plano básico continuará grátis para sempre.' },
+    { q: 'Posso planejar com outras pessoas?', a: 'Sim! Convide amigos e familiares por email. Todo mundo edita o roteiro em tempo real, vota em opções e divide gastos.' },
+    { q: 'Preciso comprar voos e hotéis pelo Travelyx?', a: 'Não. O Travelyx mostra preços de diversas fontes (Booking, Kiwi, Travelpayouts) mas você compra direto no site oficial. Não somos uma agência — somos uma ferramenta de planejamento.' },
+    { q: 'E se eu não souber as datas exatas da viagem?', a: 'Sem problema! Você pode criar um roteiro sem datas e ajustar depois. O app funciona mesmo sem datas definidas.' },
+    { q: 'Funciona no celular?', a: 'Sim. O Travelyx é responsivo e funciona em qualquer navegador. No dia da viagem, o "Modo Viagem" mostra tudo que você precisa na palma da mão.' },
+    { q: 'Consigo exportar meu roteiro?', a: 'Sim! Gere um PDF profissional, exporte para Excel, sincronize com o Google Calendar ou compartilhe um link público.' },
+  ];
+
   // Hero device carousel
   readonly screens = ['hotels', 'checklist', 'timeline'];
   readonly activeScreen = signal(0);
   private screenTimer?: ReturnType<typeof setInterval>;
+  private photoTimer?: ReturnType<typeof setInterval>;
 
   readonly navScrolled = signal(false);
   private scrollHandler?: () => void;
@@ -115,6 +161,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.hotelApi.searchDestinations(val).pipe(catchError(() => of([])));
       })
     );
+
+    // Rotate hero background photos
+    this.photoTimer = setInterval(() => this.heroPhotoIndex.update(i => (i + 1) % this.heroPhotos.length), 6000);
 
     this.api.getShowcase().subscribe({
       next: (res) => {
@@ -161,6 +210,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.observer?.disconnect();
     if (this.screenTimer) clearInterval(this.screenTimer);
+    if (this.photoTimer) clearInterval(this.photoTimer);
     if (this.scrollHandler) window.removeEventListener('scroll', this.scrollHandler);
   }
 

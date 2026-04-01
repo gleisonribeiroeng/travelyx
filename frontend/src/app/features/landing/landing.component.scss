@@ -1447,6 +1447,264 @@ $radius-full: 100px;
 .v2-dest-cta { margin-top: 36px; }
 
 // ═══════════════════════════════════════════════════════════════
+// HERO ROTATING PHOTOS
+// ═══════════════════════════════════════════════════════════════
+
+.v2-hero-photos {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.v2-hero-photo {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+
+  &.active { opacity: 0.3; }
+}
+
+// Ensure existing hero layers sit above photos
+.v2-hero-grain { z-index: 1; }
+.v2-hero-mesh { z-index: 1; }
+.v2-hero-orb { z-index: 1; }
+.v2-hero-content { z-index: 2; }
+
+// ═══════════════════════════════════════════════════════════════
+// GENERIC SECTION
+// ═══════════════════════════════════════════════════════════════
+
+.v2-section {
+  padding: 96px 0;
+  text-align: center;
+
+  @media (min-width: 960px) {
+    padding: 112px 0;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TESTIMONIALS
+// ═══════════════════════════════════════════════════════════════
+
+.v2-testimonials-section {
+  background: #fff;
+}
+
+.v2-testimonial-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 960px;
+  margin: 24px auto 0;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.v2-testimonial-card {
+  padding: 24px;
+  background: $surface;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.04);
+  text-align: left;
+}
+
+.v2-testimonial-text {
+  margin: 0 0 16px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: $text-primary;
+  font-style: italic;
+}
+
+.v2-testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.v2-testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $coral, #fb923c);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.v2-testimonial-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 0.85rem;
+    color: $text-primary;
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: $text-muted;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FAQ
+// ═══════════════════════════════════════════════════════════════
+
+.v2-faq-section {
+  background: $surface;
+}
+
+.v2-faq-list {
+  max-width: 720px;
+  margin: 24px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.v2-faq-item {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  &[open] {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+
+    .v2-faq-question mat-icon {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.v2-faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  cursor: pointer;
+  font-family: $font-display;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: $text-primary;
+  list-style: none;
+
+  &::-webkit-details-marker { display: none; }
+
+  mat-icon {
+    color: $text-muted;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+}
+
+.v2-faq-answer {
+  padding: 0 24px 18px;
+  margin: 0;
+  font-size: 0.88rem;
+  color: $text-muted;
+  line-height: 1.6;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CTA SEARCH BAR
+// ═══════════════════════════════════════════════════════════════
+
+.v2-cta-search {
+  max-width: 480px;
+  margin: 0 auto 16px;
+  text-align: center;
+}
+
+.v2-search-card-mini {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 100px;
+  padding: 6px 6px 6px 18px;
+  gap: 8px;
+  backdrop-filter: blur(8px);
+
+  mat-icon {
+    color: rgba(255,255,255,0.5);
+    flex-shrink: 0;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: none;
+    color: #fff;
+    font-size: 0.88rem;
+    font-family: $font-body;
+    outline: none;
+    min-width: 0;
+
+    &::placeholder { color: rgba(255,255,255,0.4); }
+  }
+
+  .v2-search-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 100px;
+    background: $coral;
+    color: #fff;
+    font-family: $font-display;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+
+    &:hover { background: #e8650d; }
+  }
+}
+
+.v2-cta-or {
+  margin: 12px 0;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FOOTER TRUST BADGES
+// ═══════════════════════════════════════════════════════════════
+
+.v2-footer-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+
+  span {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // FINAL CTA
 // ═══════════════════════════════════════════════════════════════
 

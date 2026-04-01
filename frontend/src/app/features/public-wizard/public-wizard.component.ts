@@ -12,6 +12,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DynamicCurrencyPipe } from '../../core/i18n/dynamic-currency.pipe';
 import { TourApiService } from '../../core/api/tour-api.service';
 import { SeoService } from '../../core/services/seo.service';
+import { DESTINATION_DB } from '../../core/data/destinations.data';
 
 interface WizardResult {
   flights: { origin: string; destination: string; price: number; airline: string; departure: string; duration: string }[];
@@ -70,14 +71,103 @@ export class PublicWizardComponent implements OnInit {
   hasResults = signal(false);
   result = signal<WizardResult | null>(null);
 
+  // Rotating loading text
+  private loadingPhase = signal(0);
+  private loadingInterval: any;
+
+  readonly loadingTexts = [
+    'Buscando voos... ✈️',
+    'Comparando hotéis... 🏨',
+    'Descobrindo atividades incríveis... 🎯',
+  ];
+
+  readonly loadingTips: Record<string, string[]> = {
+    'Paris': ['Sabia que Paris recebe 30 milhões de turistas por ano?', 'Dica: a melhor vista da Torre Eiffel é do Trocadéro!', 'O metrô de Paris cobre toda a cidade — você não precisa de carro.'],
+    'Lisboa': ['Lisboa é a capital mais antiga da Europa Ocidental!', 'Dica: o Elétrico 28 é um passeio imperdível.', 'A Lisboa Card dá acesso ao metrô + atrações ilimitadas.'],
+    'Rio de Janeiro': ['O Rio recebe mais de 2 milhões de turistas por ano!', 'Dica: suba o Pão de Açúcar no fim da tarde para o pôr do sol.', 'O metrô do Rio te leva de Copacabana ao Centro em 20 min.'],
+    'Orlando': ['Orlando tem mais de 12 parques temáticos!', 'Dica: compre ingressos antecipados — são muito mais baratos.', 'Alugue carro em Orlando — transporte público é limitado.'],
+    'Buenos Aires': ['Buenos Aires é conhecida como a Paris da América do Sul.', 'Dica: visite o bairro de La Boca para ver as casas coloridas.', 'O subte (metrô) de Buenos Aires é o mais antigo da América Latina.'],
+    'default': ['Comparando preços de centenas de fontes...', 'Buscando as melhores ofertas para você...', 'Quase pronto! Montando seu roteiro...'],
+  };
+
+  readonly loadingText = computed(() => this.loadingTexts[this.loadingPhase() % this.loadingTexts.length]);
+
+  readonly loadingTip = computed(() => {
+    const dest = this.selectedDestination()?.name?.split(',')[0] || '';
+    const tips = this.loadingTips[dest] || this.loadingTips['default'];
+    return tips[this.loadingPhase() % tips.length];
+  });
+
+  /** Photo URL for the destination result header */
+  readonly destinationPhotoUrl = computed(() => {
+    const dest = this.selectedDestination()?.name?.split(',')[0]?.trim()?.toLowerCase() || '';
+    const photos: Record<string, string> = {
+      'paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
+      'rio de janeiro': 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80',
+      'lisboa': 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=800&q=80',
+      'orlando': 'https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?w=800&q=80',
+      'buenos aires': 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=800&q=80',
+      'santiago': 'https://images.unsplash.com/photo-1569272031118-b78017f20a75?w=800&q=80',
+      'gramado': 'https://images.unsplash.com/photo-1609942571893-c87dde449c5e?w=800&q=80',
+    };
+    for (const [key, url] of Object.entries(photos)) {
+      if (dest.includes(key)) return url;
+    }
+    return '';
+  });
+
+  /** Climate info for the destination */
+  readonly destinationClimate = computed(() => {
+    const dest = this.selectedDestination()?.name || '';
+    const depDate = this.departureDate();
+    if (!depDate) return '';
+    const month = new Date(depDate + 'T00:00:00').getMonth() + 1;
+    for (const [country, meta] of Object.entries(DESTINATION_DB)) {
+      if (dest.toLowerCase().includes(country.toLowerCase())) {
+        const temp = meta.avgTempByMonth[month];
+        const season = meta.highSeasonMonths.includes(month) ? 'Alta temporada' : 'Baixa temporada';
+        return `☀️ ${temp}°C · ${season}`;
+      }
+    }
+    return '';
+  });
+
+  /** Detailed climate tip for dates step */
+  readonly climateTipText = computed(() => {
+    const dest = this.selectedDestination()?.name?.split(',')[0] || '';
+    const depDate = this.departureDate();
+    if (!depDate) return '';
+    const month = new Date(depDate + 'T00:00:00').getMonth() + 1;
+    const monthNames = ['', 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+    for (const [country, meta] of Object.entries(DESTINATION_DB)) {
+      if (dest.toLowerCase().includes(country.toLowerCase())) {
+        const temp = meta.avgTempByMonth[month];
+        const isHigh = meta.highSeasonMonths.includes(month);
+        return `${dest} em ${monthNames[month]}: ${temp}°C em média. ${isHigh ? '⚠️ Alta temporada — reserve com antecedência!' : '✅ Baixa temporada — boa época para visitar!'}`;
+      }
+    }
+    return '';
+  });
+
+  // Trip type
+  readonly tripType = signal<string>('couple');
+  readonly tripTypes = [
+    { value: 'solo', icon: '👤', label: 'Solo' },
+    { value: 'couple', icon: '💑', label: 'Casal' },
+    { value: 'family', icon: '👨‍👩‍👧', label: 'Família' },
+    { value: 'friends', icon: '👥', label: 'Amigos' },
+    { value: 'business', icon: '💼', label: 'Trabalho' },
+  ];
+
   // Popular destinations for quick pick
   readonly popularDestinations = [
-    { city: 'Rio de Janeiro', country: 'Brasil', emoji: '🏖️', destId: '-666435', searchType: 'CITY' },
-    { city: 'Paris', country: 'França', emoji: '🗼', destId: '-1456928', searchType: 'CITY' },
-    { city: 'Lisboa', country: 'Portugal', emoji: '🏛️', destId: '-2167973', searchType: 'CITY' },
-    { city: 'Buenos Aires', country: 'Argentina', emoji: '💃', destId: '-979186', searchType: 'CITY' },
-    { city: 'Orlando', country: 'EUA', emoji: '🎢', destId: '-2092174', searchType: 'CITY' },
-    { city: 'Santiago', country: 'Chile', emoji: '🏔️', destId: '-1279579', searchType: 'CITY' },
+    { city: 'Rio de Janeiro', country: 'Brasil', emoji: '🏖️', destId: '-666435', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=400&q=75' },
+    { city: 'Paris', country: 'França', emoji: '🗼', destId: '-1456928', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=75' },
+    { city: 'Lisboa', country: 'Portugal', emoji: '🏛️', destId: '-2167973', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=400&q=75' },
+    { city: 'Buenos Aires', country: 'Argentina', emoji: '💃', destId: '-979186', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=400&q=75' },
+    { city: 'Orlando', country: 'EUA', emoji: '🎢', destId: '-2092174', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?w=400&q=75' },
+    { city: 'Santiago', country: 'Chile', emoji: '🏔️', destId: '-1279579', searchType: 'CITY', photo: 'https://images.unsplash.com/photo-1569272031118-b78017f20a75?w=400&q=75' },
   ];
 
   ngOnInit(): void {
@@ -205,6 +295,8 @@ export class PublicWizardComponent implements OnInit {
   searchAndShowResults(): void {
     this.isSearching.set(true);
     this.hasResults.set(false);
+    this.loadingPhase.set(0);
+    this.loadingInterval = setInterval(() => this.loadingPhase.update(p => p + 1), 3000);
 
     const dest = this.selectedDestination();
     if (!dest) return;
@@ -325,6 +417,7 @@ export class PublicWizardComponent implements OnInit {
         });
         this.hasResults.set(true);
         this.isSearching.set(false);
+        clearInterval(this.loadingInterval);
       },
       error: () => {
         this.generateMockResult();
@@ -359,6 +452,7 @@ export class PublicWizardComponent implements OnInit {
       departureDate: this.departureDate(),
       returnDate: this.returnDate(),
       adults: this.adults(),
+      tripType: this.tripType(),
       result: this.result(),
     };
     localStorage.setItem('travelyx_public_wizard', JSON.stringify(state));
