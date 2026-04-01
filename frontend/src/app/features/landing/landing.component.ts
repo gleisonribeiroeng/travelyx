@@ -80,7 +80,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       city: 'Orlando',
       tag: 'FAMÍLIA',
       flightFrom: 2100,
-      image: 'https://images.unsplash.com/photo-1575931953324-fcac7094999e?w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1597466599360-3b9775841aec?w=800&q=80',
     },
     {
       city: 'Gramado',
