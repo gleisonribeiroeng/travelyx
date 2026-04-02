@@ -4,6 +4,7 @@
     <div class="header-text">
       <h1>{{ 'trips.title' | translate }}</h1>
       <p class="header-subtitle">{{ 'trips.subtitle' | translate }}</p>
+      <h2 class="greeting-text">{{ greeting() }}</h2>
     </div>
     <img src="assets/illustrations/undraw-my-trips.svg" alt="" class="header-illust" loading="lazy">
     <button mat-fab extended color="primary" class="create-btn" (click)="openCreateDialog()">
@@ -11,9 +12,6 @@
       {{ 'trips.newTrip' | translate }}
     </button>
   </div>
-
-  <!-- Greeting -->
-  <h2 class="greeting-text">{{ greeting() }}</h2>
 
   <!-- Streak Widget -->
   @if (streak.currentStreak() > 0) {
