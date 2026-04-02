@@ -28,6 +28,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   readonly users = signal<AdminUser[]>([]);
   readonly loading = signal(true);
   readonly searchQuery = signal('');
+  readonly currentPage = signal(1);
+  readonly pageSize = 10;
 
   readonly filteredUsers = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
@@ -37,6 +39,19 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
     );
   });
+
+  readonly totalPages = computed(() => Math.ceil(this.filteredUsers().length / this.pageSize));
+
+  readonly paginatedUsers = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filteredUsers().slice(start, start + this.pageSize);
+  });
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
 
   ngOnInit(): void {
     this.presence.connect();

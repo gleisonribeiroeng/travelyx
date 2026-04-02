@@ -77,8 +77,8 @@
   }
 
   td {
-    padding: 12px 16px;
-    font-size: 0.9rem;
+    padding: 6px 16px;
+    font-size: 0.82rem;
     color: var(--triply-text-primary);
     border-bottom: 1px solid var(--triply-border-subtle);
     vertical-align: middle;
@@ -109,10 +109,27 @@
 }
 
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--triply-border-subtle);
+  background: var(--triply-surface-2);
+  border-radius: 0 0 12px 12px;
+
+  .page-info {
+    font-size: 0.78rem;
+    color: var(--triply-text-secondary);
+    margin: 0 8px;
+  }
 }
 
 .online-indicator {
@@ -195,7 +212,7 @@
 
   .users-table th,
   .users-table td {
-    padding: 10px 12px;
-    font-size: 0.8rem;
+    padding: 5px 12px;
+    font-size: 0.75rem;
   }
 }

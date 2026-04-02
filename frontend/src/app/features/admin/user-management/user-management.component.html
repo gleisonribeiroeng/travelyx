@@ -18,7 +18,7 @@
       <mat-form-field appearance="outline" class="search-field">
         <mat-icon matPrefix>search</mat-icon>
         <mat-label>Buscar por nome ou email</mat-label>
-        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event); currentPage.set(1)">
       </mat-form-field>
     </div>
 
@@ -37,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (user of filteredUsers(); track user.id) {
+          @for (user of paginatedUsers(); track user.id) {
             <tr [class.inactive]="!user.isActive">
               <td class="user-cell">
                 <div class="avatar-wrapper">
@@ -101,6 +101,18 @@
           }
         </tbody>
       </table>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button mat-icon-button [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span class="page-info">{{ currentPage() }} de {{ totalPages() }}</span>
+          <button mat-icon-button [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      }
     </div>
 
     @if (users().length === 0) {
