@@ -22,6 +22,33 @@
     letter-spacing: -0.03em;
     line-height: 1.2;
   }
+
+  &.page-dark-header {
+    background: #0f172a;
+    margin: -16px -16px 24px;
+    padding: 24px 16px 20px;
+    border-radius: 0 0 20px 20px;
+
+    @media (min-width: 960px) {
+      margin: -28px -40px 28px;
+      padding: 28px 40px 24px;
+      border-radius: 0 0 24px 24px;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: 1.4rem;
+    }
+
+    p, .header-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .create-btn {
+      background: #f97316 !important;
+      color: #fff !important;
+    }
+  }
 }
 
 .header-subtitle {
