@@ -4,6 +4,17 @@
   flex-direction: column;
   background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
   color: #fff;
+  margin: -16px -16px 0;
+  padding: 16px;
+
+  @media (min-width: 960px) {
+    margin: -28px -40px 0;
+    padding: 28px 40px;
+  }
+
+  h1, h2, h3, p {
+    color: inherit;
+  }
 }
 
 .progress-track {
