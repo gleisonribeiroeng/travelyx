@@ -31,23 +31,63 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Travelyx",
-    "url": "https://travelyx.com.br",
-    "description": "Planeje sua viagem completa: voos, hotéis, aluguel de carros e roteiros personalizados. Organize tudo em um só lugar.",
-    "applicationCategory": "TravelApplication",
-    "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "BRL"
-    },
-    "inLanguage": "pt-BR",
-    "author": {
-      "@type": "Organization",
-      "name": "Travelyx",
-      "url": "https://travelyx.com.br"
-    }
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://travelyx.com.br/#organization",
+        "name": "Travelyx",
+        "alternateName": ["Travelyx Oficial", "travelyx.com.br"],
+        "url": "https://travelyx.com.br",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://travelyx.com.br/assets/icons/icon-512x512.png",
+          "width": 512,
+          "height": 512
+        },
+        "description": "Travelyx é uma plataforma brasileira de planejamento de viagens: voos, hotéis, aluguel de carros, passeios e roteiros personalizados em um só lugar.",
+        "areaServed": "BR",
+        "sameAs": [
+          "https://www.instagram.com/travelyx_oficial",
+          "https://www.facebook.com/travelyx_oficial",
+          "https://www.tiktok.com/@travelyx_oficial",
+          "https://twitter.com/travelyx_oficial",
+          "https://www.youtube.com/@travelyx_oficial",
+          "https://www.linkedin.com/company/travelyx"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://travelyx.com.br/#website",
+        "url": "https://travelyx.com.br",
+        "name": "Travelyx",
+        "description": "Planeje sua viagem completa: voos, hotéis, aluguel de carros e roteiros personalizados.",
+        "inLanguage": "pt-BR",
+        "publisher": { "@id": "https://travelyx.com.br/#organization" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://travelyx.com.br/?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "WebApplication",
+        "name": "Travelyx",
+        "url": "https://travelyx.com.br",
+        "description": "Planeje sua viagem completa: voos, hotéis, aluguel de carros e roteiros personalizados. Organize tudo em um só lugar.",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "pt-BR",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL"
+        },
+        "publisher": { "@id": "https://travelyx.com.br/#organization" }
+      }
+    ]
   }
   </script>
   <meta http-equiv="Content-Security-Policy" content="
