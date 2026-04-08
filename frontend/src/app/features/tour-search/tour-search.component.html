@@ -34,17 +34,6 @@
           </mat-form-field>
         </div>
 
-        <div class="dsp-divider"></div>
-
-        <!-- Keyword Filter -->
-        <div class="dsp-field">
-          <label>{{ 'activities.filterKeyword' | translate | uppercase }}</label>
-          <mat-form-field appearance="fill" class="dsp-input">
-            <input matInput formControlName="keyword" [placeholder]="'activities.filterKeywordPlaceholder' | translate" />
-            <mat-icon matPrefix>filter_list</mat-icon>
-          </mat-form-field>
-        </div>
-
         <!-- Submit Button -->
         <button type="submit" class="dsp-btn" [disabled]="tourSearchForm.invalid || isSearching()">
           @if (isSearching()) {
@@ -72,7 +61,7 @@
           <h3>Explore por categoria</h3>
           <div class="category-chips">
             @for (cat of activityCategories; track cat.label) {
-              <button class="category-chip" (click)="searchWithCategory(cat.label)">
+              <button class="category-chip" (click)="searchTours()">
                 <mat-icon>{{ cat.icon }}</mat-icon>
                 {{ cat.label }}
               </button>
@@ -160,6 +149,7 @@
         <mat-form-field appearance="outline" class="sort-field">
           <mat-label>{{ 'activities.sortBy' | translate }}</mat-label>
           <mat-select (selectionChange)="setSortBy($any($event).value)" [value]="sortBy()">
+            <mat-option value="default">{{ 'activities.sortDefault' | translate }}</mat-option>
             <mat-option value="price">{{ 'activities.sortPrice' | translate }}</mat-option>
             <mat-option value="rating">{{ 'activities.sortRating' | translate }}</mat-option>
           </mat-select>

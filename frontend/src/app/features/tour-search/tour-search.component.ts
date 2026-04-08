@@ -77,7 +77,6 @@ export class TourSearchComponent {
   // Form controls
   tourSearchForm = new FormGroup({
     destination: this.destinationControl,
-    keyword: new FormControl<string>(''),
   });
 
   // Autocomplete observable
@@ -105,7 +104,7 @@ export class TourSearchComponent {
   private currentOffset = 0;
   private readonly PAGE_SIZE = 20;
   private lastSearchParams: TourSearchParams | null = null;
-  sortBy = signal<'price' | 'rating'>('price');
+  sortBy = signal<'default' | 'price' | 'rating'>('default');
   errorMessage = signal<string | null>(null);
   errorSource = signal<string | null>(null);
 
@@ -133,8 +132,7 @@ export class TourSearchComponent {
     this.errorMessage.set(null);
     this.formCollapsed.set(true);
     this.currentOffset = 0;
-    const keyword = this.tourSearchForm.value.keyword?.trim() || '';
-    this.lastSearchParams = { destination, ...(keyword && { keyword }), sorting: this.getViatorSorting() };
+    this.lastSearchParams = { destination, sorting: this.getViatorSorting() };
 
     this.tourApi
       .searchToursPaginated(this.lastSearchParams, 0, this.PAGE_SIZE)
@@ -217,7 +215,7 @@ export class TourSearchComponent {
 
   // Set sort by — triggers new server-side search
   setSortBy(value: string): void {
-    this.sortBy.set(value as 'price' | 'rating');
+    this.sortBy.set(value as 'default' | 'price' | 'rating');
     if (this.hasSearched()) {
       this.searchTours();
     }
@@ -268,12 +266,7 @@ export class TourSearchComponent {
     });
   }
 
-  searchWithCategory(category: string): void {
-    this.tourSearchForm.get('keyword')?.setValue(category);
-    this.searchTours();
-  }
-
-  removeFromItinerary(id: string): void {
+removeFromItinerary(id: string): void {
     this.tripState.removeActivity(id);
     this.tripState.removeItineraryItem(
       this.tripState.itineraryItems().find(i => i.refId === id)?.id ?? ''
