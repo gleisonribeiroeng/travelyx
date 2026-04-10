@@ -3,8 +3,11 @@ import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MATERIAL_IMPORTS } from '../../core/material.exports';
+import { MatDialog } from '@angular/material/dialog';
 import { FlightApiService, AirportOption } from '../../core/api/flight-api.service';
 import { HotelApiService, DestinationOption } from '../../core/api/hotel-api.service';
+import { Stay } from '../../core/models/trip.models';
+import { ItemDetailDialogComponent, ItemDetailData } from '../../shared/components/item-detail-dialog/item-detail-dialog.component';
 import { AuthService } from '../../core/services/auth.service';
 import { Observable, of, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, map, catchError } from 'rxjs/operators';
@@ -14,9 +17,24 @@ import { TourApiService } from '../../core/api/tour-api.service';
 import { SeoService } from '../../core/services/seo.service';
 import { DESTINATION_DB } from '../../core/data/destinations.data';
 
+interface WizardHotel {
+  id: string;
+  name: string;
+  pricePerNight: number;
+  nights: number;
+  total: number;
+  rating: number;
+  photo?: string;
+  address?: string;
+  checkIn: string;
+  checkOut: string;
+  currency: string;
+  reviewCount: number;
+}
+
 interface WizardResult {
   flights: { origin: string; destination: string; price: number; airline: string; departure: string; duration: string }[];
-  hotels: { name: string; pricePerNight: number; nights: number; total: number; rating: number; photo?: string }[];
+  hotels: WizardHotel[];
   activities: { name: string; price: number; photo?: string; duration?: string; rating?: number }[];
   totalCost: number;
   savings: number;
@@ -36,6 +54,7 @@ export class PublicWizardComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
+  private readonly dialog = inject(MatDialog);
 
   // Wizard state
   readonly currentStep = signal(0);
@@ -400,13 +419,21 @@ export class PublicWizardComponent implements OnInit {
         }));
 
         const nights = this.calculateNights();
-        const hotels = (hotelResult?.data || []).map((h: any) => ({
+        const checkIn = this.departureDate() || this.getDefaultDate(14);
+        const checkOut = this.returnDate() || this.getDefaultDate(21);
+        const hotels: WizardHotel[] = (hotelResult?.data || []).map((h: any) => ({
+          id: h.id || '',
           name: h.name || 'Hotel',
           pricePerNight: h.pricePerNight?.total || h.price?.total || 0,
           nights,
           total: (h.pricePerNight?.total || h.price?.total || 0) * nights,
           rating: h.rating || h.stars || 4,
           photo: h.photoUrl || h.photo || '',
+          address: h.address || '',
+          checkIn,
+          checkOut,
+          currency: h.pricePerNight?.currency || 'BRL',
+          reviewCount: h.reviewCount || 0,
         }));
 
         const activities = (activityResult?.data || []).slice(0, 5).map((a: any) => ({
@@ -448,7 +475,7 @@ export class PublicWizardComponent implements OnInit {
     const destName = dest?.name || 'Destino';
     this.result.set({
       flights: [{ origin: 'GRU', destination: destName, price: 890, airline: 'Companhia Aérea', departure: this.departureDate(), duration: '3h 20m' }],
-      hotels: [{ name: `Hotel em ${destName}`, pricePerNight: 320, nights, total: 320 * nights, rating: 4.2, photo: '' }],
+      hotels: [{ id: '', name: `Hotel em ${destName}`, pricePerNight: 320, nights, total: 320 * nights, rating: 4.2, photo: '', address: '', checkIn: this.departureDate(), checkOut: this.returnDate(), currency: 'BRL', reviewCount: 0 }],
       activities: [
         { name: `City Tour ${destName}`, price: 120, duration: '3h', rating: 4.8 },
         { name: `Passeio de barco`, price: 180, duration: '4h', rating: 4.6 },
@@ -474,6 +501,32 @@ export class PublicWizardComponent implements OnInit {
     };
     localStorage.setItem('travelyx_public_wizard', JSON.stringify(state));
     window.location.href = this.authService.getGoogleLoginUrl();
+  }
+
+  openHotelDetail(hotel: WizardHotel): void {
+    if (!hotel.id) return;
+    const stay: Stay = {
+      id: hotel.id,
+      source: 'booking',
+      addedToItinerary: false,
+      name: hotel.name,
+      location: { latitude: 0, longitude: 0 },
+      address: hotel.address || '',
+      checkIn: hotel.checkIn,
+      checkOut: hotel.checkOut,
+      pricePerNight: { total: hotel.pricePerNight, currency: hotel.currency },
+      rating: hotel.rating,
+      reviewCount: hotel.reviewCount,
+      photoUrl: hotel.photo || null,
+      images: hotel.photo ? [hotel.photo] : [],
+      link: { url: '', provider: '' },
+    };
+    this.dialog.open(ItemDetailDialogComponent, {
+      width: '780px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { type: 'stay', item: stay, isAdded: false, readOnly: true } as ItemDetailData,
+    });
   }
 
   /** Format rating to 1 decimal place */

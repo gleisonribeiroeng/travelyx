@@ -14,12 +14,12 @@ import { TranslationService } from '../../../core/i18n/translation.service';
 // ─── Public API ────────────────────────────────────────────────────────────────
 
 export type ItemDetailData =
-  | { type: 'flight'; item: Flight; isAdded: boolean; isPaid?: boolean }
-  | { type: 'stay'; item: Stay; isAdded: boolean; isPaid?: boolean }
-  | { type: 'car-rental'; item: CarRental; isAdded: boolean; isPaid?: boolean }
-  | { type: 'transport'; item: Transport; isAdded: boolean; isPaid?: boolean }
-  | { type: 'activity'; item: Activity; isAdded: boolean; isPaid?: boolean }
-  | { type: 'attraction'; item: Attraction; isAdded: boolean; isPaid?: boolean };
+  | { type: 'flight'; item: Flight; isAdded: boolean; isPaid?: boolean; readOnly?: boolean }
+  | { type: 'stay'; item: Stay; isAdded: boolean; isPaid?: boolean; readOnly?: boolean }
+  | { type: 'car-rental'; item: CarRental; isAdded: boolean; isPaid?: boolean; readOnly?: boolean }
+  | { type: 'transport'; item: Transport; isAdded: boolean; isPaid?: boolean; readOnly?: boolean }
+  | { type: 'activity'; item: Activity; isAdded: boolean; isPaid?: boolean; readOnly?: boolean }
+  | { type: 'attraction'; item: Attraction; isAdded: boolean; isPaid?: boolean; readOnly?: boolean };
 
 export type ItemDetailResult =
   | { action: 'add'; selectedRoom?: HotelRoom | null }
@@ -87,7 +87,7 @@ function formatDate(iso: string): string {
     </div>
 
     <!-- Added banner -->
-    @if (data.isAdded) {
+    @if (data.isAdded && !data.readOnly) {
       <div class="added-banner">
         <mat-icon>check_circle</mat-icon>
         <span>Este item já está no seu roteiro</span>
@@ -317,7 +317,7 @@ function formatDate(iso: string): string {
                 <h3 class="section-title"><mat-icon>bed</mat-icon> Quartos disponíveis</h3>
                 <div class="rooms-list">
                   @for (room of hotelRooms(); track room.id) {
-                    <div class="room-card" [class.selected]="selectedRoom()?.id === room.id" (click)="selectRoom(room)">
+                    <div class="room-card" [class.selected]="!data.readOnly && selectedRoom()?.id === room.id" (click)="!data.readOnly && selectRoom(room)">
                       @if (room.photo) {
                         <img [src]="room.photo" class="room-photo" alt="" loading="lazy">
                       } @else {
@@ -354,9 +354,11 @@ function formatDate(iso: string): string {
                               <span class="room-total">· Total {{ room.currency }} {{ room.totalPrice | number:'1.0-0' }}</span>
                             }
                           </div>
-                          <div class="room-select-indicator">
-                            <mat-icon>{{ selectedRoom()?.id === room.id ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
-                          </div>
+                          @if (!data.readOnly) {
+                            <div class="room-select-indicator">
+                              <mat-icon>{{ selectedRoom()?.id === room.id ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+                            </div>
+                          }
                         </div>
                       </div>
                     </div>
@@ -751,28 +753,30 @@ function formatDate(iso: string): string {
     <mat-dialog-actions class="detail-actions">
       <button mat-button (click)="onClose()">Fechar</button>
       <div class="action-spacer"></div>
-      @if (data.isAdded) {
-        <button mat-stroked-button (click)="onTogglePaid()" [class.paid-active]="isPaid()">
-          <mat-icon>{{ isPaid() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-          {{ isPaid() ? 'Pago' : 'Marcar como pago' }}
-        </button>
-      }
-      @if (isManual() && data.isAdded) {
-        <button mat-stroked-button (click)="onEdit()">
-          <mat-icon>edit</mat-icon>
-          Editar
-        </button>
-      }
-      @if (data.isAdded) {
-        <button mat-stroked-button color="warn" (click)="onRemove()">
-          <mat-icon>delete_outline</mat-icon>
-          Remover do roteiro
-        </button>
-      } @else {
-        <button mat-flat-button color="primary" (click)="onAdd()">
-          <mat-icon>add</mat-icon>
-          Adicionar ao roteiro
-        </button>
+      @if (!data.readOnly) {
+        @if (data.isAdded) {
+          <button mat-stroked-button (click)="onTogglePaid()" [class.paid-active]="isPaid()">
+            <mat-icon>{{ isPaid() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            {{ isPaid() ? 'Pago' : 'Marcar como pago' }}
+          </button>
+        }
+        @if (isManual() && data.isAdded) {
+          <button mat-stroked-button (click)="onEdit()">
+            <mat-icon>edit</mat-icon>
+            Editar
+          </button>
+        }
+        @if (data.isAdded) {
+          <button mat-stroked-button color="warn" (click)="onRemove()">
+            <mat-icon>delete_outline</mat-icon>
+            Remover do roteiro
+          </button>
+        } @else {
+          <button mat-flat-button color="primary" (click)="onAdd()">
+            <mat-icon>add</mat-icon>
+            Adicionar ao roteiro
+          </button>
+        }
       }
     </mat-dialog-actions>
   `,

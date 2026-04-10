@@ -367,6 +367,7 @@ $muted: #64748b;
 // Hotel card with photo
 .pw-hotel-card {
   display: flex;
+  align-items: center;
   gap: 14px;
   padding: 14px;
   background: #fff;
@@ -374,6 +375,24 @@ $muted: #64748b;
   border-radius: 16px;
   margin-bottom: 10px;
   overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      border-color: $coral;
+      box-shadow: 0 2px 8px rgba($coral, 0.15);
+    }
+  }
+}
+
+.pw-hotel-chevron {
+  color: $muted;
+  flex-shrink: 0;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .pw-hotel-photo {

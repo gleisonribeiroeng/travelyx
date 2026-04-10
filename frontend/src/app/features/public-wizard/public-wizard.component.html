@@ -296,7 +296,7 @@
 
           <!-- Hotel card with photo -->
           @if (r.hotels.length > 0) {
-            <div class="pw-hotel-card">
+            <div class="pw-hotel-card" [class.pw-hotel-card--clickable]="r.hotels[0].id" (click)="openHotelDetail(r.hotels[0])">
               @if (r.hotels[0].photo) {
                 <img [src]="r.hotels[0].photo" alt="" class="pw-hotel-photo" loading="lazy" referrerpolicy="no-referrer">
               } @else {
@@ -307,12 +307,15 @@
                 <span>{{ r.hotels[0].nights }} noites &middot; {{ formatRating(r.hotels[0].rating) }} estrelas</span>
                 <span class="pw-hotel-price">{{ r.hotels[0].pricePerNight | dynamicCurrency }}/noite &middot; <strong>{{ r.hotels[0].total | dynamicCurrency }}</strong> total</span>
               </div>
+              @if (r.hotels[0].id) {
+                <mat-icon class="pw-hotel-chevron">chevron_right</mat-icon>
+              }
             </div>
             @if (r.hotels.length > 1) {
               <details class="pw-alternatives">
                 <summary>Ver hotéis alternativos ({{ r.hotels.length - 1 }})</summary>
                 @for (hotel of r.hotels.slice(1); track hotel.name) {
-                  <div class="pw-hotel-card pw-hotel-card--alt">
+                  <div class="pw-hotel-card pw-hotel-card--alt" [class.pw-hotel-card--clickable]="hotel.id" (click)="openHotelDetail(hotel)">
                     @if (hotel.photo) {
                       <img [src]="hotel.photo" alt="" class="pw-hotel-photo" loading="lazy" referrerpolicy="no-referrer">
                     } @else {
@@ -323,6 +326,9 @@
                       <span>{{ hotel.nights }} noites &middot; {{ formatRating(hotel.rating) }} estrelas</span>
                       <span class="pw-hotel-price">{{ hotel.pricePerNight | dynamicCurrency }}/noite &middot; <strong>{{ hotel.total | dynamicCurrency }}</strong> total</span>
                     </div>
+                    @if (hotel.id) {
+                      <mat-icon class="pw-hotel-chevron">chevron_right</mat-icon>
+                    }
                   </div>
                 }
               </details>
