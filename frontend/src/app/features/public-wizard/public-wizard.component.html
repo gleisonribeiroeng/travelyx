@@ -418,7 +418,7 @@
   </div>
 
   <!-- Navigation buttons -->
-  @if (currentStep() < 4 || (currentStep() === 4 && !hasResults())) {
+  @if (currentStep() < 4 || (currentStep() === 4 && !hasResults() && !isSearching())) {
     <div class="pw-nav">
       @if (currentStep() > 0) {
         <button class="pw-nav-back" (click)="back()">
