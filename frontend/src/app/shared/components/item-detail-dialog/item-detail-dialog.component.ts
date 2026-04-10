@@ -8,6 +8,7 @@ import {
 import { ExternalLink } from '../../../core/models/base.model';
 import { HotelApiService, HotelDetails, HotelRoom } from '../../../core/api/hotel-api.service';
 import { PriceAlertApiService, PriceAlert, PriceHistoryPoint } from '../../../core/api/price-alert-api.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
 
@@ -317,7 +318,7 @@ function formatDate(iso: string): string {
                 <h3 class="section-title"><mat-icon>bed</mat-icon> Quartos disponíveis</h3>
                 <div class="rooms-list">
                   @for (room of hotelRooms(); track room.id) {
-                    <div class="room-card" [class.selected]="!data.readOnly && selectedRoom()?.id === room.id" (click)="!data.readOnly && selectRoom(room)">
+                    <div class="room-card" [class.selected]="!data.readOnly && selectedRoom()?.id === room.id" (click)="onRoomClick(room)">
                       @if (room.photo) {
                         <img [src]="room.photo" class="room-photo" alt="" loading="lazy">
                       } @else {
@@ -364,6 +365,21 @@ function formatDate(iso: string): string {
                     </div>
                   }
                 </div>
+              </div>
+            }
+
+            <!-- Login prompt for readOnly mode -->
+            @if (showLoginPrompt()) {
+              <div class="login-prompt-banner">
+                <mat-icon>lock_open</mat-icon>
+                <div class="login-prompt-text">
+                  <strong>Quer adicionar este hotel ao seu roteiro?</strong>
+                  <span>Faça login gratuito para planejar sua viagem completa</span>
+                </div>
+                <button mat-flat-button color="primary" (click)="loginWithGoogle()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right:6px"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Entrar com Google
+                </button>
               </div>
             }
 
@@ -838,6 +854,42 @@ function formatDate(iso: string): string {
         font-size: 20px;
         width: 20px;
         height: 20px;
+      }
+    }
+
+    .login-prompt-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      margin-top: 12px;
+      background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+
+      > mat-icon {
+        color: #2563eb;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+
+      .login-prompt-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+
+        strong { font-size: 0.9rem; color: #1e293b; }
+        span { font-size: 0.8rem; color: #64748b; }
+      }
+
+      button {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        font-size: 0.85rem;
       }
     }
 
@@ -2592,6 +2644,7 @@ export class ItemDetailDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ItemDetailDialogComponent>);
   private readonly hotelApi = inject(HotelApiService);
   private readonly priceAlertApi = inject(PriceAlertApiService);
+  private readonly authService = inject(AuthService);
 
   /** Expose Math for template usage (e.g. Math.round in star rating) */
   readonly Math = Math;
@@ -2653,8 +2706,8 @@ export class ItemDetailDialogComponent implements OnInit {
       });
     }
 
-    // Load price alert for flights and hotels
-    if (this.data.type === 'flight' || this.data.type === 'stay') {
+    // Load price alert for flights and hotels (skip in readOnly — requires auth)
+    if (!this.data.readOnly && (this.data.type === 'flight' || this.data.type === 'stay')) {
       this.priceAlertApi.getAlerts().subscribe({
         next: alerts => {
           const itemId = this.data.item.id;
@@ -2704,8 +2757,22 @@ export class ItemDetailDialogComponent implements OnInit {
     }));
   }
 
+  readonly showLoginPrompt = signal(false);
+
+  onRoomClick(room: HotelRoom): void {
+    if (this.data.readOnly) {
+      this.showLoginPrompt.set(true);
+    } else {
+      this.selectRoom(room);
+    }
+  }
+
   selectRoom(room: HotelRoom): void {
     this.selectedRoom.set(this.selectedRoom()?.id === room.id ? null : room);
+  }
+
+  loginWithGoogle(): void {
+    window.location.href = this.authService.getGoogleLoginUrl();
   }
 
   openLightbox(index: number): void {
