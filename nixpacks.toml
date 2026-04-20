@@ -15,6 +15,7 @@ cmds = [
 [phases.build]
 cmds = [
   "cd frontend && npx ng build --configuration production",
+  "npm install --no-save marked gray-matter && node scripts/build-blog.js",
   "cd backend && npx prisma generate && npx nest build"
 ]
 

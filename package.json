@@ -8,7 +8,12 @@
     "postinstall": "npm run install:frontend && npm run install:backend",
     "build:frontend": "cd frontend && npx ng build --configuration production",
     "build:backend": "cd backend && npx prisma generate && npx nest build",
-    "build": "npm run build:frontend && npm run build:backend",
+    "build:blog": "node scripts/build-blog.js",
+    "build": "npm run build:frontend && npm run build:blog && npm run build:backend",
     "start": "cd backend && node dist/main"
+  },
+  "devDependencies": {
+    "gray-matter": "^4.0.3",
+    "marked": "^18.0.2"
   }
 }

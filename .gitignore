@@ -6,6 +6,7 @@ dist/
 out-tsc/
 tmp/
 bazel-out/
+blog-preview/
 
 # Angular
 frontend/.angular/

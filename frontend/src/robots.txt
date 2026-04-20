@@ -4,6 +4,8 @@ Allow: /voos
 Allow: /hoteis
 Allow: /passeios
 Allow: /planejar
+Allow: /blog
+Allow: /blog/
 Allow: /v/
 Disallow: /dashboard
 Disallow: /itinerary

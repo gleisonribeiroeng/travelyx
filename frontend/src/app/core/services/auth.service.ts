@@ -1,6 +1,7 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 
 export type Plan = 'FREE' | 'PRO' | 'BUSINESS';
@@ -18,6 +19,7 @@ export interface AuthUser {
 export class AuthService {
   private readonly TOKEN_KEY = 'triply_token';
   private readonly USER_KEY = 'triply_user';
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly _user = signal<AuthUser | null>(this.loadUser());
   private readonly _token = signal<string | null>(this.loadToken());
@@ -174,9 +176,9 @@ export class AuthService {
   }
 
   private loadToken(): string | null {
+    if (!this.isBrowser) return null;
     const token = localStorage.getItem(this.TOKEN_KEY);
     if (!token) return null;
-    // Security: reject expired tokens on load
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return null;
@@ -193,6 +195,7 @@ export class AuthService {
   }
 
   private loadUser(): AuthUser | null {
+    if (!this.isBrowser) return null;
     const stored = localStorage.getItem(this.USER_KEY);
     if (!stored) return null;
     try {
