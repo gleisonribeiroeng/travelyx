@@ -44,7 +44,6 @@ export class App implements OnInit, OnDestroy {
         const url = e.urlAfterRedirects;
         this.isLandingPage.set(
           url === '/' || url.startsWith('/landing') || url.startsWith('/auth/callback') ||
-          url.startsWith('/voos') || url.startsWith('/hoteis') || url.startsWith('/passeios') ||
           url.startsWith('/planejar')
         );
 

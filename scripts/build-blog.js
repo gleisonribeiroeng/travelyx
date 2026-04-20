@@ -23,9 +23,6 @@ const BLOG_OUT = path.join(DIST_DIR, 'blog');
 const SITEMAP_OUT = path.join(DIST_DIR, 'sitemap.xml');
 const STATIC_URLS = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
-  { loc: '/voos', priority: '0.8', changefreq: 'weekly' },
-  { loc: '/hoteis', priority: '0.8', changefreq: 'weekly' },
-  { loc: '/passeios', priority: '0.8', changefreq: 'weekly' },
   { loc: '/planejar', priority: '0.7', changefreq: 'weekly' },
   { loc: '/blog', priority: '0.9', changefreq: 'daily' },
   { loc: '/termos', priority: '0.3', changefreq: 'monthly' },
@@ -190,16 +187,11 @@ a:hover { color: var(--orange-hover); text-decoration: underline; }
 }
 .tl-logo {
   display: flex; align-items: center; gap: 10px;
-  font-family: 'Sora', sans-serif; font-weight: 800;
-  font-size: 18px; color: #fff; letter-spacing: 2.5px;
   text-decoration: none;
 }
-.tl-logo:hover { text-decoration: none; color: #fff; }
-.tl-logo-icon {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--orange) 0%, var(--orange-hover) 100%);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 6px 16px rgba(255,107,53,0.35);
+.tl-logo:hover { text-decoration: none; }
+.tl-logo-img {
+  height: 38px; width: auto; display: block;
 }
 .tl-nav { display: flex; gap: 28px; align-items: center; }
 .tl-nav a {
@@ -502,20 +494,15 @@ article.tl-article tr:last-child td { border-bottom: none; }
 // ──────────────────────────────────────────────────────────────
 // HTML templates
 // ──────────────────────────────────────────────────────────────
-const LOGO_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18" stroke="white" stroke-width="1.3"/><path d="M16 8l-4 4-1 3 3-1 4-4-2-2z" fill="white" stroke="white" stroke-width="0.5" stroke-linejoin="round"/></svg>`;
-
-function headerHtml() {
+function headerHtml(activePath = '/blog') {
+  const isBlogActive = activePath.startsWith('/blog');
   return `<header class="tl-header">
     <div class="tl-header-inner">
-      <a href="/" class="tl-logo">
-        <span class="tl-logo-icon">${LOGO_SVG}</span>
-        TRAVELYX
+      <a href="/" class="tl-logo" aria-label="Travelyx — Início">
+        <img src="/assets/Tra-removebg-preview.png" alt="Travelyx" class="tl-logo-img">
       </a>
       <nav class="tl-nav">
-        <a href="/voos">Voos</a>
-        <a href="/hoteis">Hotéis</a>
-        <a href="/passeios">Passeios</a>
-        <a href="/blog" class="active">Blog</a>
+        <a href="/blog/"${isBlogActive ? ' class="active"' : ''}>Blog</a>
         <a href="/planejar" class="tl-cta">Planejar viagem</a>
       </nav>
     </div>
@@ -529,13 +516,77 @@ function footerHtml() {
       <div>&copy; ${year} Travelyx — Da ideia ao embarque.</div>
       <div>
         <a href="/">Início</a>
-        <a href="/blog">Blog</a>
+        <a href="/blog/">Blog</a>
+        <a href="/planejar">Planejar viagem</a>
         <a href="/termos">Termos</a>
         <a href="/privacidade">Privacidade</a>
       </div>
     </div>
   </footer>`;
 }
+
+const COMMON_HEAD = `
+  <meta name="theme-color" content="#FF6B35">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+`;
+
+const ORG_JSONLD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: 'Travelyx',
+      alternateName: ['Travelyx Oficial', 'travelyx.com.br'],
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/assets/icons/icon-512x512.png`,
+        width: 512,
+        height: 512,
+      },
+      description: 'Travelyx é uma plataforma brasileira de planejamento de viagens: voos, hotéis, aluguel de carros, passeios e roteiros personalizados em um só lugar.',
+      areaServed: 'BR',
+      sameAs: [
+        'https://www.instagram.com/travelyx_oficial',
+        'https://www.tiktok.com/@travelyx_oficial',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: 'Travelyx',
+      description: 'Planeje sua viagem completa: voos, hotéis, aluguel de carros e roteiros personalizados.',
+      inLanguage: 'pt-BR',
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    },
+  ],
+};
+
+const ANALYTICS_SCRIPTS = `
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "w34xdmf22p");
+  </script>
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y8313DCJYY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y8313DCJYY');
+  </script>
+`;
 
 function ctaCardHtml(destination) {
   const dest = destination ? `?destino=${encodeURIComponent(destination)}` : '';
@@ -639,18 +690,16 @@ function postHtml(post, related = []) {
 
   <!-- RSS -->
   <link rel="alternate" type="application/rss+xml" title="Travelyx Blog" href="/blog/feed.xml">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+${COMMON_HEAD}
   <style>${SHARED_CSS}</style>
 
+  <script type="application/ld+json">${JSON.stringify(ORG_JSONLD)}</script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbs)}</script>
+${ANALYTICS_SCRIPTS}
 </head>
 <body>
-  ${headerHtml()}
+  ${headerHtml(`/blog/${post.slug}/`)}
 
   <main class="tl-container">
     <section class="tl-hero">
@@ -742,17 +791,15 @@ function listHtml(posts) {
   <meta name="twitter:description" content="Roteiros prontos, dicas de orçamento e guias práticos.">
 
   <link rel="alternate" type="application/rss+xml" title="Travelyx Blog" href="/blog/feed.xml">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+${COMMON_HEAD}
   <style>${SHARED_CSS}</style>
 
+  <script type="application/ld+json">${JSON.stringify(ORG_JSONLD)}</script>
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
+${ANALYTICS_SCRIPTS}
 </head>
 <body>
-  ${headerHtml()}
+  ${headerHtml('/blog/')}
 
   <main class="tl-container-wide">
     <section class="tl-list-hero">

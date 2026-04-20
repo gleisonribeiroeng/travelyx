@@ -1,12 +1,12 @@
 User-agent: *
 Allow: /
-Allow: /voos
-Allow: /hoteis
-Allow: /passeios
 Allow: /planejar
 Allow: /blog
 Allow: /blog/
 Allow: /v/
+Disallow: /voos
+Disallow: /hoteis
+Disallow: /passeios
 Disallow: /dashboard
 Disallow: /itinerary
 Disallow: /timeline

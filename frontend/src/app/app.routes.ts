@@ -18,21 +18,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth-callback/auth-callback.component').then(m => m.AuthCallbackComponent),
   },
-  {
-    path: 'voos',
-    loadComponent: () =>
-      import('./features/flights-showcase/flights-showcase.component').then(m => m.FlightsShowcaseComponent),
-  },
-  {
-    path: 'hoteis',
-    loadComponent: () =>
-      import('./features/hotels-showcase/hotels-showcase.component').then(m => m.HotelsShowcaseComponent),
-  },
-  {
-    path: 'passeios',
-    loadComponent: () =>
-      import('./features/tours-showcase/tours-showcase.component').then(m => m.ToursShowcaseComponent),
-  },
+  // Showcase pages removed — redirect to landing for SEO continuity
+  { path: 'voos', redirectTo: '', pathMatch: 'full' },
+  { path: 'hoteis', redirectTo: '', pathMatch: 'full' },
+  { path: 'passeios', redirectTo: '', pathMatch: 'full' },
   {
     path: 'v/:slug',
     loadComponent: () =>
