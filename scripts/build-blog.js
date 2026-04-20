@@ -32,7 +32,22 @@ const STATIC_URLS = [
   { loc: '/privacidade', priority: '0.3', changefreq: 'monthly' },
 ];
 
-marked.setOptions({ gfm: true, breaks: false, headerIds: true, mangle: false });
+marked.setOptions({ gfm: true, breaks: false });
+
+// Collect headings while rendering so we can build a TOC
+const headingRenderer = new marked.Renderer();
+let currentHeadings = [];
+headingRenderer.heading = function (tokenOrText, level, raw) {
+  const text = typeof tokenOrText === 'object' && tokenOrText !== null
+    ? (tokenOrText.text || '')
+    : String(tokenOrText);
+  const lvl = typeof tokenOrText === 'object' ? tokenOrText.depth : level;
+  const slug = slugify(text);
+  if (lvl === 2 || lvl === 3) {
+    currentHeadings.push({ level: lvl, text, slug });
+  }
+  return `<h${lvl} id="${slug}">${text}</h${lvl}>\n`;
+};
 
 function slugify(str) {
   return str
@@ -66,6 +81,9 @@ function readPosts() {
     if (!data.title) throw new Error(`[blog] Missing "title" in ${file}`);
     if (!data.description) throw new Error(`[blog] Missing "description" in ${file}`);
     if (!data.publishedAt) throw new Error(`[blog] Missing "publishedAt" in ${file}`);
+
+    currentHeadings = [];
+    const html = marked.parse(content, { renderer: headingRenderer });
     return {
       slug,
       title: data.title,
@@ -77,12 +95,38 @@ function readPosts() {
       coverAlt: data.coverAlt || data.title,
       tags: Array.isArray(data.tags) ? data.tags : [],
       category: data.category || 'Viagem',
-      html: marked.parse(content),
+      html,
+      headings: currentHeadings.slice(),
       readingTime: readingTime(content),
       ctaDestination: data.ctaDestination || '',
     };
   });
   return posts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+}
+
+function findRelated(post, allPosts, n = 3) {
+  const related = allPosts
+    .filter(p => p.slug !== post.slug)
+    .map(p => {
+      const shared = p.tags.filter(t => post.tags.includes(t)).length;
+      const sameCategory = p.category === post.category ? 1 : 0;
+      return { post: p, score: shared * 2 + sameCategory };
+    })
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n)
+    .map(x => x.post);
+
+  // Fallback: fill with most recent if not enough related
+  if (related.length < n) {
+    const used = new Set([post.slug, ...related.map(p => p.slug)]);
+    for (const p of allPosts) {
+      if (used.has(p.slug)) continue;
+      related.push(p);
+      if (related.length >= n) break;
+    }
+  }
+  return related;
 }
 
 function escapeXml(s) {
@@ -312,6 +356,66 @@ article.tl-article tr:last-child td { border-bottom: none; }
   text-decoration: none;
 }
 
+/* ─── TOC ─── */
+.tl-toc {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 24px; margin: 32px 0;
+}
+.tl-toc-label {
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 12px;
+}
+.tl-toc ol { list-style: none; padding: 0; margin: 0; }
+.tl-toc li { padding: 4px 0; font-size: 15px; }
+.tl-toc li.tl-toc-h3 { padding-left: 18px; font-size: 14px; }
+.tl-toc a { color: var(--text-muted); text-decoration: none; }
+.tl-toc a:hover { color: var(--orange); text-decoration: underline; }
+
+/* ─── Related posts ─── */
+.tl-related {
+  border-top: 1px solid var(--border);
+  padding: 50px 0 20px; margin-top: 30px;
+}
+.tl-related-label {
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 20px; text-align: center;
+}
+.tl-related h2 {
+  font-family: 'Sora', sans-serif; font-weight: 800;
+  font-size: 32px; color: #fff; text-align: center;
+  margin: 0 0 36px !important; letter-spacing: -0.3px;
+}
+.tl-related-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+.tl-related-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  text-decoration: none; color: var(--text);
+  display: flex; flex-direction: column;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.tl-related-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,107,53,0.4);
+  text-decoration: none; color: var(--text);
+}
+.tl-related-cover { aspect-ratio: 16/9; overflow: hidden; }
+.tl-related-cover img { width: 100%; height: 100%; object-fit: cover; }
+.tl-related-body { padding: 16px; }
+.tl-related-cat {
+  color: var(--orange); font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+}
+.tl-related-card h3 {
+  font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 17px; color: #fff; line-height: 1.3;
+  margin: 0 !important;
+}
+
 /* ─── Blog listing ─── */
 .tl-list-hero {
   padding: 80px 0 50px; text-align: center;
@@ -444,7 +548,36 @@ function ctaCardHtml(destination) {
   </div>`;
 }
 
-function postHtml(post) {
+function tocHtml(headings) {
+  if (!headings || headings.length < 3) return '';
+  const items = headings.map(h =>
+    `<li class="tl-toc-h${h.level}"><a href="#${h.slug}">${escapeHtml(h.text)}</a></li>`
+  ).join('\n      ');
+  return `<nav class="tl-toc" aria-label="Índice">
+    <div class="tl-toc-label">Neste post</div>
+    <ol>
+      ${items}
+    </ol>
+  </nav>`;
+}
+
+function relatedHtml(related) {
+  if (!related.length) return '';
+  const cards = related.map(p => `<a class="tl-related-card" href="/blog/${p.slug}/">
+    ${p.coverImage ? `<div class="tl-related-cover"><img src="${escapeHtml(p.coverImage)}" alt="${escapeHtml(p.coverAlt)}" loading="lazy"></div>` : ''}
+    <div class="tl-related-body">
+      <div class="tl-related-cat">${escapeHtml(p.category)}</div>
+      <h3>${escapeHtml(p.title)}</h3>
+    </div>
+  </a>`).join('\n');
+  return `<aside class="tl-related">
+    <div class="tl-related-label">Continue lendo</div>
+    <h2>Posts relacionados</h2>
+    <div class="tl-related-grid">${cards}</div>
+  </aside>`;
+}
+
+function postHtml(post, related = []) {
   const url = `${SITE_URL}/blog/${post.slug}/`;
   const ogImage = post.coverImage || `${SITE_URL}/assets/dashboard.png`;
   const jsonLd = {
@@ -538,9 +671,12 @@ function postHtml(post) {
     ${post.coverImage ? `<figure class="tl-cover"><img src="${escapeHtml(post.coverImage)}" alt="${escapeHtml(post.coverAlt)}" loading="eager"></figure>` : ''}
 
     <article class="tl-article">
+      ${tocHtml(post.headings)}
       ${post.html}
       ${ctaCardHtml(post.ctaDestination)}
     </article>
+
+    ${relatedHtml(related)}
   </main>
 
   ${footerHtml()}
@@ -698,8 +834,9 @@ function main() {
   for (const post of posts) {
     const postDir = path.join(BLOG_OUT, post.slug);
     ensureDir(postDir);
-    fs.writeFileSync(path.join(postDir, 'index.html'), postHtml(post), 'utf8');
-    console.log(`[blog] ✓ /blog/${post.slug}/`);
+    const related = findRelated(post, posts, 3);
+    fs.writeFileSync(path.join(postDir, 'index.html'), postHtml(post, related), 'utf8');
+    console.log(`[blog] ✓ /blog/${post.slug}/ (${related.length} related)`);
   }
 
   // Listing
