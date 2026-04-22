@@ -74,7 +74,7 @@
               <mat-option [value]="dest" (onSelectionChange)="onHeroDestSelected(dest)">{{ dest.label }}</mat-option>
             }
           </mat-autocomplete>
-          <button class="hero-search-btn" (click)="startPlanning()">
+          <button class="hero-search-btn" (click)="startPlanning()" [attr.aria-label]="'landing.hero.planTrip' | translate">
             {{ 'landing.hero.planTrip' | translate }} <mat-icon>arrow_forward</mat-icon>
           </button>
         </div>
